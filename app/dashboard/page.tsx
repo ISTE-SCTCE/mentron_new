@@ -80,7 +80,7 @@ export default async function DashboardPage() {
                                 <span className="w-10 h-[1px] bg-blue-500"></span>
                                 <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">System Overview</p>
                             </div>
-                            <h1 className="text-6xl font-black tracking-tighter text-white">
+                            <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white">
                                 {greeting}, <span className="text-glow text-blue-400">{displayName.split(' ')[0]}</span>
                             </h1>
                         </div>

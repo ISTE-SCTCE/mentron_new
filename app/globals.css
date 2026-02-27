@@ -140,6 +140,16 @@ body {
     animation: loadingSweep 1.4s ease-in-out infinite;
     width: 40%;
   }
+
+  /* Hide scrollbar but keep scrollable */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 @keyframes drift {

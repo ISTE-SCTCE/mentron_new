@@ -38,7 +38,7 @@ export default async function MarketplacePage() {
                 <p className="text-[10px] font-black tracking-[0.3em] text-purple-400 uppercase mb-4">
                     Coming Soon
                 </p>
-                <h1 className="text-6xl font-black tracking-tighter text-white mb-4">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white mb-4">
                     Marketplace
                 </h1>
                 <p className="text-gray-400 font-medium leading-relaxed text-base mb-10">

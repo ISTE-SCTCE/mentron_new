@@ -101,7 +101,7 @@ export default async function NotesPage({
                         </Link>
                         <div className="space-y-1">
                             <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Knowledge Base</p>
-                            <h1 className="text-5xl font-black tracking-tighter text-white">Academic Notes</h1>
+                            <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white">Academic Notes</h1>
                         </div>
                     </div>
 

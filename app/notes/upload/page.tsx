@@ -19,7 +19,7 @@ export default function NotesUploadPage() {
                         </Link>
                         <div className="space-y-1">
                             <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Contribution</p>
-                            <h1 className="text-5xl font-black tracking-tighter text-white">Upload Notes</h1>
+                            <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white">Upload Notes</h1>
                         </div>
                     </div>
                     <form action={logout}>

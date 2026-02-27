@@ -56,15 +56,15 @@ export function GlassNav() {
     ]
 
     return (
-        <header className="fixed top-8 left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-4 transition-all duration-300 pointer-events-auto">
+        <header className="fixed top-4 md:top-8 left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-2 md:gap-4 transition-all duration-300 pointer-events-auto max-w-[calc(100vw-1rem)] w-auto">
 
             {/* Logo */}
-            <Link href="/dashboard" className="flex items-center justify-center w-14 h-14 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 p-2 shrink-0 transition-all hover:bg-white/10 hover:border-[#7000df] hover:shadow-[0_0_20px_rgba(112,0,223,0.25)]">
-                <span className="font-display font-black text-2xl tracking-tighter text-white">M</span>
+            <Link href="/dashboard" className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 p-2 shrink-0 transition-all hover:bg-white/10 hover:border-[#7000df] hover:shadow-[0_0_20px_rgba(112,0,223,0.25)]">
+                <span className="font-display font-black text-xl md:text-2xl tracking-tighter text-white">M</span>
             </Link>
 
-            {/* Pill Navigation */}
-            <nav className="flex items-center gap-2 px-6 py-3 rounded-full bg-black/10 backdrop-blur-3xl border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+            {/* Pill Navigation — scrollable on mobile */}
+            <nav className="flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 rounded-full bg-black/10 backdrop-blur-3xl border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-x-auto no-scrollbar">
                 {navItems.map((item) => {
                     const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
                     const Icon = item.icon

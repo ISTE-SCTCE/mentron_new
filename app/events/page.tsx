@@ -18,14 +18,14 @@ export default async function EventsListPage() {
     return (
         <div className="min-h-screen p-8 pt-32 text-[#ededed]">
             <div className="max-w-6xl mx-auto">
-                <header className="flex justify-between items-center mb-16">
+                <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 md:mb-16">
                     <div className="flex items-center gap-8">
                         <Link href="/dashboard" className="text-gray-500 hover:text-white transition-all text-sm font-bold uppercase tracking-widest">
                             ← Dashboard
                         </Link>
                         <div className="space-y-1">
                             <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Experiences</p>
-                            <h1 className="text-5xl font-black tracking-tighter text-white">Upcoming Events</h1>
+                            <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white">Upcoming Events</h1>
                         </div>
                     </div>
                     <form action={logout}>

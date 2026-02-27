@@ -33,7 +33,7 @@ export default async function ProjectsPage() {
             <div className="max-w-6xl mx-auto">
                 <header className="mb-10">
                     <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase mb-3">Innovations</p>
-                    <h1 className="text-5xl font-black tracking-tighter text-white">Active Projects</h1>
+                    <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white">Active Projects</h1>
                     <p className="text-gray-500 text-sm font-medium mt-2">
                         Browse open internship positions and submit your application.
                     </p>

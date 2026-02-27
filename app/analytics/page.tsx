@@ -52,7 +52,7 @@ export default async function AnalyticsPage() {
                         <span className="w-10 h-[1px] bg-blue-500"></span>
                         <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">System Analytics</p>
                     </div>
-                    <h1 className="text-6xl font-black tracking-tighter text-white">Metrics Hub</h1>
+                    <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white">Metrics Hub</h1>
                     <p className="text-gray-500 text-sm font-medium mt-4 max-w-xl leading-relaxed">
                         System-wide statistics and performance metrics streaming in real-time.
                         Keep track of community engagement, content growth, and student demographics.
