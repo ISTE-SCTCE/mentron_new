@@ -10,7 +10,7 @@ export default function NotesUploadPage() {
     const error = searchParams.get('error')
 
     return (
-        <div className="min-h-screen p-8 text-[#ededed]">
+        <div className="min-h-screen pt-32 p-8 text-[#ededed]">
             <div className="max-w-2xl mx-auto">
                 <header className="flex justify-between items-center mb-16">
                     <div className="flex items-center gap-8">

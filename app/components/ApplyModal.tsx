@@ -125,7 +125,7 @@ export function ApplyModal({ projectId, projectTitle, userName, userEmail, onClo
     const canSubmit = file && !fileError && !uploading && !submitting
 
     return (
-        <div className="fixed inset-0 z-[9998] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9998] flex items-start justify-center p-4 pt-32 overflow-y-auto">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/70 backdrop-blur-md"

@@ -50,7 +50,7 @@ export function CreateGroupModal({ isOpen, onClose, onSubmit }: { isOpen: boolea
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 pt-32 overflow-y-auto">
             <div className="bg-[#0a0a0a] border border-[#1f2937] w-full max-w-md rounded-3xl p-6 shadow-2xl overflow-hidden relative" onClick={e => e.stopPropagation()}>
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-white">Create New Group</h2>

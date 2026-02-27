@@ -53,7 +53,7 @@ export function PurchaseModal({ item, buyerId, buyerName, onClose, onSuccess }: 
     }
 
     return (
-        <div className="fixed inset-0 z-[9998] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9998] flex items-start justify-center p-4 pt-32 overflow-y-auto">
             {/* Backdrop */}
             <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
 
@@ -118,8 +118,8 @@ export function PurchaseModal({ item, buyerId, buyerName, onClose, onSuccess }: 
                     onClick={handlePurchase}
                     disabled={loading}
                     className={`w-full font-black py-4 rounded-2xl text-sm uppercase tracking-widest transition-all active:scale-[0.98] ${confirmed && !loading
-                            ? 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20'
-                            : 'bg-white text-black hover:bg-emerald-500 hover:text-white shadow-lg'
+                        ? 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20'
+                        : 'bg-white text-black hover:bg-emerald-500 hover:text-white shadow-lg'
                         } disabled:bg-white/5 disabled:text-gray-600`}
                 >
                     {loading ? 'Processing…' : confirmed ? '✓ Tap Again to Confirm' : `Buy Now · ₹${item.price.toLocaleString('en-IN')}`}
