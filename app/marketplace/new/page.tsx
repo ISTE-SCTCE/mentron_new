@@ -9,7 +9,7 @@ export default function NewMarketplaceItemPage() {
     const error = searchParams.get('error')
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-[#ededed] pt-32 p-8">
+        <div className="min-h-screen bg-[#0a0a0a] text-[#ededed] pt-48 p-8">
             <div className="max-w-2xl mx-auto">
                 <header className="flex items-center gap-4 mb-12">
                     <Link href="/marketplace" className="text-gray-400 hover:text-white transition-all">
