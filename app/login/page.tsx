@@ -1,0 +1,60 @@
+'use client'
+
+import { login } from './actions'
+import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+
+export default function LoginPage() {
+    const searchParams = useSearchParams()
+    const error = searchParams.get('error')
+
+    return (
+        <div className="flex justify-center p-4 pt-16">
+            <div className="w-full max-w-md space-y-10 glass p-10 rounded-[3rem] shadow-2xl relative z-10">
+                <div className="text-center space-y-2">
+                    <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Secure Access</p>
+                    <h1 className="text-5xl font-black tracking-tighter text-white">Welcome</h1>
+                </div>
+
+                {error && (
+                    <div className="p-4 text-xs font-bold text-red-400 glass border-red-500/20 rounded-2xl text-center bg-red-500/5">
+                        {error}
+                    </div>
+                )}
+
+                <form action={login} className="space-y-6">
+                    <div className="space-y-4">
+                        <input
+                            name="email"
+                            type="email"
+                            placeholder="Email address"
+                            required
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
+                        />
+                        <input
+                            name="password"
+                            type="password"
+                            placeholder="Password"
+                            required
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="w-full mt-4 bg-white text-black hover:bg-gray-200 font-black py-5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all text-lg uppercase tracking-widest"
+                    >
+                        Login
+                    </button>
+                </form>
+
+                <p className="text-center text-sm font-bold text-gray-500">
+                    New to the club?{' '}
+                    <Link href="/signup" className="text-blue-500 hover:text-white transition-colors">
+                        Sign up
+                    </Link>
+                </p>
+            </div>
+        </div>
+    )
+}

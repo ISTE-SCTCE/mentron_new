@@ -1,0 +1,1192 @@
+@import 'variables.css';
+
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html.lenis {
+    height: auto;
+}
+
+.lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+    overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+    pointer-events: none;
+}
+
+body {
+    background: var(--bg-deep);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+}
+
+/* LAYOUT STRUCTURE */
+.app-container {
+    position: relative;
+    z-index: 10;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* HEADER - Contains separate Logo + Nav */
+.glass-header {
+    position: fixed;
+    top: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    /* Space between logo circle and nav bar */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
+
+.glass-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    border-radius: 999px;
+    /* Pill shape */
+    background: rgba(10, 10, 15, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    position: relative;
+    /* For Pebble */
+}
+
+
+/* THE PEBBLE */
+/* Pebble hidden */
+.nav-pebble {
+    display: none !important;
+}
+
+
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem;
+    border-radius: 999px;
+    background: transparent;
+    border: 1px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+}
+
+
+.nav-link img {
+    width: 35px;
+    height: 35px;
+    flex-shrink: 0;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+
+
+.nav-link span {
+    font-size: 0;
+    opacity: 0;
+    max-width: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-left: 0;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #fff;
+    /* Clear glass lens effect - no gradient */
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem 0.5rem 0.5rem;
+    gap: 0.5rem;
+}
+
+
+
+.nav-link:hover img,
+.nav-link.active img {
+    opacity: 1;
+}
+
+.nav-link:hover span,
+.nav-link.active span {
+    font-size: 0.85rem;
+    opacity: 1;
+    max-width: 100px;
+    margin-left: 0.25rem;
+}
+
+.nav-more-btn {
+    display: none;
+}
+
+
+
+/* Logo Circle (Left side) */
+.logo-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 67px;
+    height: 67px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+    padding: 8px;
+    flex-shrink: 0;
+}
+
+.logo-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 20px rgba(112, 0, 223, 0.25);
+}
+
+.logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+}
+
+/* ISTE Logo (Right side) */
+.logo-link-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 67px;
+    height: 67px;
+    padding: 8px;
+    background: #000;
+    backdrop-filter: blur(20px);
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.logo-link-right:hover {
+    background: rgba(0, 0, 0, 0.8);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 20px rgba(112, 0, 223, 0.25);
+}
+
+.logo-img-right {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+}
+
+
+/* MOBILE HAMBURGER MENU */
+
+.menu-toggle {
+    display: none;
+    /* Hidden on desktop */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1001;
+}
+
+.menu-toggle span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: #fff;
+    margin: 3px 0;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+/* Hamburger to X animation */
+.menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Mobile Navigation Drawer */
+.nav-links {
+    display: contents;
+    /* On desktop, behaves as if not there */
+}
+
+/* Desktop Join Button in Nav - HIDDEN */
+.nav-join-btn {
+    display: none !important;
+}
+
+/* Mobile Join Button - HIDDEN */
+.mobile-join-btn {
+    display: none !important;
+}
+
+
+
+
+/* HERO SECTION */
+.hero-revamp {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding-top: 5rem;
+}
+
+.hero-super-title {
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 10vw, 8rem);
+    font-weight: 900;
+    line-height: 0.9;
+    background: linear-gradient(180deg, #fff 0%, #aaa 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 2rem;
+    letter-spacing: -0.04em;
+    /* Typography Animation - slide up only */
+    animation: heroTextReveal 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    opacity: 0;
+    transform: translateY(40px);
+}
+
+
+@keyframes heroTextReveal {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes heroGlow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.2));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 60px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 100px rgba(100, 200, 255, 0.2));
+    }
+}
+
+/* Animated text spans for letter effects */
+.hero-super-title .char {
+    display: inline-block;
+    animation: charReveal 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+@keyframes charReveal {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+.hero-desc {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin-bottom: 3rem;
+    line-height: 1.6;
+}
+
+/* MAGNETIC BUTTON */
+.magnetic-btn {
+    display: inline-block;
+    padding: 1.25rem 3rem;
+    border-radius: 999px;
+    background: #fff;
+    color: #000;
+    font-weight: 700;
+    text-decoration: none;
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    transition: transform 0.1s;
+    border: none;
+    cursor: pointer;
+}
+
+.magnetic-btn.secondary {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    margin-left: 1rem;
+    backdrop-filter: blur(10px);
+}
+
+/* ABOUT US SPECIFIC */
+#about-us-text {
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.7;
+    font-size: 1.1rem;
+    font-weight: 400;
+    max-width: 1000px;
+}
+
+@media screen and (min-width: 901px) {
+    #about-us-text {
+        font-size: 1.35rem;
+    }
+}
+
+/* SECTIONS (Glass Cards) */
+.content-section {
+    padding: 8rem 0;
+}
+
+.section-head {
+    margin-bottom: 4rem;
+    text-align: center;
+}
+
+.section-head h2 {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.grid-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.glass-card {
+    background: var(--glass-surface);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 2.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* Smooth hover lift */
+    position: relative;
+    overflow: hidden;
+    /* Necessary for the glow isolation */
+    z-index: 1;
+    /* Ensure content is above glow if needed */
+}
+
+/* Base transparent border that will be lit up */
+/* Base transparent border that will be lit up */
+.glass-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    /* Thicker border */
+    background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y),
+            var(--accent-secondary),
+            transparent 60%);
+
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 2;
+    /* Sit above content */
+}
+
+/* Secondary spotlight inside the card */
+.glass-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(500px circle at var(--mouse-x) var(--mouse-y),
+            rgba(0, 198, 255, 0.1),
+            transparent 40%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Hover State */
+.glass-card:hover::before,
+.glass-card:hover::after {
+    opacity: 1;
+}
+
+/* Exclusion Class */
+.glass-card.no-glow::before,
+.glass-card.no-glow::after {
+    display: none !important;
+}
+
+/* Handled by JS mousemove usually, but keeping simple here */
+
+
+.glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.card-icon {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: var(--accent-secondary);
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.card-desc {
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+/* PAGE TRANSITION OVERLAY */
+.transition-video-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    pointer-events: none;
+    overflow: hidden;
+    /* Initially hidden via clip-path, controlled by JS */
+    clip-path: circle(0% at 50% 50%);
+    visibility: hidden;
+    /* Avoid GPU usage when not active */
+}
+
+.transition-video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* FOOTER */
+.glass-footer {
+    border-top: 1px solid var(--glass-border);
+    padding: 4rem 2rem;
+    margin-top: 4rem;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+/* PERSISTENT VIDEO BACKGROUND */
+.page-video-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.page-video-bg video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.4;
+}
+
+/* BIDIRECTIONAL FADE OVERLAY */
+/* Covers the entire page. Starts opaque (black), fades out on load to reveal content.
+   When navigating, fades in to black before navigating.
+   GPU accelerated for smooth performance. */
+.page-fade-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    /* Solid black for fastest paint */
+    z-index: 9998;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity;
+    transform: translateZ(0);
+    /* Force GPU layer */
+}
+
+.page-fade-overlay.fade-out {
+    opacity: 0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - TABLETS & PHONES
+   ============================================ */
+
+/* ============================================
+   RESPONSIVE DESIGN - TABLETS & PHONES
+   ============================================ */
+
+/* TABLET & MOBILE SHARED STYLES (Max Width 900px to be safe) */
+@media screen and (max-width: 900px) {
+
+    /* Layout */
+    .app-container {
+        padding: 0 1rem;
+    }
+
+    /* ================================================
+       MOBILE NAVBAR - FULL WIDTH GLASS STYLE
+       ================================================ */
+    .glass-header {
+        display: none !important;
+        /* Hide original header, replaced by Bubble Menu */
+        position: fixed;
+        top: 0.75rem;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        transform: none !important;
+        width: calc(100% - 1.5rem);
+        max-width: calc(100% - 1.5rem);
+        height: auto;
+        padding: 1.5rem 2rem;
+        /* Increased from 1rem 1.5rem */
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        z-index: 10000;
+        /* Reset visual styles to prevent containing block creation */
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+
+    .glass-header::before {
+        content: none;
+        /* Remove pill shape background on mobile */
+        display: none;
+    }
+
+    /* Glass nav container - simplified */
+    .glass-nav {
+        width: auto;
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        box-shadow: none;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 0;
+        order: 2;
+    }
+
+    /* Logo styling for pill navbar */
+    .logo-link {
+        position: static;
+        order: 1;
+        width: 48px;
+        height: 48px;
+        padding: 4px;
+        background: transparent;
+        border: none;
+        flex-shrink: 0;
+    }
+
+    .logo-link-right {
+        display: none;
+        /* Hide second logo on mobile pill navbar */
+    }
+
+    .logo-img {
+        filter: brightness(1.1);
+    }
+
+    /* HAMBURGER MENU - Show on mobile */
+    .menu-toggle {
+        display: flex !important;
+        order: 3;
+        width: 48px;
+        height: 48px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .menu-toggle:hover,
+    .menu-toggle:active {
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .menu-toggle span {
+        width: 22px;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.9);
+        margin: 2px 0;
+        border-radius: 2px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Hamburger X animation */
+    .menu-toggle.active span:nth-child(1) {
+        transform: rotate(45deg) translate(4px, 4px);
+    }
+
+    .menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+        transform: scaleX(0);
+    }
+
+    .menu-toggle.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(4px, -4px);
+    }
+
+    /* Hide Desktop Pebble */
+    .nav-pebble {
+        display: none !important;
+        opacity: 0 !important;
+    }
+
+    .nav-pebble {
+        display: none !important;
+    }
+
+    /* Hide More Button on this design */
+    .nav-more-btn {
+        display: none !important;
+    }
+
+    /* NAV LINKS - Full screen drawer (HIDDEN by default) */
+    .nav-links {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        background: rgba(3, 3, 5, 0.98) !important;
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        display: none !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+        padding: 2rem !important;
+        padding-top: 5rem !important;
+        z-index: 9995 !important;
+        overflow-y: auto;
+    }
+
+    .nav-links.active {
+        display: flex !important;
+    }
+
+    .nav-link {
+        position: relative !important;
+        padding: 1rem 2rem !important;
+        font-size: 1.1rem !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 16px !important;
+        white-space: nowrap;
+        color: rgba(255, 255, 255, 0.9) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 1rem !important;
+        width: 100% !important;
+        max-width: 280px !important;
+        justify-content: flex-start !important;
+        text-decoration: none !important;
+        transition: all 0.3s ease;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+    }
+
+    .nav-link img {
+        width: 24px;
+        height: 24px;
+        opacity: 0.9;
+    }
+
+    .nav-link span {
+        font-size: 1rem;
+        opacity: 1;
+        max-width: none;
+        margin-left: 0;
+        display: block;
+        font-weight: 500;
+    }
+
+    .nav-link:hover,
+    .nav-link:active,
+    .nav-link.active {
+        background: rgba(112, 0, 223, 0.2);
+        border-color: rgba(112, 0, 223, 0.4);
+        color: #fff;
+    }
+
+    /* Hide join buttons inside nav */
+    .nav-join-btn,
+    .mobile-join-btn {
+        display: none !important;
+    }
+
+    /* Nav Overlay - darker background */
+    .nav-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 998;
+    }
+
+    .nav-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* ================================================
+       REST OF MOBILE STYLES
+       ================================================ */
+
+    /* Hero Section - Add padding for floating nav */
+    .hero-revamp {
+        padding-top: 120px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        min-height: auto;
+        padding-bottom: 3rem;
+    }
+
+    .hero-super-title {
+        font-size: clamp(5rem, 18vw, 7rem) !important;
+        margin-bottom: 2rem;
+        line-height: 0.95 !important;
+    }
+
+    .hero-desc {
+        font-size: 0.95rem;
+        padding: 0 1rem;
+        opacity: 0.8;
+        margin-bottom: 2.5rem;
+    }
+
+    .hero-actions {
+        display: flex !important;
+        flex-direction: column;
+        gap: 1rem !important;
+        /* Reduced from 2rem */
+        width: 100%;
+        max-width: 350px;
+        /* Slightly wider */
+    }
+
+    .magnetic-btn {
+        width: 100%;
+        text-align: center;
+        padding: 1.2rem;
+        margin-bottom: 0;
+        /* Let gap handle it, but fallback below */
+    }
+
+    /* Removed explicit margin-bottom fallback to avoid double spacing */
+    .hero-actions .magnetic-btn:first-child {
+        margin-bottom: 0;
+    }
+
+    .magnetic-btn.secondary {
+        margin-left: 0;
+    }
+
+    /* Content Cards */
+    .content-section {
+        padding: 3rem 0;
+    }
+
+    .section-head h2 {
+        font-size: 2rem;
+    }
+
+    .section-head p {
+        font-size: 0.9rem;
+        padding: 0 1rem;
+    }
+
+    .grid-cards {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    /* Sticky fixes */
+    .glass-card[style*="sticky"] {
+        position: relative !important;
+        top: 0 !important;
+    }
+}
+
+/* SMALL MOBILE (Phones) */
+@media screen and (max-width: 480px) {
+    .glass-header {
+        padding: 0.5rem;
+    }
+
+    .nav-link {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+    }
+
+    .nav-link img {
+        width: 16px;
+        height: 16px;
+    }
+
+    .logo-link,
+    .logo-link-right {
+        width: 40px;
+        height: 40px;
+    }
+
+    .hero-revamp {
+        padding-top: 160px;
+    }
+
+    .hero-super-title {
+        font-size: 2.25rem;
+    }
+
+    /* Ensure no horizontal scroll */
+    html,
+    body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+}
+
+/* LANDSCAPE Mobile */
+@media screen and (max-width: 900px) and (orientation: landscape) {
+    .hero-revamp {
+        min-height: auto;
+        padding-top: 120px;
+        padding-bottom: 2rem;
+    }
+
+    .nav-link {
+        padding: 0.3rem 0.6rem;
+    }
+}
+
+/* Touch Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .glass-card:hover {
+        border-color: var(--glass-border);
+    }
+
+    .nav-link {
+        min-height: 40px;
+        /* Reasonable touch target */
+    }
+}
+
+/* Page Specific Fixes */
+
+/* Member/Gallery Image Sizing */
+@media screen and (max-width: 768px) {
+    .glass-card div[style*="border-radius: 50%"] {
+        /* Maintain size but ensure fit */
+        width: 80px !important;
+        height: 80px !important;
+    }
+
+    .glass-card img {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+/* Forms - Stack them */
+@media screen and (max-width: 768px) {
+
+    .grid-cards[style*="2fr 1fr"],
+    .grid-cards[style*="1fr 2fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+        width: 100%;
+    }
+}
+
+/* EVENTS PAGE */
+@media screen and (max-width: 768px) {
+    .filter-bar {
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .filter-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .event-img {
+        height: 150px !important;
+    }
+}
+
+/* EXECom Team Pyramid Layout */
+.execom-pyramid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+    margin-bottom: 4rem;
+}
+
+.grid-row {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Space adjustment for pyramid rows */
+.advisor-row {
+    margin-bottom: 1.5rem;
+}
+
+.core-row {
+    margin-bottom: 1.5rem;
+}
+
+.next-row {
+    margin-bottom: 1.2rem;
+}
+
+.bottom-row {
+    margin-bottom: 0;
+}
+
+/* Uniform Execom card sizing and reduced height */
+.execom-pyramid .glass-card {
+    min-width: 270px;
+    max-width: 270px;
+    height: 290px;
+    display: flex;
+    flex-direction: column;
+    align-items: center !important;
+    justify-content: flex-start;
+    padding: 1.25rem 1rem 1rem 1rem;
+    box-sizing: border-box;
+}
+
+.execom-pyramid .glass-card>div[style*="border-radius: 50%"] {
+    width: 80px !important;
+    height: 80px !important;
+    margin-bottom: 1rem !important;
+}
+
+/* Consistent blank/empty/extras for symmetry */
+.execom-pyramid .glass-card[style*="background: transparent"] {
+    border: none;
+    box-shadow: none;
+    height: 290px;
+    min-width: 270px;
+    max-width: 270px;
+    pointer-events: none;
+}
+
+/* SINGLE COLUMN ON MOBILE (Strict) */
+@media (max-width: 900px) {
+    .execom-pyramid {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: 2rem;
+    }
+
+    .execom-pyramid .grid-row {
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .execom-pyramid .glass-card {
+        min-width: 250px;
+        max-width: 90%;
+        width: 90%;
+        /* Force width */
+        height: auto;
+        min-height: 250px;
+        padding: 1.5rem;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .execom-pyramid .glass-card[style*="background: transparent"] {
+        display: none !important;
+    }
+
+    .execom-pyramid .glass-card>div[style*="border-radius: 50%"] {
+        width: 100px !important;
+        height: 100px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+    }
+
+    .card-desc {
+        font-size: 1rem;
+    }
+}
+
+/* FLOATING JOIN BUTTON */
+.floating-join-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 1rem 2rem;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 5000;
+    transition: all 0.3s ease;
+    font-family: var(--font-display, 'Inter', sans-serif);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    /* Attraction Animation */
+    animation: pulse-glow 3s infinite ease-in-out;
+}
+
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 25px 5px rgba(0, 123, 255, 0.7);
+        transform: scale(1.08);
+        border-color: rgba(0, 123, 255, 0.6);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+        transform: scale(1);
+    }
+}
+
+.floating-join-btn::after {
+    content: '→';
+    transition: transform 0.3s ease;
+}
+
+.floating-join-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.floating-join-btn:hover::after {
+    transform: translateX(4px);
+}
+
+@media screen and (max-width: 768px) {
+    .floating-join-btn {
+        bottom: 1.5rem;
+        right: 1.5rem;
+        padding: 0.8rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}

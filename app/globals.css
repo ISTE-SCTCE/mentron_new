@@ -1,0 +1,254 @@
+@import "tailwindcss";
+
+:root {
+  --bg-deep: #030305;
+  --bg-surface: #0a0a0f;
+  --accent-primary: #7000df;
+  --accent-secondary: #00c6ff;
+  --text-main: #ffffff;
+  --text-muted: #8b9bb4;
+  --glass-surface: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shine: rgba(255, 255, 255, 0.15);
+  --glass-blur: 20px;
+}
+
+@theme inline {
+  --color-background: var(--bg-deep);
+  --color-foreground: var(--text-main);
+  --color-primary: var(--accent-primary);
+  --color-secondary: var(--accent-secondary);
+  --color-muted: var(--text-muted);
+  --color-glass: var(--glass-surface);
+  --color-glass-border: var(--glass-border);
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+}
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-main);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer utilities {
+  .glass {
+    background: var(--glass-surface);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-top-color: var(--glass-shine);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  .glass-card {
+    background: var(--glass-surface);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 2.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .glass-hover {
+    transition: all 0.3s ease;
+  }
+
+  .glass-hover:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(59, 130, 246, 0.5) !important;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+  }
+
+  ::placeholder {
+    color: rgba(156, 163, 175, 0.7);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(19, 91, 236, 0.5);
+  }
+
+  .mesh-gradient {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    background: radial-gradient(at 0% 0%, #030303 0%, transparent 50%),
+      radial-gradient(at 100% 0%, #030303 0%, transparent 50%),
+      radial-gradient(at 100% 100%, #030303 0%, transparent 50%),
+      radial-gradient(at 0% 100%, #030303 0%, transparent 50%);
+  }
+
+  .liquid-blob {
+    position: fixed;
+    width: 60vw;
+    height: 60vw;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: -1;
+    opacity: 0.4;
+    pointer-events: none;
+    animation: drift 20s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
+  }
+
+  .noise-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    opacity: 0.02;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
+  .content-offset {
+    padding-top: 120px;
+  }
+
+  /* Loading bar sweep animation */
+  .loading-bar {
+    animation: loadingSweep 1.4s ease-in-out infinite;
+    width: 40%;
+  }
+}
+
+@keyframes drift {
+  0% {
+    transform: translate(-10%, -10%) scale(1);
+  }
+
+  100% {
+    transform: translate(10%, 10%) scale(1.1);
+  }
+}
+
+@keyframes loadingSweep {
+  0% {
+    transform: translateX(-150%);
+  }
+
+  100% {
+    transform: translateX(350%);
+  }
+}
+
+/* Loading overlay - icon bounce */
+.loading-icon-bounce {
+  animation: iconBounce 0.8s ease-in-out infinite alternate;
+}
+
+/* Loading overlay - pulse ring */
+.loading-ring {
+  animation: pulseRing 1.6s ease-out infinite;
+}
+
+/* Loading overlay - blob drift */
+.loading-blob {
+  animation: blobDrift 3s ease-in-out infinite alternate;
+}
+
+/* Loading overlay - text fade up */
+.loading-fade-up {
+  animation: fadeUp 0.4s ease both;
+}
+
+.loading-fade-up-delay {
+  animation: fadeUp 0.4s ease 0.08s both;
+}
+
+@keyframes iconBounce {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    transform: translateY(-8px) scale(1.05);
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    box-shadow: 0 0 0 0 currentColor;
+    opacity: 0.8;
+  }
+
+  70% {
+    box-shadow: 0 0 0 20px currentColor;
+    opacity: 0;
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 currentColor;
+    opacity: 0;
+  }
+}
+
+@keyframes blobDrift {
+  0% {
+    transform: translate(-20%, -20%) scale(0.9);
+  }
+
+  100% {
+    transform: translate(20%, 20%) scale(1.1);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Light Mode Overrides */
+.light-mode body {
+  filter: invert(1) hue-rotate(180deg);
+  background: white;
+  /* Force white background to invert cleanly if variable fails */
+}
+
+.light-mode img,
+.light-mode video,
+.light-mode .grayscale-none,
+.light-mode [data-ignore-invert="true"] {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+.light-mode .text-glow {
+  text-shadow: 0 0 20px rgba(19, 91, 236, 0.8);
+}

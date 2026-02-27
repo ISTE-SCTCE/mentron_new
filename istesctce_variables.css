@@ -1,0 +1,50 @@
+:root {
+  /* Base Colors */
+  --bg-deep: #030305;
+  --bg-surface: #0a0a0f;
+
+  /* Accents - Neon Purple/Blue/Pink */
+  --accent-primary: #7000df;
+  --accent-secondary: #00c6ff;
+  --accent-glow: #ff0055;
+
+  /* Text */
+  --text-main: #ffffff;
+  --text-muted: #8b9bb4;
+
+  /* Glass Effect Tokens */
+  --glass-surface: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shine: rgba(255, 255, 255, 0.15);
+  --glass-blur: 20px;
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+
+  /* Animation */
+  --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Typography */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+body {
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  cursor: default;
+  /* We might add a custom cursor later */
+}
+
+/* Base Glass Class */
+.glass-panel {
+  background: var(--glass-surface);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-top-color: var(--glass-shine);
+  /* Subtle top highlight */
+  box-shadow: var(--glass-shadow);
+  border-radius: 24px;
+}

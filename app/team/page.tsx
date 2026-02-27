@@ -1,0 +1,59 @@
+import Link from 'next/link'
+import { logout } from '@/app/login/actions'
+
+const EXECOM = [
+    { name: "Adarsh S", role: "Chairperson", dept: "CSE", img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Adarsh" },
+    { name: "Nandana S", role: "Secretary", dept: "ECE", img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Nandana" },
+    { name: "Sarvesh S", role: "Technical Lead", dept: "CSE", img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarvesh" },
+    { name: "Ananya R", role: "Design Lead", dept: "BT", img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ananya" },
+]
+
+export default function TeamPage() {
+    return (
+        <div className="min-h-screen p-8 pt-32 text-[#ededed]">
+            <div className="max-w-6xl mx-auto">
+                <header className="flex justify-between items-center mb-16">
+                    <div className="flex items-center gap-8">
+                        <Link href="/dashboard" className="text-gray-500 hover:text-white transition-all text-sm font-bold uppercase tracking-widest">
+                            ← Dashboard
+                        </Link>
+                        <div className="space-y-1">
+                            <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Leadership</p>
+                            <h1 className="text-5xl font-black tracking-tighter text-white">The EXECOM</h1>
+                        </div>
+                    </div>
+                    <form action={logout}>
+                        <button className="bg-red-500/10 hover:bg-red-500/20 text-red-500 px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition-all border border-red-500/20">
+                            Logout
+                        </button>
+                    </form>
+                </header>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {EXECOM.map((member, index) => (
+                        <div
+                            key={index}
+                            className="glass glass-hover p-8 rounded-[3rem] text-center group flex flex-col items-center"
+                        >
+                            <div className="w-32 h-32 rounded-[2rem] overflow-hidden mb-6 border-2 border-white/5 group-hover:border-blue-500/50 transition-all p-2 bg-white/5">
+                                <img src={member.img} alt={member.name} className="w-full h-full object-cover rounded-[1.5rem]" />
+                            </div>
+                            <h2 className="text-xl font-black text-white mb-1 group-hover:text-glow transition-all">{member.name}</h2>
+                            <p className="text-blue-500 text-[10px] font-black uppercase tracking-[0.2em] mb-4">{member.role}</p>
+                            <div className="mt-auto px-4 py-1.5 glass rounded-full text-[9px] font-black tracking-widest text-gray-500 uppercase">
+                                {member.dept} DEPARTMENT
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="mt-24 p-16 glass rounded-[4rem] text-center space-y-8 bg-blue-500/5 border-blue-500/20 shadow-[0_0_50px_rgba(59,130,246,0.1)]">
+                    <h2 className="text-4xl font-black tracking-tighter text-white uppercase italic">Built by Students, <br />for Students.</h2>
+                    <p className="text-gray-400 max-w-xl mx-auto font-medium leading-relaxed">
+                        The Executive Committee is dedicated to fostering a culture of innovation and excellence within SCTCE. Connect with us to start your journey.
+                    </p>
+                </div>
+            </div>
+        </div>
+    )
+}
