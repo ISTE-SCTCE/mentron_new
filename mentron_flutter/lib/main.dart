@@ -66,10 +66,15 @@ class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final supabase = Provider.of<SupabaseService>(context);
-    return StreamBuilder(
+    return StreamBuilder<AuthState>(
       stream: supabase.authStateChanges,
       builder: (context, snapshot) {
-        if (supabase.currentUser != null) return const MainScaffold();
+        // Check session from snapshot for most reliable state
+        final session = snapshot.data?.session ?? supabase.client.auth.currentSession;
+        
+        if (session != null) {
+          return const MainScaffold();
+        }
         return const LoginScreen();
       },
     );

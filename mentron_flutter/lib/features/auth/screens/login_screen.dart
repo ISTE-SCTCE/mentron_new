@@ -7,6 +7,7 @@ import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import 'signup_screen.dart';
 import '../../../core/utils/error_handler.dart';
+import '../../../core/main_scaffold.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,14 +22,33 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   Future<void> _handleLogin() async {
+    final email = _emailController.text.trim().toLowerCase();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter email and password')),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
       final supabase = Provider.of<SupabaseService>(context, listen: false);
-      await supabase.signIn(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+      final response = await supabase.signIn(
+        email: email,
+        password: password,
       );
+
+      if (response.user != null && mounted) {
+        // Explicitly navigate to MainScaffold to avoid race conditions with StreamBuilder
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainScaffold()),
+        );
+      }
     } catch (e) {
+      debugPrint('Login error details: $e'); // Developer logging
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
