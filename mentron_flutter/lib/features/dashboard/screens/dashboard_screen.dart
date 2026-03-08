@@ -15,7 +15,6 @@ import '../../events/screens/event_list_screen.dart';
 import '../../leaderboard/screens/leaderboard_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../../societies/screens/societies_screen.dart';
-import '../../gallery/screens/gallery_screen.dart';
 import '../../team/screens/team_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -240,8 +239,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       const SizedBox(height: 12),
       Row(children: [
         Expanded(child: _buildSmallActionButton('Societies', '🏛️', () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SocietiesScreen())))),
-        const SizedBox(width: 12),
-        Expanded(child: _buildSmallActionButton('Gallery', '🖼️', () => Navigator.push(context, MaterialPageRoute(builder: (context) => const GalleryScreen())))),
         const SizedBox(width: 12),
         Expanded(child: _buildSmallActionButton('Team', '👥', () => Navigator.push(context, MaterialPageRoute(builder: (context) => const TeamScreen())))),
       ]),

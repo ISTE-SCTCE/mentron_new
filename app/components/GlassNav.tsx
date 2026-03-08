@@ -52,7 +52,6 @@ export function GlassNav() {
         { href: '/notes', icon: BookOpen, label: 'Notes' },
         { href: '/projects', icon: FlaskConical, label: 'Projects' },
         { href: '/marketplace', icon: ShoppingBag, label: 'Marketplace' },
-        { href: '/gallery', icon: ImageIcon, label: 'Gallery' },
     ]
 
     return (

@@ -30,7 +30,6 @@ const navItems = [
     { href: '/marketplace', icon: ShoppingBag, label: 'Market' },
     { href: '/projects', icon: FlaskConical, label: 'Projects' },
     { href: '/leaderboard', icon: Trophy, label: 'Rankings' },
-    { href: '/gallery', icon: Image, label: 'Gallery' },
     { href: '/societies', icon: Dna, label: 'Societies' },
     { href: '/settings', icon: Settings, label: 'Settings' },
 ]
