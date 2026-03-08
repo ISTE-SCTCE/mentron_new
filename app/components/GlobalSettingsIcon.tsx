@@ -8,7 +8,7 @@ export function GlobalSettingsIcon() {
     const pathname = usePathname()
 
     // Optionally hide on the settings page itself or specific unauthenticated pages
-    if (pathname === '/login' || pathname === '/signup' || pathname === '/settings') {
+    if (pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/settings') {
         return null
     }
 
