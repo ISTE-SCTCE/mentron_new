@@ -81,8 +81,13 @@ class _RequestsScreenState extends State<RequestsScreen>
       }
     } catch (e) {
       if (mounted) {
+        // Show raw error so we can see exactly what Supabase returns
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e))),
+          SnackBar(
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 6),
+            content: Text('Note error: ${e.toString()}'),
+          ),
         );
       }
     }
@@ -108,13 +113,14 @@ class _RequestsScreenState extends State<RequestsScreen>
   Future<void> _approveProject(Map<String, dynamic> item) async {
     final client = Provider.of<SupabaseService>(context, listen: false).client;
     try {
+      // Use profile_id (not posted_by) to match the live projects table schema
       await client.from('projects').insert({
         'title': item['title'],
         'description': item['description'],
         'role': item['role'] ?? 'Open',
         'duration': item['duration'] ?? 'Flexible',
         'category': item['category'] ?? 'General',
-        'posted_by': item['posted_by'],
+        'profile_id': item['posted_by'],
       });
       await client.from('pending_projects').delete().eq('id', item['id']);
       if (mounted) {
@@ -124,7 +130,16 @@ class _RequestsScreenState extends State<RequestsScreen>
         _fetchAll();
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e))));
+      if (mounted) {
+        // Show raw error so we can see exactly what Supabase returns
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 6),
+            content: Text('Project error: ${e.toString()}'),
+          ),
+        );
+      }
     }
   }
 
