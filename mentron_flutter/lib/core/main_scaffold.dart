@@ -132,17 +132,27 @@ class _MainScaffoldState extends State<MainScaffold>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true,
-      body: NotificationListener<ScrollNotification>(
-        onNotification: _onScrollNotification,
-        child: IndexedStack(
-          index: _currentIndex,
-          children: _screens,
-        ),
-      ),
-      bottomNavigationBar: SlideTransition(
-        position: _navbarSlideAnim,
-        child: _buildNavbar(),
+      body: Stack(
+        children: [
+          // ── Full-screen content ──────────────────────────────────
+          NotificationListener<ScrollNotification>(
+            onNotification: _onScrollNotification,
+            child: IndexedStack(
+              index: _currentIndex,
+              children: _screens,
+            ),
+          ),
+          // ── Floating auto-hiding navbar ──────────────────────────
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SlideTransition(
+              position: _navbarSlideAnim,
+              child: _buildNavbar(),
+            ),
+          ),
+        ],
       ),
     );
   }
