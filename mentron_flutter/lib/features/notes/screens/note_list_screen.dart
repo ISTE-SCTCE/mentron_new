@@ -264,30 +264,64 @@ class _NoteListScreenState extends State<NoteListScreen> {
   }
 
   Future<void> _launchURL(String urlPath) async {
-    String fullUrl;
+    try {
+      final supabase = Provider.of<SupabaseService>(context, listen: false).client;
 
-    if (urlPath.startsWith('/api/files/')) {
-      // Web app stores URLs as: /api/files/{bucket}/{filename}
-      // Extract bucket + filename and build the real Supabase storage URL
-      // e.g. /api/files/notes_bucket/1234-file.pdf.gz
-      //   → https://<project>.supabase.co/storage/v1/object/public/notes_bucket/1234-file.pdf.gz
-      const supabaseBase = 'https://ysllolnoyezfdllqocgv.supabase.co';
-      final storagePath = urlPath.replaceFirst('/api/files/', '');
-      fullUrl = '$supabaseBase/storage/v1/object/public/$storagePath';
-    } else if (urlPath.startsWith('/')) {
-      // Other relative paths — just prepend the Supabase base
-      const supabaseBase = 'https://ysllolnoyezfdllqocgv.supabase.co';
-      fullUrl = '$supabaseBase$urlPath';
-    } else {
-      // Already an absolute URL (Flutter-uploaded notes)
-      fullUrl = urlPath;
-    }
+      // Determine bucket name and file path from any URL format:
+      //  1) Web format:   /api/files/notes_bucket/filename.gz
+      //  2) Public URL:   https://...supabase.co/storage/v1/object/public/notes_bucket/filename.gz
+      //  3) Signed URL:   https://...supabase.co/storage/v1/object/sign/notes_bucket/...
+      String bucket = 'notes_bucket';
+      String filePath = '';
 
-    final Uri url = Uri.parse(fullUrl);
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      if (urlPath.startsWith('/api/files/')) {
+        // /api/files/{bucket}/{filePath}
+        final rest = urlPath.replaceFirst('/api/files/', '');
+        final slashIdx = rest.indexOf('/');
+        if (slashIdx != -1) {
+          bucket = rest.substring(0, slashIdx);
+          filePath = rest.substring(slashIdx + 1);
+        }
+      } else if (urlPath.contains('/storage/v1/object/')) {
+        // Extract from full Supabase storage URL
+        final patterns = ['/object/public/', '/object/sign/'];
+        for (final pat in patterns) {
+          if (urlPath.contains(pat)) {
+            final rest = urlPath.split(pat).last;
+            final slashIdx = rest.indexOf('/');
+            if (slashIdx != -1) {
+              bucket = rest.substring(0, slashIdx);
+              filePath = rest.substring(slashIdx + 1).split('?').first;
+            }
+            break;
+          }
+        }
+      } else {
+        // Unknown / already usable URL — try to open directly
+        final Uri uri = Uri.parse(urlPath);
+        if (await launchUrl(uri, mode: LaunchMode.externalApplication)) return;
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not open file.')));
+        return;
+      }
+
+      if (filePath.isEmpty) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not determine file path.')));
+        return;
+      }
+
+      // Generate a 1-hour signed URL — works for both public and private buckets
+      final signedResponse = await supabase.storage
+          .from(bucket)
+          .createSignedUrl(filePath, 3600);
+
+      final Uri signedUri = Uri.parse(signedResponse);
+      if (!await launchUrl(signedUri, mode: LaunchMode.externalApplication)) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not open file.')));
+      }
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open file.\nURL: $fullUrl')),
+          SnackBar(backgroundColor: Colors.red, content: Text('Open error: ${e.toString()}')),
         );
       }
     }
