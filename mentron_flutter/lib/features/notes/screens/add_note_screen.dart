@@ -97,17 +97,20 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       // For Flutter we get the actual public URL instead since we can't use the web API route
       final fileUrl = supabase.client.storage.from('notes_bucket').getPublicUrl(fileName);
 
-      await supabase.client.from('notes').insert({
+      await supabase.client.from('pending_notes').insert({
         'title': _titleController.text.trim(),
         'description': _descController.text.trim(),
         'department': _selectedDept,
-        'year': int.parse(_selectedYear),  // DB column is integer
+        'year': int.parse(_selectedYear),
         'file_url': fileUrl,
         'profile_id': user.id,
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text('Note uploaded successfully!')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          backgroundColor: Colors.amber,
+          content: Text('📋 Note submitted for review! Execom will approve it shortly.'),
+        ));
         Navigator.pop(context);
       }
     } catch (e) {

@@ -32,15 +32,17 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       final user = supabase.currentUser;
       if (user == null) throw Exception('Not logged in');
 
-      // Match web schema exactly: only title, description, posted_by
-      await supabase.client.from('projects').insert({
+      await supabase.client.from('pending_projects').insert({
         'title': _titleController.text.trim(),
         'description': _descController.text.trim(),
         'posted_by': user.id,
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text('Project posted!')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          backgroundColor: Colors.amber,
+          content: Text('📋 Project submitted for review! Execom will approve it shortly.'),
+        ));
         Navigator.pop(context);
       }
     } catch (e) {
