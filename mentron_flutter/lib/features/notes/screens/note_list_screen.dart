@@ -264,14 +264,31 @@ class _NoteListScreenState extends State<NoteListScreen> {
   }
 
   Future<void> _launchURL(String urlPath) async {
-    final String fullUrl = urlPath.startsWith('/')
-        ? 'https://ysllolnoyezfdllqocgv.supabase.co$urlPath'
-        : urlPath;
-    
+    String fullUrl;
+
+    if (urlPath.startsWith('/api/files/')) {
+      // Web app stores URLs as: /api/files/{bucket}/{filename}
+      // Extract bucket + filename and build the real Supabase storage URL
+      // e.g. /api/files/notes_bucket/1234-file.pdf.gz
+      //   → https://<project>.supabase.co/storage/v1/object/public/notes_bucket/1234-file.pdf.gz
+      const supabaseBase = 'https://ysllolnoyezfdllqocgv.supabase.co';
+      final storagePath = urlPath.replaceFirst('/api/files/', '');
+      fullUrl = '$supabaseBase/storage/v1/object/public/$storagePath';
+    } else if (urlPath.startsWith('/')) {
+      // Other relative paths — just prepend the Supabase base
+      const supabaseBase = 'https://ysllolnoyezfdllqocgv.supabase.co';
+      fullUrl = '$supabaseBase$urlPath';
+    } else {
+      // Already an absolute URL (Flutter-uploaded notes)
+      fullUrl = urlPath;
+    }
+
     final Uri url = Uri.parse(fullUrl);
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not open file.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not open file.\nURL: $fullUrl')),
+        );
       }
     }
   }
