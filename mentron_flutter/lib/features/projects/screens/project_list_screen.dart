@@ -100,12 +100,6 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AddProjectScreen())).then((_) => _fetchProjects()),
-        backgroundColor: AppTheme.accentPrimary,
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('POST PROJECT', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
-      ).animate().scale(delay: 500.ms),
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0,
         title: Column(children: [
