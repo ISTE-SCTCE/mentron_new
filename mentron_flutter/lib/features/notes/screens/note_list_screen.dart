@@ -1,7 +1,12 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:archive/archive.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
@@ -242,7 +247,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
                 ),
                 // Open file button
                 GestureDetector(
-                  onTap: () => _launchURL(note.fileUrl),
+                  onTap: () => _downloadAndOpenNote(note),
                   child: GlassContainer(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     borderRadius: 14,
@@ -263,65 +268,95 @@ class _NoteListScreenState extends State<NoteListScreen> {
     ).animate().fadeIn(delay: (index * 80).ms).slideY(begin: 0.05);
   }
 
-  Future<void> _launchURL(String urlPath) async {
+  /// Downloads the gzipped note, decompresses it, saves as .pdf and opens it.
+  Future<void> _downloadAndOpenNote(Note note) async {
+    // Show loading dialog
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: AppTheme.accentSecondary),
+            SizedBox(height: 16),
+            Text('Downloading...', style: TextStyle(color: Colors.white, decoration: TextDecoration.none, fontSize: 14)),
+          ],
+        ),
+      ),
+    );
+
     try {
       final supabase = Provider.of<SupabaseService>(context, listen: false).client;
 
-      // Determine bucket name and file path from any URL format:
-      //  1) Web format:   /api/files/notes_bucket/filename.gz
-      //  2) Public URL:   https://...supabase.co/storage/v1/object/public/notes_bucket/filename.gz
-      //  3) Signed URL:   https://...supabase.co/storage/v1/object/sign/notes_bucket/...
+      // ── Step 1: Extract bucket + file path from any URL format ──
       String bucket = 'notes_bucket';
       String filePath = '';
+      final urlPath = note.fileUrl;
 
       if (urlPath.startsWith('/api/files/')) {
-        // /api/files/{bucket}/{filePath}
         final rest = urlPath.replaceFirst('/api/files/', '');
-        final slashIdx = rest.indexOf('/');
-        if (slashIdx != -1) {
-          bucket = rest.substring(0, slashIdx);
-          filePath = rest.substring(slashIdx + 1);
-        }
+        final idx = rest.indexOf('/');
+        if (idx != -1) { bucket = rest.substring(0, idx); filePath = rest.substring(idx + 1); }
       } else if (urlPath.contains('/storage/v1/object/')) {
-        // Extract from full Supabase storage URL
-        final patterns = ['/object/public/', '/object/sign/'];
-        for (final pat in patterns) {
+        for (final pat in ['/object/public/', '/object/sign/']) {
           if (urlPath.contains(pat)) {
             final rest = urlPath.split(pat).last;
-            final slashIdx = rest.indexOf('/');
-            if (slashIdx != -1) {
-              bucket = rest.substring(0, slashIdx);
-              filePath = rest.substring(slashIdx + 1).split('?').first;
-            }
+            final idx = rest.indexOf('/');
+            if (idx != -1) { bucket = rest.substring(0, idx); filePath = rest.substring(idx + 1).split('?').first; }
             break;
           }
         }
-      } else {
-        // Unknown / already usable URL — try to open directly
-        final Uri uri = Uri.parse(urlPath);
-        if (await launchUrl(uri, mode: LaunchMode.externalApplication)) return;
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not open file.')));
-        return;
       }
 
-      if (filePath.isEmpty) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not determine file path.')));
-        return;
+      if (filePath.isEmpty) throw Exception('Cannot determine file path from URL');
+
+      // ── Step 2: Get a 1-hour signed URL ──
+      final signedUrl = await supabase.storage.from(bucket).createSignedUrl(filePath, 3600);
+
+      // ── Step 3: Download the gzipped bytes ──
+      final response = await http.get(Uri.parse(signedUrl));
+      if (response.statusCode != 200) throw Exception('Download failed (${response.statusCode})');
+      final compressedBytes = response.bodyBytes;
+
+      // ── Step 4: Decompress gzip → raw PDF bytes ──
+      Uint8List pdfBytes;
+      try {
+        final decoded = GZipDecoder().decodeBytes(compressedBytes);
+        pdfBytes = Uint8List.fromList(decoded);
+      } catch (_) {
+        // Not gzipped (e.g. old upload or already raw PDF)
+        pdfBytes = compressedBytes;
       }
 
-      // Generate a 1-hour signed URL — works for both public and private buckets
-      final signedResponse = await supabase.storage
-          .from(bucket)
-          .createSignedUrl(filePath, 3600);
+      // ── Step 5: Build a clean .pdf filename ──
+      String cleanName = note.title
+          .replaceAll(RegExp(r'[^\w\s-]'), '')
+          .trim()
+          .replaceAll(RegExp(r'\s+'), '_');
+      if (cleanName.isEmpty) cleanName = 'note';
+      final pdfFileName = '$cleanName.pdf';
 
-      final Uri signedUri = Uri.parse(signedResponse);
-      if (!await launchUrl(signedUri, mode: LaunchMode.externalApplication)) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not open file.')));
+      // ── Step 6: Save to temp directory ──
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/$pdfFileName');
+      await file.writeAsBytes(pdfBytes);
+
+      // ── Step 7: Dismiss loading, open with device PDF viewer / Drive ──
+      if (mounted) Navigator.of(context, rootNavigator: true).pop();
+
+      final result = await OpenFile.open(file.path);
+      if (result.type != ResultType.done && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(backgroundColor: Colors.red, content: Text('Could not open PDF: ${result.message}')),
+        );
       }
     } catch (e) {
       if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop(); // dismiss dialog
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: Colors.red, content: Text('Open error: ${e.toString()}')),
+          SnackBar(backgroundColor: Colors.red, content: Text(e.toString())),
         );
       }
     }
