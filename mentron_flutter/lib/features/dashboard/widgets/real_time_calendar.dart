@@ -171,7 +171,8 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
       // Calendar Card
       GlassContainer(
         padding: const EdgeInsets.all(16),
-        child: TableCalendar(
+        child: RepaintBoundary(
+          child: TableCalendar(
           firstDay: DateTime.utc(2024, 1, 1),
           lastDay: DateTime.utc(2030, 12, 31),
           focusedDay: _focusedDay,
@@ -246,6 +247,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
             },
           ),
         ),
+      ),
       ),
 
       // Events for selected day

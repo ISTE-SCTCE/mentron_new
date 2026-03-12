@@ -184,10 +184,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       mainAxisSpacing: 16,
       childAspectRatio: 1.5,
       children: [
-        _buildStatCard('MEMBERS', totalMembers.toString(), Icons.people_outline, AppTheme.accentPrimary),
-        _buildStatCard('NOTES', totalNotes.toString(), Icons.note_outlined, AppTheme.accentSecondary),
-        _buildStatCard('PROJECTS', totalProjects.toString(), Icons.rocket_launch_outlined, Colors.orangeAccent),
-        _buildStatCard('XP', '1.2k', Icons.bolt_rounded, Colors.yellowAccent),
+        RepaintBoundary(child: _buildStatCard('MEMBERS', totalMembers.toString(), Icons.people_outline, AppTheme.accentPrimary)),
+        RepaintBoundary(child: _buildStatCard('NOTES', totalNotes.toString(), Icons.note_outlined, AppTheme.accentSecondary)),
+        RepaintBoundary(child: _buildStatCard('PROJECTS', totalProjects.toString(), Icons.rocket_launch_outlined, Colors.orangeAccent)),
+        RepaintBoundary(child: _buildStatCard('XP', '1.2k', Icons.bolt_rounded, Colors.yellowAccent)),
       ],
     );
   }
