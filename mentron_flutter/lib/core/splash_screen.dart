@@ -153,8 +153,10 @@ class _SplashScreenState extends State<SplashScreen>
             ),
 
             // ── Main content ──────────────────────────────────────────
-            Column(
+            Center(
+              child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Orb logo
                 AnimatedBuilder(
@@ -211,6 +213,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
               ],
+            ),
             ),
 
             // ── Bottom loading bar ────────────────────────────────────
