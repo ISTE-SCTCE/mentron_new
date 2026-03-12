@@ -206,15 +206,6 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             ),
           ),
-          // Top-right logo overlay
-          Positioned(
-            top: 48,
-            right: 20,
-            child: Image.asset(
-              'assets/images/mentron_logo.png',
-              width: 90,
-            ),
-          ),
         ],
       ),
     );

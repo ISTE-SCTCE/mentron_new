@@ -159,16 +159,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         Row(
           children: [
-            // Small Mentron logo top-right
-            Image.asset(
-              'assets/images/mentron_logo.png',
-              width: 60,
-            ),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: () => Navigator.push(context, AppTransitions.slideUp(const ProfileScreen())),
-              child: const GlassContainer(padding: EdgeInsets.all(12), borderRadius: 12, child: Icon(Icons.person_rounded, color: AppTheme.accentSecondary, size: 20)),
-            ),
+        GestureDetector(
+          onTap: () => Navigator.push(context, AppTransitions.slideUp(const ProfileScreen())),
+          child: const GlassContainer(padding: EdgeInsets.all(12), borderRadius: 12, child: Icon(Icons.person_rounded, color: AppTheme.accentSecondary, size: 20)),
+        ),
           ],
         ),
       ],
