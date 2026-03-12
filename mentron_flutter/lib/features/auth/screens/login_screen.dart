@@ -41,14 +41,13 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (response.user != null && mounted) {
-        // Explicitly navigate to MainScaffold to avoid race conditions with StreamBuilder
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const MainScaffold()),
         );
       }
     } catch (e) {
-      debugPrint('Login error details: $e'); // Developer logging
+      debugPrint('Login error details: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -69,6 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Stack(
         children: [
+          // Main content
           LiquidBackground(
             child: Center(
               child: SingleChildScrollView(
@@ -76,74 +76,69 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo image
+                    // Mentron logo
                     Image.asset(
                       'assets/images/mentron_logo.png',
                       width: 200,
                     ).animate().scale(delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
-                    
                     const SizedBox(height: 8),
                     Text(
                       'Your Academic Companion',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ).animate().fadeIn(delay: 600.ms),
-                
-                const SizedBox(height: 48),
-                
-                GlassContainer(
-                  padding: const EdgeInsets.all(32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        'SIGN IN',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          letterSpacing: 4,
-                          fontSize: 14,
-                          color: AppTheme.accentSecondary,
-                        ),
-                        textAlign: TextAlign.center,
+                    const SizedBox(height: 48),
+                    GlassContainer(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            'SIGN IN',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              letterSpacing: 4,
+                              fontSize: 14,
+                              color: AppTheme.accentSecondary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 32),
+                          _buildTextField(
+                            controller: _emailController,
+                            hint: 'Email Address',
+                            icon: Icons.alternate_email_rounded,
+                          ),
+                          const SizedBox(height: 20),
+                          _buildTextField(
+                            controller: _passwordController,
+                            hint: 'Password',
+                            icon: Icons.lock_outline_rounded,
+                            isPassword: true,
+                          ),
+                          const SizedBox(height: 32),
+                          ElevatedButton(
+                            onPressed: _isLoading ? null : _handleLogin,
+                            child: _isLoading
+                              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                              : const Text('ENTER SYSTEM'),
+                          ).animate().shimmer(delay: 1.seconds, duration: 2.seconds),
+                        ],
                       ),
-                      const SizedBox(height: 32),
-                      
-                      _buildTextField(
-                        controller: _emailController,
-                        hint: 'Email Address',
-                        icon: Icons.alternate_email_rounded,
+                    ).animate().slideY(begin: 0.1, delay: 300.ms).fadeIn(),
+                    const SizedBox(height: 32),
+                    TextButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SignupScreen()),
                       ),
-                      const SizedBox(height: 20),
-                      
-                      _buildTextField(
-                        controller: _passwordController,
-                        hint: 'Password',
-                        icon: Icons.lock_outline_rounded,
-                        isPassword: true,
+                      child: const Text(
+                        'New here? Create Account →',
+                        style: TextStyle(color: AppTheme.accentSecondary, fontSize: 12),
                       ),
-                      const SizedBox(height: 32),
-                      
-                      ElevatedButton(
-                        onPressed: _isLoading ? null : _handleLogin,
-                        child: _isLoading 
-                          ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                          : const Text('ENTER SYSTEM'),
-                      ).animate().shimmer(delay: 1.seconds, duration: 2.seconds),
-                    ],
-                  ),
-                  ),
-                ).animate().slideY(begin: 0.1, delay: 300.ms).fadeIn(),
-                
-                const SizedBox(height: 32),
-                TextButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SignupScreen()),
-                  ),
-                  child: const Text('New here? Create Account →', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 12)),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
           ),
           // Top-right logo overlay
           Positioned(

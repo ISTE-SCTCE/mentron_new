@@ -112,113 +112,99 @@ class _SignupScreenState extends State<SignupScreen> {
           LiquidBackground(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(24, 100, 24, 40),
-          child: Column(
-            children: [
-              // Header
-              const Text(
-                'STEP INTO INNOVATION',
-                style: TextStyle(color: AppTheme.accentSecondary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 3),
-              ).animate().fadeIn(),
-              const SizedBox(height: 8),
-              const Text(
-                'Join Mentron',
-                style: TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900),
-              ).animate().fadeIn(delay: 100.ms),
-              const SizedBox(height: 40),
+              child: Column(
+                children: [
+                  // Header
+                  const Text(
+                    'STEP INTO INNOVATION',
+                    style: TextStyle(color: AppTheme.accentSecondary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 3),
+                  ).animate().fadeIn(),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Join Mentron',
+                    style: TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900),
+                  ).animate().fadeIn(delay: 100.ms),
+                  const SizedBox(height: 40),
 
-              GlassContainer(
-                padding: const EdgeInsets.all(28),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Full Name
-                    _buildLabel('FULL NAME'),
-                    _buildTextField(_fullNameController, 'e.g. Rahul Sharma', Icons.person_outline_rounded),
-                    const SizedBox(height: 16),
-
-                    // Roll Number with auto-detect
-                    _buildLabel('ROLL NUMBER'),
-                    _buildTextField(
-                      _rollNumberController,
-                      'e.g. 22CS001',
-                      Icons.badge_outlined,
-                      onChanged: _onRollChanged,
-                    ),
-                    if (_detectedDept != null) ...[
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          const Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 12),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Auto-detected: $_detectedDept',
-                            style: const TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+                  GlassContainer(
+                    padding: const EdgeInsets.all(28),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildLabel('FULL NAME'),
+                        _buildTextField(_fullNameController, 'e.g. Rahul Sharma', Icons.person_outline_rounded),
+                        const SizedBox(height: 16),
+                        _buildLabel('ROLL NUMBER'),
+                        _buildTextField(
+                          _rollNumberController,
+                          'e.g. 22CS001',
+                          Icons.badge_outlined,
+                          onChanged: _onRollChanged,
+                        ),
+                        if (_detectedDept != null) ...[
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              const Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 12),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Auto-detected: $_detectedDept',
+                                style: const TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+                              ),
+                            ],
                           ),
                         ],
-                      ),
-                    ],
-                    const SizedBox(height: 16),
-
-                    // Email
-                    _buildLabel('EMAIL ADDRESS'),
-                    _buildTextField(_emailController, 'your@email.com', Icons.alternate_email_rounded, keyboardType: TextInputType.emailAddress),
-                    const SizedBox(height: 16),
-
-                    // Password
-                    _buildLabel('PASSWORD'),
-                    _buildTextField(_passwordController, 'Create a strong password', Icons.lock_outline_rounded, isPassword: true),
-                    const SizedBox(height: 16),
-
-                    // Year + Role row
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildLabel('YEAR'),
-                              _buildTextField(_yearController, '1 - 4', Icons.school_outlined, keyboardType: TextInputType.number),
-                            ],
-                          ),
+                        const SizedBox(height: 16),
+                        _buildLabel('EMAIL ADDRESS'),
+                        _buildTextField(_emailController, 'your@email.com', Icons.alternate_email_rounded, keyboardType: TextInputType.emailAddress),
+                        const SizedBox(height: 16),
+                        _buildLabel('PASSWORD'),
+                        _buildTextField(_passwordController, 'Create a strong password', Icons.lock_outline_rounded, isPassword: true),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildLabel('YEAR'),
+                                  _buildTextField(_yearController, '1 - 4', Icons.school_outlined, keyboardType: TextInputType.number),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildLabel('ROLE'),
+                                  _buildRoleDropdown(),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildLabel('ROLE'),
-                              _buildRoleDropdown(),
-                            ],
+                        const SizedBox(height: 32),
+                        ElevatedButton(
+                          onPressed: _isLoading ? null : _handleSignup,
+                          child: _isLoading
+                              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                              : const Text('CREATE ACCOUNT'),
+                        ),
+                        const SizedBox(height: 20),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text(
+                            'Already in the tribe? Login Now',
+                            style: TextStyle(color: AppTheme.accentSecondary, fontSize: 12),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
-
-                    // Submit Button
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _handleSignup,
-                      child: _isLoading
-                          ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                          : const Text('CREATE ACCOUNT'),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Login link
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text(
-                        'Already in the tribe? Login Now',
-                        style: TextStyle(color: AppTheme.accentSecondary, fontSize: 12),
-                      ),
-                    ),
-                  ],
-                ),
-              ).animate().slideY(begin: 0.1, delay: 200.ms).fadeIn(),
-            ],
-          ),
-          ),
-        ),
+                  ).animate().slideY(begin: 0.1, delay: 200.ms).fadeIn(),
+                ],
+              ),
+            ),
           ),
           // Top-right logo overlay
           Positioned(
