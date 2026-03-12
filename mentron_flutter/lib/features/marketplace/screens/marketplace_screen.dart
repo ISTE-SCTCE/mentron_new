@@ -9,6 +9,7 @@ import '../../../shared/widgets/liquid_background.dart';
 import '../../../data/models/marketplace_model.dart';
 import 'add_marketplace_item_screen.dart';
 import '../../../core/utils/error_handler.dart';
+import '../../../core/utils/app_transitions.dart';
 
 class MarketplaceScreen extends StatefulWidget {
   const MarketplaceScreen({super.key});
@@ -104,7 +105,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const AddMarketplaceItemScreen())).then((_) => _fetchItems()),
+        onPressed: () => Navigator.push(context, AppTransitions.slideUp(const AddMarketplaceItemScreen())).then((_) => _fetchItems()),
         backgroundColor: AppTheme.accentPrimary,
         icon: const Icon(Icons.add_rounded),
         label: const Text('SELL ITEM', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
@@ -132,7 +133,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                     padding: const EdgeInsets.fromLTRB(24, 120, 24, 100),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 16, mainAxisSpacing: 16, childAspectRatio: 0.62),
                     itemCount: _items.length,
-                    itemBuilder: (context, index) => _buildItemCard(_items[index], index),
+                    itemBuilder: (context, index) => RepaintBoundary(child: _buildItemCard(_items[index], index)),
                   ),
       ),
     );

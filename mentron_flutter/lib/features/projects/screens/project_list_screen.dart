@@ -9,6 +9,7 @@ import '../../../data/models/project_model.dart';
 import 'project_detail_screen.dart';
 import 'add_project_screen.dart';
 import '../../../core/utils/error_handler.dart';
+import '../../../core/utils/app_transitions.dart';
 
 class ProjectListScreen extends StatefulWidget {
   const ProjectListScreen({super.key});
@@ -125,7 +126,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                     : ListView.builder(
                         padding: const EdgeInsets.fromLTRB(24, 120, 24, 100),
                         itemCount: _projects.length,
-                        itemBuilder: (context, index) => _buildProjectCard(_projects[index], index),
+                        itemBuilder: (context, index) => RepaintBoundary(child: _buildProjectCard(_projects[index], index)),
                       ),
               ),
       ),
@@ -170,7 +171,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProjectDetailScreen(project: project))),
+              onPressed: () => Navigator.push(context, AppTransitions.slideLeft(ProjectDetailScreen(project: project))),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.white.withOpacity(0.05), foregroundColor: Colors.white, side: BorderSide(color: Colors.white.withOpacity(0.1))),
               child: const Text('VIEW DETAILS & APPLY'),
             ),

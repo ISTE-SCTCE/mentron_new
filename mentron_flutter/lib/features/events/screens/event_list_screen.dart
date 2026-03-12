@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import 'event_detail_screen.dart';
+import '../../../core/utils/app_transitions.dart';
 
 class EventListScreen extends StatefulWidget {
   const EventListScreen({super.key});
@@ -63,7 +64,7 @@ class _EventListScreenState extends State<EventListScreen> {
                 : ListView.builder(
                     padding: const EdgeInsets.fromLTRB(24, 120, 24, 100),
                     itemCount: _events.length,
-                    itemBuilder: (context, index) => _buildEventCard(_events[index], index),
+                    itemBuilder: (context, index) => RepaintBoundary(child: _buildEventCard(_events[index], index)),
                   ),
       ),
     );
@@ -73,8 +74,8 @@ class _EventListScreenState extends State<EventListScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: GestureDetector(
-        onTap: () => Navigator.push(context, MaterialPageRoute(
-          builder: (context) => EventDetailScreen(eventId: event['id'].toString()),
+        onTap: () => Navigator.push(context, AppTransitions.slideLeft(
+          EventDetailScreen(eventId: event['id'].toString()),
         )),
         child: GlassContainer(
           padding: const EdgeInsets.all(28),

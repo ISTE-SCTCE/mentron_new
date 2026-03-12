@@ -7,6 +7,7 @@ import '../../../core/utils/department_mapper.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import 'note_list_screen.dart';
+import '../../../core/utils/app_transitions.dart';
 
 class GroupScreen extends StatefulWidget {
   const GroupScreen({super.key});
@@ -165,8 +166,8 @@ class _GroupScreenState extends State<GroupScreen> {
             child: Padding(
               padding: EdgeInsets.only(right: i < 3 ? 8 : 0),
               child: GestureDetector(
-                onTap: () => Navigator.push(context, MaterialPageRoute(
-                  builder: (_) => NoteListScreen(deptCode: _userDept!, year: year),
+                onTap: () => Navigator.push(context, AppTransitions.slideUp(
+                  NoteListScreen(deptCode: _userDept!, year: year),
                 )),
                 child: Container(
                   height: 52,
@@ -257,10 +258,10 @@ class _GroupScreenState extends State<GroupScreen> {
   Widget _buildYearCircle(String deptCode, String year) {
     final isMyYear = _userYear == year && deptCode == _userDept;
     return GestureDetector(
-      onTap: () {
-        Navigator.pop(context);
-        Navigator.push(context, MaterialPageRoute(builder: (_) => NoteListScreen(deptCode: deptCode, year: year)));
-      },
+        onTap: () {
+          Navigator.pop(context);
+          Navigator.push(context, AppTransitions.slideUp(NoteListScreen(deptCode: deptCode, year: year)));
+        },
       child: Container(
         width: 64, height: 64,
         decoration: BoxDecoration(

@@ -177,7 +177,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
                 padding: const EdgeInsets.fromLTRB(24, 120, 24, 100),
                 itemCount: _notes.length,
                 itemBuilder: (context, index) {
-                  return _buildNoteCard(_notes[index], index);
+                  return RepaintBoundary(child: _buildNoteCard(_notes[index], index));
                 },
               ),
       ),

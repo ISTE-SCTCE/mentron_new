@@ -16,6 +16,7 @@ import '../../leaderboard/screens/leaderboard_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../../societies/screens/societies_screen.dart';
 import '../../team/screens/team_screen.dart';
+import '../../../core/utils/app_transitions.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -113,12 +114,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Row(children: [
           Expanded(child: _buildContributeButton(
             'Add Note', Icons.note_add_rounded, AppTheme.accentSecondary,
-            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddNoteScreen())),
+            () => Navigator.push(context, AppTransitions.slideUp(const AddNoteScreen())),
           )),
           const SizedBox(width: 12),
           Expanded(child: _buildContributeButton(
             'Post Project', Icons.rocket_launch_rounded, AppTheme.accentPrimary,
-            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddProjectScreen())),
+            () => Navigator.push(context, AppTransitions.slideUp(const AddProjectScreen())),
           )),
         ]),
       ]),
@@ -165,7 +166,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(width: 8),
             GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen())),
+              onTap: () => Navigator.push(context, AppTransitions.slideUp(const ProfileScreen())),
               child: const GlassContainer(padding: EdgeInsets.all(12), borderRadius: 12, child: Icon(Icons.person_rounded, color: AppTheme.accentSecondary, size: 20)),
             ),
           ],
@@ -233,24 +234,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildActionButtons() {
     return Column(children: [
       _buildActionButton('Academic Library', 'Browse notes & materials', Icons.library_books_rounded, AppTheme.accentSecondary,
-          () => Navigator.push(context, MaterialPageRoute(builder: (context) => GroupScreen()))),
+          () => Navigator.push(context, AppTransitions.slideUp(GroupScreen()))),
       const SizedBox(height: 12),
       _buildActionButton('Incubation Center', 'View projects & apply', Icons.rocket_launch_rounded, AppTheme.accentPrimary,
-          () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProjectListScreen()))),
+          () => Navigator.push(context, AppTransitions.slideUp(ProjectListScreen()))),
       const SizedBox(height: 12),
       _buildActionButton('Student Market', 'Buy & sell textbooks', Icons.shopping_bag_outlined, Colors.greenAccent,
-          () => Navigator.push(context, MaterialPageRoute(builder: (context) => MarketplaceScreen()))),
+          () => Navigator.push(context, AppTransitions.slideUp(MarketplaceScreen()))),
       const SizedBox(height: 12),
       _buildActionButton('Upcoming Events', 'Register for workshops', Icons.event_rounded, Colors.orangeAccent,
-          () => Navigator.push(context, MaterialPageRoute(builder: (context) => const EventListScreen()))),
+          () => Navigator.push(context, AppTransitions.slideUp(const EventListScreen()))),
       const SizedBox(height: 12),
       _buildActionButton('Leaderboard', 'View XP rankings', Icons.emoji_events_rounded, Colors.amberAccent,
-          () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LeaderboardScreen()))),
+          () => Navigator.push(context, AppTransitions.slideUp(const LeaderboardScreen()))),
       const SizedBox(height: 12),
       Row(children: [
-        Expanded(child: _buildSmallActionButton('Societies', '🏛️', () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SocietiesScreen())))),
+        Expanded(child: _buildSmallActionButton('Societies', '🏛️', () => Navigator.push(context, AppTransitions.slideUp(const SocietiesScreen())))),
         const SizedBox(width: 12),
-        Expanded(child: _buildSmallActionButton('Team', '👥', () => Navigator.push(context, MaterialPageRoute(builder: (context) => const TeamScreen())))),
+        Expanded(child: _buildSmallActionButton('Team', '👥', () => Navigator.push(context, AppTransitions.slideUp(const TeamScreen())))),
       ]),
     ]);
   }
@@ -291,7 +292,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   AppTheme.accentSecondary,
                   () {
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const AddNoteScreen()));
+                    Navigator.push(context, AppTransitions.slideUp(const AddNoteScreen()));
                   }
                 ),
                 _buildAddOption(
@@ -300,7 +301,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   AppTheme.accentPrimary,
                   () {
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const AddProjectScreen()));
+                    Navigator.push(context, AppTransitions.slideUp(const AddProjectScreen()));
                   }
                 ),
               ],
@@ -367,3 +368,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ).animate().slideY(begin: 0.1);
   }
 }
+

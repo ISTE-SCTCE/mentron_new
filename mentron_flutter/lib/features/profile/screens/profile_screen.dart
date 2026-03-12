@@ -7,6 +7,7 @@ import '../../../core/utils/department_mapper.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import '../../auth/screens/login_screen.dart';
+import '../../../core/utils/app_transitions.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -42,7 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (mounted) {
       // Remove all routes and go to login — clears the whole back stack
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        AppTransitions.fade(const LoginScreen()),
         (route) => false,
       );
     }

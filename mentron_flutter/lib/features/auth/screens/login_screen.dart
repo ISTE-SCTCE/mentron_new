@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import 'signup_screen.dart';
+import '../../../core/utils/app_transitions.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../core/main_scaffold.dart';
 
@@ -43,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.user != null && mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const MainScaffold()),
+          AppTransitions.fade(const MainScaffold()),
         );
       }
     } catch (e) {
@@ -128,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextButton(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SignupScreen()),
+                        AppTransitions.slideLeft(const SignupScreen()),
                       ),
                       child: const Text(
                         'New here? Create Account →',

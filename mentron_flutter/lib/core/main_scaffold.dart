@@ -8,6 +8,7 @@ import '../features/marketplace/screens/marketplace_screen.dart';
 import '../features/requests/screens/requests_screen.dart';
 import '../core/services/supabase_service.dart';
 import 'theme/app_theme.dart';
+import 'utils/app_transitions.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
@@ -276,7 +277,7 @@ class _MainScaffoldState extends State<MainScaffold>
       onTap: () async {
         await Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const RequestsScreen()),
+          AppTransitions.slideUp(const RequestsScreen()),
         );
         // Refresh count when returning
         _fetchPendingCount();

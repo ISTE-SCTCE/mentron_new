@@ -71,7 +71,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                         ]),
                       ),
                       Divider(color: Colors.white.withOpacity(0.05), height: 1),
-                      ...List.generate(_students.length, (index) => _buildRankRow(_students[index], index)),
+                      ...List.generate(_students.length, (index) => RepaintBoundary(child: _buildRankRow(_students[index], index))),
                     ]),
                   ).animate().fadeIn(delay: 300.ms),
                 ]),
