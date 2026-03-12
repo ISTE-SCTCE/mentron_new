@@ -107,9 +107,11 @@ class _SignupScreenState extends State<SignupScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: LiquidBackground(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 100, 24, 40),
+      body: Stack(
+        children: [
+          LiquidBackground(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 100, 24, 40),
           child: Column(
             children: [
               // Header
@@ -215,7 +217,19 @@ class _SignupScreenState extends State<SignupScreen> {
               ).animate().slideY(begin: 0.1, delay: 200.ms).fadeIn(),
             ],
           ),
+          ),
         ),
+          ),
+          // Top-right logo overlay
+          Positioned(
+            top: 48,
+            right: 20,
+            child: Image.asset(
+              'assets/images/mentron_logo.png',
+              width: 90,
+            ),
+          ),
+        ],
       ),
     );
   }

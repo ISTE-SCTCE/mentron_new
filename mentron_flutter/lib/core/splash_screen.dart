@@ -158,57 +158,14 @@ class _SplashScreenState extends State<SplashScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Orb logo
+                // Logo image with orb animation
                 AnimatedBuilder(
                   animation: _orbController,
                   builder: (_, __) => Opacity(
                     opacity: _orbOpacity.value,
                     child: Transform.scale(
                       scale: _orbScale.value,
-                      child: _LogoOrb(),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // Staggered brand letters
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: List.generate(_brandText.length, (i) {
-                    return AnimatedBuilder(
-                      animation: _textController,
-                      builder: (_, __) => FadeTransition(
-                        opacity: _letterOpacities[i],
-                        child: SlideTransition(
-                          position: _letterSlides[i],
-                          child: Text(
-                            _brandText[i],
-                            style: GoogleFonts.spaceGrotesk(
-                              color: Colors.white,
-                              fontSize: 44,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 8,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-
-                const SizedBox(height: 12),
-
-                // Tagline
-                FadeTransition(
-                  opacity: _taglineOpacity,
-                  child: Text(
-                    'YOUR CAMPUS. ELEVATED.',
-                    style: GoogleFonts.inter(
-                      color: const Color(0xFF00C6FF).withOpacity(0.7),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 4,
+                      child: _PulsingLogo(),
                     ),
                   ),
                 ),
@@ -254,13 +211,13 @@ class _GlowBlob extends StatelessWidget {
   }
 }
 
-// ── Hexagonal logo orb ────────────────────────────────────────────────────────
-class _LogoOrb extends StatefulWidget {
+// ── Pulsing Mentron logo image ─────────────────────────────────────────────
+class _PulsingLogo extends StatefulWidget {
   @override
-  State<_LogoOrb> createState() => _LogoOrbState();
+  State<_PulsingLogo> createState() => _PulsingLogoState();
 }
 
-class _LogoOrbState extends State<_LogoOrb> with SingleTickerProviderStateMixin {
+class _PulsingLogoState extends State<_PulsingLogo> with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulse;
 
@@ -271,7 +228,7 @@ class _LogoOrbState extends State<_LogoOrb> with SingleTickerProviderStateMixin 
       vsync: this,
       duration: const Duration(milliseconds: 1800),
     )..repeat(reverse: true);
-    _pulse = Tween<double>(begin: 0.95, end: 1.05).animate(
+    _pulse = Tween<double>(begin: 0.97, end: 1.03).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
   }
@@ -288,39 +245,9 @@ class _LogoOrbState extends State<_LogoOrb> with SingleTickerProviderStateMixin 
       animation: _pulse,
       builder: (_, __) => Transform.scale(
         scale: _pulse.value,
-        child: Container(
-          width: 88,
-          height: 88,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF7000DF), Color(0xFF00C6FF)],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF7000DF).withOpacity(0.5 * _pulse.value),
-                blurRadius: 30,
-                spreadRadius: 4,
-              ),
-              BoxShadow(
-                color: const Color(0xFF00C6FF).withOpacity(0.3 * _pulse.value),
-                blurRadius: 40,
-                spreadRadius: 8,
-              ),
-            ],
-          ),
-          child: Center(
-            child: Text(
-              'M',
-              style: GoogleFonts.spaceGrotesk(
-                color: Colors.white,
-                fontSize: 42,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
+        child: Image.asset(
+          'assets/images/mentron_logo.png',
+          width: MediaQuery.of(context).size.width * 0.65,
         ),
       ),
     );

@@ -156,9 +156,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Text(user?.email?.split('@').first.toUpperCase() ?? 'STUDENT', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontSize: 28)),
           ],
         ),
-        GestureDetector(
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen())),
-          child: const GlassContainer(padding: EdgeInsets.all(12), borderRadius: 12, child: Icon(Icons.person_rounded, color: AppTheme.accentSecondary, size: 20)),
+        Row(
+          children: [
+            // Small Mentron logo top-right
+            Image.asset(
+              'assets/images/mentron_logo.png',
+              width: 60,
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen())),
+              child: const GlassContainer(padding: EdgeInsets.all(12), borderRadius: 12, child: Icon(Icons.person_rounded, color: AppTheme.accentSecondary, size: 20)),
+            ),
+          ],
         ),
       ],
     ).animate().fadeIn().slideX(begin: -0.1);

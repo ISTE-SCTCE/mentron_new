@@ -67,37 +67,26 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: LiquidBackground(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Logo or Icon
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: AppTheme.accentPrimary.withOpacity(0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Center(
-                    child: Text('M', style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: Colors.white)),
-                  ),
-                ).animate().scale(delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
-                
-                const SizedBox(height: 16),
-                Text(
-                  'MENTRON',
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 40),
-                ).animate().fadeIn(delay: 400.ms),
-                
-                const SizedBox(height: 8),
-                Text(
-                  'Your Academic Companion',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ).animate().fadeIn(delay: 600.ms),
+      body: Stack(
+        children: [
+          LiquidBackground(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Logo image
+                    Image.asset(
+                      'assets/images/mentron_logo.png',
+                      width: 200,
+                    ).animate().scale(delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
+                    
+                    const SizedBox(height: 8),
+                    Text(
+                      'Your Academic Companion',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ).animate().fadeIn(delay: 600.ms),
                 
                 const SizedBox(height: 48),
                 
@@ -140,6 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ).animate().shimmer(delay: 1.seconds, duration: 2.seconds),
                     ],
                   ),
+                  ),
                 ).animate().slideY(begin: 0.1, delay: 300.ms).fadeIn(),
                 
                 const SizedBox(height: 32),
@@ -154,6 +144,17 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
+          ),
+          // Top-right logo overlay
+          Positioned(
+            top: 48,
+            right: 20,
+            child: Image.asset(
+              'assets/images/mentron_logo.png',
+              width: 90,
+            ),
+          ),
+        ],
       ),
     );
   }
