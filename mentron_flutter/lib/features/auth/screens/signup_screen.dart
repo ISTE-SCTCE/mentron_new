@@ -206,33 +206,6 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             ),
           ),
-          // Top-right ISTE logo
-          Positioned(
-            top: 48,
-            right: 20,
-            child: Container(
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/images/iste_logo.png',
-                  width: 65,
-                  height: 65,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ).animate().fadeIn(delay: 1.seconds).slideY(begin: -0.2),
         ],
       ),
     );
