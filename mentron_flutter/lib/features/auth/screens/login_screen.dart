@@ -146,14 +146,12 @@ class _LoginScreenState extends State<LoginScreen> {
             top: 48,
             right: 20,
             child: Container(
-              padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
-                color: Colors.white,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 10,
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
                 ],
@@ -161,8 +159,8 @@ class _LoginScreenState extends State<LoginScreen> {
               child: ClipOval(
                 child: Image.asset(
                   'assets/images/iste_logo.png',
-                  width: 65,
-                  height: 65,
+                  width: 60,
+                  height: 60,
                   fit: BoxFit.cover,
                 ),
               ),
