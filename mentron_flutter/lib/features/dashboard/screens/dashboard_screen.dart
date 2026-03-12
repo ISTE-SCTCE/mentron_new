@@ -159,10 +159,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         Row(
           children: [
-        GestureDetector(
-          onTap: () => Navigator.push(context, AppTransitions.slideUp(const ProfileScreen())),
-          child: const GlassContainer(padding: EdgeInsets.all(12), borderRadius: 12, child: Icon(Icons.person_rounded, color: AppTheme.accentSecondary, size: 20)),
-        ),
+            // ISTE logo in dashboard
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/iste_logo.png',
+                  width: 35,
+                  height: 35,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            GestureDetector(
+              onTap: () => Navigator.push(context, AppTransitions.slideUp(const ProfileScreen())),
+              child: const GlassContainer(padding: EdgeInsets.all(12), borderRadius: 12, child: Icon(Icons.person_rounded, color: AppTheme.accentSecondary, size: 20)),
+            ),
           ],
         ),
       ],
