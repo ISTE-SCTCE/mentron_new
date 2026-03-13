@@ -248,6 +248,8 @@ class _PulsingLogoState extends State<_PulsingLogo> with SingleTickerProviderSta
         child: Image.asset(
           'assets/images/mentron_logo.png',
           width: MediaQuery.of(context).size.width * 0.65,
+          filterQuality: FilterQuality.high,
+          isAntiAlias: true,
         ),
       ),
     );

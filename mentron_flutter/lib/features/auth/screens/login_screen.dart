@@ -81,6 +81,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     Image.asset(
                       'assets/images/mentron_logo.png',
                       width: 200,
+                      filterQuality: FilterQuality.high,
+                      isAntiAlias: true,
                     ).animate().scale(delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
                     const SizedBox(height: 8),
                     Text(
