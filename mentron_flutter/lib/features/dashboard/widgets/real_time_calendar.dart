@@ -54,7 +54,10 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
   }
 
   Future<void> _fetchEvents() async {
-    final supabase = Provider.of<SupabaseService>(context, listen: false).client;
+    final supabase = Provider.of<SupabaseService>(
+      context,
+      listen: false,
+    ).client;
     try {
       final response = await supabase
           .from('event_cal')
@@ -80,38 +83,58 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
   bool _hasEvent(DateTime day) => _getEventsForDay(day).isNotEmpty;
 
   Future<void> _addEvent() async {
-    if (_eventNameController.text.trim().isEmpty || _selectedDay == null) return;
+    if (_eventNameController.text.trim().isEmpty || _selectedDay == null)
+      return;
     setState(() => _isSubmitting = true);
 
-    final supabase = Provider.of<SupabaseService>(context, listen: false).client;
+    final supabase = Provider.of<SupabaseService>(
+      context,
+      listen: false,
+    ).client;
     try {
       final eventDate = DateTime(
         _selectedDay!.year,
         _selectedDay!.month,
         _selectedDay!.day,
-        12, 0, 0, // Noon to avoid timezone issues
+        12,
+        0,
+        0, // Noon to avoid timezone issues
       );
 
       await supabase.from('event_cal').insert({
         'event_name': _eventNameController.text.trim(),
-        'venue': _venueController.text.trim().isEmpty ? 'TBA' : _venueController.text.trim(),
+        'venue': _venueController.text.trim().isEmpty
+            ? 'TBA'
+            : _venueController.text.trim(),
         'event_date': eventDate.toIso8601String(),
       });
 
       _eventNameController.clear();
       _venueController.clear();
-      if (mounted) setState(() { _showAddForm = false; _isSubmitting = false; });
+      if (mounted)
+        setState(() {
+          _showAddForm = false;
+          _isSubmitting = false;
+        });
       await _fetchEvents();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(backgroundColor: Colors.green, content: Text('Event added successfully! 📅')),
+          const SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Event added successfully! 📅'),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isSubmitting = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(ErrorHandler.friendly(e)),
+          ),
+        );
       }
     }
   }
@@ -126,216 +149,380 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedEvents = _selectedDay != null ? _getEventsForDay(_selectedDay!) : [];
+    final selectedEvents = _selectedDay != null
+        ? _getEventsForDay(_selectedDay!)
+        : [];
     final isMonthView = _calendarFormat == CalendarFormat.month;
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      // Expand/Collapse toggle row above the calendar
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Expand/Collapse toggle row above the calendar
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            GestureDetector(
+              onTap: _toggleCalendarFormat,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentSecondary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: AppTheme.accentSecondary.withOpacity(0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isMonthView
+                          ? Icons.unfold_less_rounded
+                          : Icons.unfold_more_rounded,
+                      color: AppTheme.accentSecondary,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      isMonthView ? 'COLLAPSE' : 'EXPAND',
+                      style: const TextStyle(
+                        color: AppTheme.accentSecondary,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // Calendar Card
+        GlassContainer(
+          padding: const EdgeInsets.all(16),
+          child: RepaintBoundary(
+            child: TableCalendar(
+              firstDay: DateTime.utc(2024, 1, 1),
+              lastDay: DateTime.utc(2030, 12, 31),
+              focusedDay: _focusedDay,
+              calendarFormat: _calendarFormat,
+              availableCalendarFormats: const {
+                CalendarFormat.month: 'Month',
+                CalendarFormat.week: 'Week',
+              },
+              eventLoader: _getEventsForDay,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay;
+                  // Show add form panel when exec taps a day
+                  _showAddForm = _isExec;
+                });
+              },
+              onFormatChanged: (format) {
+                if (_calendarFormat != format)
+                  setState(() => _calendarFormat = format);
+              },
+              onPageChanged: (focusedDay) => _focusedDay = focusedDay,
+
+              // Calendar Styling
+              headerStyle: HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+                titleTextStyle: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+                leftChevronIcon: Icon(
+                  Icons.chevron_left,
+                  color: AppTheme.accentSecondary,
+                ),
+                rightChevronIcon: Icon(
+                  Icons.chevron_right,
+                  color: AppTheme.accentSecondary,
+                ),
+              ),
+              daysOfWeekStyle: const DaysOfWeekStyle(
+                weekdayStyle: TextStyle(
+                  color: AppTheme.textMuted,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                weekendStyle: TextStyle(
+                  color: AppTheme.accentSecondary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              calendarStyle: CalendarStyle(
+                outsideDaysVisible: false,
+                defaultTextStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                ),
+                weekendTextStyle: TextStyle(
+                  color: AppTheme.accentSecondary,
+                  fontSize: 12,
+                ),
+                todayDecoration: BoxDecoration(
+                  color: AppTheme.accentPrimary.withOpacity(0.3),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppTheme.accentPrimary),
+                ),
+                selectedDecoration: BoxDecoration(
+                  color: AppTheme.accentSecondary,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.accentSecondary.withOpacity(0.5),
+                      blurRadius: 10,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                // 🔸 Event dot marker — orange circle under the day number
+                markerDecoration: const BoxDecoration(
+                  color: Colors.orangeAccent,
+                  shape: BoxShape.circle,
+                ),
+                markerSize: 6.0,
+              ),
+
+              // Custom cell builder — highlights days with events in orange
+              calendarBuilders: CalendarBuilders(
+                defaultBuilder: (context, day, focusedDay) {
+                  if (_hasEvent(day)) {
+                    return Container(
+                      margin: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.orangeAccent.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.orangeAccent.withOpacity(0.6),
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${day.day}',
+                          style: const TextStyle(
+                            color: Colors.orangeAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return null; // Use default for non-event days
+                },
+              ),
+            ),
+          ),
+        ),
+
+        // Events for selected day
+        if (selectedEvents.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Text(
+            'EVENTS ON ${_selectedDay?.day}/${_selectedDay?.month}/${_selectedDay?.year}',
+            style: const TextStyle(
+              color: AppTheme.textMuted,
+              fontSize: 9,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 2,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...selectedEvents.map(
+            (event) => Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: GlassContainer(
+                padding: const EdgeInsets.all(16),
+                border: Border.all(color: Colors.orangeAccent.withOpacity(0.3)),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.orangeAccent,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            event['event_name'] ?? '',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          if (event['venue'] != null)
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.location_on_rounded,
+                                  color: Colors.orangeAccent,
+                                  size: 12,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  event['venue'],
+                                  style: const TextStyle(
+                                    color: AppTheme.textMuted,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ).animate().fadeIn().slideY(begin: 0.05),
+          ),
+        ],
+
+        // Exec-only: Add Event form panel
+        if (_isExec && _showAddForm && _selectedDay != null) ...[
+          const SizedBox(height: 16),
+          GlassContainer(
+            padding: const EdgeInsets.all(20),
+            border: Border.all(
+              color: AppTheme.accentSecondary.withOpacity(0.3),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'ADD EVENT',
+                          style: TextStyle(
+                            color: AppTheme.accentSecondary,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        Text(
+                          '${_selectedDay!.day}/${_selectedDay!.month}/${_selectedDay!.year}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        color: AppTheme.textMuted,
+                        size: 18,
+                      ),
+                      onPressed: () => setState(() => _showAddForm = false),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  _eventNameController,
+                  'Event Name',
+                  Icons.event_rounded,
+                ),
+                const SizedBox(height: 12),
+                _buildTextField(
+                  _venueController,
+                  'Venue (or leave blank for TBA)',
+                  Icons.location_on_outlined,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _isSubmitting ? null : _addEvent,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.accentSecondary,
+                  ),
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.black,
+                          ),
+                        )
+                      : const Text(
+                          'ADD EVENT',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ).animate().fadeIn().slideY(begin: 0.1),
+        ],
+
+        // Exec hint when a day is selected but form is hidden
+        if (_isExec && _selectedDay != null && !_showAddForm) ...[
+          const SizedBox(height: 12),
           GestureDetector(
-            onTap: _toggleCalendarFormat,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppTheme.accentSecondary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppTheme.accentSecondary.withOpacity(0.3)),
+            onTap: () => setState(() => _showAddForm = true),
+            child: GlassContainer(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+              border: Border.all(
+                color: AppTheme.accentSecondary.withOpacity(0.2),
               ),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    isMonthView ? Icons.unfold_less_rounded : Icons.unfold_more_rounded,
+                  const Icon(
+                    Icons.add_circle_outline_rounded,
                     color: AppTheme.accentSecondary,
-                    size: 14,
+                    size: 18,
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 12),
                   Text(
-                    isMonthView ? 'COLLAPSE' : 'EXPAND',
+                    'Add event on ${_selectedDay!.day}/${_selectedDay!.month}/${_selectedDay!.year}',
                     style: const TextStyle(
                       color: AppTheme.accentSecondary,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.5,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
             ),
-          ),
+          ).animate().fadeIn(),
         ],
-      ),
-      const SizedBox(height: 8),
-      // Calendar Card
-      GlassContainer(
-        padding: const EdgeInsets.all(16),
-        child: RepaintBoundary(
-          child: TableCalendar(
-          firstDay: DateTime.utc(2024, 1, 1),
-          lastDay: DateTime.utc(2030, 12, 31),
-          focusedDay: _focusedDay,
-          calendarFormat: _calendarFormat,
-          availableCalendarFormats: const {
-            CalendarFormat.month: 'Month',
-            CalendarFormat.week: 'Week',
-          },
-          eventLoader: _getEventsForDay,
-          selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-          onDaySelected: (selectedDay, focusedDay) {
-            setState(() {
-              _selectedDay = selectedDay;
-              _focusedDay = focusedDay;
-              // Show add form panel when exec taps a day
-              _showAddForm = _isExec;
-            });
-          },
-          onFormatChanged: (format) {
-            if (_calendarFormat != format) setState(() => _calendarFormat = format);
-          },
-          onPageChanged: (focusedDay) => _focusedDay = focusedDay,
-
-          // Calendar Styling
-          headerStyle: HeaderStyle(
-            formatButtonVisible: false,
-            titleCentered: true,
-            titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-            leftChevronIcon: Icon(Icons.chevron_left, color: AppTheme.accentSecondary),
-            rightChevronIcon: Icon(Icons.chevron_right, color: AppTheme.accentSecondary),
-          ),
-          daysOfWeekStyle: const DaysOfWeekStyle(
-            weekdayStyle: TextStyle(color: AppTheme.textMuted, fontSize: 10, fontWeight: FontWeight.bold),
-            weekendStyle: TextStyle(color: AppTheme.accentSecondary, fontSize: 10, fontWeight: FontWeight.bold),
-          ),
-          calendarStyle: CalendarStyle(
-            outsideDaysVisible: false,
-            defaultTextStyle: const TextStyle(color: Colors.white, fontSize: 12),
-            weekendTextStyle: TextStyle(color: AppTheme.accentSecondary, fontSize: 12),
-            todayDecoration: BoxDecoration(
-              color: AppTheme.accentPrimary.withOpacity(0.3),
-              shape: BoxShape.circle,
-              border: Border.all(color: AppTheme.accentPrimary),
-            ),
-            selectedDecoration: BoxDecoration(
-              color: AppTheme.accentSecondary,
-              shape: BoxShape.circle,
-              boxShadow: [BoxShadow(color: AppTheme.accentSecondary.withOpacity(0.5), blurRadius: 10, spreadRadius: 2)],
-            ),
-            // 🔸 Event dot marker — orange circle under the day number
-            markerDecoration: const BoxDecoration(color: Colors.orangeAccent, shape: BoxShape.circle),
-            markerSize: 6.0,
-          ),
-
-          // Custom cell builder — highlights days with events in orange
-          calendarBuilders: CalendarBuilders(
-            defaultBuilder: (context, day, focusedDay) {
-              if (_hasEvent(day)) {
-                return Container(
-                  margin: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.orangeAccent.withOpacity(0.2),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.orangeAccent.withOpacity(0.6)),
-                  ),
-                  child: Center(
-                    child: Text('${day.day}', style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 12)),
-                  ),
-                );
-              }
-              return null; // Use default for non-event days
-            },
-          ),
-        ),
-      ),
-      ),
-
-      // Events for selected day
-      if (selectedEvents.isNotEmpty) ...[
-        const SizedBox(height: 16),
-        Text(
-          'EVENTS ON ${_selectedDay?.day}/${_selectedDay?.month}/${_selectedDay?.year}',
-          style: const TextStyle(color: AppTheme.textMuted, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 2),
-        ),
-        const SizedBox(height: 8),
-        ...selectedEvents.map((event) => Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          child: GlassContainer(
-            padding: const EdgeInsets.all(16),
-            border: Border.all(color: Colors.orangeAccent.withOpacity(0.3)),
-            child: Row(children: [
-              Container(width: 4, height: 40, decoration: BoxDecoration(color: Colors.orangeAccent, borderRadius: BorderRadius.circular(2))),
-              const SizedBox(width: 12),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(event['event_name'] ?? '', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                if (event['venue'] != null)
-                  Row(children: [
-                    const Icon(Icons.location_on_rounded, color: Colors.orangeAccent, size: 12),
-                    const SizedBox(width: 4),
-                    Text(event['venue'], style: const TextStyle(color: AppTheme.textMuted, fontSize: 11)),
-                  ]),
-              ])),
-            ]),
-          ),
-        ).animate().fadeIn().slideY(begin: 0.05)),
       ],
-
-      // Exec-only: Add Event form panel
-      if (_isExec && _showAddForm && _selectedDay != null) ...[
-        const SizedBox(height: 16),
-        GlassContainer(
-          padding: const EdgeInsets.all(20),
-          border: Border.all(color: AppTheme.accentSecondary.withOpacity(0.3)),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Text('ADD EVENT', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 2)),
-                Text(
-                  '${_selectedDay!.day}/${_selectedDay!.month}/${_selectedDay!.year}',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ]),
-              IconButton(icon: const Icon(Icons.close_rounded, color: AppTheme.textMuted, size: 18), onPressed: () => setState(() => _showAddForm = false)),
-            ]),
-            const SizedBox(height: 16),
-            _buildTextField(_eventNameController, 'Event Name', Icons.event_rounded),
-            const SizedBox(height: 12),
-            _buildTextField(_venueController, 'Venue (or leave blank for TBA)', Icons.location_on_outlined),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _isSubmitting ? null : _addEvent,
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentSecondary),
-              child: _isSubmitting
-                  ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                  : const Text('ADD EVENT', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-            ),
-          ]),
-        ).animate().fadeIn().slideY(begin: 0.1),
-      ],
-
-      // Exec hint when a day is selected but form is hidden
-      if (_isExec && _selectedDay != null && !_showAddForm) ...[
-        const SizedBox(height: 12),
-        GestureDetector(
-          onTap: () => setState(() => _showAddForm = true),
-          child: GlassContainer(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-            border: Border.all(color: AppTheme.accentSecondary.withOpacity(0.2)),
-            child: Row(children: [
-              const Icon(Icons.add_circle_outline_rounded, color: AppTheme.accentSecondary, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Add event on ${_selectedDay!.day}/${_selectedDay!.month}/${_selectedDay!.year}',
-                style: const TextStyle(color: AppTheme.accentSecondary, fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-            ]),
-          ),
-        ).animate().fadeIn(),
-      ],
-    ]);
+    );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint, IconData icon) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String hint,
+    IconData icon,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.05),
@@ -347,10 +534,20 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
         style: const TextStyle(color: Colors.white, fontSize: 14),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 13),
-          prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.4), size: 18),
+          hintStyle: TextStyle(
+            color: Colors.white.withOpacity(0.2),
+            fontSize: 13,
+          ),
+          prefixIcon: Icon(
+            icon,
+            color: Colors.white.withOpacity(0.4),
+            size: 18,
+          ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
         ),
       ),
     );

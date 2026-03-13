@@ -16,6 +16,7 @@ import '../../leaderboard/screens/leaderboard_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../../societies/screens/societies_screen.dart';
 import '../../team/screens/team_screen.dart';
+import '../../forum/screens/forum_list_screen.dart';
 import '../../../core/utils/app_transitions.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -38,8 +39,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadInitialStats() async {
-    final supabase = Provider.of<SupabaseService>(context, listen: false).client;
-    
+    final supabase = Provider.of<SupabaseService>(
+      context,
+      listen: false,
+    ).client;
+
     // Using simple count queries
     final membersRes = await supabase.from('profiles').select('id');
     final notesRes = await supabase.from('notes').select('id');
@@ -56,10 +60,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _setupRealtime() {
     final supabase = Provider.of<SupabaseService>(context, listen: false);
-    
-    supabase.subscribeToTable(table: 'profiles', onUpdate: (_) => _loadInitialStats());
-    supabase.subscribeToTable(table: 'notes', onUpdate: (_) => _loadInitialStats());
-    supabase.subscribeToTable(table: 'projects', onUpdate: (_) => _loadInitialStats());
+
+    supabase.subscribeToTable(
+      table: 'profiles',
+      onUpdate: (_) => _loadInitialStats(),
+    );
+    supabase.subscribeToTable(
+      table: 'notes',
+      onUpdate: (_) => _loadInitialStats(),
+    );
+    supabase.subscribeToTable(
+      table: 'projects',
+      onUpdate: (_) => _loadInitialStats(),
+    );
   }
 
   @override
@@ -97,36 +110,87 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return GlassContainer(
       padding: const EdgeInsets.all(20),
       border: Border.all(color: AppTheme.accentPrimary.withOpacity(0.3)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: AppTheme.accentPrimary.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
-            child: const Icon(Icons.add_rounded, color: AppTheme.accentPrimary, size: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentPrimary.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.add_rounded,
+                  color: AppTheme.accentPrimary,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'CONTRIBUTE',
+                    style: TextStyle(
+                      color: AppTheme.accentSecondary,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  Text(
+                    'Share with the community',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('CONTRIBUTE', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 2)),
-            Text('Share with the community', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-          ]),
-        ]),
-        const SizedBox(height: 16),
-        Row(children: [
-          Expanded(child: _buildContributeButton(
-            'Add Note', Icons.note_add_rounded, AppTheme.accentSecondary,
-            () => Navigator.push(context, AppTransitions.slideUp(const AddNoteScreen())),
-          )),
-          const SizedBox(width: 12),
-          Expanded(child: _buildContributeButton(
-            'Post Project', Icons.rocket_launch_rounded, AppTheme.accentPrimary,
-            () => Navigator.push(context, AppTransitions.slideUp(const AddProjectScreen())),
-          )),
-        ]),
-      ]),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildContributeButton(
+                  'Add Note',
+                  Icons.note_add_rounded,
+                  AppTheme.accentSecondary,
+                  () => Navigator.push(
+                    context,
+                    AppTransitions.slideUp(const AddNoteScreen()),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildContributeButton(
+                  'Post Project',
+                  Icons.rocket_launch_rounded,
+                  AppTheme.accentPrimary,
+                  () => Navigator.push(
+                    context,
+                    AppTransitions.slideUp(const AddProjectScreen()),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     ).animate().fadeIn(delay: 300.ms);
   }
 
-  Widget _buildContributeButton(String label, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildContributeButton(
+    String label,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -136,11 +200,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: color.withOpacity(0.25)),
         ),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, color: color, size: 22),
-          const SizedBox(height: 6),
-          Text(label, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -153,15 +228,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('WELCOME BACK,', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
-            Text(user?.email?.split('@').first.toUpperCase() ?? 'STUDENT', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontSize: 28)),
+            Text(
+              'WELCOME BACK,',
+              style: TextStyle(
+                color: AppTheme.accentSecondary,
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
+              ),
+            ),
+            Text(
+              user?.email?.split('@').first.toUpperCase() ?? 'STUDENT',
+              style: Theme.of(
+                context,
+              ).textTheme.displayMedium?.copyWith(fontSize: 28),
+            ),
           ],
         ),
         Row(
           children: [
             GestureDetector(
-              onTap: () => Navigator.push(context, AppTransitions.slideUp(const ProfileScreen())),
-              child: const GlassContainer(padding: EdgeInsets.all(12), borderRadius: 12, child: Icon(Icons.person_rounded, color: AppTheme.accentSecondary, size: 20)),
+              onTap: () => Navigator.push(
+                context,
+                AppTransitions.slideUp(const ProfileScreen()),
+              ),
+              child: const GlassContainer(
+                padding: EdgeInsets.all(12),
+                borderRadius: 12,
+                child: Icon(
+                  Icons.person_rounded,
+                  color: AppTheme.accentSecondary,
+                  size: 20,
+                ),
+              ),
             ),
           ],
         ),
@@ -178,15 +277,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
       mainAxisSpacing: 16,
       childAspectRatio: 1.5,
       children: [
-        RepaintBoundary(child: _buildStatCard('MEMBERS', totalMembers.toString(), Icons.people_outline, AppTheme.accentPrimary)),
-        RepaintBoundary(child: _buildStatCard('NOTES', totalNotes.toString(), Icons.note_outlined, AppTheme.accentSecondary)),
-        RepaintBoundary(child: _buildStatCard('PROJECTS', totalProjects.toString(), Icons.rocket_launch_outlined, Colors.orangeAccent)),
-        RepaintBoundary(child: _buildStatCard('XP', '1.2k', Icons.bolt_rounded, Colors.yellowAccent)),
+        RepaintBoundary(
+          child: _buildStatCard(
+            'MEMBERS',
+            totalMembers.toString(),
+            Icons.people_outline,
+            AppTheme.accentPrimary,
+          ),
+        ),
+        RepaintBoundary(
+          child: _buildStatCard(
+            'NOTES',
+            totalNotes.toString(),
+            Icons.note_outlined,
+            AppTheme.accentSecondary,
+          ),
+        ),
+        RepaintBoundary(
+          child: _buildStatCard(
+            'PROJECTS',
+            totalProjects.toString(),
+            Icons.rocket_launch_outlined,
+            Colors.orangeAccent,
+          ),
+        ),
+        RepaintBoundary(
+          child: _buildStatCard(
+            'XP',
+            '1.2k',
+            Icons.bolt_rounded,
+            Colors.yellowAccent,
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return GlassContainer(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -199,14 +331,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(width: 8),
               Text(
                 label,
-                style: TextStyle(color: color.withOpacity(0.7), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1),
+                style: TextStyle(
+                  color: color.withOpacity(0.7),
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             value,
-            style: Theme.of(context).textTheme.displayMedium?.copyWith(fontSize: 20),
+            style: Theme.of(
+              context,
+            ).textTheme.displayMedium?.copyWith(fontSize: 20),
           ),
         ],
       ),
@@ -226,40 +365,123 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildActionButtons() {
-    return Column(children: [
-      _buildActionButton('Academic Library', 'Browse notes & materials', Icons.library_books_rounded, AppTheme.accentSecondary,
-          () => Navigator.push(context, AppTransitions.slideUp(GroupScreen()))),
-      const SizedBox(height: 12),
-      _buildActionButton('Incubation Center', 'View projects & apply', Icons.rocket_launch_rounded, AppTheme.accentPrimary,
-          () => Navigator.push(context, AppTransitions.slideUp(ProjectListScreen()))),
-      const SizedBox(height: 12),
-      _buildActionButton('Student Market', 'Buy & sell textbooks', Icons.shopping_bag_outlined, Colors.greenAccent,
-          () => Navigator.push(context, AppTransitions.slideUp(MarketplaceScreen()))),
-      const SizedBox(height: 12),
-      _buildActionButton('Upcoming Events', 'Register for workshops', Icons.event_rounded, Colors.orangeAccent,
-          () => Navigator.push(context, AppTransitions.slideUp(const EventListScreen()))),
-      const SizedBox(height: 12),
-      _buildActionButton('Leaderboard', 'View XP rankings', Icons.emoji_events_rounded, Colors.amberAccent,
-          () => Navigator.push(context, AppTransitions.slideUp(const LeaderboardScreen()))),
-      const SizedBox(height: 12),
-      Row(children: [
-        Expanded(child: _buildSmallActionButton('Societies', '🏛️', () => Navigator.push(context, AppTransitions.slideUp(const SocietiesScreen())))),
-        const SizedBox(width: 12),
-        Expanded(child: _buildSmallActionButton('Team', '👥', () => Navigator.push(context, AppTransitions.slideUp(const TeamScreen())))),
-      ]),
-    ]);
+    return Column(
+      children: [
+        _buildActionButton(
+          'Academic Library',
+          'Browse notes & materials',
+          Icons.library_books_rounded,
+          AppTheme.accentSecondary,
+          () => Navigator.push(context, AppTransitions.slideUp(GroupScreen())),
+        ),
+        const SizedBox(height: 12),
+        _buildActionButton(
+          'Incubation Center',
+          'View projects & apply',
+          Icons.rocket_launch_rounded,
+          AppTheme.accentPrimary,
+          () => Navigator.push(
+            context,
+            AppTransitions.slideUp(ProjectListScreen()),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildActionButton(
+          'Student Market',
+          'Buy & sell textbooks',
+          Icons.shopping_bag_outlined,
+          Colors.greenAccent,
+          () => Navigator.push(
+            context,
+            AppTransitions.slideUp(const MarketplaceScreen()),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildActionButton(
+          'Community Forum',
+          'Ask questions anonymously',
+          Icons.forum_rounded,
+          Colors.purpleAccent,
+          () => Navigator.push(
+            context,
+            AppTransitions.slideUp(const ForumListScreen()),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildActionButton(
+          'Upcoming Events',
+          'Register for workshops',
+          Icons.event_rounded,
+          Colors.orangeAccent,
+          () => Navigator.push(
+            context,
+            AppTransitions.slideUp(const EventListScreen()),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildActionButton(
+          'Leaderboard',
+          'View XP rankings',
+          Icons.emoji_events_rounded,
+          Colors.amberAccent,
+          () => Navigator.push(
+            context,
+            AppTransitions.slideUp(const LeaderboardScreen()),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildSmallActionButton(
+                'Societies',
+                '🏛️',
+                () => Navigator.push(
+                  context,
+                  AppTransitions.slideUp(const SocietiesScreen()),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildSmallActionButton(
+                'Team',
+                '👥',
+                () => Navigator.push(
+                  context,
+                  AppTransitions.slideUp(const TeamScreen()),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
-  Widget _buildSmallActionButton(String label, String emoji, VoidCallback onTap) {
+  Widget _buildSmallActionButton(
+    String label,
+    String emoji,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: GlassContainer(
         padding: const EdgeInsets.symmetric(vertical: 20),
-        child: Column(children: [
-          Text(emoji, style: const TextStyle(fontSize: 24)),
-          const SizedBox(height: 8),
-          Text(label, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-        ]),
+        child: Column(
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 24)),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -274,29 +496,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('WHAT WOULD YOU LIKE TO ADD?', 
-              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 2)),
+            const Text(
+              'WHAT WOULD YOU LIKE TO ADD?',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
+              ),
+            ),
             const SizedBox(height: 32),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _buildAddOption(
-                  'NOTE', 
-                  Icons.note_add_rounded, 
+                  'NOTE',
+                  Icons.note_add_rounded,
                   AppTheme.accentSecondary,
                   () {
                     Navigator.pop(context);
-                    Navigator.push(context, AppTransitions.slideUp(const AddNoteScreen()));
-                  }
+                    Navigator.push(
+                      context,
+                      AppTransitions.slideUp(const AddNoteScreen()),
+                    );
+                  },
                 ),
                 _buildAddOption(
-                  'PROJECT', 
-                  Icons.rocket_launch_rounded, 
+                  'PROJECT',
+                  Icons.rocket_launch_rounded,
                   AppTheme.accentPrimary,
                   () {
                     Navigator.pop(context);
-                    Navigator.push(context, AppTransitions.slideUp(const AddProjectScreen()));
-                  }
+                    Navigator.push(
+                      context,
+                      AppTransitions.slideUp(const AddProjectScreen()),
+                    );
+                  },
                 ),
               ],
             ),
@@ -307,7 +542,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildAddOption(String label, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildAddOption(
+    String label,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -323,13 +563,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Icon(icon, color: color, size: 32),
           ),
           const SizedBox(height: 12),
-          Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildActionButton(String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildActionButton(
+    String title,
+    String subtitle,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(24),
@@ -350,8 +604,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
-                  Text(subtitle, style: const TextStyle(color: AppTheme.textMuted, fontSize: 12)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: AppTheme.textMuted,
+                      fontSize: 12,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -362,4 +629,3 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ).animate().slideY(begin: 0.1);
   }
 }
-
