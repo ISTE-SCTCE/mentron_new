@@ -69,15 +69,12 @@ class _NoteListScreenState extends State<NoteListScreen> {
 
       final allNotes = (response as List).map((json) => Note.fromJson(json)).toList();
 
-      // Filter by year client-side — Note.year is always String (via .toString() in fromJson)
+      // Filter by year client-side
       final filtered = allNotes.where((n) => n.year == widget.year).toList();
-
-      // Fallback: if filtering returns nothing, show all dept notes so nothing is hidden
-      final result = filtered.isNotEmpty ? filtered : allNotes;
 
       if (mounted) {
         setState(() {
-          _notes = result;
+          _notes = filtered;
           _isLoading = false;
         });
       }
