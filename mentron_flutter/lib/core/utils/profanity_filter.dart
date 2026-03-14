@@ -10,6 +10,14 @@ class ProfanityFilter {
     'dumbass',
     'porn',
     'bastard',
+    'nigga',
+    'nigger',
+    'chink',
+    'kike',
+    'faggot',
+    'retard',
+    'slut',
+    'whore',
   ];
 
   /// Checks if the given text contains any inappropriate words.
