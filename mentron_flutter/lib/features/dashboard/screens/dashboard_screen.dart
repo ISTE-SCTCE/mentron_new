@@ -15,7 +15,7 @@ import '../../marketplace/screens/marketplace_screen.dart';
 import '../../events/screens/event_list_screen.dart';
 import '../../leaderboard/screens/leaderboard_screen.dart';
 import '../../profile/screens/profile_screen.dart';
-import '../../societies/screens/societies_screen.dart';
+
 import '../../team/screens/team_screen.dart';
 import '../../forum/screens/forum_list_screen.dart';
 import '../../../core/utils/app_transitions.dart';
@@ -462,30 +462,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildSmallActionButton(
-                'Societies',
-                '🏛️',
-                () => Navigator.push(
-                  context,
-                  AppTransitions.slideUp(const SocietiesScreen()),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildSmallActionButton(
-                'Team',
-                '👥',
-                () => Navigator.push(
-                  context,
-                  AppTransitions.slideUp(const TeamScreen()),
-                ),
-              ),
-            ),
-          ],
+        _buildActionButton(
+          'Executive Team',
+          'Meet the people behind Mentron',
+          Icons.verified_user_rounded,
+          AppTheme.accentSecondary,
+          () => Navigator.push(
+            context,
+            AppTransitions.slideUp(const TeamScreen()),
+          ),
         ),
       ],
     );
