@@ -250,6 +250,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
             GestureDetector(
               onTap: () => Navigator.push(
                 context,
+                AppTransitions.slideUp(const ForumListScreen()),
+              ),
+              child: const GlassContainer(
+                padding: EdgeInsets.all(12),
+                borderRadius: 12,
+                child: Icon(
+                  Icons.forum_rounded,
+                  color: AppTheme.accentSecondary,
+                  size: 20,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
                 AppTransitions.slideUp(const ProfileScreen()),
               ),
               child: const GlassContainer(
