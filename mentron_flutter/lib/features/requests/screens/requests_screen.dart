@@ -1,6 +1,12 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:http/http.dart' as http;
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:archive/archive.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
@@ -159,6 +165,100 @@ class _RequestsScreenState extends State<RequestsScreen>
     }
   }
 
+  /// Downloads the gzipped note, decompresses it, saves as .pdf and opens it.
+  Future<void> _downloadAndOpenNote(Map<String, dynamic> item) async {
+    // Show loading dialog
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: AppTheme.accentSecondary),
+            SizedBox(height: 16),
+            Text('Downloading...', style: TextStyle(color: Colors.white, decoration: TextDecoration.none, fontSize: 14)),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final supabase = Provider.of<SupabaseService>(context, listen: false).client;
+
+      // ── Step 1: Extract bucket + file path from any URL format ──
+      String bucket = 'notes_bucket';
+      String filePath = '';
+      final urlPath = item['file_url'] as String;
+
+      if (urlPath.startsWith('/api/files/')) {
+        final rest = urlPath.replaceFirst('/api/files/', '');
+        final idx = rest.indexOf('/');
+        if (idx != -1) { bucket = rest.substring(0, idx); filePath = rest.substring(idx + 1); }
+      } else if (urlPath.contains('/storage/v1/object/')) {
+        for (final pat in ['/object/public/', '/object/sign/']) {
+          if (urlPath.contains(pat)) {
+            final rest = urlPath.split(pat).last;
+            final idx = rest.indexOf('/');
+            if (idx != -1) { bucket = rest.substring(0, idx); filePath = rest.substring(idx + 1).split('?').first; }
+            break;
+          }
+        }
+      }
+
+      if (filePath.isEmpty) throw Exception('Cannot determine file path from URL');
+
+      // ── Step 2: Get a 1-hour signed URL ──
+      final signedUrl = await supabase.storage.from(bucket).createSignedUrl(filePath, 3600);
+
+      // ── Step 3: Download the gzipped bytes ──
+      final response = await http.get(Uri.parse(signedUrl));
+      if (response.statusCode != 200) throw Exception('Download failed (${response.statusCode})');
+      final compressedBytes = response.bodyBytes;
+
+      // ── Step 4: Decompress gzip → raw PDF bytes ──
+      Uint8List pdfBytes;
+      try {
+        final decoded = GZipDecoder().decodeBytes(compressedBytes);
+        pdfBytes = Uint8List.fromList(decoded);
+      } catch (_) {
+        // Not gzipped (e.g. old upload or already raw PDF)
+        pdfBytes = compressedBytes;
+      }
+
+      // ── Step 5: Build a clean .pdf filename ──
+      String cleanName = (item['title'] as String)
+          .replaceAll(RegExp(r'[^\w\s-]'), '')
+          .trim()
+          .replaceAll(RegExp(r'\s+'), '_');
+      if (cleanName.isEmpty) cleanName = 'note';
+      final pdfFileName = '$cleanName.pdf';
+
+      // ── Step 6: Save to temp directory ──
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/$pdfFileName');
+      await file.writeAsBytes(pdfBytes);
+
+      // ── Step 7: Dismiss loading, open with device PDF viewer / Drive ──
+      if (mounted) Navigator.of(context, rootNavigator: true).pop();
+
+      final result = await OpenFile.open(file.path);
+      if (result.type != ResultType.done && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(backgroundColor: Colors.red, content: Text('Could not open PDF: ${result.message}')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop(); // dismiss dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(backgroundColor: Colors.red, content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final totalPending = _pendingNotes.length + _pendingProjects.length;
@@ -274,9 +374,13 @@ class _RequestsScreenState extends State<RequestsScreen>
           // Action buttons
           Row(children: [
             Expanded(
+              child: _buildActionBtn('OPEN', Icons.open_in_new_rounded, AppTheme.accentSecondary, () => _downloadAndOpenNote(item)),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
               child: _buildActionBtn('APPROVE', Icons.check_rounded, Colors.greenAccent, () => _approveNote(item)),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             Expanded(
               child: _buildActionBtn('REJECT', Icons.close_rounded, Colors.redAccent, () => _rejectNote(item['id'])),
             ),
