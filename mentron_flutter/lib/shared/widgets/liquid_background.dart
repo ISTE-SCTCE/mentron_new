@@ -15,10 +15,13 @@ class LiquidBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
+      height: double.infinity,
       // Deep space navy — the signature color
       color: const Color(0xFF080B14),
       child: RepaintBoundary(
         child: Stack(
+          fit: StackFit.expand,
           children: [
             // Rich purple nebula — top left (larger, more saturated)
             Positioned(
