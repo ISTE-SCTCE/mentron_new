@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import '../../../core/utils/error_handler.dart';
+import '../../../core/utils/profanity_filter.dart';
 
 class AddQuestionScreen extends StatefulWidget {
   const AddQuestionScreen({super.key});
@@ -37,6 +38,16 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+      return;
+    }
+
+    if (ProfanityFilter.hasProfanity(title) || ProfanityFilter.hasProfanity(content)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.redAccent,
+          content: Text('🚫 Inappropriate content detected. Please keep the community safe.'),
+        ),
+      );
       return;
     }
 

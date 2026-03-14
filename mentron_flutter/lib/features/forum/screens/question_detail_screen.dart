@@ -7,6 +7,7 @@ import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import '../../../data/models/forum_model.dart';
 import '../../../core/utils/error_handler.dart';
+import '../../../core/utils/profanity_filter.dart';
 import 'package:intl/intl.dart';
 
 class QuestionDetailScreen extends StatefulWidget {
@@ -128,6 +129,16 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     final content = _answerController.text.trim();
     if (content.isEmpty) return;
     if (_currentUserId == null) return;
+
+    if (ProfanityFilter.hasProfanity(content)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.redAccent,
+          content: Text('🚫 Inappropriate content detected. Please keep the community safe.'),
+        ),
+      );
+      return;
+    }
 
     setState(() => _isSubmitting = true);
     final supabase = Provider.of<SupabaseService>(
