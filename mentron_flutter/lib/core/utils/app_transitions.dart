@@ -66,4 +66,26 @@ class AppTransitions {
       },
     );
   }
+
+  /// Horizontal slide from right to left (inverse of slideLeft)
+  static PageRouteBuilder<T> slideRight<T>(Widget page) {
+    return PageRouteBuilder<T>(
+      transitionDuration: _duration,
+      reverseTransitionDuration: _duration,
+      pageBuilder: (_, __, ___) => page,
+      transitionsBuilder: (_, animation, secondaryAnimation, child) {
+        final curved = CurvedAnimation(parent: animation, curve: _curve);
+        return FadeTransition(
+          opacity: curved,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(-0.08, 0.0),
+              end: Offset.zero,
+            ).animate(curved),
+            child: child,
+          ),
+        );
+      },
+    );
+  }
 }
