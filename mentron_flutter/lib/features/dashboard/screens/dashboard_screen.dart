@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
@@ -30,6 +31,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int totalMembers = 0;
   int totalNotes = 0;
   int totalProjects = 0;
+  int userXP = 0;
 
   @override
   void initState() {
@@ -44,17 +46,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
       listen: false,
     ).client;
 
-    // Using simple count queries
-    final membersRes = await supabase.from('profiles').select('id');
-    final notesRes = await supabase.from('notes').select('id');
-    final projectsRes = await supabase.from('projects').select('id');
+    try {
+      final membersCount = await supabase.from('profiles').count(CountOption.exact);
+      final notesCount = await supabase.from('notes').count(CountOption.exact);
+      final projectsCount = await supabase.from('projects').count(CountOption.exact);
 
-    if (mounted) {
-      setState(() {
-        totalMembers = (membersRes as List).length;
-        totalNotes = (notesRes as List).length;
-        totalProjects = (projectsRes as List).length;
-      });
+      final user = supabase.auth.currentUser;
+      int fetchedXp = 0;
+      if (user != null) {
+        final profileRes = await supabase.from('profiles').select('xp').eq('id', user.id).maybeSingle();
+        if (profileRes != null && profileRes['xp'] != null) {
+          fetchedXp = int.tryParse(profileRes['xp'].toString()) ?? 0;
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          totalMembers = membersCount;
+          totalNotes = notesCount;
+          totalProjects = projectsCount;
+          userXP = fetchedXp;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() {});
     }
   }
 
@@ -320,7 +335,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         RepaintBoundary(
           child: _buildStatCard(
             'XP',
-            '1.2k',
+            userXP >= 1000 ? '${(userXP / 1000).toStringAsFixed(1)}k' : userXP.toString(),
             Icons.bolt_rounded,
             Colors.yellowAccent,
           ),
