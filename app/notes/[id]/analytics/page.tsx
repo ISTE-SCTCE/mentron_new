@@ -79,6 +79,18 @@ export default async function NoteAnalyticsPage({
                         <h1 className="text-4xl font-black tracking-tighter text-white">{note.title}</h1>
                         <p className="text-gray-400 text-sm mt-2">{note.description}</p>
                     </div>
+
+                    <div className="flex items-center gap-4 mt-4">
+                        <a
+                            href={note.file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="glass glass-hover px-8 py-3 rounded-2xl text-blue-400 text-sm font-black uppercase tracking-widest flex items-center gap-3 transition-all hover:scale-105"
+                        >
+                            <span>View Document</span>
+                            <span className="text-xl">↗</span>
+                        </a>
+                    </div>
                 </header>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
