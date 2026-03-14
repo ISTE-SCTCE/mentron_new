@@ -60,7 +60,7 @@ class ForumAnswer {
   final bool isAnonymous;
   final String content;
   final bool isBestAnswer;
-  final int upvotes;
+  int upvotes;
   final DateTime createdAt;
 
   // Joined fields

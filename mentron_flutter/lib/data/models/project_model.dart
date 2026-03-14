@@ -7,7 +7,7 @@ class Project {
   final String category;
   final String status;
   final DateTime createdAt;
-  final String? profileId;
+  final String? postedBy;
 
   Project({
     required this.id,
@@ -18,7 +18,7 @@ class Project {
     required this.category,
     required this.status,
     required this.createdAt,
-    this.profileId,
+    this.postedBy,
   });
 
   factory Project.fromJson(Map<String, dynamic> json) {
@@ -31,7 +31,7 @@ class Project {
       category: json['category'] ?? 'General',
       status: json['status'] ?? 'open',
       createdAt: DateTime.parse(json['created_at']),
-      profileId: json['profile_id'],
+      postedBy: json['posted_by'],
     );
   }
 }

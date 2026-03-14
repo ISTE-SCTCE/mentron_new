@@ -54,8 +54,7 @@ class _ForumListScreenState extends State<ForumListScreen> {
     try {
       var query = supabase
           .from('forum_questions')
-          .select('*, profiles(full_name), forum_answers!question_id(count)')
-          .order('created_at', ascending: false);
+          .select('*, profiles(full_name), forum_answers!question_id(count)');
 
       if (_selectedTopic != 'All') {
         query = query.eq('topic', _selectedTopic);
@@ -65,7 +64,7 @@ class _ForumListScreenState extends State<ForumListScreen> {
         query = query.ilike('title', '%$_searchQuery%');
       }
 
-      final response = await query;
+      final response = await query.order('created_at', ascending: false);
 
       if (mounted) {
         setState(() {

@@ -113,14 +113,14 @@ class _RequestsScreenState extends State<RequestsScreen>
   Future<void> _approveProject(Map<String, dynamic> item) async {
     final client = Provider.of<SupabaseService>(context, listen: false).client;
     try {
-      // Use profile_id (not posted_by) to match the live projects table schema
+      // Use posted_by to match the live projects table schema
       await client.from('projects').insert({
         'title': item['title'],
         'description': item['description'],
         'role': item['role'] ?? 'Open',
         'duration': item['duration'] ?? 'Flexible',
         'category': item['category'] ?? 'General',
-        'profile_id': item['posted_by'],
+        'posted_by': item['posted_by'],
       });
       await client.from('pending_projects').delete().eq('id', item['id']);
       if (mounted) {
