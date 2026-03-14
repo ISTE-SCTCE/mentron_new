@@ -47,7 +47,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ).client;
 
     try {
-      final membersCount = await supabase.from('profiles').count(CountOption.exact);
+      final membersRes = await supabase.rpc('get_total_members');
+      final membersCount = membersRes is int ? membersRes : 0;
       final notesCount = await supabase.from('notes').count(CountOption.exact);
       final projectsCount = await supabase.from('projects').count(CountOption.exact);
 
