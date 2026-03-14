@@ -214,7 +214,7 @@ class _RequestsScreenState extends State<RequestsScreen>
       backgroundColor: AppTheme.surfaceColor,
       color: AppTheme.accentSecondary,
       child: ListView.builder(
-        padding: const EdgeInsets.fromLTRB(20, 130, 20, 40),
+        padding: const EdgeInsets.fromLTRB(20, 160, 20, 40),
         itemCount: _pendingNotes.length,
         itemBuilder: (context, i) => RepaintBoundary(child: _buildNoteCard(_pendingNotes[i], i)),
       ),
@@ -230,7 +230,7 @@ class _RequestsScreenState extends State<RequestsScreen>
       backgroundColor: AppTheme.surfaceColor,
       color: AppTheme.accentSecondary,
       child: ListView.builder(
-        padding: const EdgeInsets.fromLTRB(20, 130, 20, 40),
+        padding: const EdgeInsets.fromLTRB(20, 160, 20, 40),
         itemCount: _pendingProjects.length,
         itemBuilder: (context, i) => RepaintBoundary(child: _buildProjectCard(_pendingProjects[i], i)),
       ),
