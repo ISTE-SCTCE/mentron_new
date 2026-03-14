@@ -47,19 +47,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ).client;
 
     try {
-      final membersRes = await supabase.rpc('get_total_members');
-      final membersCount = membersRes is int ? membersRes : 0;
-      final notesCount = await supabase.from('notes').count(CountOption.exact);
-      final projectsCount = await supabase.from('projects').count(CountOption.exact);
-
       final user = supabase.auth.currentUser;
+      String? userDept;
       int fetchedXp = 0;
+
       if (user != null) {
-        final profileRes = await supabase.from('profiles').select('xp').eq('id', user.id).maybeSingle();
-        if (profileRes != null && profileRes['xp'] != null) {
-          fetchedXp = int.tryParse(profileRes['xp'].toString()) ?? 0;
+        final profileRes = await supabase.from('profiles').select('department, xp').eq('id', user.id).maybeSingle();
+        if (profileRes != null) {
+          userDept = profileRes['department'] as String?;
+          if (profileRes['xp'] != null) {
+            fetchedXp = int.tryParse(profileRes['xp'].toString()) ?? 0;
+          }
         }
       }
+
+      final membersRes = await supabase.rpc('get_total_members');
+      final membersCount = membersRes is int ? membersRes : 0;
+
+      var notesQuery = supabase.from('notes').count(CountOption.exact);
+      if (userDept != null) notesQuery = notesQuery.eq('department', userDept);
+      final notesCount = await notesQuery;
+
+      var projectsQuery = supabase.from('projects').count(CountOption.exact);
+      if (userDept != null) projectsQuery = projectsQuery.eq('department', userDept);
+      final projectsCount = await projectsQuery;
 
       if (mounted) {
         setState(() {
