@@ -8,6 +8,7 @@ import '../../../shared/widgets/liquid_background.dart';
 import '../../../data/models/project_model.dart';
 import 'project_detail_screen.dart';
 import 'add_project_screen.dart';
+import 'project_applications_screen.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../core/utils/app_transitions.dart';
 
@@ -168,13 +169,41 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             _buildInfoItem(Icons.timer_outlined, project.duration),
           ]),
           const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.push(context, AppTransitions.slideLeft(ProjectDetailScreen(project: project))),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.white.withOpacity(0.05), foregroundColor: Colors.white, side: BorderSide(color: Colors.white.withOpacity(0.1))),
-              child: const Text('VIEW DETAILS & APPLY'),
-            ),
+          Column(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.push(context, AppTransitions.slideLeft(ProjectDetailScreen(project: project))),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white.withOpacity(0.05), 
+                    foregroundColor: Colors.white, 
+                    side: BorderSide(color: Colors.white.withOpacity(0.1))
+                  ),
+                  child: const Text('VIEW DETAILS & APPLY'),
+                ),
+              ),
+              if (project.profileId == _currentUserId) ...[
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context, 
+                        AppTransitions.slideRight(ProjectApplicationsScreen(project: project))
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.accentSecondary.withOpacity(0.1),
+                      foregroundColor: AppTheme.accentSecondary,
+                      side: const BorderSide(color: AppTheme.accentSecondary),
+                    ),
+                    child: const Text('MANAGE APPLICATIONS'),
+                  ),
+                ),
+              ],
+            ],
           ),
         ]),
       ),

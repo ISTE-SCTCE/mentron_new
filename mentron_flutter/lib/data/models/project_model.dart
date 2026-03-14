@@ -43,6 +43,7 @@ class ProjectApplication {
   final String cvUrl;
   final String status;
   final DateTime createdAt;
+  final String? applicantName;
 
   ProjectApplication({
     required this.id,
@@ -51,6 +52,7 @@ class ProjectApplication {
     required this.cvUrl,
     required this.status,
     required this.createdAt,
+    this.applicantName,
   });
 
   factory ProjectApplication.fromJson(Map<String, dynamic> json) {
@@ -61,6 +63,7 @@ class ProjectApplication {
       cvUrl: json['cv_url'],
       status: json['status'] ?? 'pending',
       createdAt: DateTime.parse(json['created_at']),
+      applicantName: json['profiles']?['full_name'],
     );
   }
 }
