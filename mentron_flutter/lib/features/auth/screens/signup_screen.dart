@@ -52,12 +52,27 @@ class _SignupScreenState extends State<SignupScreen> {
       );
 
       if (response.user != null && mounted) {
+        // Fetch existing profile to prevent role downgrade
+        final existing = await supabase.client
+            .from('profiles')
+            .select('role')
+            .eq('id', response.user!.id)
+            .maybeSingle();
+        
+        String newRole = 'member';
+        if (existing != null) {
+          final oldRole = existing['role'] as String?;
+          if (oldRole == 'panel' || oldRole == 'exec') {
+            newRole = oldRole;
+          }
+        }
+
         await supabase.client.from('profiles').upsert({
           'id': response.user!.id,
           'full_name': _fullNameController.text.trim(),
           'roll_number': _rollNumberController.text.trim().toUpperCase(),
           'year': int.tryParse(_selectedYear!) ?? 1,
-          'role': 'member',
+          'role': newRole,
           'department': _selectedDept,
           'xp': 0,
         });
