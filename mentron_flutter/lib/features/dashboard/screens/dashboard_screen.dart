@@ -62,7 +62,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
         // Check panel membership
         try {
-          final panelRes = await supabase.from('panel_members').select('id').eq('email', user.email ?? '').maybeSingle();
+          final panelRes = await supabase.from('panel_members').select('id').eq('name', user.email ?? '').maybeSingle();
           if (mounted && panelRes != null) setState(() => _isPanelMember = true);
         } catch (_) {}
       }
