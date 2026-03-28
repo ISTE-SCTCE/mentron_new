@@ -59,25 +59,15 @@ export default function SignupPage() {
                             className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
                         />
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <input
-                                name="year"
-                                type="number"
-                                placeholder="Year (1-4)"
-                                min="1"
-                                max="5"
-                                required
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
-                            />
-                            <select
-                                name="role"
-                                required
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none cursor-pointer backdrop-blur-md"
-                            >
-                                <option value="member" className="bg-[#0a0a0a] text-white">Normal Member</option>
-                                <option value="exec" className="bg-[#0a0a0a] text-white">Executive Member</option>
-                            </select>
-                        </div>
+                        <input
+                            name="year"
+                            type="number"
+                            placeholder="Year (1-4)"
+                            min="1"
+                            max="5"
+                            required
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
+                        />
                     </div>
 
                     <button

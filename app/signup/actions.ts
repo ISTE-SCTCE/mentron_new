@@ -12,7 +12,7 @@ export async function signup(formData: FormData) {
     const fullName = formData.get('full_name') as string
     const rollNumber = formData.get('roll_number') as string
     const year = formData.get('year') as string
-    const role = formData.get('role') as string
+    const role = 'member'
 
     // Auto-detect department from roll number
     const department = getDepartmentFromRollNumber(rollNumber)
