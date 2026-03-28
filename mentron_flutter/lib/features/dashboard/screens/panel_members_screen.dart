@@ -29,6 +29,7 @@ class _PanelMembersScreenState extends State<PanelMembersScreen> {
       final res = await supabase
           .from('profiles')
           .select('id, full_name, role, department, year')
+          .neq('role', 'panel')
           .order('full_name');
       if (mounted) setState(() { _members = List<Map<String, dynamic>>.from(res); _isLoading = false; });
     } catch (_) {

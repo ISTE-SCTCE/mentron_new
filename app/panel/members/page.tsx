@@ -49,6 +49,7 @@ export default function PanelMembersPage() {
         const { data } = await supabase
             .from('profiles')
             .select('id, full_name, roll_number, department, year, role')
+            .neq('role', 'panel')
             .order('full_name', { ascending: true })
 
         const list = (data ?? []) as Profile[]
