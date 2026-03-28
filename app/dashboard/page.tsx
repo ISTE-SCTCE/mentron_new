@@ -10,9 +10,11 @@ import { FloatingBanner } from '@/app/components/FloatingBanner'
 import { CyberPulseWidget } from '@/app/components/CyberPulseWidget'
 import { MentronOrbWidget } from '@/app/components/MentronOrbWidget'
 import { GlobalSearch } from '@/app/components/GlobalSearch'
+import { isPanelMember } from '@/app/lib/utils/panelAuth'
 
 export default async function DashboardPage() {
     const supabase = await createClient()
+    const panelMember = await isPanelMember()
 
     const {
         data: { user },
@@ -225,6 +227,31 @@ export default async function DashboardPage() {
                                         </Link>
                                     </div>
                                 </div>
+                            )}
+
+                            {/* Panel Member Card — only visible to panel members */}
+                            {panelMember && (
+                                <Link
+                                    href="/panel/members"
+                                    className="glass-card group block border-purple-500/20 bg-purple-500/5 mt-8 hover:bg-purple-500/10 transition-all"
+                                >
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div>
+                                            <h3 className="text-xs font-black tracking-[0.2em] text-purple-400 uppercase mb-2">Panel Control</h3>
+                                            <p className="text-2xl font-black text-white group-hover:text-glow transition-all">Manage Members</p>
+                                        </div>
+                                        <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-xl">
+                                            🔐
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-gray-500 font-medium">
+                                        View all members, promote to Executive or demote to Normal Member.
+                                    </p>
+                                    <div className="mt-6 flex items-center gap-2 text-purple-400 text-xs font-black uppercase tracking-widest">
+                                        <span>Open Panel</span>
+                                        <span>→</span>
+                                    </div>
+                                </Link>
                             )}
                         </section>
                     </div>
