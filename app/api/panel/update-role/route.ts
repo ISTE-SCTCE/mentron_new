@@ -14,13 +14,13 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Verify the caller is a panel member
-    const { data: panel, error: panelError } = await supabase
-        .from('panel_members')
-        .select('id')
-        .eq('name', user.email)
-        .maybeSingle()
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
 
-    if (panelError || !panel) {
+    if (profile?.role !== 'panel') {
         return NextResponse.json(
             { error: 'Forbidden: Not a panel member' },
             { status: 403 }

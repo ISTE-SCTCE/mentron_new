@@ -10,17 +10,13 @@ export async function isPanelMember(): Promise<boolean> {
     const {
         data: { user },
     } = await supabase.auth.getUser()
-
-    if (!user?.email) return false
-
-    const { data, error } = await supabase
-        .from('panel_members')
-        .select('id')
-        .eq('name', user.email)
-        .maybeSingle()
-
-    if (error || !data) return false
-    return true
+    if (!user) return false
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+    return profile?.role === 'panel'
 }
 
 /**

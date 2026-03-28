@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation'
 type Profile = {
     id: string
     full_name: string
-    email: string
     roll_number: string
     department: string
     year: string
@@ -29,15 +28,17 @@ export default function PanelMembersPage() {
     useEffect(() => {
         async function checkAccess() {
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user?.email) { router.replace('/login'); return }
+            if (!user) { router.replace('/login'); return }
 
-            const { data } = await supabase
-                .from('panel_members')
-                .select('id')
-                .eq('name', user.email)
-                .maybeSingle()
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', user.id)
+                .single()
 
-            if (!data) router.replace('/dashboard')
+            if (profile?.role !== 'panel') {
+                router.replace('/dashboard')
+            }
         }
         checkAccess()
     }, [supabase, router])
@@ -47,7 +48,7 @@ export default function PanelMembersPage() {
         setLoading(true)
         const { data } = await supabase
             .from('profiles')
-            .select('id, full_name, email, roll_number, department, year, role')
+            .select('id, full_name, roll_number, department, year, role')
             .order('full_name', { ascending: true })
 
         const list = (data ?? []) as Profile[]
@@ -65,7 +66,6 @@ export default function PanelMembersPage() {
             members.filter(
                 (m) =>
                     m.full_name?.toLowerCase().includes(q) ||
-                    m.email?.toLowerCase().includes(q) ||
                     m.roll_number?.toLowerCase().includes(q) ||
                     m.department?.toLowerCase().includes(q)
             )
@@ -138,7 +138,7 @@ export default function PanelMembersPage() {
             <div className="mb-6">
                 <input
                     type="text"
-                    placeholder="Search by name, email, roll number, department…"
+                    placeholder="Search by name, roll number, department…"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
@@ -185,7 +185,6 @@ export default function PanelMembersPage() {
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-bold text-white leading-tight">{m.full_name || '—'}</p>
-                                                        <p className="text-[10px] text-gray-500">{m.email || '—'}</p>
                                                     </div>
                                                 </div>
                                             </td>
