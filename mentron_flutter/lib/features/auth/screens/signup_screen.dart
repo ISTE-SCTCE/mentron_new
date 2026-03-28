@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/utils/department_mapper.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import '../../../core/utils/error_handler.dart';
@@ -19,22 +18,17 @@ class _SignupScreenState extends State<SignupScreen> {
   final _rollNumberController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _yearController = TextEditingController();
-  String _selectedRole = 'member';
+  String? _selectedYear;
+  String? _selectedDept;
   bool _isLoading = false;
-  String? _detectedDept;
-
-  void _onRollChanged(String roll) {
-    final dept = DepartmentMapper.getDepartmentFromRoll(roll);
-    setState(() => _detectedDept = dept != 'Other' ? dept : null);
-  }
 
   Future<void> _handleSignup() async {
     if (_fullNameController.text.isEmpty ||
         _rollNumberController.text.isEmpty ||
         _emailController.text.isEmpty ||
         _passwordController.text.isEmpty ||
-        _yearController.text.isEmpty) {
+        _selectedYear == null ||
+        _selectedDept == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all fields')),
       );
@@ -51,21 +45,20 @@ class _SignupScreenState extends State<SignupScreen> {
         data: {
           'full_name': _fullNameController.text.trim(),
           'roll_number': _rollNumberController.text.trim().toUpperCase(),
-          'year': int.tryParse(_yearController.text.trim()) ?? 1,
-          'role': _selectedRole,
-          'department': DepartmentMapper.getDepartmentFromRoll(_rollNumberController.text.trim()),
+          'year': int.tryParse(_selectedYear!) ?? 1,
+          'role': 'member',
+          'department': _selectedDept,
         },
       );
 
       if (response.user != null && mounted) {
-        // Auto-insert into profiles table
         await supabase.client.from('profiles').upsert({
           'id': response.user!.id,
           'full_name': _fullNameController.text.trim(),
           'roll_number': _rollNumberController.text.trim().toUpperCase(),
-          'year': int.tryParse(_yearController.text.trim()) ?? 1,
-          'role': _selectedRole,
-          'department': DepartmentMapper.getDepartmentFromRoll(_rollNumberController.text.trim()),
+          'year': int.tryParse(_selectedYear!) ?? 1,
+          'role': 'member',
+          'department': _selectedDept,
           'xp': 0,
         });
 
@@ -76,7 +69,7 @@ class _SignupScreenState extends State<SignupScreen> {
               content: Text('Account created! Please check your email to verify.'),
             ),
           );
-          Navigator.pop(context); // Go back to login
+          Navigator.pop(context);
         }
       }
     } catch (e) {
@@ -114,7 +107,6 @@ class _SignupScreenState extends State<SignupScreen> {
               padding: const EdgeInsets.fromLTRB(24, 100, 24, 40),
               child: Column(
                 children: [
-                  // Header
                   const Text(
                     'STEP INTO INNOVATION',
                     style: TextStyle(color: AppTheme.accentSecondary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 3),
@@ -139,21 +131,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           _rollNumberController,
                           'e.g. 22CS001',
                           Icons.badge_outlined,
-                          onChanged: _onRollChanged,
                         ),
-                        if (_detectedDept != null) ...[
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              const Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 12),
-                              const SizedBox(width: 6),
-                              Text(
-                                'Auto-detected: $_detectedDept',
-                                style: const TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
-                              ),
-                            ],
-                          ),
-                        ],
                         const SizedBox(height: 16),
                         _buildLabel('EMAIL ADDRESS'),
                         _buildTextField(_emailController, 'your@email.com', Icons.alternate_email_rounded, keyboardType: TextInputType.emailAddress),
@@ -161,6 +139,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         _buildLabel('PASSWORD'),
                         _buildTextField(_passwordController, 'Create a strong password', Icons.lock_outline_rounded, isPassword: true),
                         const SizedBox(height: 16),
+                        // Year + Department row
                         Row(
                           children: [
                             Expanded(
@@ -168,7 +147,14 @@ class _SignupScreenState extends State<SignupScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   _buildLabel('YEAR'),
-                                  _buildTextField(_yearController, '1 - 4', Icons.school_outlined, keyboardType: TextInputType.number),
+                                  _buildDropdown(
+                                    value: _selectedYear,
+                                    hint: 'Year',
+                                    icon: Icons.school_outlined,
+                                    items: const ['1', '2', '3', '4'],
+                                    labels: const ['1st Year', '2nd Year', '3rd Year', '4th Year'],
+                                    onChanged: (val) => setState(() => _selectedYear = val),
+                                  ),
                                 ],
                               ),
                             ),
@@ -177,8 +163,15 @@ class _SignupScreenState extends State<SignupScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildLabel('ROLE'),
-                                  _buildRoleDropdown(),
+                                  _buildLabel('DEPARTMENT'),
+                                  _buildDropdown(
+                                    value: _selectedDept,
+                                    hint: 'Dept',
+                                    icon: Icons.business_outlined,
+                                    items: const ['CSE', 'ECE', 'ME', 'MEA', 'BT'],
+                                    labels: const ['CSE', 'ECE', 'Mechanical', 'Automobile', 'Biotech'],
+                                    onChanged: (val) => setState(() => _selectedDept = val),
+                                  ),
                                 ],
                               ),
                             ),
@@ -227,7 +220,6 @@ class _SignupScreenState extends State<SignupScreen> {
     IconData icon, {
     bool isPassword = false,
     TextInputType keyboardType = TextInputType.text,
-    void Function(String)? onChanged,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -239,7 +231,6 @@ class _SignupScreenState extends State<SignupScreen> {
         controller: controller,
         obscureText: isPassword,
         keyboardType: keyboardType,
-        onChanged: onChanged,
         style: const TextStyle(color: Colors.white, fontSize: 14),
         decoration: InputDecoration(
           hintText: hint,
@@ -252,7 +243,14 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildRoleDropdown() {
+  Widget _buildDropdown({
+    required String? value,
+    required String hint,
+    required IconData icon,
+    required List<String> items,
+    required List<String> labels,
+    required ValueChanged<String?> onChanged,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
@@ -262,15 +260,20 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: _selectedRole,
+          value: value,
           isExpanded: true,
           dropdownColor: AppTheme.surfaceColor,
           style: const TextStyle(color: Colors.white, fontSize: 13),
-          onChanged: (val) => setState(() => _selectedRole = val!),
-          items: const [
-            DropdownMenuItem(value: 'member', child: Text('Normal Member')),
-            DropdownMenuItem(value: 'exec', child: Text('Executive Member')),
-          ],
+          hint: Row(children: [
+            Icon(icon, color: Colors.white.withOpacity(0.3), size: 16),
+            const SizedBox(width: 8),
+            Text(hint, style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 13)),
+          ]),
+          onChanged: onChanged,
+          items: List.generate(items.length, (i) => DropdownMenuItem(
+            value: items[i],
+            child: Text(labels[i]),
+          )),
         ),
       ),
     );

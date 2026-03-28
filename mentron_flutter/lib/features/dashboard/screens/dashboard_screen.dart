@@ -15,9 +15,9 @@ import '../../marketplace/screens/marketplace_screen.dart';
 import '../../events/screens/event_list_screen.dart';
 import '../../leaderboard/screens/leaderboard_screen.dart';
 import '../../profile/screens/profile_screen.dart';
-
 import '../../team/screens/team_screen.dart';
 import '../../forum/screens/forum_list_screen.dart';
+import 'panel_members_screen.dart';
 import '../../../core/utils/app_transitions.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -32,6 +32,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int totalNotes = 0;
   int totalProjects = 0;
   int userXP = 0;
+  bool _isPanelMember = false;
 
   @override
   void initState() {
@@ -59,6 +60,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             fetchedXp = int.tryParse(profileRes['xp'].toString()) ?? 0;
           }
         }
+        // Check panel membership
+        try {
+          final panelRes = await supabase.from('panel_members').select('id').eq('email', user.email ?? '').maybeSingle();
+          if (mounted && panelRes != null) setState(() => _isPanelMember = true);
+        } catch (_) {}
       }
 
       final membersRes = await supabase.rpc('get_total_members');
@@ -483,6 +489,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
             AppTransitions.slideUp(const TeamScreen()),
           ),
         ),
+        if (_isPanelMember) ...[
+          const SizedBox(height: 12),
+          _buildActionButton(
+            'Manage Members',
+            'Promote, demote & view all members',
+            Icons.admin_panel_settings_rounded,
+            Colors.purpleAccent,
+            () => Navigator.push(
+              context,
+              AppTransitions.slideUp(const PanelMembersScreen()),
+            ),
+          ),
+        ],
       ],
     );
   }
