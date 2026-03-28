@@ -94,28 +94,6 @@ class _GroupScreenState extends State<GroupScreen> {
             : ListView(
                 padding: const EdgeInsets.fromLTRB(24, 120, 24, 40),
                 children: [
-                  // ── Auto-detected Department Banner ──────────────
-                  if (_userDept != null) ...[
-                    _buildSectionHeader('AUTO-DETECTED FOR YOU'),
-                    const SizedBox(height: 12),
-                    _buildMyDeptCard(),
-                    const SizedBox(height: 32),
-                  ] else ...[
-                    GlassContainer(
-                      padding: const EdgeInsets.all(20),
-                      border: Border.all(color: Colors.orangeAccent.withOpacity(0.3)),
-                      child: Row(children: [
-                        const Icon(Icons.warning_amber_rounded, color: Colors.orangeAccent, size: 20),
-                        const SizedBox(width: 12),
-                        const Expanded(child: Text(
-                          'Set your department in your profile to see your personalised section.',
-                          style: TextStyle(color: AppTheme.textMuted, fontSize: 12, height: 1.5),
-                        )),
-                      ]),
-                    ).animate().fadeIn(),
-                    const SizedBox(height: 32),
-                  ],
-
                   // ── Browse by Year ───────────────────────────────
                   _buildSectionHeader('BROWSE BY YEAR'),
                   const SizedBox(height: 16),
