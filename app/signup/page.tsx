@@ -32,16 +32,13 @@ export default function SignupPage() {
                                 required
                                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
                             />
-                            <div className="space-y-1">
-                                <input
-                                    name="roll_number"
-                                    type="text"
-                                    placeholder="Roll Number"
-                                    required
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium uppercase"
-                                />
-                                <p className="text-[9px] text-gray-500 px-2 font-black tracking-widest uppercase">Auto-detecting Dept</p>
-                            </div>
+                            <input
+                                name="roll_number"
+                                type="text"
+                                placeholder="Roll Number"
+                                required
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium uppercase"
+                            />
                         </div>
 
                         <input
@@ -59,15 +56,31 @@ export default function SignupPage() {
                             className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
                         />
 
-                        <input
-                            name="year"
-                            type="number"
-                            placeholder="Year (1-4)"
-                            min="1"
-                            max="5"
-                            required
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
-                        />
+                        <div className="grid grid-cols-2 gap-4">
+                            <select
+                                name="year"
+                                required
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none cursor-pointer backdrop-blur-md"
+                            >
+                                <option value="" disabled selected className="bg-[#0a0a0a] text-gray-500">Year</option>
+                                <option value="1" className="bg-[#0a0a0a] text-white">1st Year</option>
+                                <option value="2" className="bg-[#0a0a0a] text-white">2nd Year</option>
+                                <option value="3" className="bg-[#0a0a0a] text-white">3rd Year</option>
+                                <option value="4" className="bg-[#0a0a0a] text-white">4th Year</option>
+                            </select>
+                            <select
+                                name="department"
+                                required
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none cursor-pointer backdrop-blur-md"
+                            >
+                                <option value="" disabled selected className="bg-[#0a0a0a] text-gray-500">Department</option>
+                                <option value="CSE" className="bg-[#0a0a0a] text-white">CSE</option>
+                                <option value="ECE" className="bg-[#0a0a0a] text-white">ECE</option>
+                                <option value="ME" className="bg-[#0a0a0a] text-white">Mechanical</option>
+                                <option value="MEA" className="bg-[#0a0a0a] text-white">Automobile</option>
+                                <option value="BT" className="bg-[#0a0a0a] text-white">Biotechnology</option>
+                            </select>
+                        </div>
                     </div>
 
                     <button

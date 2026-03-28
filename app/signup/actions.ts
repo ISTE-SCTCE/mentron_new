@@ -14,8 +14,9 @@ export async function signup(formData: FormData) {
     const year = formData.get('year') as string
     const role = 'member'
 
-    // Auto-detect department from roll number
-    const department = getDepartmentFromRollNumber(rollNumber)
+    // Use manually selected department; fall back to roll number detection
+    const selectedDept = formData.get('department') as string
+    const department = selectedDept || getDepartmentFromRollNumber(rollNumber)
 
     const { data: { user }, error: signUpError } = await supabase.auth.signUp({
         email,
