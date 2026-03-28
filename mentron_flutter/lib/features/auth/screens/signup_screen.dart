@@ -63,7 +63,7 @@ class _SignupScreenState extends State<SignupScreen> {
         if (existing != null) {
           final oldRole = existing['role'] as String?;
           if (oldRole == 'panel' || oldRole == 'exec') {
-            newRole = oldRole;
+            newRole = oldRole!;
           }
         }
 
