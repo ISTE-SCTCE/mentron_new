@@ -21,6 +21,8 @@ class DeptPickerScreen extends StatefulWidget {
 class _DeptPickerScreenState extends State<DeptPickerScreen> {
   String? _userDept;
 
+  String? _userRole;
+
   static const _deptColors = {
     'CSE': Color(0xFF3B82F6),
     'ECE': Color(0xFF06B6D4),
@@ -42,11 +44,14 @@ class _DeptPickerScreenState extends State<DeptPickerScreen> {
     try {
       final profile = await supabase.client
           .from('profiles')
-          .select('department')
+          .select('department, role')
           .eq('id', user.id)
           .maybeSingle();
       if (mounted && profile != null) {
-        setState(() => _userDept = (profile['department'] as String?)?.trim().toUpperCase());
+        setState(() {
+          _userDept = (profile['department'] as String?)?.trim().toUpperCase();
+          _userRole = (profile['role'] as String?)?.trim().toLowerCase();
+        });
       }
     } catch (_) {}
   }
@@ -113,7 +118,7 @@ class _DeptPickerScreenState extends State<DeptPickerScreen> {
             ...List.generate(depts.length, (i) {
               final code = depts[i].key;
               final meta = depts[i].value;
-              final isUnlocked = _userDept == null || _userDept == code;
+              final isUnlocked = _userRole == 'panel' || _userRole == 'exec' || _userDept == null || _userDept == code;
               final color = isUnlocked ? _deptColors[code]! : Colors.grey;
 
               return Padding(
