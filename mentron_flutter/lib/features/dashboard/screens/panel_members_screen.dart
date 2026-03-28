@@ -28,7 +28,7 @@ class _PanelMembersScreenState extends State<PanelMembersScreen> {
     try {
       final res = await supabase
           .from('profiles')
-          .select('id, full_name, email, role, department, year')
+          .select('id, full_name, role, department, year')
           .order('full_name');
       if (mounted) setState(() { _members = List<Map<String, dynamic>>.from(res); _isLoading = false; });
     } catch (_) {
@@ -150,8 +150,6 @@ class _PanelMembersScreenState extends State<PanelMembersScreen> {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(member['full_name'] ?? 'Unknown', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-              const SizedBox(height: 2),
-              Text(member['email'] ?? '', style: const TextStyle(color: AppTheme.textMuted, fontSize: 11)),
               const SizedBox(height: 4),
               Row(children: [
                 if ((member['department'] ?? '').isNotEmpty)

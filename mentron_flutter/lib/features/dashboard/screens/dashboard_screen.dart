@@ -53,18 +53,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       int fetchedXp = 0;
 
       if (user != null) {
-        final profileRes = await supabase.from('profiles').select('department, xp').eq('id', user.id).maybeSingle();
+        final profileRes = await supabase.from('profiles').select('department, xp, role').eq('id', user.id).maybeSingle();
         if (profileRes != null) {
           userDept = profileRes['department'] as String?;
+          final userRole = profileRes['role'] as String?;
+          if (mounted && userRole == 'panel') {
+            setState(() => _isPanelMember = true);
+          }
           if (profileRes['xp'] != null) {
             fetchedXp = int.tryParse(profileRes['xp'].toString()) ?? 0;
           }
         }
-        // Check panel membership
-        try {
-          final panelRes = await supabase.from('panel_members').select('id').eq('name', user.email ?? '').maybeSingle();
-          if (mounted && panelRes != null) setState(() => _isPanelMember = true);
-        } catch (_) {}
       }
 
       final membersRes = await supabase.rpc('get_total_members');
