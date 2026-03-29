@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../features/dashboard/screens/dashboard_screen.dart';
 import '../features/notes/screens/group_screen.dart';
 import '../features/projects/screens/project_list_screen.dart';
@@ -18,12 +19,13 @@ class MainScaffold extends StatefulWidget {
 }
 
 class _MainScaffoldState extends State<MainScaffold>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   int _currentIndex = 0;
   bool _isNavbarVisible = true;
   double _lastScrollOffset = 0;
   bool _isExec = false;
   int _pendingCount = 0;
+  RealtimeChannel? _roleChannel;
 
   // Animation controller for smooth show/hide
   late AnimationController _navbarAnimController;
@@ -39,6 +41,7 @@ class _MainScaffoldState extends State<MainScaffold>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _navbarAnimController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -49,10 +52,45 @@ class _MainScaffoldState extends State<MainScaffold>
     ).animate(CurvedAnimation(parent: _navbarAnimController, curve: Curves.easeInOut));
 
     _checkUserRole();
+    _subscribeToRoleChanges();
+  }
+
+  /// Re-check role whenever the app comes back to the foreground.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkUserRole();
+    }
+  }
+
+  /// Subscribe to real-time changes on the current user's profile row.
+  /// If the role column changes (e.g. panel promotes/demotes them),
+  /// we immediately re-fetch and refresh _isExec.
+  void _subscribeToRoleChanges() {
+    final supabase = Provider.of<SupabaseService>(context, listen: false);
+    final userId = supabase.currentUser?.id;
+    if (userId == null) return;
+
+    _roleChannel = supabase.client
+        .channel('role-watch-$userId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'profiles',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'id',
+            value: userId,
+          ),
+          callback: (_) => _checkUserRole(),
+        )
+        .subscribe();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _roleChannel?.unsubscribe();
     _navbarAnimController.dispose();
     super.dispose();
   }
@@ -67,9 +105,17 @@ class _MainScaffoldState extends State<MainScaffold>
           .select('role')
           .eq('id', userId)
           .maybeSingle();
-      if (mounted && profile != null && profile['role'] == 'exec') {
+      if (!mounted || profile == null) return;
+      final isExec = profile['role'] == 'exec';
+      if (isExec) {
         setState(() => _isExec = true);
         _fetchPendingCount();
+      } else {
+        // Demoted or member — hide bell
+        setState(() {
+          _isExec = false;
+          _pendingCount = 0;
+        });
       }
     } catch (_) {}
   }
