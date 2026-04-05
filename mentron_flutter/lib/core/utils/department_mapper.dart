@@ -27,4 +27,14 @@ class DepartmentMapper {
       orElse: () => {'name': code}
     )['name']!;
   }
+
+  static String getGroupFromDepartment(String? dept) {
+    if (dept == null) return 'A'; // Fallback
+    final d = dept.toUpperCase().trim();
+    if (d == 'CSE') return 'A';
+    if (d == 'ECE') return 'B';
+    if (d == 'ME' || d == 'MEA') return 'C';
+    if (d == 'BT') return 'D';
+    return 'A'; // Fallback
+  }
 }

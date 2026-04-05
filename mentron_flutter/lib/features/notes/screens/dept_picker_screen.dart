@@ -83,7 +83,11 @@ class _DeptPickerScreenState extends State<DeptPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final depts = SubjectData.departments.entries.toList();
+    final allDepts = SubjectData.departments.entries.toList();
+    final depts = allDepts.where((e) {
+      if (_userRole == 'panel' || _userRole == 'exec' || _userDept == null) return true;
+      return e.key == _userDept;
+    }).toList();
 
     return Scaffold(
       extendBodyBehindAppBar: true,

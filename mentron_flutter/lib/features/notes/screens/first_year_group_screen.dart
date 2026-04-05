@@ -1,15 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import '../../../core/utils/app_transitions.dart';
+import '../../../core/utils/department_mapper.dart';
 import '../../../data/models/subject_data.dart';
 import 'subjects_screen.dart';
 
-class FirstYearGroupScreen extends StatelessWidget {
+class FirstYearGroupScreen extends StatefulWidget {
   final String sem;
   const FirstYearGroupScreen({super.key, required this.sem});
+
+  @override
+  State<FirstYearGroupScreen> createState() => _FirstYearGroupScreenState();
+}
+
+class _FirstYearGroupScreenState extends State<FirstYearGroupScreen> {
+  String? _userDept;
+  String? _userRole;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserMetadata();
+  }
+
+  Future<void> _loadUserMetadata() async {
+    final supabase = Provider.of<SupabaseService>(context, listen: false);
+    final user = supabase.currentUser;
+    if (user == null) return;
+
+    try {
+      final profile = await supabase.client
+          .from('profiles')
+          .select('department, role')
+          .eq('id', user.id)
+          .maybeSingle();
+
+      if (mounted && profile != null) {
+        setState(() {
+          _userDept = (profile['department'] as String?)?.trim().toUpperCase();
+          _userRole = (profile['role'] as String?)?.trim().toLowerCase();
+        });
+      }
+    } catch (_) {}
+  }
 
   static const _groupColors = {
     'A': Color(0xFF3B82F6),
@@ -20,7 +58,12 @@ class FirstYearGroupScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final groups = SubjectData.firstYearGroups.entries.toList();
+    final allGroups = SubjectData.firstYearGroups.entries.toList();
+    final groups = allGroups.where((e) {
+      if (_userRole == 'panel' || _userRole == 'exec' || _userDept == null || _userDept == 'OTHER') return true;
+      final assignedGroup = DepartmentMapper.getGroupFromDepartment(_userDept);
+      return e.key == assignedGroup;
+    }).toList();
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -28,7 +71,7 @@ class FirstYearGroupScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Column(children: [
-          Text('1ST YEAR · $sem', style: const TextStyle(color: Color(0xFF22C55E), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
+          Text('1ST YEAR · ${widget.sem}', style: const TextStyle(color: Color(0xFF22C55E), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
           const Text('Select Group', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
         ]),
         leading: IconButton(
@@ -57,9 +100,9 @@ class FirstYearGroupScreen extends StatelessWidget {
                   onTap: () => Navigator.push(
                     context,
                     AppTransitions.slideUp(SubjectsScreen(
-                      title: '${meta['label']} · $sem',
+                      title: '${meta['label']} · ${widget.sem}',
                       subtitle: meta['streams']!,
-                      subjects: SubjectData.getFirstYearSubjects(groupKey, sem),
+                      subjects: SubjectData.getFirstYearSubjects(groupKey, widget.sem),
                       color: color,
                       year: 1,
                       dept: 'Group $groupKey',

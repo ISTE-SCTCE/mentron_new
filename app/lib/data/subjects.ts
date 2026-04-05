@@ -128,6 +128,14 @@ export const DEPARTMENTS: Record<DeptKey, { name: string; emoji: string; color: 
     BT:  { name: 'Biotechnology', emoji: '🧬', color: 'green' },
 }
 
+export const DEPT_TO_GROUP: Record<DeptKey, GroupKey> = {
+    CSE: 'A',
+    ECE: 'B',
+    ME:  'C',
+    MEA: 'C',
+    BT:  'D',
+}
+
 // Semesters per year
 export const YEAR_SEMS: Record<number, [SemKey, SemKey]> = {
     1: ['S1', 'S2'],

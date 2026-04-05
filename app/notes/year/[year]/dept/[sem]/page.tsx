@@ -1,3 +1,4 @@
+import { createClient } from '@/app/lib/supabase/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { DEPARTMENTS, DeptKey } from '@/app/lib/data/subjects'
@@ -31,9 +32,24 @@ export default async function DeptPickerPage({
     const yearNum = parseInt(year)
     if (![2, 3, 4].includes(yearNum) || !VALID_SEMS[yearNum].includes(sem.toUpperCase())) notFound()
 
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('department, role')
+        .eq('id', user?.id)
+        .single()
+
+    const userDept = profile?.department?.toUpperCase()
+    const isPrivileged = profile?.role === 'exec' || profile?.role === 'panel' || profile?.role === 'admin'
+
     const semKey = sem.toUpperCase()
     const yearMeta = YEAR_META[yearNum]
-    const deptList = (Object.entries(DEPARTMENTS) as [DeptKey, typeof DEPARTMENTS[DeptKey]][])
+    const allDepts = (Object.entries(DEPARTMENTS) as [DeptKey, typeof DEPARTMENTS[DeptKey]][])
+    const deptList = allDepts.filter(([code]) => {
+        if (isPrivileged || !userDept) return true
+        return code === userDept
+    })
 
     return (
         <div className="min-h-screen p-8 pt-32 text-[#ededed]">
@@ -59,7 +75,7 @@ export default async function DeptPickerPage({
 
                 {/* Department Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {deptList.map(([code, dept]) => {
+                    {deptList.map(([code, dept]: [DeptKey, any]) => {
                         const style = DEPT_COLORS[code]
                         return (
                             <Link

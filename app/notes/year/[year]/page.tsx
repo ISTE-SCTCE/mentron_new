@@ -1,6 +1,7 @@
+import { createClient } from '@/app/lib/supabase/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { DEPARTMENTS, DeptKey } from '@/app/lib/data/subjects'
+import { DEPARTMENTS, DeptKey, DEPT_TO_GROUP } from '@/app/lib/data/subjects'
 
 const YEAR_META: Record<number, { label: string; emoji: string; color: string; border: string; accent: string }> = {
     1: { label: '1st Year', emoji: '🌱', color: 'from-green-500/20 to-emerald-500/10', border: 'border-green-500/20', accent: 'text-green-400' },
@@ -24,6 +25,18 @@ export default async function YearPage({
     const { year } = await params
     const yearNum = parseInt(year)
     if (![1, 2, 3, 4].includes(yearNum)) notFound()
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('department, role')
+        .eq('id', user?.id)
+        .single()
+
+    const userDept = profile?.department?.toUpperCase() as DeptKey | undefined
+    const isPrivileged = profile?.role === 'exec' || profile?.role === 'panel' || profile?.role === 'admin'
+    const assignedGroup = userDept ? DEPT_TO_GROUP[userDept] : null
 
     const meta = YEAR_META[yearNum]
     const sems = SEMS[yearNum]
@@ -52,10 +65,17 @@ export default async function YearPage({
 
                 {/* Semester Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-10 mb-16">
-                    {sems.map(({ sem, label }) => {
-                        const href = yearNum === 1
-                            ? `/notes/year/1/group/${sem}`
-                            : `/notes/year/${yearNum}/dept/${sem}`
+                    {sems.map(({ sem, label }: { sem: string; label: string }) => {
+                        let href = ''
+                        if (yearNum === 1) {
+                            if (!isPrivileged && assignedGroup) {
+                                href = `/notes/year/1/group/${assignedGroup}/${sem}`
+                            } else {
+                                href = `/notes/year/1/group/${sem}`
+                            }
+                        } else {
+                           href = `/notes/year/${yearNum}/dept/${sem}`
+                        }
 
                         return (
                             <Link
@@ -73,10 +93,10 @@ export default async function YearPage({
                                 </div>
                                 <h2 className="text-3xl font-black text-white group-hover:text-glow transition-all mb-2 tracking-tighter">{label}</h2>
                                 <p className="text-gray-500 text-sm font-medium mb-6">
-                                    {yearNum === 1 ? 'Select your stream group (A / B / C / D)' : 'Select your department'}
+                                    {yearNum === 1 ? 'View your group subjects' : 'Select your department'}
                                 </p>
                                 <div className={`flex items-center gap-2 ${meta.accent} text-xs font-black uppercase tracking-widest`}>
-                                    <span>{yearNum === 1 ? 'Choose Group' : 'Choose Department'}</span>
+                                    <span>{yearNum === 1 ? 'View Group' : 'Choose Department'}</span>
                                     <span className="group-hover:translate-x-1 transition-transform">→</span>
                                 </div>
                             </Link>

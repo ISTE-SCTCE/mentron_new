@@ -1,6 +1,7 @@
+import { createClient } from '@/app/lib/supabase/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { FIRST_YEAR_GROUPS, GroupKey } from '@/app/lib/data/subjects'
+import { FIRST_YEAR_GROUPS, GroupKey, DEPT_TO_GROUP, DeptKey } from '@/app/lib/data/subjects'
 
 const GROUP_COLORS: Record<GroupKey, { color: string; border: string; accent: string }> = {
     A: { color: 'from-blue-500/20 to-cyan-500/10', border: 'border-blue-500/20', accent: 'text-blue-400' },
@@ -19,7 +20,23 @@ export default async function GroupPickerPage({
     const { sem } = await params
     if (!VALID_SEMS.includes(sem)) notFound()
 
-    const groups = Object.entries(FIRST_YEAR_GROUPS) as [GroupKey, typeof FIRST_YEAR_GROUPS[GroupKey]][]
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('department, role')
+        .eq('id', user?.id)
+        .single()
+
+    const userDept = profile?.department?.toUpperCase() as DeptKey | undefined
+    const isPrivileged = profile?.role === 'exec' || profile?.role === 'panel' || profile?.role === 'admin'
+    const assignedGroup = userDept ? DEPT_TO_GROUP[userDept] : null
+
+    const allGroups = Object.entries(FIRST_YEAR_GROUPS) as [GroupKey, typeof FIRST_YEAR_GROUPS[GroupKey]][]
+    const groups = allGroups.filter(([key]) => {
+        if (isPrivileged || !assignedGroup) return true
+        return key === assignedGroup
+    })
 
     return (
         <div className="min-h-screen p-8 pt-32 text-[#ededed]">
