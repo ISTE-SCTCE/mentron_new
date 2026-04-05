@@ -15,7 +15,6 @@ class RealTimeCalendar extends StatefulWidget {
 }
 
 class _RealTimeCalendarState extends State<RealTimeCalendar> {
-  CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
@@ -160,28 +159,18 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
               firstDay: DateTime.utc(2024, 1, 1),
               lastDay: DateTime.utc(2030, 12, 31),
               focusedDay: _focusedDay,
-              calendarFormat: _calendarFormat,
-              availableCalendarFormats: const {
-                CalendarFormat.month: 'Month',
-                CalendarFormat.week: 'Week',
-              },
+              calendarFormat: CalendarFormat.month,
+              sixWeekMonthsEnforced: true,
               eventLoader: _getEventsForDay,
               selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
               onDaySelected: (selectedDay, focusedDay) {
                 setState(() {
                   _selectedDay = selectedDay;
                   _focusedDay = focusedDay;
-                  // Show add form panel when exec taps a day
                   _showAddForm = _isExec;
                 });
               },
-              onFormatChanged: (format) {
-                if (_calendarFormat != format)
-                  setState(() => _calendarFormat = format);
-              },
               onPageChanged: (focusedDay) => _focusedDay = focusedDay,
-
-              // Calendar Styling
               headerStyle: HeaderStyle(
                 formatButtonVisible: false,
                 titleCentered: true,
