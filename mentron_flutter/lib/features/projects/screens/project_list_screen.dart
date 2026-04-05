@@ -173,33 +173,35 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             children: [
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: ElevatedButton.icon(
                   onPressed: () => Navigator.push(context, AppTransitions.slideLeft(ProjectDetailScreen(project: project))),
+                  icon: const Icon(Icons.rocket_launch_outlined, size: 16),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white.withOpacity(0.05), 
-                    foregroundColor: Colors.white, 
-                    side: BorderSide(color: Colors.white.withOpacity(0.1))
+                    backgroundColor: Colors.white.withOpacity(0.05),
+                    foregroundColor: Colors.white,
+                    side: BorderSide(color: Colors.white.withOpacity(0.1)),
+                    padding: const EdgeInsets.symmetric(vertical: 13),
                   ),
-                  child: const Text('VIEW DETAILS & APPLY'),
+                  label: const Text('VIEW & APPLY'),
                 ),
               ),
-              if (project.profileId == _currentUserId) ...[
+              if (project.profileId == _currentUserId || _currentUserRole == 'exec' || _currentUserRole == 'core') ...[
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context, 
-                        AppTransitions.slideRight(ProjectApplicationsScreen(project: project))
-                      );
-                    },
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.push(
+                      context,
+                      AppTransitions.slideRight(ProjectApplicationsScreen(project: project)),
+                    ),
+                    icon: const Icon(Icons.people_outline_rounded, size: 16),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.accentSecondary.withOpacity(0.1),
                       foregroundColor: AppTheme.accentSecondary,
                       side: const BorderSide(color: AppTheme.accentSecondary),
+                      padding: const EdgeInsets.symmetric(vertical: 13),
                     ),
-                    child: const Text('MANAGE APPLICATIONS'),
+                    label: const Text('APPLICATIONS'),
                   ),
                 ),
               ],

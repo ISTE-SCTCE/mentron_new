@@ -1,10 +1,7 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/services/supabase_service.dart';
-import '../../../core/services/compression_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
@@ -20,73 +17,76 @@ class ProjectDetailScreen extends StatefulWidget {
 }
 
 class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
-  File? _selectedFile;
-  bool _isUploading = false;
+  bool _isApplying = false;
+  bool _hasApplied = false;
+  String? _currentUserId;
 
-  Future<void> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx'],
-    );
+  @override
+  void initState() {
+    super.initState();
+    _checkIfApplied();
+  }
 
-    if (result != null) {
-      setState(() {
-        _selectedFile = File(result.files.single.path!);
-      });
-    }
+  Future<void> _checkIfApplied() async {
+    final supabase = Provider.of<SupabaseService>(context, listen: false);
+    _currentUserId = supabase.currentUser?.id;
+    if (_currentUserId == null) return;
+
+    try {
+      final response = await supabase.client
+          .from('project_applications')
+          .select('id')
+          .eq('project_id', widget.project.id)
+          .eq('profile_id', _currentUserId!)
+          .maybeSingle();
+
+      if (mounted) {
+        setState(() => _hasApplied = response != null);
+      }
+    } catch (_) {}
   }
 
   Future<void> _handleApply() async {
-    if (_selectedFile == null) return;
+    if (_currentUserId == null) return;
 
-    setState(() => _isUploading = true);
-    final supabase = Provider.of<SupabaseService>(context, listen: false);
-    final compression = CompressionService();
+    setState(() => _isApplying = true);
+    final supabase = Provider.of<SupabaseService>(context, listen: false).client;
 
     try {
-      final user = supabase.currentUser;
-      if (user == null) throw Exception('Not logged in');
-
-      // 1. Compress the file using Gzip (match web parity)
-      final compressedBytes = await compression.gzipCompress(_selectedFile!);
-      
-      // 2. Upload to storage
-      final fileName = '${user.id}/${DateTime.now().millisecondsSinceEpoch}-${_selectedFile!.path.split('/').last}.gz';
-      
-      await supabase.client.storage.from('cv_bucket').uploadBinary(
-        fileName,
-        compressedBytes,
-      );
-
-      // 3. Insert application record
-      // Format URL to match web-facing proxy API
-      final fileUrl = '/api/files/cv_bucket/$fileName';
-
-      await supabase.client.from('project_applications').insert({
+      // Simple profile-based application — no CV needed
+      await supabase.from('project_applications').insert({
         'project_id': widget.project.id,
-        'applicant_id': user.id,
-        'cv_url': fileUrl,
+        'profile_id': _currentUserId,
+        'cv_url': '',   // kept for schema compatibility
+        'status': 'pending',
       });
 
       if (mounted) {
+        setState(() {
+          _hasApplied = true;
+          _isApplying = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(backgroundColor: Colors.green, content: Text('Application Submitted Successfully!')),
+          const SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('🎉 Application submitted! The project owner will review your profile.'),
+          ),
         );
-        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _isApplying = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e))),
         );
       }
-    } finally {
-      if (mounted) setState(() => _isUploading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isOwner = _currentUserId == widget.project.profileId;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
@@ -100,7 +100,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
               const SizedBox(height: 32),
               _buildDescription(),
               const SizedBox(height: 40),
-              _buildApplicationForm(),
+              if (!isOwner) _buildApplicationSection(),
             ],
           ),
         ),
@@ -171,66 +171,49 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
     ).animate().fadeIn(delay: 200.ms);
   }
 
-  Widget _buildApplicationForm() {
+  Widget _buildApplicationSection() {
     return GlassContainer(
       padding: const EdgeInsets.all(28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text(
-            'SUBMIT APPLICATION',
+            'APPLY TO PROJECT',
             style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           const Text(
-            'Please upload your CV in PDF or DOC format.',
-            style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
+            'Your Mentron profile info will be shared with the project owner for review.',
+            style: TextStyle(color: AppTheme.textMuted, fontSize: 12, height: 1.5),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 32),
-          
-          InkWell(
-            onTap: _pickFile,
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              padding: const EdgeInsets.all(24),
+          const SizedBox(height: 28),
+          if (_hasApplied)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: _selectedFile != null ? AppTheme.accentSecondary : Colors.white.withOpacity(0.1),
-                  style: BorderStyle.solid,
-                ),
+                color: Colors.greenAccent.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.greenAccent.withOpacity(0.3)),
               ),
-              child: Column(
-                children: [
-                  Icon(
-                    _selectedFile != null ? Icons.check_circle_rounded : Icons.cloud_upload_outlined,
-                    color: _selectedFile != null ? Colors.greenAccent : AppTheme.textMuted,
-                    size: 32,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _selectedFile != null ? _selectedFile!.path.split('/').last : 'Select Document',
-                    style: TextStyle(
-                      color: _selectedFile != null ? Colors.white : AppTheme.textMuted,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+              child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Icon(Icons.check_circle_outline_rounded, color: Colors.greenAccent, size: 20),
+                SizedBox(width: 8),
+                Text('APPLICATION SUBMITTED', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 13)),
+              ]),
+            )
+          else
+            ElevatedButton.icon(
+              onPressed: _isApplying ? null : _handleApply,
+              icon: _isApplying
+                  ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                  : const Icon(Icons.send_rounded, size: 18),
+              label: Text(_isApplying ? 'APPLYING...' : 'APPLY NOW'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),
-          ),
-          
-          const SizedBox(height: 32),
-          
-          ElevatedButton(
-            onPressed: (_selectedFile == null || _isUploading) ? null : _handleApply,
-            child: _isUploading 
-              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-              : const Text('SUBMIT TO INCUBATION'),
-          ),
         ],
       ),
     ).animate().fadeIn(delay: 400.ms);
