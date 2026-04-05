@@ -144,7 +144,6 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
     final selectedEvents = _selectedDay != null
         ? _getEventsForDay(_selectedDay!)
         : [];
-    final isMonthView = _calendarFormat == CalendarFormat.month;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
