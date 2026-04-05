@@ -254,13 +254,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildDialogTextField(controller: nameController, hint: 'Full Name'),
-                  const SizedBox(height: 12),
-                  _buildDialogTextField(controller: rollController, hint: 'Roll Number'),
-                  const SizedBox(height: 12),
-                  _buildDialogTextField(controller: deptController, hint: 'Department (e.g. CSE)'),
-                  const SizedBox(height: 12),
-                  _buildDialogTextField(controller: yearController, hint: 'Year (1-4)'),
+                  _buildLabeledField('Full Name', nameController, icon: Icons.person_outline_rounded),
+                  const SizedBox(height: 16),
+                  _buildLabeledField('Roll Number', rollController, icon: Icons.badge_outlined),
+                  const SizedBox(height: 16),
+                  _buildLabeledField('Department (e.g. CSE)', deptController, icon: Icons.school_outlined),
+                  const SizedBox(height: 16),
+                  _buildLabeledField('Academic Year (1–4)', yearController, icon: Icons.calendar_today_rounded, keyboardType: TextInputType.number),
                 ],
               ),
             ),
@@ -301,10 +301,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  /// A labeled input: title text above the text field.
+  Widget _buildLabeledField(
+    String label,
+    TextEditingController controller, {
+    bool obscure = false,
+    IconData? icon,
+    TextInputType? keyboardType,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 14, color: AppTheme.accentSecondary),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppTheme.textMuted,
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        _buildDialogTextField(
+          controller: controller,
+          hint: label,
+          obscure: obscure,
+          keyboardType: keyboardType,
+        ),
+      ],
+    );
+  }
+
   Widget _buildDialogTextField({
     required TextEditingController controller,
     required String hint,
     bool obscure = false,
+    TextInputType? keyboardType,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -315,6 +355,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: TextField(
         controller: controller,
         obscureText: obscure,
+        keyboardType: keyboardType,
         style: const TextStyle(color: Colors.white, fontSize: 13),
         decoration: InputDecoration(
           hintText: hint,

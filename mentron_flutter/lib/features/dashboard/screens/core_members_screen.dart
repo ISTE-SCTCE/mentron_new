@@ -29,8 +29,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
       final res = await supabase
           .from('profiles')
           .select('id, full_name, role, department, year')
-          .neq('role', 'core')
-          .order('name');
+          .order('full_name');
       if (mounted) setState(() { _members = List<Map<String, dynamic>>.from(res); _isLoading = false; });
     } catch (_) {
       if (mounted) setState(() => _isLoading = false);
@@ -128,14 +127,24 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
   }
 
   Widget _buildMemberCard(Map<String, dynamic> member, int index) {
-    final isExec = member['role'] == 'exec';
-    final color = isExec ? AppTheme.accentPrimary : AppTheme.accentSecondary;
+    final role = (member['role'] ?? 'member') as String;
+    final isCore = role == 'core';
+    final isExec = role == 'exec';
+    Color color = isCore
+        ? Colors.purpleAccent
+        : isExec
+            ? AppTheme.accentPrimary
+            : AppTheme.accentSecondary;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: GlassContainer(
         padding: const EdgeInsets.all(18),
-        border: isExec ? Border.all(color: AppTheme.accentPrimary.withOpacity(0.4)) : null,
+        border: isCore
+            ? Border.all(color: Colors.purpleAccent.withOpacity(0.4))
+            : isExec
+                ? Border.all(color: AppTheme.accentPrimary.withOpacity(0.4))
+                : null,
         child: Row(children: [
           Container(
             width: 44, height: 44,
@@ -164,33 +173,45 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
                   child: Text(
-                    (member['role'] ?? 'member').toUpperCase(),
+                    role.toUpperCase(),
                     style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w900),
                   ),
                 ),
               ]),
             ]),
           ),
-          // Toggle role button
-          GestureDetector(
-            onTap: () => _showRoleDialog(member),
-            child: Container(
+          // Core members: read-only badge
+          if (isCore)
+            Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: (isExec ? Colors.red : Colors.green).withOpacity(0.1),
+                color: Colors.purpleAccent.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: (isExec ? Colors.red : Colors.green).withOpacity(0.3)),
+                border: Border.all(color: Colors.purpleAccent.withOpacity(0.3)),
               ),
-              child: Text(
-                isExec ? 'Demote' : 'Promote',
-                style: TextStyle(
-                  color: isExec ? Colors.redAccent : Colors.greenAccent,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w900,
+              child: const Text('CORE', style: TextStyle(color: Colors.purpleAccent, fontSize: 10, fontWeight: FontWeight.w900)),
+            )
+          else
+            // Toggle role button for exec / member
+            GestureDetector(
+              onTap: () => _showRoleDialog(member),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: (isExec ? Colors.red : Colors.green).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: (isExec ? Colors.red : Colors.green).withOpacity(0.3)),
+                ),
+                child: Text(
+                  isExec ? 'Demote' : 'Promote',
+                  style: TextStyle(
+                    color: isExec ? Colors.redAccent : Colors.greenAccent,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
             ),
-          ),
         ]),
       ).animate().fadeIn(delay: (index * 40).ms),
     );
