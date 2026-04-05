@@ -11,7 +11,6 @@ import '../../notes/screens/group_screen.dart';
 import '../../notes/screens/add_note_screen.dart';
 import '../../projects/screens/project_list_screen.dart';
 import '../../projects/screens/add_project_screen.dart';
-import '../../marketplace/screens/marketplace_screen.dart';
 import '../../events/screens/event_list_screen.dart';
 import '../../leaderboard/screens/leaderboard_screen.dart';
 import '../../profile/screens/profile_screen.dart';
@@ -456,10 +455,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Icons.shopping_bag_outlined,
           Colors.greenAccent,
           () => MainScaffoldState.of(context)?.setIndex(3),
-        ),
-            context,
-            AppTransitions.slideUp(const MarketplaceScreen()),
-          ),
         ),
         const SizedBox(height: 12),
         _buildActionButton(
