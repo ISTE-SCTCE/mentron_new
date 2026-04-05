@@ -75,7 +75,7 @@ class _TeamScreenState extends State<TeamScreen> {
                           const SizedBox(height: 12),
                           Text(name, textAlign: TextAlign.center, maxLines: 2, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 13)),
                           const SizedBox(height: 4),
-                          Text(member['department'] ?? 'Executive', style: const TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                          Text('${member['department'] ?? 'Not Assigned'} DEPARTMENT'.toUpperCase(), style: const TextStyle(color: AppTheme.accentSecondary, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
                           const SizedBox(height: 8),
                           Text('${member['xp'] ?? 0} XP', style: const TextStyle(color: AppTheme.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
                         ]),
