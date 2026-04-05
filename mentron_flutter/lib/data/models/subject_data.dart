@@ -197,4 +197,25 @@ class SubjectData {
   static List<String> getFirstYearSubjects(String group, String sem) {
     return firstYearSubjects[group]?[sem] ?? [];
   }
+
+  /// Maps detected department code to Year 1 Group (A/B/C/D)
+  static String getGroupFromDepartment(String dept) {
+    switch (dept.toUpperCase()) {
+      case 'CSE':
+      case 'IT':
+        return 'A';
+      case 'ECE':
+      case 'EEE':
+        return 'B';
+      case 'ME':
+      case 'MEA':
+      case 'CIVIL':
+        return 'C';
+      case 'BT':
+      case 'FT':
+        return 'D';
+      default:
+        return 'A';
+    }
+  }
 }

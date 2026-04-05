@@ -10,6 +10,7 @@ import '../../../core/utils/department_mapper.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import '../../../core/utils/error_handler.dart';
+import '../../../data/models/subject_data.dart';
 
 class AddNoteScreen extends StatefulWidget {
   const AddNoteScreen({super.key});
@@ -21,10 +22,29 @@ class AddNoteScreen extends StatefulWidget {
 class _AddNoteScreenState extends State<AddNoteScreen> {
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
-  String _selectedDept = 'CSE';
+
   String _selectedYear = '1';
+  String _selectedSem = '';
+  String _selectedDeptOrGroup = 'CSE';
+  String _selectedSubject = '';
+
   File? _selectedFile;
   bool _isLoading = false;
+
+  bool get _isFirstYear => _selectedYear == '1';
+
+  List<String> get _semOptions => SubjectData.semsForYear(int.parse(_selectedYear));
+
+  List<String> get _subjectOptions {
+    if (_selectedSem.isEmpty || _selectedDeptOrGroup.isEmpty) return [];
+    if (_isFirstYear) {
+      // dept/group field holds the group letter for Y1
+      return SubjectData.getFirstYearSubjects(_selectedDeptOrGroup, _selectedSem)
+          .where((s) => !s.startsWith('Electives:')).toList();
+    }
+    return SubjectData.getSubjects(_selectedDeptOrGroup, _selectedSem)
+        .where((s) => !s.startsWith('Electives:') && !s.startsWith('— Electives:')).toList();
+  }
 
   @override
   void initState() {
@@ -32,7 +52,6 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     _autoFillFromProfile();
   }
 
-  /// Auto-detect dept+year from the user's profile so uploads go to the right group
   Future<void> _autoFillFromProfile() async {
     try {
       final supabase = Provider.of<SupabaseService>(context, listen: false);
@@ -48,11 +67,21 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         final detected = DepartmentMapper.getDepartmentFromRoll(roll);
         final dept = detected != 'Other' ? detected : (profile['department'] as String? ?? 'CSE');
         final year = profile['year']?.toString() ?? '1';
-        // Only update if valid values
-        final validYear = ['1','2','3','4'].contains(year) ? year : '1';
+        final validYear = ['1', '2', '3', '4'].contains(year) ? year : '1';
+
+        final sems = SubjectData.semsForYear(int.parse(validYear));
+        final sem = sems.isNotEmpty ? sems.first : '';
+
+        // For Year 1, convert dept to group letter
+        final deptOrGroup = validYear == '1'
+            ? SubjectData.getGroupFromDepartment(dept)
+            : dept;
+
         setState(() {
-          _selectedDept = dept;
           _selectedYear = validYear;
+          _selectedDeptOrGroup = deptOrGroup;
+          _selectedSem = sem;
+          _selectedSubject = '';
         });
       }
     } catch (_) {}
@@ -73,6 +102,10 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Title and File are required')));
       return;
     }
+    if (_selectedSem.isEmpty || _selectedSubject.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a semester and subject')));
+      return;
+    }
 
     setState(() => _isLoading = true);
     final supabase = Provider.of<SupabaseService>(context, listen: false);
@@ -82,26 +115,20 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       final user = supabase.currentUser;
       if (user == null) throw Exception('Not logged in');
 
-      // 1. Gzip the file for web parity
       final compressedBytes = await compression.gzipCompress(_selectedFile!);
-      
-      // 2. Upload to storage — match web file path format (no userId prefix)
       final fileName = '${DateTime.now().millisecondsSinceEpoch}-${_selectedFile!.path.split('/').last}.gz';
-      
-      await supabase.client.storage.from('notes_bucket').uploadBinary(
-        fileName,
-        compressedBytes,
-      );
 
-      // 3. Use same /api/files/ URL pattern that the web app uses (goes through decompression API)
-      // For Flutter we get the actual public URL instead since we can't use the web API route
+      await supabase.client.storage.from('notes_bucket').uploadBinary(fileName, compressedBytes);
+
       final fileUrl = supabase.client.storage.from('notes_bucket').getPublicUrl(fileName);
 
       await supabase.client.from('pending_notes').insert({
         'title': _titleController.text.trim(),
         'description': _descController.text.trim(),
-        'department': _selectedDept,
+        'department': _selectedDeptOrGroup,
         'year': int.parse(_selectedYear),
+        'semester': _selectedSem,
+        'subject': _selectedSubject,
         'file_url': fileUrl,
         'profile_id': user.id,
       });
@@ -115,7 +142,10 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e))));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(ErrorHandler.friendly(e)),
+        ));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -129,7 +159,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('CONTRIBUTE NOTE', style: TextStyle(fontSize: 16, letterSpacing: 2, fontWeight: FontWeight.bold)),
+        title: const Text('CONTRIBUTE NOTE',
+            style: TextStyle(fontSize: 16, letterSpacing: 2, fontWeight: FontWeight.bold)),
       ),
       body: LiquidBackground(
         child: SingleChildScrollView(
@@ -144,44 +175,115 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                     _buildLabel('TITLE'),
                     _buildTextField(_titleController, 'e.g. Data Structures Unit 1'),
                     const SizedBox(height: 20),
-                    
+
                     _buildLabel('DESCRIPTION'),
                     _buildTextField(_descController, 'Brief summary of contents...', maxLines: 3),
                     const SizedBox(height: 20),
 
+                    // Year + Semester row
                     Row(
                       children: [
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildLabel('DEPARTMENT'),
-                              _buildDeptDropdown(),
-                            ],
-                          ),
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            _buildLabel('YEAR'),
+                            _buildDropdown(
+                              value: _selectedYear,
+                              items: ['1', '2', '3', '4'],
+                              labelBuilder: (y) => 'Year $y',
+                              onChanged: (val) {
+                                final sems = SubjectData.semsForYear(int.parse(val));
+                                setState(() {
+                                  _selectedYear = val;
+                                  _selectedSem = sems.isNotEmpty ? sems.first : '';
+                                  _selectedSubject = '';
+                                  // Reset group/dept when year changes
+                                  _selectedDeptOrGroup = val == '1' ? 'A' : 'CSE';
+                                });
+                              },
+                            ),
+                          ]),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildLabel('YEAR'),
-                              _buildYearDropdown(),
-                            ],
-                          ),
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            _buildLabel('SEMESTER'),
+                            _buildDropdown(
+                              value: _selectedSem.isEmpty ? null : _selectedSem,
+                              items: _semOptions,
+                              labelBuilder: (s) => s,
+                              onChanged: (val) => setState(() {
+                                _selectedSem = val;
+                                _selectedSubject = '';
+                              }),
+                            ),
+                          ]),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 20),
+
+                    // Group (Y1) or Department (Y2-4)
+                    _buildLabel(_isFirstYear ? 'STREAM GROUP' : 'DEPARTMENT'),
+                    _isFirstYear
+                        ? _buildDropdown(
+                            value: _selectedDeptOrGroup,
+                            items: const ['A', 'B', 'C', 'D'],
+                            labelBuilder: (g) {
+                              const labels = {
+                                'A': 'Group A — CS/IT',
+                                'B': 'Group B — EEE/ECE',
+                                'C': 'Group C — Mech/Civil',
+                                'D': 'Group D — Biotech',
+                              };
+                              return labels[g] ?? 'Group $g';
+                            },
+                            onChanged: (val) => setState(() {
+                              _selectedDeptOrGroup = val;
+                              _selectedSubject = '';
+                            }),
+                          )
+                        : _buildDropdown(
+                            value: _selectedDeptOrGroup,
+                            items: const ['CSE', 'ECE', 'ME', 'MEA', 'BT'],
+                            labelBuilder: (d) {
+                              const labels = {
+                                'CSE': 'Computer Science',
+                                'ECE': 'Electronics & Comm',
+                                'ME':  'Mechanical Engg',
+                                'MEA': 'Automobile Engg',
+                                'BT':  'Biotechnology',
+                              };
+                              return labels[d] ?? d;
+                            },
+                            onChanged: (val) => setState(() {
+                              _selectedDeptOrGroup = val;
+                              _selectedSubject = '';
+                            }),
+                          ),
+                    const SizedBox(height: 20),
+
+                    // Subject dropdown (shows only when semi + dept selected)
+                    if (_subjectOptions.isNotEmpty) ...[
+                      _buildLabel('SUBJECT'),
+                      _buildDropdown(
+                        value: _selectedSubject.isEmpty ? null : _selectedSubject,
+                        items: _subjectOptions,
+                        labelBuilder: (s) => s,
+                        onChanged: (val) => setState(() => _selectedSubject = val),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
 
                     _buildFilePicker(),
                     const SizedBox(height: 32),
 
                     ElevatedButton(
                       onPressed: _isLoading ? null : _handleUpload,
-                      child: _isLoading 
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                        : const Text('UPLOAD DOCUMENT'),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20, width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                          : const Text('UPLOAD DOCUMENT'),
                     ),
                   ],
                 ),
@@ -196,7 +298,9 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   Widget _buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, left: 4),
-      child: Text(text, style: const TextStyle(color: AppTheme.accentSecondary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+      child: Text(text,
+          style: const TextStyle(
+              color: AppTheme.accentSecondary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
     );
   }
 
@@ -221,29 +325,12 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     );
   }
 
-  Widget _buildDeptDropdown() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _selectedDept,
-          dropdownColor: AppTheme.surfaceColor,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
-          onChanged: (val) => setState(() => _selectedDept = val!),
-          items: DepartmentMapper.departments.map((dept) {
-            return DropdownMenuItem(value: dept['code'], child: Text(dept['code']!));
-          }).toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildYearDropdown() {
+  Widget _buildDropdown({
+    required String? value,
+    required List<String> items,
+    required String Function(String) labelBuilder,
+    required void Function(String) onChanged,
+  }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -254,14 +341,16 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: _selectedYear,
+          value: value,
           isExpanded: true,
           dropdownColor: AppTheme.surfaceColor,
+          hint: Text('Select', style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 14)),
           style: const TextStyle(color: Colors.white, fontSize: 14),
-          onChanged: (val) => setState(() => _selectedYear = val!),
-          items: ['1', '2', '3', '4'].map((year) {
-            return DropdownMenuItem(value: year, child: Text('Year $year'));
-          }).toList(),
+          onChanged: (val) { if (val != null) onChanged(val); },
+          items: items.map((item) => DropdownMenuItem(
+            value: item,
+            child: Text(labelBuilder(item), overflow: TextOverflow.ellipsis),
+          )).toList(),
         ),
       ),
     );
@@ -278,7 +367,6 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: _selectedFile != null ? AppTheme.accentSecondary : Colors.white.withOpacity(0.1),
-            style: BorderStyle.solid,
           ),
         ),
         child: Column(

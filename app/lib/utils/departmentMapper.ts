@@ -11,3 +11,20 @@ export function getDepartmentFromRollNumber(rollNumber: string | null | undefine
 
     return 'Other';
 }
+
+/** Maps detected department to First Year group (A/B/C/D). */
+export function getGroupFromDepartment(dept: string): string {
+    switch (dept.toUpperCase()) {
+        case 'CSE':
+        case 'IT':  return 'A';
+        case 'ECE':
+        case 'EEE': return 'B';
+        case 'ME':
+        case 'MEA':
+        case 'CIVIL': return 'C';
+        case 'BT':
+        case 'FT':  return 'D';
+        default:    return 'A'; // fallback
+    }
+}
+

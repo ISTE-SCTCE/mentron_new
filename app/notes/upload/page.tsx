@@ -1,13 +1,86 @@
 'use client'
 
-import { uploadNote } from './actions'
-import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { logout } from '@/app/login/actions'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { useState, useRef, useTransition } from 'react'
+import {
+    YEAR_SEMS,
+    FIRST_YEAR_GROUPS,
+    FIRST_YEAR_SUBJECTS,
+    getSubjects,
+    type GroupKey,
+    type DeptKey,
+    type SemKey,
+} from '@/app/lib/data/subjects'
+
+const DEPTS: { code: DeptKey; label: string }[] = [
+    { code: 'CSE', label: 'Computer Science & Engineering' },
+    { code: 'ECE', label: 'Electronics & Communication' },
+    { code: 'ME',  label: 'Mechanical Engineering' },
+    { code: 'MEA', label: 'Automobile Engineering' },
+    { code: 'BT',  label: 'Biotechnology' },
+]
+
+const GROUPS: { code: GroupKey; label: string }[] = [
+    { code: 'A', label: 'Group A — CS/IT streams' },
+    { code: 'B', label: 'Group B — EEE/ECE streams' },
+    { code: 'C', label: 'Group C — Mech/Civil streams' },
+    { code: 'D', label: 'Group D — Biotech/Food Tech streams' },
+]
 
 export default function NotesUploadPage() {
     const searchParams = useSearchParams()
+    const router = useRouter()
     const error = searchParams.get('error')
+
+    // Form state
+    const [year, setYear] = useState('')
+    const [sem, setSem] = useState('')
+    const [group, setGroup] = useState<GroupKey | ''>('')   // Year 1 only
+    const [dept, setDept] = useState<DeptKey | ''>('')      // Year 2-4
+    const [subject, setSubject] = useState('')
+    const [isPending, startTransition] = useTransition()
+    const formRef = useRef<HTMLFormElement>(null)
+
+    const yearNum = parseInt(year)
+    const isFirstYear = yearNum === 1
+    const semOptions: SemKey[] = year ? (YEAR_SEMS[yearNum] ?? []) : []
+
+    // Build subject list depending on year
+    const subjectList: string[] = (() => {
+        if (!sem) return []
+        if (isFirstYear && group) {
+            const s = FIRST_YEAR_SUBJECTS[group as GroupKey]?.[sem as 'S1' | 'S2'] ?? []
+            return s.filter(sub => !sub.startsWith('— Electives:'))
+        }
+        if (!isFirstYear && dept) {
+            return (getSubjects(dept as DeptKey, sem as SemKey) ?? []).filter(s => !s.startsWith('— Electives:'))
+        }
+        return []
+    })()
+
+    const inputBase = 'w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none'
+    const labelBase = 'text-[10px] font-black tracking-widest text-gray-500 uppercase px-2 mb-2 block'
+
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault()
+        const formData = new FormData(e.currentTarget)
+        // inject derived values
+        formData.set('semester', sem)
+        formData.set('subject', subject)
+        formData.set('group', group)
+
+        startTransition(async () => {
+            const res = await fetch('/api/notes/upload', { method: 'POST', body: formData })
+            const json = await res.json()
+            if (json.error) {
+                router.push(`/notes/upload?error=${encodeURIComponent(json.error)}`)
+            } else {
+                router.push(json.redirect ?? '/notes')
+            }
+        })
+    }
 
     return (
         <div className="min-h-screen pt-48 p-8 text-[#ededed]">
@@ -40,81 +113,134 @@ export default function NotesUploadPage() {
                         </div>
                     )}
 
-                    <form action={uploadNote} className="space-y-8">
+                    <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
                         <div className="space-y-6">
+
+                            {/* Title */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black tracking-widest text-gray-500 uppercase px-2">Item Title</label>
+                                <label className={labelBase}>Item Title</label>
                                 <input
                                     name="title"
                                     type="text"
-                                    placeholder="e.g., Quantum Physics - Unit 2"
+                                    placeholder="e.g., Data Structures — Unit 2 Notes"
                                     required
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
+                                    className={inputBase}
                                 />
                             </div>
 
+                            {/* Description */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black tracking-widest text-gray-500 uppercase px-2">Description</label>
+                                <label className={labelBase}>Description</label>
                                 <textarea
                                     name="description"
                                     placeholder="Brief summary of what these notes cover..."
                                     rows={3}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium resize-none"
+                                    className={`${inputBase} resize-none`}
                                 />
                             </div>
 
+                            {/* Row 1: Year + Semester */}
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black tracking-widest text-gray-500 uppercase px-2">Department</label>
-                                    <select
-                                        name="department"
-                                        required
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none"
-                                        defaultValue=""
-                                    >
-                                        <option value="" disabled className="text-gray-900 bg-white">Select Department</option>
-                                        <option value="CSE" className="bg-[#111] text-white">Computer Science</option>
-                                        <option value="ECE" className="bg-[#111] text-white">Electronics and Communication Engineering</option>
-                                        <option value="ME" className="bg-[#111] text-white">Mechanical Engineering</option>
-                                        <option value="MEA" className="bg-[#111] text-white">Automobile Engineering</option>
-                                        <option value="BT" className="bg-[#111] text-white">Bio Technology</option>
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black tracking-widest text-gray-500 uppercase px-2">Year</label>
+                                    <label className={labelBase}>Year</label>
                                     <select
                                         name="year"
                                         required
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none"
-                                        defaultValue=""
+                                        value={year}
+                                        onChange={e => { setYear(e.target.value); setSem(''); setDept(''); setGroup(''); setSubject('') }}
+                                        className={inputBase}
                                     >
-                                        <option value="" disabled className="text-gray-900 bg-white">Select Year</option>
-                                        <option value="1" className="text-gray-900 bg-white">1st Year</option>
-                                        <option value="2" className="text-gray-900 bg-white">2nd Year</option>
-                                        <option value="3" className="text-gray-900 bg-white">3rd Year</option>
-                                        <option value="4" className="text-gray-900 bg-white">4th Year</option>
+                                        <option value="" disabled className="text-gray-900 bg-[#111]">Select Year</option>
+                                        {[1,2,3,4].map(y => <option key={y} value={y} className="bg-[#111] text-white">{y === 1 ? '1st' : y === 2 ? '2nd' : y === 3 ? '3rd' : '4th'} Year</option>)}
+                                    </select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className={labelBase}>Semester</label>
+                                    <select
+                                        name="sem_display"
+                                        required
+                                        value={sem}
+                                        disabled={!year}
+                                        onChange={e => { setSem(e.target.value); setSubject('') }}
+                                        className={`${inputBase} disabled:opacity-40`}
+                                    >
+                                        <option value="" disabled className="bg-[#111]">{year ? 'Select Semester' : 'Select Year first'}</option>
+                                        {semOptions.map(s => <option key={s} value={s} className="bg-[#111] text-white">{s} — Semester {s.replace('S', '')}</option>)}
                                     </select>
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black tracking-widest text-gray-500 uppercase px-2">Note File (PDF/Docs)</label>
-                                <div className="relative">
-                                    <input
-                                        name="file"
-                                        type="file"
-                                        required
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-blue-500 file:text-white file:uppercase file:tracking-widest"
-                                    />
+                            {/* Row 2: Group (Y1) or Department (Y2-4) */}
+                            {year && (
+                                <div className="space-y-2">
+                                    {isFirstYear ? (
+                                        <>
+                                            <label className={labelBase}>Stream Group</label>
+                                            <select
+                                                name="department"
+                                                required
+                                                value={group}
+                                                onChange={e => { setGroup(e.target.value as GroupKey); setSubject('') }}
+                                                className={inputBase}
+                                            >
+                                                <option value="" disabled className="bg-[#111]">Select Group</option>
+                                                {GROUPS.map(g => <option key={g.code} value={g.code} className="bg-[#111] text-white">{g.label}</option>)}
+                                            </select>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <label className={labelBase}>Department</label>
+                                            <select
+                                                name="department"
+                                                required
+                                                value={dept}
+                                                onChange={e => { setDept(e.target.value as DeptKey); setSubject('') }}
+                                                className={inputBase}
+                                            >
+                                                <option value="" disabled className="bg-[#111]">Select Department</option>
+                                                {DEPTS.map(d => <option key={d.code} value={d.code} className="bg-[#111] text-white">{d.label}</option>)}
+                                            </select>
+                                        </>
+                                    )}
                                 </div>
+                            )}
+
+                            {/* Subject */}
+                            {subjectList.length > 0 && (
+                                <div className="space-y-2">
+                                    <label className={labelBase}>Subject</label>
+                                    <select
+                                        name="subject_display"
+                                        required
+                                        value={subject}
+                                        onChange={e => setSubject(e.target.value)}
+                                        className={inputBase}
+                                    >
+                                        <option value="" disabled className="bg-[#111]">Select Subject</option>
+                                        {subjectList.map((s, i) => <option key={i} value={s} className="bg-[#111] text-white">{s}</option>)}
+                                    </select>
+                                </div>
+                            )}
+
+                            {/* File */}
+                            <div className="space-y-2">
+                                <label className={labelBase}>Note File (PDF/Docs)</label>
+                                <input
+                                    name="file"
+                                    type="file"
+                                    required
+                                    className={`${inputBase} file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-blue-500 file:text-white file:uppercase file:tracking-widest`}
+                                />
                             </div>
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full mt-4 bg-white text-black hover:bg-gray-200 font-black py-5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:scale-[1.02] active:scale-[0.98] transition-all text-lg uppercase tracking-widest"
+                            disabled={isPending || !subject}
+                            className="w-full mt-4 bg-white text-black hover:bg-gray-200 disabled:opacity-40 font-black py-5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:scale-[1.02] active:scale-[0.98] transition-all text-lg uppercase tracking-widest"
                         >
-                            Publish Notes
+                            {isPending ? 'Uploading...' : 'Publish Notes'}
                         </button>
                     </form>
                 </div>
