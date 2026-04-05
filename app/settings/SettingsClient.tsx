@@ -25,6 +25,34 @@ export function SettingsClient({ profile, userEmail }: SettingsClientProps) {
     const [emailEnabled, setEmailEnabled] = useState(true)
     const [desktopEnabled, setDesktopEnabled] = useState(false)
 
+    // Profile Edit State
+    const [fullName, setFullName] = useState(profile?.full_name || '')
+    const [departmentCode, setDepartmentCode] = useState(profile?.department_code || '')
+    const [rollNumber, setRollNumber] = useState(profile?.roll_number || '')
+    const [year, setYear] = useState(profile?.year?.toString() || '')
+    const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
+
+    const handleUpdateProfile = async () => {
+        setIsUpdatingProfile(true)
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({
+                    full_name: fullName,
+                    department_code: departmentCode,
+                    roll_number: rollNumber,
+                    year: year ? parseInt(year) : null
+                })
+                .eq('id', profile?.id)
+            if (error) throw error
+            toast.success("Profile updated successfully!")
+        } catch (error: any) {
+            toast.error(error.message || "Failed to update profile")
+        } finally {
+            setIsUpdatingProfile(false)
+        }
+    }
+
     const handleUpdatePassword = async () => {
         if (!newPassword || newPassword !== confirmPassword) {
             toast.error("New passwords do not match")
@@ -37,6 +65,15 @@ export function SettingsClient({ profile, userEmail }: SettingsClientProps) {
 
         setIsUpdatingPassword(true)
         try {
+            if (!currentPassword) {
+                throw new Error("Please enter your current password")
+            }
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: userEmail,
+                password: currentPassword
+            })
+            if (signInError) throw new Error("Incorrect current password")
+
             const { error } = await supabase.auth.updateUser({
                 password: newPassword
             })
@@ -73,20 +110,50 @@ export function SettingsClient({ profile, userEmail }: SettingsClientProps) {
                             className="w-full glass bg-white/5 border-white/10 rounded-xl px-4 py-3 text-blue-300 opacity-80 cursor-not-allowed" />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-blue-400/80">Position (Full Name)</label>
-                        <input type="text" disabled value={profile?.full_name || 'Anonymous'}
-                            className="w-full glass bg-white/5 border-white/10 rounded-xl px-4 py-3 text-blue-300 opacity-80 cursor-not-allowed" />
+                        <label className="text-sm font-medium text-blue-400/80">Full Name</label>
+                        <input type="text" value={fullName} onChange={e => setFullName(e.target.value)}
+                            className="w-full glass bg-white/5 border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 transition-colors" />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-blue-400/80">Department</label>
-                        <input type="text" disabled value={profile?.department_code || 'N/A'}
-                            className="w-full glass bg-white/5 border-white/10 rounded-xl px-4 py-3 text-blue-300 opacity-80 cursor-not-allowed" />
+                        <label className="text-sm font-medium text-blue-400/80">Department Code</label>
+                        <input type="text" value={departmentCode} onChange={e => setDepartmentCode(e.target.value)}
+                            className="w-full glass bg-white/5 border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 transition-colors" />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-blue-400/80">Roll Number</label>
+                        <input type="text" value={rollNumber} onChange={e => setRollNumber(e.target.value)}
+                            className="w-full glass bg-white/5 border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 transition-colors" />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-blue-400/80">Year</label>
+                        <select value={year} onChange={e => setYear(e.target.value)}
+                            className="w-full glass bg-[#0a0a0a] border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 transition-colors">
+                            <option value="">Select Year</option>
+                            <option value="1">Year 1</option>
+                            <option value="2">Year 2</option>
+                            <option value="3">Year 3</option>
+                            <option value="4">Year 4</option>
+                        </select>
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-blue-400/80">Role</label>
                         <input type="text" disabled value={profile?.role || 'user'}
                             className="w-full glass bg-white/5 border-white/10 rounded-xl px-4 py-3 text-blue-300 opacity-80 cursor-not-allowed capitalize" />
                     </div>
+                </div>
+
+                <div className="pt-8">
+                    <button
+                        disabled={isUpdatingProfile}
+                        onClick={handleUpdateProfile}
+                        className="relative group overflow-hidden rounded-full font-bold px-8 py-3 text-sm transition-all focus:outline-none disabled:opacity-50"
+                        style={{ background: 'linear-gradient(90deg, #10B981, #059669)', boxShadow: '0 0 20px rgba(16, 185, 129, 0.4)' }}>
+                        <span className="relative z-10 flex items-center gap-2">
+                            <User size={16} />
+                            {isUpdatingProfile ? 'SAVING...' : 'SAVE CHANGES'}
+                        </span>
+                        <div className="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300" />
+                    </button>
                 </div>
             </div>
 

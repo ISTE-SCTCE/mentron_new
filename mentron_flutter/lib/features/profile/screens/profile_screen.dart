@@ -234,6 +234,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<void> _showEditProfileDialog() async {
+    final nameController = TextEditingController(text: _profile?['full_name']);
+    final rollController = TextEditingController(text: _profile?['roll_number']);
+    final deptController = TextEditingController(text: _profile?['department']);
+    final yearController = TextEditingController(text: _profile?['year']?.toString());
+    bool isSaving = false;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            backgroundColor: AppTheme.surfaceColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Text('Edit Profile', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildDialogTextField(controller: nameController, hint: 'Full Name'),
+                  const SizedBox(height: 12),
+                  _buildDialogTextField(controller: rollController, hint: 'Roll Number'),
+                  const SizedBox(height: 12),
+                  _buildDialogTextField(controller: deptController, hint: 'Department (e.g. CSE)'),
+                  const SizedBox(height: 12),
+                  _buildDialogTextField(controller: yearController, hint: 'Year (1-4)'),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(onPressed: isSaving ? null : () => Navigator.pop(context), child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted))),
+              ElevatedButton(
+                onPressed: isSaving ? null : () async {
+                  setDialogState(() => isSaving = true);
+                  try {
+                    final supabase = Provider.of<SupabaseService>(context, listen: false);
+                    final updates = {
+                      'full_name': nameController.text.trim(),
+                      'roll_number': rollController.text.trim(),
+                      'department': deptController.text.trim(),
+                      'year': int.tryParse(yearController.text.trim()) ?? 1,
+                    };
+                    await supabase.client.from('profiles').update(updates).eq('id', _profile!['id']);
+                    if (mounted) {
+                      setState(() {
+                         _profile = { ..._profile!, ...updates };
+                      });
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text('Profile updated successfully')));
+                    }
+                  } catch (e) {
+                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.redAccent, content: Text(e.toString())));
+                  } finally {
+                     if (mounted) setDialogState(() => isSaving = false);
+                  }
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentSecondary, foregroundColor: Colors.black),
+                child: isSaving ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)) : const Text('SAVE', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildDialogTextField({
     required TextEditingController controller,
     required String hint,
@@ -443,37 +510,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ).animate().fadeIn(delay: 350.ms),
 
-                    // Exec Settings
-                    if (_profile?['role'] == 'exec' ||
-                        _profile?['role'] == 'admin') ...[
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _showChangePasswordDialog,
-                          icon: const Icon(Icons.lock_reset_rounded, size: 20),
-                          label: const Text(
-                            'Change Password',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white.withOpacity(0.05),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              side: BorderSide(
-                                color: Colors.white.withOpacity(0.1),
-                              ),
-                            ),
-                            elevation: 0,
+                    // Edit Profile Settings
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _showEditProfileDialog,
+                        icon: const Icon(Icons.edit_rounded, size: 20),
+                        label: const Text(
+                          'Edit Profile',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
                           ),
                         ),
-                      ).animate().fadeIn(delay: 450.ms),
-                    ],
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white.withOpacity(0.05),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: Colors.white.withOpacity(0.1),
+                            ),
+                          ),
+                          elevation: 0,
+                        ),
+                      ),
+                    ).animate().fadeIn(delay: 400.ms),
+
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _showChangePasswordDialog,
+                        icon: const Icon(Icons.lock_reset_rounded, size: 20),
+                        label: const Text(
+                          'Change Password',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white.withOpacity(0.05),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: Colors.white.withOpacity(0.1),
+                            ),
+                          ),
+                          elevation: 0,
+                        ),
+                      ),
+                    ).animate().fadeIn(delay: 450.ms),
                   ],
                 ),
               ),
