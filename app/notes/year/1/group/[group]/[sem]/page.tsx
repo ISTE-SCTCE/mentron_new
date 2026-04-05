@@ -36,7 +36,7 @@ export default async function Year1SubjectsPage({
         .single()
 
     // Group-based access control for Year 1 students
-    const isPrivileged = profile?.role === 'exec' || profile?.role === 'panel'
+    const isPrivileged = profile?.role === 'exec' || profile?.role === 'core'
     if (!isPrivileged) {
         const detectedDept = getDepartmentFromRollNumber(profile?.roll_number)
         const resolvedDept = detectedDept !== 'Other' ? detectedDept : (profile?.department ?? '')

@@ -17,7 +17,8 @@ import {
     LogOut,
     ChevronLeft,
     ChevronRight,
-    Settings
+    Settings,
+    ShieldAlert
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -25,6 +26,7 @@ const navItems = [
     { href: '/dashboard', icon: LayoutGrid, label: 'Dashboard' },
     { href: '/analytics', icon: BarChart3, label: 'Analytics' },
     { href: '/team', icon: Users, label: 'Team' },
+    { href: '/core', icon: ShieldAlert, label: 'Core' },
     { href: '/notes', icon: BookOpen, label: 'Notes' },
     { href: '/events', icon: Zap, label: 'Events' },
     { href: '/marketplace', icon: ShoppingBag, label: 'Market' },

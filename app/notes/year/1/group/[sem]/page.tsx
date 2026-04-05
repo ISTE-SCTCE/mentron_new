@@ -29,7 +29,7 @@ export default async function GroupPickerPage({
         .single()
 
     const userDept = profile?.department?.toUpperCase() as DeptKey | undefined
-    const isPrivileged = profile?.role === 'exec' || profile?.role === 'panel' || profile?.role === 'admin'
+    const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
     const assignedGroup = userDept ? DEPT_TO_GROUP[userDept] : null
 
     const allGroups = Object.entries(FIRST_YEAR_GROUPS) as [GroupKey, typeof FIRST_YEAR_GROUPS[GroupKey]][]

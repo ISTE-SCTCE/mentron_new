@@ -91,8 +91,8 @@ class _NoteListScreenState extends State<NoteListScreen> {
 
   bool _canDelete(Note note) {
     if (_currentUserId == null) return false;
-    // Allow if uploader OR if user is exec/panel
-    return note.profileId == _currentUserId || _currentUserRole == 'exec' || _currentUserRole == 'panel';
+    // Allow if uploader OR if user is exec/core
+    return note.profileId == _currentUserId || _currentUserRole == 'exec' || _currentUserRole == 'core';
   }
 
   Future<void> _deleteNote(Note note) async {

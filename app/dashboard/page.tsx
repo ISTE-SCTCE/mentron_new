@@ -10,12 +10,12 @@ import { FloatingBanner } from '@/app/components/FloatingBanner'
 import { CyberPulseWidget } from '@/app/components/CyberPulseWidget'
 import { MentronOrbWidget } from '@/app/components/MentronOrbWidget'
 import { GlobalSearch } from '@/app/components/GlobalSearch'
-import { isPanelMember } from '@/app/lib/utils/panelAuth'
+import { isCoreMember } from '@/app/lib/utils/coreAuth'
 import { EventBanner } from '@/app/components/EventBanner'
 
 export default async function DashboardPage() {
     const supabase = await createClient()
-    const panelMember = await isPanelMember()
+    const coreMember = await isCoreMember()
 
     const {
         data: { user },
@@ -208,7 +208,7 @@ export default async function DashboardPage() {
                             </div>
 
                             {/* Event Banner — for normal members; Admin Hub for exec */}
-                            {(profile?.role === 'exec' || profile?.role === 'panel') ? (
+                            {(profile?.role === 'exec' || profile?.role === 'core') ? (
                                 <>
                                     {profile?.role === 'exec' && (
                                         <div className="glass-card group border-blue-500/20 bg-blue-500/5 mt-8">
@@ -238,15 +238,15 @@ export default async function DashboardPage() {
                                 </div>
                             )}
 
-                            {/* Panel Member Card — only visible to panel members */}
-                            {panelMember && (
+                            {/* Core Member Card — only visible to core members */}
+                            {coreMember && (
                                 <Link
-                                    href="/panel/members"
+                                    href="/core/members"
                                     className="glass-card group block border-purple-500/20 bg-purple-500/5 mt-8 hover:bg-purple-500/10 transition-all"
                                 >
                                     <div className="flex justify-between items-start mb-6">
                                         <div>
-                                            <h3 className="text-xs font-black tracking-[0.2em] text-purple-400 uppercase mb-2">Panel Control</h3>
+                                            <h3 className="text-xs font-black tracking-[0.2em] text-purple-400 uppercase mb-2">Core Control</h3>
                                             <p className="text-2xl font-black text-white group-hover:text-glow transition-all">Manage Members</p>
                                         </div>
                                         <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-xl">
@@ -256,8 +256,8 @@ export default async function DashboardPage() {
                                     <p className="text-sm text-gray-500 font-medium">
                                         View all members, promote to Executive or demote to Normal Member.
                                     </p>
-                                    <div className="mt-6 flex items-center gap-2 text-purple-400 text-xs font-black uppercase tracking-widest">
-                                        <span>Open Panel</span>
+                                    <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-purple-400">
+                                        <span>Open Core</span>
                                         <span>→</span>
                                     </div>
                                 </Link>

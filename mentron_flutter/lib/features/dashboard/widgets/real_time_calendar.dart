@@ -335,7 +335,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
           ),
         ],
 
-        // Exec-only: Add Event form panel
+        // Exec-only: Add Event form core
         if (_isExec && _showAddForm && _selectedDay != null) ...[
           const SizedBox(height: 16),
           GlassContainer(

@@ -35,7 +35,7 @@ export default async function YearPage({
         .single()
 
     const userDept = profile?.department?.toUpperCase() as DeptKey | undefined
-    const isPrivileged = profile?.role === 'exec' || profile?.role === 'panel' || profile?.role === 'admin'
+    const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
     const assignedGroup = userDept ? DEPT_TO_GROUP[userDept] : null
 
     const meta = YEAR_META[yearNum]

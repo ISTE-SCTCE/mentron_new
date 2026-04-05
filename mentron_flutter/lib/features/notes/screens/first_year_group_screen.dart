@@ -60,7 +60,7 @@ class _FirstYearGroupScreenState extends State<FirstYearGroupScreen> {
   Widget build(BuildContext context) {
     final allGroups = SubjectData.firstYearGroups.entries.toList();
     final groups = allGroups.where((e) {
-      if (_userRole == 'panel' || _userRole == 'exec' || _userDept == null || _userDept == 'OTHER') return true;
+      if (_userRole == 'core' || _userRole == 'exec' || _userDept == null || _userDept == 'OTHER') return true;
       final assignedGroup = DepartmentMapper.getGroupFromDepartment(_userDept);
       return e.key == assignedGroup;
     }).toList();

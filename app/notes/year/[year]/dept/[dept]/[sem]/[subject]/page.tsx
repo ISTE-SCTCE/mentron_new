@@ -107,7 +107,7 @@ export default async function SubjectNotesPage({
                                 <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
                                     <span className="text-[10px] text-gray-600 font-bold">{note.profiles?.full_name || 'Anonymous'}</span>
                                     <div className="flex gap-3 items-center">
-                                        {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'panel') && (
+                                        {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'core') && (
                                             <DeleteButton onDelete={deleteNote.bind(null, note.id)} itemName="note" />
                                         )}
                                         <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">

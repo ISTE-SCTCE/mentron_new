@@ -17,7 +17,7 @@ import '../../leaderboard/screens/leaderboard_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../../team/screens/team_screen.dart';
 import '../../forum/screens/forum_list_screen.dart';
-import 'panel_members_screen.dart';
+import 'core_members_screen.dart';
 import '../../../core/utils/app_transitions.dart';
 import '../widgets/event_banner_widget.dart';
 
@@ -33,8 +33,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int totalNotes = 0;
   int totalProjects = 0;
   int userXP = 0;
-  bool _isPanelMember = false;
-  String _userRole = 'member'; // 'member', 'exec', 'panel'
+  bool _isCoreMember = false;
+  String _userRole = 'member'; // 'member', 'exec', 'core'
 
   @override
   void initState() {
@@ -62,7 +62,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           if (mounted) {
             setState(() {
               _userRole = userRole;
-              _isPanelMember = userRole == 'panel';
+              _isCoreMember = userRole == 'core';
             });
           }
           if (profileRes['xp'] != null) {
@@ -124,8 +124,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 _buildHeader(),
                 const SizedBox(height: 32),
-                // Stats only for exec/panel, event banner for normal members
-                if (_userRole == 'exec' || _userRole == 'panel') ...
+                // Stats only for exec/core, event banner for normal members
+                if (_userRole == 'exec' || _userRole == 'core') ...
                   [_buildStatsGrid(), const SizedBox(height: 32)]
                 else ...
                   [const EventBannerWidget(), const SizedBox(height: 32)],
@@ -496,16 +496,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             AppTransitions.slideUp(const TeamScreen()),
           ),
         ),
-        if (_isPanelMember) ...[
+        if (_isCoreMember) ...[
           const SizedBox(height: 12),
           _buildActionButton(
-            'Manage Members',
+            'Manage Core',
             'Promote, demote & view all members',
             Icons.admin_panel_settings_rounded,
             Colors.purpleAccent,
             () => Navigator.push(
               context,
-              AppTransitions.slideUp(const PanelMembersScreen()),
+              AppTransitions.slideUp(const CoreMembersScreen()),
             ),
           ),
         ],

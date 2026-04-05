@@ -41,7 +41,7 @@ export default async function DeptPickerPage({
         .single()
 
     const userDept = profile?.department?.toUpperCase()
-    const isPrivileged = profile?.role === 'exec' || profile?.role === 'panel' || profile?.role === 'admin'
+    const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
 
     const semKey = sem.toUpperCase()
     const yearMeta = YEAR_META[yearNum]

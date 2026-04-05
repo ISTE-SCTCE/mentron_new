@@ -91,7 +91,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
   }
 
   bool _canDelete(Note note) =>
-      note.profileId == _currentUserId || _currentUserRole == 'exec' || _currentUserRole == 'panel';
+      note.profileId == _currentUserId || _currentUserRole == 'exec' || _currentUserRole == 'core';
 
   Future<void> _deleteNote(Note note) async {
     final confirm = await showDialog<bool>(
@@ -191,7 +191,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          if (_currentUserRole == 'exec' || _currentUserRole == 'panel')
+          if (_currentUserRole == 'exec' || _currentUserRole == 'core')
             Padding(
               padding: const EdgeInsets.only(right: 16),
               child: TextButton.icon(
@@ -238,7 +238,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                               const SizedBox(height: 12),
                               const Text('No notes for this subject yet', style: TextStyle(color: AppTheme.textMuted, fontWeight: FontWeight.bold)),
                               const SizedBox(height: 8),
-                              if (_currentUserRole == 'exec' || _currentUserRole == 'panel')
+                              if (_currentUserRole == 'exec' || _currentUserRole == 'core')
                                 TextButton(
                                   onPressed: () => Navigator.push(context, AppTransitions.slideUp(const AddNoteScreen())),
                                   child: Text('Be the first to contribute →', style: TextStyle(color: widget.color, fontWeight: FontWeight.bold)),

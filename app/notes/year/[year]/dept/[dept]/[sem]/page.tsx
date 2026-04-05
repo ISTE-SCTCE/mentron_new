@@ -48,8 +48,7 @@ export default async function DeptSubjectsPage({
         .eq('id', user?.id ?? '')
         .single()
 
-    // Dept-based access control: if not exec/panel, restrict to own department
-    const isPrivileged = profile?.role === 'exec' || profile?.role === 'panel'
+  const isPrivileged = profile?.role === 'exec' || profile?.role === 'core'
     if (!isPrivileged) {
         const detectedDept = getDepartmentFromRollNumber(profile?.roll_number)
         const userDept = (detectedDept !== 'Other' ? detectedDept : profile?.department) ?? ''

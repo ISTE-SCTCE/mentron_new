@@ -117,7 +117,7 @@ class _SemesterScreenState extends State<SemesterScreen> {
                 child: InkWell(
                   onTap: () {
                     if (widget.year == 1) {
-                      final isPrivileged = _userRole == 'panel' || _userRole == 'exec';
+                      final isPrivileged = _userRole == 'core' || _userRole == 'exec';
                       if (!isPrivileged && _userDept != null && _userDept != 'OTHER') {
                         // Auto-assign group based on department
                         final groupKey = DepartmentMapper.getGroupFromDepartment(_userDept);

@@ -64,7 +64,7 @@ class _MainScaffoldState extends State<MainScaffold>
   }
 
   /// Subscribe to real-time changes on the current user's profile row.
-  /// If the role column changes (e.g. panel promotes/demotes them),
+  /// If the role column changes (e.g. core promotes/demotes them),
   /// we immediately re-fetch and refresh _isExec.
   void _subscribeToRoleChanges() {
     final supabase = Provider.of<SupabaseService>(context, listen: false);
@@ -107,7 +107,7 @@ class _MainScaffoldState extends State<MainScaffold>
           .maybeSingle();
       if (!mounted || profile == null) return;
       final role = profile['role'];
-      final isPrivileged = role == 'exec' || role == 'panel';
+      final isPrivileged = role == 'exec' || role == 'core';
       if (isPrivileged) {
         setState(() => _isExec = true);
         _fetchPendingCount();

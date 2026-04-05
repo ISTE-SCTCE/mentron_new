@@ -15,7 +15,7 @@ export default async function AnalyticsPage() {
         .single()
 
     const role = profile?.role ?? 'member'
-    const isPrivileged = role === 'exec' || role === 'panel'
+    const isPrivileged = role === 'exec' || role === 'core'
 
     if (!isPrivileged) {
         return (
@@ -24,7 +24,7 @@ export default async function AnalyticsPage() {
                     <div className="text-5xl">🔒</div>
                     <h1 className="text-2xl font-black text-white">Access Restricted</h1>
                     <p className="text-gray-400 text-sm">
-                        The Analytics Hub is available to <strong className="text-white">Executive & Panel members</strong> only.
+                        The Analytics Hub is available to <strong className="text-white">Executive & Core members</strong> only.
                     </p>
                     <Link href="/dashboard" className="glass glass-hover px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest text-blue-400 border-blue-500/20 inline-block mt-4">
                         Back to Dashboard

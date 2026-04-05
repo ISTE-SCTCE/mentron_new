@@ -2,9 +2,9 @@ import { createClient } from '@/app/lib/supabase/server'
 
 /**
  * Returns true if the currently logged-in user's email
- * exists in the panel_members table.
+ * exists in the core_members table.
  */
-export async function isPanelMember(): Promise<boolean> {
+export async function isCoreMember(): Promise<boolean> {
     const supabase = await createClient()
 
     const {
@@ -16,13 +16,13 @@ export async function isPanelMember(): Promise<boolean> {
         .select('role')
         .eq('id', user.id)
         .single()
-    return profile?.role === 'panel'
+    return profile?.role === 'core'
 }
 
 /**
  * Returns the current user's email, or null.
  */
-export async function getPanelMemberEmail(): Promise<string | null> {
+export async function getCoreMemberEmail(): Promise<string | null> {
     const supabase = await createClient()
     const {
         data: { user },

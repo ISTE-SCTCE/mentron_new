@@ -85,7 +85,7 @@ class _DeptPickerScreenState extends State<DeptPickerScreen> {
   Widget build(BuildContext context) {
     final allDepts = SubjectData.departments.entries.toList();
     final depts = allDepts.where((e) {
-      if (_userRole == 'panel' || _userRole == 'exec' || _userDept == null) return true;
+      if (_userRole == 'core' || _userRole == 'exec' || _userDept == null) return true;
       return e.key == _userDept;
     }).toList();
 
@@ -122,7 +122,7 @@ class _DeptPickerScreenState extends State<DeptPickerScreen> {
             ...List.generate(depts.length, (i) {
               final code = depts[i].key;
               final meta = depts[i].value;
-              final isUnlocked = _userRole == 'panel' || _userRole == 'exec' || _userDept == null || _userDept == code;
+              final isUnlocked = _userRole == 'core' || _userRole == 'exec' || _userDept == null || _userDept == code;
               final color = isUnlocked ? _deptColors[code]! : Colors.grey;
 
               return Padding(

@@ -75,7 +75,7 @@ export default async function NoteAnalyticsPage({
 
                 <header className="mb-12 flex flex-col gap-4">
                     <div className="space-y-2">
-                        <p className="text-[10px] font-black tracking-[0.3em] text-purple-500 uppercase">Analytics Panel</p>
+                        <p className="text-[10px] font-black tracking-[0.3em] text-purple-500 uppercase">Analytics Core</p>
                         <h1 className="text-4xl font-black tracking-tighter text-white">{note.title}</h1>
                         <p className="text-gray-400 text-sm mt-2">{note.description}</p>
                     </div>

@@ -13,7 +13,7 @@ type Profile = {
     role: string
 }
 
-export default function PanelMembersPage() {
+export default function CoreMembersPage() {
     const supabase = createClient()
     const router = useRouter()
 
@@ -24,7 +24,7 @@ export default function PanelMembersPage() {
     const [updating, setUpdating] = useState<string | null>(null)
     const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null)
 
-    // ── 1. Auth guard: must be panel member ───────────────────────────────────
+    // ── 1. Auth guard: must be core member ───────────────────────────────────
     useEffect(() => {
         async function checkAccess() {
             const { data: { user } } = await supabase.auth.getUser()
@@ -36,7 +36,7 @@ export default function PanelMembersPage() {
                 .eq('id', user.id)
                 .single()
 
-            if (profile?.role !== 'panel') {
+            if (profile?.role !== 'core') {
                 router.replace('/dashboard')
             }
         }
@@ -49,7 +49,7 @@ export default function PanelMembersPage() {
         const { data } = await supabase
             .from('profiles')
             .select('id, full_name, roll_number, department, year, role')
-            .neq('role', 'panel')
+            .neq('role', 'core')
             .order('full_name', { ascending: true })
 
         const list = (data ?? []) as Profile[]
@@ -77,7 +77,7 @@ export default function PanelMembersPage() {
     const handleRoleChange = async (profileId: string, newRole: 'member' | 'exec') => {
         setUpdating(profileId)
         try {
-            const res = await fetch('/api/panel/update-role', {
+            const res = await fetch('/api/core/update-role', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ profileId, newRole }),
@@ -109,7 +109,7 @@ export default function PanelMembersPage() {
             <div className="mb-12 space-y-2">
                 <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase flex items-center gap-2">
                     <span className="w-8 h-[1px] bg-blue-500 inline-block" />
-                    Panel Control
+                    Core Control
                 </p>
                 <h1 className="text-5xl font-black tracking-tighter text-white">
                     Manage Members
@@ -125,7 +125,7 @@ export default function PanelMembersPage() {
                     { label: 'Total Members', value: members.length, icon: '👥' },
                     { label: 'Executive Members', value: members.filter((m) => m.role === 'exec').length, icon: '⭐' },
                     { label: 'Normal Members', value: members.filter((m) => m.role === 'member').length, icon: '🎓' },
-                    { label: 'Panel Members', value: 1, icon: '🔐' },
+                    { label: 'Core Members', value: 1, icon: '🔐' },
                 ].map((stat) => (
                     <div key={stat.label} className="glass-card text-center space-y-1">
                         <div className="text-3xl">{stat.icon}</div>

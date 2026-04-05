@@ -13,16 +13,16 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // 2. Verify the caller is a panel member
+    // 2. Verify the caller is a core member
     const { data: profile } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single()
 
-    if (profile?.role !== 'panel') {
+    if (profile?.role !== 'core') {
         return NextResponse.json(
-            { error: 'Forbidden: Not a panel member' },
+            { error: 'Forbidden: Not a core member' },
             { status: 403 }
         )
     }

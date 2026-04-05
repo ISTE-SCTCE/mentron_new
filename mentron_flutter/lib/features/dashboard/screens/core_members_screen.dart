@@ -6,13 +6,13 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 
-class PanelMembersScreen extends StatefulWidget {
-  const PanelMembersScreen({super.key});
+class CoreMembersScreen extends StatefulWidget {
+  const CoreMembersScreen({super.key});
   @override
-  State<PanelMembersScreen> createState() => _PanelMembersScreenState();
+  State<CoreMembersScreen> createState() => _CoreMembersScreenState();
 }
 
-class _PanelMembersScreenState extends State<PanelMembersScreen> {
+class _CoreMembersScreenState extends State<CoreMembersScreen> {
   List<Map<String, dynamic>> _members = [];
   bool _isLoading = true;
   String _search = '';
@@ -29,8 +29,8 @@ class _PanelMembersScreenState extends State<PanelMembersScreen> {
       final res = await supabase
           .from('profiles')
           .select('id, full_name, role, department, year')
-          .neq('role', 'panel')
-          .order('full_name');
+          .neq('role', 'core')
+          .order('name');
       if (mounted) setState(() { _members = List<Map<String, dynamic>>.from(res); _isLoading = false; });
     } catch (_) {
       if (mounted) setState(() => _isLoading = false);
@@ -75,8 +75,8 @@ class _PanelMembersScreenState extends State<PanelMembersScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Column(children: [
-          const Text('PANEL', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
-          const Text('Manage Members', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
+          const Text('CORE', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
+          const Text('Members', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
         ]),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
