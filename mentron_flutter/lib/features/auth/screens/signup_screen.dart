@@ -42,19 +42,15 @@ class _SignupScreenState extends State<SignupScreen> {
     final roll = _rollNumberController.text.trim().toUpperCase();
 
     try {
-      // 1. Pre-check profiles table for duplicate email or roll number
+      // 1. Pre-check profiles table for duplicate roll number
       final existing = await supabase.client
           .from('profiles')
-          .select('id, email, roll_number')
-          .or('email.eq.$email,roll_number.eq.$roll')
+          .select('id, roll_number')
+          .eq('roll_number', roll)
           .maybeSingle();
 
       if (existing != null) {
-        String msg = 'An account with this email already exists.';
-        if (existing['roll_number'] == roll) {
-          msg = 'This roll number is already registered.';
-        }
-        throw Exception(msg);
+        throw Exception('This roll number is already registered.');
       }
 
       final response = await supabase.client.auth.signUp(
