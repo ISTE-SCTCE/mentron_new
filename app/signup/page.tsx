@@ -3,10 +3,13 @@
 import { signup } from './actions'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function SignupPage() {
     const searchParams = useSearchParams()
     const error = searchParams.get('error')
+    const [showPassword, setShowPassword] = useState(false)
 
     return (
         <div className="flex justify-center p-4 pt-16 pb-12">
@@ -48,13 +51,22 @@ export default function SignupPage() {
                             required
                             className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
                         />
-                        <input
-                            name="password"
-                            type="password"
-                            placeholder="Create Password"
-                            required
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
-                        />
+                        <div className="relative">
+                            <input
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Create Password"
+                                required
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium pr-14"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <select

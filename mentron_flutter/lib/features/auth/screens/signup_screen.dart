@@ -21,6 +21,7 @@ class _SignupScreenState extends State<SignupScreen> {
   String? _selectedYear;
   String? _selectedDept;
   bool _isLoading = false;
+  bool _obscurePassword = true;
 
   Future<void> _handleSignup() async {
     if (_fullNameController.text.isEmpty ||
@@ -244,13 +245,23 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
       child: TextField(
         controller: controller,
-        obscureText: isPassword,
+        obscureText: isPassword ? _obscurePassword : false,
         keyboardType: keyboardType,
         style: const TextStyle(color: Colors.white, fontSize: 14),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 13),
           prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.4), size: 18),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                    color: Colors.white.withOpacity(0.4),
+                    size: 18,
+                  ),
+                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                )
+              : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),

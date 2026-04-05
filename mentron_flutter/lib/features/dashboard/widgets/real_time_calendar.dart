@@ -15,7 +15,7 @@ class RealTimeCalendar extends StatefulWidget {
 }
 
 class _RealTimeCalendarState extends State<RealTimeCalendar> {
-  CalendarFormat _calendarFormat = CalendarFormat.week;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
@@ -139,13 +139,6 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
     }
   }
 
-  void _toggleCalendarFormat() {
-    setState(() {
-      _calendarFormat = _calendarFormat == CalendarFormat.month
-          ? CalendarFormat.week
-          : CalendarFormat.month;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,49 +151,6 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Expand/Collapse toggle row above the calendar
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            GestureDetector(
-              onTap: _toggleCalendarFormat,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: AppTheme.accentSecondary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: AppTheme.accentSecondary.withOpacity(0.3),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isMonthView
-                          ? Icons.unfold_less_rounded
-                          : Icons.unfold_more_rounded,
-                      color: AppTheme.accentSecondary,
-                      size: 14,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      isMonthView ? 'COLLAPSE' : 'EXPAND',
-                      style: const TextStyle(
-                        color: AppTheme.accentSecondary,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
         const SizedBox(height: 8),
         // Calendar Card
         GlassContainer(
