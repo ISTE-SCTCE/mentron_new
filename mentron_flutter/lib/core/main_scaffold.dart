@@ -106,8 +106,9 @@ class _MainScaffoldState extends State<MainScaffold>
           .eq('id', userId)
           .maybeSingle();
       if (!mounted || profile == null) return;
-      final isExec = profile['role'] == 'exec';
-      if (isExec) {
+      final role = profile['role'];
+      final isPrivileged = role == 'exec' || role == 'panel';
+      if (isPrivileged) {
         setState(() => _isExec = true);
         _fetchPendingCount();
       } else {

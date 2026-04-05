@@ -65,7 +65,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
 
   bool _canDelete(Project project) {
     if (_currentUserId == null) return false;
-    return project.profileId == _currentUserId || _currentUserRole == 'exec';
+    return project.profileId == _currentUserId || _currentUserRole == 'exec' || _currentUserRole == 'panel';
   }
 
   Future<void> _deleteProject(Project project) async {
