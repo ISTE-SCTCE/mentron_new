@@ -11,6 +11,7 @@ import { CyberPulseWidget } from '@/app/components/CyberPulseWidget'
 import { MentronOrbWidget } from '@/app/components/MentronOrbWidget'
 import { GlobalSearch } from '@/app/components/GlobalSearch'
 import { isPanelMember } from '@/app/lib/utils/panelAuth'
+import { EventBanner } from '@/app/components/EventBanner'
 
 export default async function DashboardPage() {
     const supabase = await createClient()
@@ -206,26 +207,34 @@ export default async function DashboardPage() {
                                 </Link>
                             </div>
 
-                            {/* Admin Power Card */}
-                            {profile?.role === 'exec' && (
-                                <div className="glass-card group border-blue-500/20 bg-blue-500/5 mt-8">
-                                    <div className="flex justify-between items-start mb-8">
-                                        <div>
-                                            <h3 className="text-xs font-black tracking-[0.2em] text-blue-500 uppercase mb-2">Admin Hub</h3>
-                                            <p className="text-2xl font-black text-white">Power Tools Active</p>
+                            {/* Event Banner — for normal members; Admin Hub for exec */}
+                            {(profile?.role === 'exec' || profile?.role === 'panel') ? (
+                                <>
+                                    {profile?.role === 'exec' && (
+                                        <div className="glass-card group border-blue-500/20 bg-blue-500/5 mt-8">
+                                            <div className="flex justify-between items-start mb-8">
+                                                <div>
+                                                    <h3 className="text-xs font-black tracking-[0.2em] text-blue-500 uppercase mb-2">Admin Hub</h3>
+                                                    <p className="text-2xl font-black text-white">Power Tools Active</p>
+                                                </div>
+                                                <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-xl">
+                                                    ⚙️
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <Link href="/admin/notes" className="glass glass-hover p-4 rounded-xl text-center font-black text-xs text-blue-400 uppercase tracking-widest">
+                                                    Upload
+                                                </Link>
+                                                <Link href="/admin/projects" className="bg-blue-600 hover:bg-blue-700 p-4 rounded-xl text-center font-black text-xs text-white uppercase tracking-widest transition-all">
+                                                    Manage
+                                                </Link>
+                                            </div>
                                         </div>
-                                        <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-xl">
-                                            ⚙️
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <Link href="/admin/notes" className="glass glass-hover p-4 rounded-xl text-center font-black text-xs text-blue-400 uppercase tracking-widest">
-                                            Upload
-                                        </Link>
-                                        <Link href="/admin/projects" className="bg-blue-600 hover:bg-blue-700 p-4 rounded-xl text-center font-black text-xs text-white uppercase tracking-widest transition-all">
-                                            Manage
-                                        </Link>
-                                    </div>
+                                    )}
+                                </>
+                            ) : (
+                                <div className="mt-8">
+                                    <EventBanner />
                                 </div>
                             )}
 

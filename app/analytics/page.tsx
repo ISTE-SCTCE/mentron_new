@@ -1,12 +1,40 @@
 import { createClient } from '@/app/lib/supabase/server'
 import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
 import { AnalyticsDashboard } from '@/app/components/AnalyticsDashboard'
+import Link from 'next/link'
 
 export default async function AnalyticsPage() {
     const supabase = await createClient()
 
+    // Role gate: only exec/panel
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user?.id ?? '')
+        .single()
+
+    const role = profile?.role ?? 'member'
+    const isPrivileged = role === 'exec' || role === 'panel'
+
+    if (!isPrivileged) {
+        return (
+            <div className="min-h-screen flex items-center justify-center p-8 text-[#ededed]">
+                <div className="glass-card max-w-md text-center border-red-500/20 bg-red-500/5 space-y-4">
+                    <div className="text-5xl">🔒</div>
+                    <h1 className="text-2xl font-black text-white">Access Restricted</h1>
+                    <p className="text-gray-400 text-sm">
+                        The Analytics Hub is available to <strong className="text-white">Executive & Panel members</strong> only.
+                    </p>
+                    <Link href="/dashboard" className="glass glass-hover px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest text-blue-400 border-blue-500/20 inline-block mt-4">
+                        Back to Dashboard
+                    </Link>
+                </div>
+            </div>
+        )
+    }
+
     // 1. Fetch counts
-    const { count: studentCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true })
     const { count: materialCount } = await supabase.from('notes').select('*', { count: 'exact', head: true })
     const { count: viewCount } = await supabase.from('interaction_logs').select('*', { count: 'exact', head: true })
 
@@ -28,10 +56,7 @@ export default async function AnalyticsPage() {
     // 3. Fetch recent interaction logs
     const { data: recentLogs } = await supabase
         .from('interaction_logs')
-        .select(`
-            *,
-            profiles ( full_name )
-        `)
+        .select(`*, profiles ( full_name )`)
         .order('created_at', { ascending: false })
         .limit(10)
 
@@ -46,7 +71,6 @@ export default async function AnalyticsPage() {
     return (
         <div className="min-h-screen p-8 pt-32 text-[#ededed] pb-24">
             <div className="max-w-7xl mx-auto px-4">
-                {/* Header */}
                 <header className="mb-16">
                     <div className="flex items-center gap-2 mb-4">
                         <span className="w-10 h-[1px] bg-blue-500"></span>
@@ -67,3 +91,4 @@ export default async function AnalyticsPage() {
         </div>
     )
 }
+

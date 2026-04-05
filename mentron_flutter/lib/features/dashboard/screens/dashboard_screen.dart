@@ -19,6 +19,7 @@ import '../../team/screens/team_screen.dart';
 import '../../forum/screens/forum_list_screen.dart';
 import 'panel_members_screen.dart';
 import '../../../core/utils/app_transitions.dart';
+import '../widgets/event_banner_widget.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -33,6 +34,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int totalProjects = 0;
   int userXP = 0;
   bool _isPanelMember = false;
+  String _userRole = 'member'; // 'member', 'exec', 'panel'
 
   @override
   void initState() {
@@ -56,9 +58,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final profileRes = await supabase.from('profiles').select('department, xp, role').eq('id', user.id).maybeSingle();
         if (profileRes != null) {
           userDept = profileRes['department'] as String?;
-          final userRole = profileRes['role'] as String?;
-          if (mounted && userRole == 'panel') {
-            setState(() => _isPanelMember = true);
+          final userRole = (profileRes['role'] as String?) ?? 'member';
+          if (mounted) {
+            setState(() {
+              _userRole = userRole;
+              _isPanelMember = userRole == 'panel';
+            });
           }
           if (profileRes['xp'] != null) {
             fetchedXp = int.tryParse(profileRes['xp'].toString()) ?? 0;
@@ -119,8 +124,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 _buildHeader(),
                 const SizedBox(height: 32),
-                _buildStatsGrid(),
-                const SizedBox(height: 32),
+                // Stats only for exec/panel, event banner for normal members
+                if (_userRole == 'exec' || _userRole == 'panel') ...
+                  [_buildStatsGrid(), const SizedBox(height: 32)]
+                else ...
+                  [const EventBannerWidget(), const SizedBox(height: 32)],
                 _buildSectionHeader('ACADEMIC CALENDAR'),
                 const SizedBox(height: 16),
                 const RealTimeCalendar(),
