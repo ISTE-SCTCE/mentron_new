@@ -159,6 +159,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
               lastDay: DateTime.utc(2030, 12, 31),
               focusedDay: _focusedDay,
               calendarFormat: CalendarFormat.month,
+              availableGestures: AvailableGestures.horizontalSwipe,
               sixWeekMonthsEnforced: true,
               eventLoader: _getEventsForDay,
               selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
