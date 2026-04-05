@@ -122,7 +122,7 @@ export function MarketplaceList({ items, userId, userName, userRole, purchasedIt
 
     const myListings = items.filter(i => i.seller_id === userId)
     const otherItems = items.filter(i => i.seller_id !== userId)
-    const isExec = userRole === 'exec' || userRole === 'admin'
+    const isExec = userRole === 'exec' || userRole === 'core' || userRole === 'admin'
 
     const handleSuccess = (item: Item) => {
         setSoldIds(prev => new Set([...prev, item.id]))

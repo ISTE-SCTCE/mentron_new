@@ -19,7 +19,7 @@ export async function deleteNote(noteId: string) {
 
     // Check if user is author OR an exec
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-    const isExec = profile?.role === 'exec' || profile?.role === 'admin'
+    const isExec = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
 
     if (user.id !== note.profile_id && !isExec) return { error: 'Unauthorized' }
 
@@ -59,7 +59,7 @@ export async function deleteProject(projectId: string) {
 
     // Check if user is author OR an exec
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-    const isExec = profile?.role === 'exec' || profile?.role === 'admin'
+    const isExec = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
 
     if (user.id !== project.posted_by && !isExec) return { error: 'Unauthorized' }
 
@@ -103,7 +103,7 @@ export async function deleteMarketplaceItem(itemId: string) {
 
     // Check if user is author OR an exec
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-    const isExec = profile?.role === 'exec' || profile?.role === 'admin'
+    const isExec = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
 
     if (user.id !== item.seller_id && !isExec) return { error: 'Unauthorized' }
 

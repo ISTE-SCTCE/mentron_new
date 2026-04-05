@@ -39,7 +39,7 @@ export function GroupView({ userDepartment, userRole, currentDept, currentYear, 
         }
     })
 
-    const isExecOrAdmin = userRole === 'exec' || userRole === 'admin'
+    const isExecOrAdmin = userRole === 'exec' || userRole === 'core' || userRole === 'admin'
 
     // If a specific group is selected, we might want to hide this view or make it smaller.
     // For now, if a group is selected, we will collapse or just show a back button.

@@ -108,12 +108,12 @@ export default async function NotesPage({
                                             <span className="text-xs font-bold text-white">{note.profiles?.full_name || 'Anonymous Student'}</span>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'admin') && (
+                                            {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin') && (
                                                 <Link href={`/notes/${note.id}/analytics`} className="glass glass-hover p-3 rounded-xl flex items-center justify-center text-purple-400 text-sm hover:scale-110 transition-all font-bold" title="View Analytics">
                                                     📊 View
                                                 </Link>
                                             )}
-                                            {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'admin') && (
+                                            {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin') && (
                                                 <DeleteButton onDelete={deleteNote.bind(null, note.id)} itemName="note" />
                                             )}
                                             <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">

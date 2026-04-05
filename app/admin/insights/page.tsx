@@ -15,7 +15,7 @@ export default async function AdminInsightsPage() {
         .eq('id', user.id)
         .single()
 
-    if (profile?.role !== 'exec') redirect('/dashboard')
+    if (profile?.role !== 'exec' && profile?.role !== 'core') redirect('/dashboard')
 
     // 2. Fetch recent interactions with user profiles and item details
     // Note: We'll join with profiles for user data. 

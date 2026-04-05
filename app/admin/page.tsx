@@ -35,7 +35,7 @@ export default async function AdminPage() {
                 <section className="bg-[#171717] p-8 rounded-2xl border border-purple-500/20 shadow-2xl shadow-purple-500/5">
                     <h2 className="text-2xl font-semibold mb-6">Executive Overview</h2>
                     <p className="text-gray-400 mb-8">
-                        Welcome, {profile?.full_name}. This area is restricted to Executive members only.
+                        Welcome, {profile?.full_name}. This area is restricted to Executive and Core members.
                     </p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

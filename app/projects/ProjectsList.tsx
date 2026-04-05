@@ -115,7 +115,7 @@ export function ProjectsList({ projects, userName, userEmail, userRole, userId, 
 
     const myProjects = projects.filter(p => p.posted_by === userId)
     const otherProjects = projects.filter(p => p.posted_by !== userId)
-    const isExec = userRole === 'exec' || userRole === 'admin'
+    const isExec = userRole === 'exec' || userRole === 'core' || userRole === 'admin'
 
     const handleSuccess = (projectId: string) => {
         setAppliedIds(prev => new Set([...prev, projectId]))

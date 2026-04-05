@@ -127,7 +127,7 @@ export default async function DashboardPage() {
                         </div>
 
                         {/* Calendar */}
-                        <DashboardCalendar isExec={profile?.role === 'exec'} />
+                        <DashboardCalendar isExec={profile?.role === 'exec' || profile?.role === 'core'} />
                     </div>
 
                     {/* Bottom Row: Recent Activity & Interaction Hub */}
@@ -210,7 +210,7 @@ export default async function DashboardPage() {
                             {/* Event Banner — for normal members; Admin Hub for exec */}
                             {(profile?.role === 'exec' || profile?.role === 'core') ? (
                                 <>
-                                    {profile?.role === 'exec' && (
+                                    {(profile?.role === 'exec' || profile?.role === 'core') && (
                                         <div className="glass-card group border-blue-500/20 bg-blue-500/5 mt-8">
                                             <div className="flex justify-between items-start mb-8">
                                                 <div>
