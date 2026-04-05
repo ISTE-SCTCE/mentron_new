@@ -25,7 +25,7 @@ class _TeamScreenState extends State<TeamScreen> {
   Future<void> _fetchTeam() async {
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
-      final response = await supabase.from('profiles').select('full_name, department, role, xp').eq('role', 'exec');
+      final response = await supabase.from('profiles').select('full_name, department, role, xp').filter('role', 'in', ['exec', 'core']);
       if (mounted) setState(() { _members = List<Map<String, dynamic>>.from(response); _isLoading = false; });
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
@@ -41,7 +41,7 @@ class _TeamScreenState extends State<TeamScreen> {
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18), onPressed: () => Navigator.pop(context)),
         title: Column(children: [
           const Text('THE TEAM', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
-          const Text('EXECOM Members', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
+          const Text('Leadership Team', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
         ]),
       ),
       body: LiquidBackground(
