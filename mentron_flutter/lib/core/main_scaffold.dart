@@ -125,11 +125,10 @@ class _MainScaffoldState extends State<MainScaffold>
     if (!_isExec) return;
     final client = Provider.of<SupabaseService>(context, listen: false).client;
     try {
-      final notes = await client.from('pending_notes').select('id');
       final projects = await client.from('pending_projects').select('id');
       if (mounted) {
         setState(() {
-          _pendingCount = (notes as List).length + (projects as List).length;
+          _pendingCount = (projects as List).length;
         });
       }
     } catch (_) {}
@@ -271,7 +270,6 @@ class _MainScaffoldState extends State<MainScaffold>
                     _buildNavItem(1, Icons.library_books_rounded, 'Library'),
                     _buildNavItem(2, Icons.rocket_launch_rounded, 'Projects'),
                     _buildNavItem(3, Icons.shopping_bag_rounded, 'Market'),
-                    // Bell icon: only shown to exec users
                     if (_isExec) _buildBellItem(),
                   ],
                 ),

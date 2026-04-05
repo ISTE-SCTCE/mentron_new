@@ -55,7 +55,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       int fetchedXp = 0;
 
       if (user != null) {
-        final profileRes = await supabase.from('profiles').select('department, xp, role').eq('id', user.id).maybeSingle();
+        final profileRes = await supabase
+          .from('profiles')
+          .select('department, xp, role, full_name')
+          .eq('id', user.id)
+          .maybeSingle();
         if (profileRes != null) {
           userDept = profileRes['department'] as String?;
           final userRole = (profileRes['role'] as String?) ?? 'member';
@@ -195,18 +199,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 16),
           Row(
             children: [
-              Expanded(
-                child: _buildContributeButton(
-                  'Add Note',
-                  Icons.note_add_rounded,
-                  AppTheme.accentSecondary,
-                  () => Navigator.push(
-                    context,
-                    AppTransitions.slideUp(const AddNoteScreen()),
+              if (_isExec || _isCoreMember) ...[
+                Expanded(
+                  child: _buildContributeButton(
+                    'Add Note',
+                    Icons.note_add_rounded,
+                    AppTheme.accentSecondary,
+                    () => Navigator.push(
+                      context,
+                      AppTransitions.slideUp(const AddNoteScreen()),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
+                const SizedBox(width: 12),
+              ],
               Expanded(
                 child: _buildContributeButton(
                   'Post Project',
@@ -278,7 +284,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             Text(
-              user?.email?.split('@').first.toUpperCase() ?? 'STUDENT',
+              _profile?['full_name']?.toString().split(' ').first.toUpperCase() ?? 'STUDENT',
               style: Theme.of(
                 context,
               ).textTheme.displayMedium?.copyWith(fontSize: 28),
