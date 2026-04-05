@@ -14,19 +14,16 @@ class MarketplaceScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Colors.white,
-            size: 18,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
+        automaticallyImplyLeading: false, // top-level tab — no back button
+        title: Column(children: [
+          const Text('MENTRON', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
+          const Text('Marketplace', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
+        ]),
       ),
       body: LiquidBackground(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+            padding: const EdgeInsets.fromLTRB(24, 120, 24, 40),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -73,10 +70,10 @@ class MarketplaceScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 const Text(
-                  'Marketplace',
+                  'Student Market',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 40,
+                    fontSize: 32,
                     fontWeight: FontWeight.w900,
                     letterSpacing: -1,
                   ),
@@ -106,34 +103,6 @@ class MarketplaceScreen extends StatelessWidget {
                     _buildFeatureCard('🤝', 'Sweet Deals', 700),
                   ],
                 ),
-
-                const SizedBox(height: 48),
-
-                // Back to Dashboard Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.05),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        side: BorderSide(color: Colors.white.withOpacity(0.1)),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      '← BACK TO DASHBOARD',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 11,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                  ),
-                ).animate().fadeIn(delay: 800.ms),
               ],
             ),
           ),

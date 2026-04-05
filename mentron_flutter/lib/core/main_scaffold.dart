@@ -15,11 +15,19 @@ class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
 
   @override
-  State<MainScaffold> createState() => _MainScaffoldState();
+  State<MainScaffold> createState() => MainScaffoldState();
 }
 
-class _MainScaffoldState extends State<MainScaffold>
+class MainScaffoldState extends State<MainScaffold>
     with TickerProviderStateMixin, WidgetsBindingObserver {
+  static MainScaffoldState? of(BuildContext context) =>
+      context.findAncestorStateOfType<MainScaffoldState>();
+
+  void setIndex(int index) {
+    if (mounted && index >= 0 && index < _screens.length) {
+      setState(() => _currentIndex = index);
+    }
+  }
   int _currentIndex = 0;
   bool _isNavbarVisible = true;
   double _lastScrollOffset = 0;

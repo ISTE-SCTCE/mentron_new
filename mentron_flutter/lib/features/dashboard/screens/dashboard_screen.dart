@@ -20,6 +20,7 @@ import '../../forum/screens/forum_list_screen.dart';
 import 'core_members_screen.dart';
 import '../../../core/utils/app_transitions.dart';
 import '../widgets/event_banner_widget.dart';
+import '../../../core/main_scaffold.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -438,7 +439,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           'Browse notes & materials',
           Icons.library_books_rounded,
           AppTheme.accentSecondary,
-          () => Navigator.push(context, AppTransitions.slideUp(GroupScreen())),
+          () => MainScaffoldState.of(context)?.setIndex(1),
         ),
         const SizedBox(height: 12),
         _buildActionButton(
@@ -446,10 +447,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           'View projects & apply',
           Icons.rocket_launch_rounded,
           AppTheme.accentPrimary,
-          () => Navigator.push(
-            context,
-            AppTransitions.slideUp(ProjectListScreen()),
-          ),
+          () => MainScaffoldState.of(context)?.setIndex(2),
         ),
         const SizedBox(height: 12),
         _buildActionButton(
@@ -457,7 +455,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           'Buy & sell textbooks',
           Icons.shopping_bag_outlined,
           Colors.greenAccent,
-          () => Navigator.push(
+          () => MainScaffoldState.of(context)?.setIndex(3),
+        ),
             context,
             AppTransitions.slideUp(const MarketplaceScreen()),
           ),
