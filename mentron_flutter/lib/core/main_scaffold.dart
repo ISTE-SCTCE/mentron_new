@@ -220,12 +220,12 @@ class MainScaffoldState extends State<MainScaffold>
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.4),
+            color: Colors.black.withValues(alpha: 0.4),
             blurRadius: 30,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: const Color(0xFF7B2FFF).withOpacity(0.08),
+            color: const Color(0xFF7B2FFF).withValues(alpha: 0.08),
             blurRadius: 24,
             spreadRadius: 1,
           ),
@@ -242,12 +242,12 @@ class MainScaffoldState extends State<MainScaffold>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Colors.white.withOpacity(0.14),
-                  Colors.white.withOpacity(0.06),
+                  Colors.white.withValues(alpha: 0.14),
+                  Colors.white.withValues(alpha: 0.06),
                 ],
               ),
               border: Border.all(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 width: 0.8,
               ),
             ),
@@ -264,7 +264,7 @@ class MainScaffoldState extends State<MainScaffold>
                         begin: Alignment.topLeft,
                         end: Alignment.centerRight,
                         colors: [
-                          Colors.white.withOpacity(0.22),
+                          Colors.white.withValues(alpha: 0.22),
                           Colors.transparent,
                         ],
                       ),
@@ -301,7 +301,7 @@ class MainScaffoldState extends State<MainScaffold>
             duration: const Duration(milliseconds: 300),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: isSelected ? AppTheme.accentPrimary.withOpacity(0.15) : Colors.transparent,
+              color: isSelected ? AppTheme.accentPrimary.withValues(alpha: 0.15) : Colors.transparent,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
@@ -347,7 +347,7 @@ class MainScaffoldState extends State<MainScaffold>
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
                   color: _pendingCount > 0
-                      ? Colors.orangeAccent.withOpacity(0.15)
+                      ? Colors.orangeAccent.withValues(alpha: 0.15)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(16),
                 ),

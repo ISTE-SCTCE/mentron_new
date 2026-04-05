@@ -47,8 +47,9 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
             .select('role')
             .eq('id', _currentUserId!)
             .maybeSingle();
-        if (mounted && profile != null)
+        if (mounted && profile != null) {
           setState(() => _currentUserRole = profile['role']);
+        }
       } catch (_) {}
     }
 
@@ -160,13 +161,14 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
         await _fetchAnswers();
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.redAccent,
             content: Text(ErrorHandler.friendly(e)),
           ),
         );
+      }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -203,13 +205,14 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
       // Silent refresh to sync actual count
       await _fetchAnswers();
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.redAccent,
             content: Text(ErrorHandler.friendly(e)),
           ),
         );
+      }
       await _fetchAnswers(); // Revert on failure
     }
   }
@@ -284,13 +287,14 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
         _loadData();
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.redAccent,
             content: Text(ErrorHandler.friendly(e)),
           ),
         );
+      }
     }
   }
 
@@ -407,13 +411,14 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         .eq('id', q.id);
                     if (mounted) Navigator.pop(context);
                   } catch (e) {
-                    if (mounted)
+                    if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           backgroundColor: Colors.red,
                           content: Text('Error: $e'),
                         ),
                       );
+                    }
                   }
                 }
               },
@@ -471,7 +476,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.green.withOpacity(0.2),
+                                    color: Colors.green.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Row(
@@ -512,7 +517,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                                 radius: 14,
                                 backgroundColor: q.isAnonymous
                                     ? Colors.white10
-                                    : AppTheme.accentSecondary.withOpacity(0.2),
+                                    : AppTheme.accentSecondary.withValues(alpha: 0.2),
                                 child: q.isAnonymous
                                     ? const Icon(
                                         Icons.masks_rounded,
@@ -626,7 +631,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                                       width: 2,
                                     )
                                   : Border.all(
-                                      color: Colors.white.withOpacity(0.1),
+                                      color: Colors.white.withValues(alpha: 0.1),
                                     ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -758,7 +763,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                                           decoration: BoxDecoration(
                                             color: ans.hasUpvoted
                                                 ? AppTheme.accentSecondary
-                                                      .withOpacity(0.2)
+                                                      .withValues(alpha: 0.2)
                                                 : Colors.white.withOpacity(
                                                     0.05,
                                                   ),
@@ -849,7 +854,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                           scale: 0.7,
                           child: Switch(
                             value: _isAnonymous,
-                            activeColor: Colors.purpleAccent,
+                            activeThumbColor: Colors.purpleAccent,
                             onChanged: (val) =>
                                 setState(() => _isAnonymous = val),
                           ),
@@ -876,10 +881,10 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.05),
+                              color: Colors.white.withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.1),
+                                color: Colors.white.withValues(alpha: 0.1),
                               ),
                             ),
                             child: TextField(

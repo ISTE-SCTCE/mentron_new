@@ -49,10 +49,15 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     if (userId == null) return;
     try {
       await supabase.client.from('registrations').insert({'event_id': widget.eventId, 'user_id': userId});
-      if (mounted) setState(() { _isRegistered = true; _isRegistering = false; });
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text("You're registered! We'll see you there 🎉")));
+      if (mounted) {
+        setState(() { _isRegistered = true; _isRegistering = false; });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text("You're registered! We'll see you there 🎉")));
+      }
     } catch (e) {
-      if (mounted) { setState(() => _isRegistering = false); ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e)))); }
+      if (mounted) { 
+        setState(() => _isRegistering = false); 
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e)))); 
+      }
     }
   }
 
@@ -95,7 +100,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       // Registration Card
                       GlassContainer(
                         padding: const EdgeInsets.all(28),
-                        border: Border.all(color: _isRegistered ? Colors.green.withOpacity(0.4) : AppTheme.accentPrimary.withOpacity(0.3)),
+                        border: Border.all(color: _isRegistered ? Colors.green.withValues(alpha: 0.4) : AppTheme.accentPrimary.withValues(alpha: 0.3)),
                         child: _isRegistered
                             ? Column(children: [
                                 const Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 48),
@@ -104,7 +109,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                 const SizedBox(height: 8),
                                 const Text('You have successfully registered.\nWe look forward to seeing you there!', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.textMuted, height: 1.6)),
                                 const SizedBox(height: 16),
-                                Container(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8), decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.green.withOpacity(0.2))),
+                                Container(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8), decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.green.withValues(alpha: 0.2))),
                                   child: const Text('STATUS: CONFIRMED', style: TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2))),
                               ])
                             : Column(children: [

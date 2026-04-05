@@ -151,12 +151,12 @@ class _DeptPickerScreenState extends State<DeptPickerScreen> {
                     opacity: isUnlocked ? 1.0 : 0.4,
                     child: GlassContainer(
                       padding: const EdgeInsets.all(24),
-                      border: Border.all(color: color.withOpacity(0.35)),
+                      border: Border.all(color: color.withValues(alpha: 0.35)),
                       child: Row(children: [
                         Container(
                           width: 56, height: 56,
                           decoration: BoxDecoration(
-                            color: color.withOpacity(0.12),
+                            color: color.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Center(
@@ -179,7 +179,7 @@ class _DeptPickerScreenState extends State<DeptPickerScreen> {
                         ),
                         Icon(
                           isUnlocked ? Icons.chevron_right_rounded : Icons.lock_outline_rounded,
-                          color: color.withOpacity(0.6),
+                          color: color.withValues(alpha: 0.6),
                         ),
                       ]),
                     ),

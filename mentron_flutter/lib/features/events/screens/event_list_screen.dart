@@ -83,7 +83,7 @@ class _EventListScreenState extends State<EventListScreen> {
             Row(children: [
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: AppTheme.accentPrimary.withOpacity(0.15), shape: BoxShape.circle),
+                decoration: BoxDecoration(color: AppTheme.accentPrimary.withValues(alpha: 0.15), shape: BoxShape.circle),
                 child: const Icon(Icons.event_rounded, color: AppTheme.accentPrimary, size: 24),
               ),
               const SizedBox(width: 16),

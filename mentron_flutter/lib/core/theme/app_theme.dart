@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
 class AppTheme {
   // Core palette
@@ -22,8 +21,8 @@ class AppTheme {
       scaffoldBackgroundColor: bgColor,
       primaryColor: accentPrimary,
       hintColor: accentSecondary,
-      splashColor: accentPrimary.withOpacity(0.08),
-      highlightColor: Colors.white.withOpacity(0.04),
+      splashColor: accentPrimary.withValues(alpha: 0.08),
+      highlightColor: Colors.white.withValues(alpha: 0.04),
 
       // ── Typography ──────────────────────────────────────────
       textTheme: GoogleFonts.interTextTheme(
@@ -59,7 +58,7 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: glassSurface,
-        hintStyle: TextStyle(color: textMuted.withOpacity(0.6), fontSize: 13),
+        hintStyle: TextStyle(color: textMuted.withValues(alpha: 0.6), fontSize: 13),
         labelStyle: const TextStyle(color: accentSecondary, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1),
         prefixIconColor: textMuted,
         suffixIconColor: textMuted,
@@ -126,7 +125,7 @@ class AppTheme {
 
       // ── Divider ──────────────────────────────────────────────
       dividerTheme: DividerThemeData(
-        color: Colors.white.withOpacity(0.06),
+        color: Colors.white.withValues(alpha: 0.06),
         thickness: 1,
         space: 1,
       ),

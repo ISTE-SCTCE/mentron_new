@@ -190,7 +190,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
           const SizedBox(height: 16),
           const Text('No notes found here yet.', style: TextStyle(color: AppTheme.textMuted, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text('Be the first to contribute!', style: TextStyle(color: AppTheme.textMuted.withOpacity(0.5), fontSize: 10)),
+          Text('Be the first to contribute!', style: TextStyle(color: AppTheme.textMuted.withValues(alpha: 0.5), fontSize: 10)),
         ],
       ),
     ).animate().fadeIn();

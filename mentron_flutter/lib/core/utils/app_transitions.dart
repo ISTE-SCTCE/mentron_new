@@ -14,7 +14,7 @@ class AppTransitions {
       opaque: false, // ← prevents black background during fade-out on pop
       transitionDuration: _duration,
       reverseTransitionDuration: _duration,
-      pageBuilder: (_, __, ___) => page,
+      pageBuilder: (_, _, _) => page,
       transitionsBuilder: (_, animation, secondaryAnimation, child) {
         final curved = CurvedAnimation(parent: animation, curve: _curve);
         return FadeTransition(
@@ -37,8 +37,8 @@ class AppTransitions {
       opaque: false, // ← prevents black background during fade-out on pop
       transitionDuration: _duration,
       reverseTransitionDuration: _duration,
-      pageBuilder: (_, __, ___) => page,
-      transitionsBuilder: (_, animation, __, child) {
+      pageBuilder: (_, _, _) => page,
+      transitionsBuilder: (_, animation, _, child) {
         return FadeTransition(
           opacity: CurvedAnimation(parent: animation, curve: _curve),
           child: child,
@@ -53,7 +53,7 @@ class AppTransitions {
       opaque: false, // ← prevents black background during fade-out on pop
       transitionDuration: _duration,
       reverseTransitionDuration: _duration,
-      pageBuilder: (_, __, ___) => page,
+      pageBuilder: (_, _, _) => page,
       transitionsBuilder: (_, animation, secondaryAnimation, child) {
         final curved = CurvedAnimation(parent: animation, curve: _curve);
         return FadeTransition(
@@ -76,7 +76,7 @@ class AppTransitions {
       opaque: false, // ← prevents black background during fade-out on pop
       transitionDuration: _duration,
       reverseTransitionDuration: _duration,
-      pageBuilder: (_, __, ___) => page,
+      pageBuilder: (_, _, _) => page,
       transitionsBuilder: (_, animation, secondaryAnimation, child) {
         final curved = CurvedAnimation(parent: animation, curve: _curve);
         return FadeTransition(

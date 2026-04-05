@@ -7,7 +7,6 @@ import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import '../../../data/models/project_model.dart';
 import 'project_detail_screen.dart';
-import 'add_project_screen.dart';
 import 'project_applications_screen.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../core/utils/app_transitions.dart';
@@ -94,7 +93,9 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
         setState(() => _projects.removeWhere((p) => p.id == project.id));
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e))));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e))));
+      }
     }
   }
 
@@ -144,11 +145,11 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(color: AppTheme.accentSecondary.withOpacity(0.1), borderRadius: BorderRadius.circular(8), border: Border.all(color: AppTheme.accentSecondary.withOpacity(0.2))),
+              decoration: BoxDecoration(color: AppTheme.accentSecondary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8), border: Border.all(color: AppTheme.accentSecondary.withValues(alpha: 0.2))),
               child: Text(project.category.toUpperCase(), style: const TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
             ),
             Row(children: [
-              Text('ACTIVE', style: TextStyle(color: Colors.greenAccent.withOpacity(0.7), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
+              Text('ACTIVE', style: TextStyle(color: Colors.greenAccent.withValues(alpha: 0.7), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
               if (canDelete) ...[
                 const SizedBox(width: 8),
                 GestureDetector(
@@ -177,9 +178,9 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                   onPressed: () => Navigator.push(context, AppTransitions.slideLeft(ProjectDetailScreen(project: project))),
                   icon: const Icon(Icons.rocket_launch_outlined, size: 16),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white.withOpacity(0.05),
+                    backgroundColor: Colors.white.withValues(alpha: 0.05),
                     foregroundColor: Colors.white,
-                    side: BorderSide(color: Colors.white.withOpacity(0.1)),
+                    side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
                     padding: const EdgeInsets.symmetric(vertical: 13),
                   ),
                   label: const Text('VIEW & APPLY'),
@@ -196,7 +197,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                     ),
                     icon: const Icon(Icons.people_outline_rounded, size: 16),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.accentSecondary.withOpacity(0.1),
+                      backgroundColor: AppTheme.accentSecondary.withValues(alpha: 0.1),
                       foregroundColor: AppTheme.accentSecondary,
                       side: const BorderSide(color: AppTheme.accentSecondary),
                       padding: const EdgeInsets.symmetric(vertical: 13),

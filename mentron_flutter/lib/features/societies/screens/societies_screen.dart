@@ -36,7 +36,7 @@ class SocietiesScreen extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 20),
               child: GlassContainer(
                 padding: const EdgeInsets.all(28),
-                border: Border.all(color: color.withOpacity(0.2)),
+                border: Border.all(color: color.withValues(alpha: 0.2)),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(soc['icon'] as String, style: const TextStyle(fontSize: 40)),
                   const SizedBox(width: 20),
@@ -48,7 +48,7 @@ class SocietiesScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10), border: Border.all(color: color.withOpacity(0.2))),
+                      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10), border: Border.all(color: color.withValues(alpha: 0.2))),
                       child: Text('View Community →', style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
                     ),
                   ])),

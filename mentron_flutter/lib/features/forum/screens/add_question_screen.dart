@@ -169,7 +169,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: _isAnonymous
-                            ? Colors.purpleAccent.withOpacity(0.2)
+                            ? Colors.purpleAccent.withValues(alpha: 0.2)
                             : Colors.white10,
                         shape: BoxShape.circle,
                       ),
@@ -213,7 +213,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                     ),
                     Switch(
                       value: _isAnonymous,
-                      activeColor: Colors.purpleAccent,
+                      activeThumbColor: Colors.purpleAccent,
                       onChanged: (val) => setState(() => _isAnonymous = val),
                     ),
                   ],
@@ -238,7 +238,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                   decoration: InputDecoration(
                     hintText: 'Question Title...',
                     hintStyle: TextStyle(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       fontWeight: FontWeight.normal,
                     ),
                     border: InputBorder.none,
@@ -279,8 +279,9 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                       );
                     }).toList(),
                     onChanged: (newValue) {
-                      if (newValue != null)
+                      if (newValue != null) {
                         setState(() => _selectedTopic = newValue);
+                      }
                     },
                   ),
                 ),
@@ -304,7 +305,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                   ),
                   decoration: InputDecoration(
                     hintText: 'Elaborate on your question or doubt here...',
-                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
                     border: InputBorder.none,
                   ),
                 ),

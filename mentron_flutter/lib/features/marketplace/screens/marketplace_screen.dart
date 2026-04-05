@@ -43,7 +43,7 @@ class MarketplaceScreen extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.accentPrimary.withOpacity(0.4),
+                        color: AppTheme.accentPrimary.withValues(alpha: 0.4),
                         blurRadius: 40,
                         spreadRadius: 10,
                       ),

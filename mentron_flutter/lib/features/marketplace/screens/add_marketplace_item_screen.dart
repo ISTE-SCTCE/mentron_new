@@ -96,9 +96,9 @@ class _AddMarketplaceItemScreenState extends State<AddMarketplaceItemScreen> {
               child: Container(
                 height: 180, width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
+                  color: Colors.white.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Colors.white.withOpacity(0.1), style: BorderStyle.solid),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.1), style: BorderStyle.solid),
                 ),
                 child: _selectedImage != null
                     ? ClipRRect(borderRadius: BorderRadius.circular(24), child: Image.file(_selectedImage!, fit: BoxFit.cover))
@@ -107,7 +107,7 @@ class _AddMarketplaceItemScreenState extends State<AddMarketplaceItemScreen> {
                         const SizedBox(height: 12),
                         const Text('Tap to add photo', style: TextStyle(color: AppTheme.textMuted, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 4),
-                        Text('(optional — a default image will be used)', style: TextStyle(color: AppTheme.textMuted.withOpacity(0.5), fontSize: 10)),
+                        Text('(optional — a default image will be used)', style: TextStyle(color: AppTheme.textMuted.withValues(alpha: 0.5), fontSize: 10)),
                       ]),
               ),
             ).animate().fadeIn(),
@@ -148,13 +148,13 @@ class _AddMarketplaceItemScreenState extends State<AddMarketplaceItemScreen> {
 
   Widget _buildTextField(TextEditingController controller, String hint, IconData icon, {bool isPassword = false, TextInputType keyboardType = TextInputType.text, int maxLines = 1}) {
     return Container(
-      decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white.withOpacity(0.1))),
+      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white.withValues(alpha: 0.1))),
       child: TextField(
         controller: controller, obscureText: isPassword, keyboardType: keyboardType, maxLines: maxLines,
         style: const TextStyle(color: Colors.white, fontSize: 14),
         decoration: InputDecoration(
-          hintText: hint, hintStyle: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 13),
-          prefixIcon: maxLines == 1 ? Icon(icon, color: Colors.white.withOpacity(0.4), size: 18) : null,
+          hintText: hint, hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 13),
+          prefixIcon: maxLines == 1 ? Icon(icon, color: Colors.white.withValues(alpha: 0.4), size: 18) : null,
           border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
       ),

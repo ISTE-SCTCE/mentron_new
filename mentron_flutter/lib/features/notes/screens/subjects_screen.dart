@@ -64,16 +64,16 @@ class SubjectsScreen extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 16),
                     child: GlassContainer(
                       padding: const EdgeInsets.all(18),
-                      border: Border.all(color: color.withOpacity(0.15)),
+                      border: Border.all(color: color.withValues(alpha: 0.15)),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(children: [
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(6)),
+                            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6)),
                             child: Text('OPEN ELECTIVES', style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
                           ),
                           const SizedBox(width: 8),
-                          Text('choose one', style: TextStyle(color: AppTheme.textMuted.withOpacity(0.6), fontSize: 9)),
+                          Text('choose one', style: TextStyle(color: AppTheme.textMuted.withValues(alpha: 0.6), fontSize: 9)),
                         ]),
                         const SizedBox(height: 14),
                         Wrap(
@@ -92,14 +92,14 @@ class SubjectsScreen extends StatelessWidget {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               decoration: BoxDecoration(
-                                color: color.withOpacity(0.07),
+                                color: color.withValues(alpha: 0.07),
                                 borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: color.withOpacity(0.25)),
+                                border: Border.all(color: color.withValues(alpha: 0.25)),
                               ),
                               child: Row(mainAxisSize: MainAxisSize.min, children: [
                                 Text(elective.trim(), style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600)),
                                 const SizedBox(width: 6),
-                                Icon(Icons.chevron_right_rounded, color: color.withOpacity(0.5), size: 14),
+                                Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.5), size: 14),
                               ]),
                             ),
                           )).toList(),
@@ -125,16 +125,16 @@ class SubjectsScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     child: GlassContainer(
                       padding: const EdgeInsets.all(16),
-                      border: Border.all(color: color.withOpacity(0.15)),
+                      border: Border.all(color: color.withValues(alpha: 0.15)),
                       child: Row(children: [
                         Container(
                           width: 32, height: 32,
-                          decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(9)),
+                          decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(9)),
                           child: Center(child: Text('${i + 1}', style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w900))),
                         ),
                         const SizedBox(width: 12),
                         Expanded(child: Text(subject, style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.3))),
-                        Icon(Icons.chevron_right_rounded, color: color.withOpacity(0.4), size: 18),
+                        Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.4), size: 18),
                       ]),
                     ),
                   ).animate().fadeIn(delay: (i * 30).ms).slideX(begin: -0.03),

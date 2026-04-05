@@ -90,17 +90,17 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
               padding: const EdgeInsets.fromLTRB(24, 110, 24, 0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
+                  color: Colors.white.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                 ),
                 child: TextField(
                   onChanged: (val) => setState(() => _search = val),
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'Search members…',
-                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13),
-                    prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.4), size: 18),
+                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 13),
+                    prefixIcon: Icon(Icons.search, color: Colors.white.withValues(alpha: 0.4), size: 18),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   ),
@@ -141,14 +141,14 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
       child: GlassContainer(
         padding: const EdgeInsets.all(18),
         border: isCore
-            ? Border.all(color: Colors.purpleAccent.withOpacity(0.4))
+            ? Border.all(color: Colors.purpleAccent.withValues(alpha: 0.4))
             : isExec
-                ? Border.all(color: AppTheme.accentPrimary.withOpacity(0.4))
+                ? Border.all(color: AppTheme.accentPrimary.withValues(alpha: 0.4))
                 : null,
         child: Row(children: [
           Container(
             width: 44, height: 44,
-            decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
             child: Center(
               child: Text(
                 (member['full_name'] ?? 'U').substring(0, 1).toUpperCase(),
@@ -165,13 +165,13 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
                 if ((member['department'] ?? '').isNotEmpty)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.07), borderRadius: BorderRadius.circular(6)),
+                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(6)),
                     child: Text(member['department'] ?? '', style: const TextStyle(color: AppTheme.textMuted, fontSize: 9, fontWeight: FontWeight.w900)),
                   ),
                 const SizedBox(width: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                  decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
                   child: Text(
                     role.toUpperCase(),
                     style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w900),
@@ -185,9 +185,9 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.purpleAccent.withOpacity(0.08),
+                color: Colors.purpleAccent.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.purpleAccent.withOpacity(0.3)),
+                border: Border.all(color: Colors.purpleAccent.withValues(alpha: 0.3)),
               ),
               child: const Text('CORE', style: TextStyle(color: Colors.purpleAccent, fontSize: 10, fontWeight: FontWeight.w900)),
             )
@@ -198,9 +198,9 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: (isExec ? Colors.red : Colors.green).withOpacity(0.1),
+                  color: (isExec ? Colors.red : Colors.green).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: (isExec ? Colors.red : Colors.green).withOpacity(0.3)),
+                  border: Border.all(color: (isExec ? Colors.red : Colors.green).withValues(alpha: 0.3)),
                 ),
                 child: Text(
                   isExec ? 'Demote' : 'Promote',

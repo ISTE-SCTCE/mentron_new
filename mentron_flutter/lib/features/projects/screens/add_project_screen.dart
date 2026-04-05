@@ -107,9 +107,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   Widget _buildTextField(TextEditingController controller, String hint, {int maxLines = 1}) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: TextField(
         controller: controller,
@@ -117,7 +117,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
         style: const TextStyle(color: Colors.white, fontSize: 14),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withOpacity(0.2)),
+          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2)),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
         ),

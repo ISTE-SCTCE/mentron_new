@@ -7,9 +7,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import '../widgets/real_time_calendar.dart';
-import '../../notes/screens/group_screen.dart';
 import '../../notes/screens/add_note_screen.dart';
-import '../../projects/screens/project_list_screen.dart';
 import '../../projects/screens/add_project_screen.dart';
 import '../../events/screens/event_list_screen.dart';
 import '../../leaderboard/screens/leaderboard_screen.dart';
@@ -157,7 +155,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildContributeCard() {
     return GlassContainer(
       padding: const EdgeInsets.all(20),
-      border: Border.all(color: AppTheme.accentPrimary.withOpacity(0.3)),
+      border: Border.all(color: AppTheme.accentPrimary.withValues(alpha: 0.3)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -166,7 +164,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentPrimary.withOpacity(0.15),
+                  color: AppTheme.accentPrimary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -246,9 +244,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.25)),
+          border: Border.all(color: color.withValues(alpha: 0.25)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -398,7 +396,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Text(
                 label,
                 style: TextStyle(
-                  color: color.withOpacity(0.7),
+                  color: color.withValues(alpha: 0.7),
                   fontSize: 9,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1,
@@ -614,9 +612,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
-              border: Border.all(color: color.withOpacity(0.3)),
+              border: Border.all(color: color.withValues(alpha: 0.3)),
             ),
             child: Icon(icon, color: color, size: 32),
           ),
@@ -652,7 +650,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 24),

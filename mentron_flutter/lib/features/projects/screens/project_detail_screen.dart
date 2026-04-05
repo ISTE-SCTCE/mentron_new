@@ -137,9 +137,9 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -193,9 +193,9 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
-                color: Colors.greenAccent.withOpacity(0.08),
+                color: Colors.greenAccent.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.greenAccent.withOpacity(0.3)),
+                border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.3)),
               ),
               child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Icon(Icons.check_circle_outline_rounded, color: Colors.greenAccent, size: 20),

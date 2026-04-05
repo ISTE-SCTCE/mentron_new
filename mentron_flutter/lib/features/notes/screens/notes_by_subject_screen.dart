@@ -212,18 +212,18 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                     padding: const EdgeInsets.fromLTRB(24, 110, 24, 0),
                     child: GlassContainer(
                       padding: const EdgeInsets.all(20),
-                      border: Border.all(color: widget.color.withOpacity(0.3)),
+                      border: Border.all(color: widget.color.withValues(alpha: 0.3)),
                       child: Row(children: [
                         Container(
                           width: 44, height: 44,
-                          decoration: BoxDecoration(color: widget.color.withOpacity(0.12), borderRadius: BorderRadius.circular(12)),
+                          decoration: BoxDecoration(color: widget.color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
                           child: Icon(Icons.menu_book_rounded, color: widget.color, size: 22),
                         ),
                         const SizedBox(width: 14),
                         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text(widget.subjectName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, height: 1.3)),
                           const SizedBox(height: 4),
-                          Text('${_notes.length} note${_notes.length == 1 ? '' : 's'} found', style: TextStyle(color: widget.color.withOpacity(0.7), fontSize: 11)),
+                          Text('${_notes.length} note${_notes.length == 1 ? '' : 's'} found', style: TextStyle(color: widget.color.withValues(alpha: 0.7), fontSize: 11)),
                         ])),
                       ]),
                     ).animate().fadeIn(),
@@ -278,9 +278,9 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                                           decoration: BoxDecoration(
-                                            color: widget.color.withOpacity(0.1),
+                                            color: widget.color.withValues(alpha: 0.1),
                                             borderRadius: BorderRadius.circular(12),
-                                            border: Border.all(color: widget.color.withOpacity(0.3)),
+                                            border: Border.all(color: widget.color.withValues(alpha: 0.3)),
                                           ),
                                           child: Row(children: [
                                             Icon(Icons.open_in_new_rounded, color: widget.color, size: 14),

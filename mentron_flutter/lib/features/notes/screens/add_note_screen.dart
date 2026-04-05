@@ -307,9 +307,9 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   Widget _buildTextField(TextEditingController controller, String hint, {int maxLines = 1}) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: TextField(
         controller: controller,
@@ -317,7 +317,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         style: const TextStyle(color: Colors.white, fontSize: 14),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withOpacity(0.2)),
+          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2)),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
         ),
@@ -335,16 +335,16 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
           dropdownColor: AppTheme.surfaceColor,
-          hint: Text('Select', style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 14)),
+          hint: Text('Select', style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 14)),
           style: const TextStyle(color: Colors.white, fontSize: 14),
           onChanged: (val) { if (val != null) onChanged(val); },
           items: items.map((item) => DropdownMenuItem(
@@ -363,10 +363,10 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: _selectedFile != null ? AppTheme.accentSecondary : Colors.white.withOpacity(0.1),
+            color: _selectedFile != null ? AppTheme.accentSecondary : Colors.white.withValues(alpha: 0.1),
           ),
         ),
         child: Column(

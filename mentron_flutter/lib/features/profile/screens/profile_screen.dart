@@ -39,11 +39,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .select('*')
           .eq('id', userId)
           .maybeSingle();
-      if (mounted)
+      if (mounted) {
         setState(() {
           _profile = response;
           _isLoading = false;
         });
+      }
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -167,8 +168,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           final client = supabaseService.client;
                           final email = client.auth.currentUser?.email;
 
-                          if (email == null)
+                          if (email == null) {
                             throw Exception('No logged in user found');
+                          }
 
                           // 1. Verify old password by attempting a quick re-login
                           try {
@@ -348,9 +350,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: TextField(
         controller: controller,
@@ -359,7 +361,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         style: const TextStyle(color: Colors.white, fontSize: 13),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
@@ -469,7 +471,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     GlassContainer(
                       padding: const EdgeInsets.all(28),
                       border: Border.all(
-                        color: AppTheme.accentPrimary.withOpacity(0.3),
+                        color: AppTheme.accentPrimary.withValues(alpha: 0.3),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -517,8 +519,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             // Always auto-detect from roll number first (most reliable)
                             final detected =
                                 DepartmentMapper.getDepartmentFromRoll(roll);
-                            if (detected != 'Other')
+                            if (detected != 'Other') {
                               return DepartmentMapper.getName(detected);
+                            }
 
                             // Fallback: use stored department code if meaningful
                             final stored =
@@ -566,13 +569,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.05),
+                          backgroundColor: Colors.white.withValues(alpha: 0.05),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                             side: BorderSide(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withValues(alpha: 0.1),
                             ),
                           ),
                           elevation: 0,
@@ -594,13 +597,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.05),
+                          backgroundColor: Colors.white.withValues(alpha: 0.05),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                             side: BorderSide(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withValues(alpha: 0.1),
                             ),
                           ),
                           elevation: 0,
@@ -625,7 +628,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         border: isLast
             ? null
-            : Border(bottom: BorderSide(color: Colors.white.withOpacity(0.05))),
+            : Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.05))),
       ),
       child: Row(
         children: [

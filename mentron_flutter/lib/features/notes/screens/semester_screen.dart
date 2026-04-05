@@ -100,7 +100,7 @@ class _SemesterScreenState extends State<SemesterScreen> {
               const SizedBox(width: 12),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(_yearLabels[widget.year - 1], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 24)),
-                Text('Choose a semester', style: TextStyle(color: color.withOpacity(0.7), fontSize: 12)),
+                Text('Choose a semester', style: TextStyle(color: color.withValues(alpha: 0.7), fontSize: 12)),
               ]),
               if (_isLoadingProfile)
                 const Padding(
@@ -145,15 +145,15 @@ class _SemesterScreenState extends State<SemesterScreen> {
                   borderRadius: BorderRadius.circular(24),
                   child: GlassContainer(
                     padding: const EdgeInsets.all(24),
-                    border: Border.all(color: color.withOpacity(0.3)),
+                    border: Border.all(color: color.withValues(alpha: 0.3)),
                     child: Row(
                       children: [
                         Container(
                           width: 64, height: 64,
                           decoration: BoxDecoration(
-                            color: color.withOpacity(0.1),
+                            color: color.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: color.withOpacity(0.2)),
+                            border: Border.all(color: color.withValues(alpha: 0.2)),
                           ),
                           child: Center(
                             child: Text(sem, style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 20)),
@@ -173,7 +173,7 @@ class _SemesterScreenState extends State<SemesterScreen> {
                             ],
                           ),
                         ),
-                        Icon(Icons.chevron_right_rounded, color: color.withOpacity(0.6)),
+                        Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.6)),
                       ],
                     ),
                   ),

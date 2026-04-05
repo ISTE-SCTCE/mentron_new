@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
@@ -169,9 +168,9 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentSecondary.withOpacity(0.15),
+                  color: AppTheme.accentSecondary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: AppTheme.accentSecondary.withOpacity(0.4)),
+                  border: Border.all(color: AppTheme.accentSecondary.withValues(alpha: 0.4)),
                 ),
                 child: Text(
                   '${_events.length}',
@@ -214,7 +213,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: gradient[1].withOpacity(0.4),
+                        color: gradient[1].withValues(alpha: 0.4),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -231,7 +230,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                           height: 140,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.04),
+                            color: Colors.white.withValues(alpha: 0.04),
                           ),
                         ),
                       ),
@@ -243,7 +242,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                           height: 100,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.03),
+                            color: Colors.white.withValues(alpha: 0.03),
                           ),
                         ),
                       ),
@@ -276,18 +275,18 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                                   width: 46,
                                   height: 46,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.1),
+                                    color: Colors.white.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                                    border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
                                   ),
                                   child: Center(child: Text(emoji, style: const TextStyle(fontSize: 22))),
                                 ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                   decoration: BoxDecoration(
-                                    color: daysColor.withOpacity(0.2),
+                                    color: daysColor.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: daysColor.withOpacity(0.5)),
+                                    border: Border.all(color: daysColor.withValues(alpha: 0.5)),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -395,7 +394,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
       height: 200,
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(24),
       ),
       child: const Center(
@@ -423,7 +422,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
           Text(
             'Check back later',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               fontSize: 11,
             ),
           ),

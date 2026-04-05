@@ -108,7 +108,7 @@ class _GroupScreenState extends State<GroupScreen> {
     final deptName = DepartmentMapper.getName(_userDept!);
     return GlassContainer(
       padding: const EdgeInsets.all(20),
-      border: Border.all(color: AppTheme.accentPrimary.withOpacity(0.5), width: 1.5),
+      border: Border.all(color: AppTheme.accentPrimary.withValues(alpha: 0.5), width: 1.5),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Container(
@@ -128,7 +128,7 @@ class _GroupScreenState extends State<GroupScreen> {
           ])),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: AppTheme.accentPrimary.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(color: AppTheme.accentPrimary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
             child: Text(_userDept!, style: const TextStyle(color: AppTheme.accentPrimary, fontSize: 10, fontWeight: FontWeight.w900)),
           ),
         ]),
@@ -147,9 +147,9 @@ class _GroupScreenState extends State<GroupScreen> {
                   height: 52,
                   decoration: BoxDecoration(
                     gradient: isMyYear ? LinearGradient(colors: [AppTheme.accentPrimary, AppTheme.accentSecondary]) : null,
-                    color: isMyYear ? null : Colors.white.withOpacity(0.07),
+                    color: isMyYear ? null : Colors.white.withValues(alpha: 0.07),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: isMyYear ? AppTheme.accentPrimary : Colors.white.withOpacity(0.12), width: isMyYear ? 0 : 1),
+                    border: Border.all(color: isMyYear ? AppTheme.accentPrimary : Colors.white.withValues(alpha: 0.12), width: isMyYear ? 0 : 1),
                   ),
                   child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                     Text(year, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: isMyYear ? Colors.black : Colors.white)),
@@ -174,11 +174,11 @@ class _GroupScreenState extends State<GroupScreen> {
       borderRadius: BorderRadius.circular(20),
       child: GlassContainer(
         padding: const EdgeInsets.all(18),
-        border: Border.all(color: y.color.withOpacity(0.3)),
+        border: Border.all(color: y.color.withValues(alpha: 0.3)),
         child: Row(children: [
           Container(
             width: 48, height: 48,
-            decoration: BoxDecoration(color: y.color.withOpacity(0.1), borderRadius: BorderRadius.circular(14)),
+            decoration: BoxDecoration(color: y.color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
             child: Center(child: Text(y.emoji, style: const TextStyle(fontSize: 22))),
           ),
           const SizedBox(width: 14),
@@ -186,7 +186,7 @@ class _GroupScreenState extends State<GroupScreen> {
             Text(y.label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
             Text(y.sems, style: TextStyle(color: y.color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
           ])),
-          Icon(Icons.chevron_right_rounded, color: y.color.withOpacity(0.5)),
+          Icon(Icons.chevron_right_rounded, color: y.color.withValues(alpha: 0.5)),
         ]),
       ),
     ).animate().fadeIn(delay: (index * 60).ms).slideX(begin: -0.03);

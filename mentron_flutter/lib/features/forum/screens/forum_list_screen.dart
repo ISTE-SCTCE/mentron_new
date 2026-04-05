@@ -146,11 +146,11 @@ class _ForumListScreenState extends State<ForumListScreen> {
                   },
                   decoration: InputDecoration(
                     hintText: 'Search discussions...',
-                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
                     border: InputBorder.none,
                     icon: Icon(
                       Icons.search,
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                     ),
                   ),
                 ),
@@ -184,11 +184,11 @@ class _ForumListScreenState extends State<ForumListScreen> {
                       ),
                       selected: isSelected,
                       selectedColor: AppTheme.accentSecondary,
-                      backgroundColor: Colors.white.withOpacity(0.05),
+                      backgroundColor: Colors.white.withValues(alpha: 0.05),
                       side: BorderSide(
                         color: isSelected
                             ? AppTheme.accentSecondary
-                            : Colors.white.withOpacity(0.1),
+                            : Colors.white.withValues(alpha: 0.1),
                       ),
                       onSelected: (selected) {
                         if (selected) {
@@ -278,10 +278,10 @@ class _ForumListScreenState extends State<ForumListScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.accentPrimary.withOpacity(0.2),
+                      color: AppTheme.accentPrimary.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: AppTheme.accentPrimary.withOpacity(0.3),
+                        color: AppTheme.accentPrimary.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Text(
@@ -302,7 +302,7 @@ class _ForumListScreenState extends State<ForumListScreen> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.2),
+                        color: Colors.green.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Row(
@@ -361,7 +361,7 @@ class _ForumListScreenState extends State<ForumListScreen> {
                     radius: 10,
                     backgroundColor: question.isAnonymous
                         ? Colors.white10
-                        : AppTheme.accentSecondary.withOpacity(0.2),
+                        : AppTheme.accentSecondary.withValues(alpha: 0.2),
                     child: question.isAnonymous
                         ? const Icon(
                             Icons.masks_rounded,
@@ -401,14 +401,14 @@ class _ForumListScreenState extends State<ForumListScreen> {
                   const Spacer(),
                   Icon(
                     Icons.chat_bubble_outline_rounded,
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     size: 14,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     '${question.answerCount}',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),

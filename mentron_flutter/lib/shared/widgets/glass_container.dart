@@ -58,7 +58,7 @@ class GlassContainer extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.35),
+              color: Colors.black.withValues(alpha: 0.35),
               blurRadius: 24,
               offset: const Offset(0, 4),
             ),
@@ -76,12 +76,12 @@ class GlassContainer extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.white.withOpacity(0.14),
-                    Colors.white.withOpacity(0.06),
+                    Colors.white.withValues(alpha: 0.14),
+                    Colors.white.withValues(alpha: 0.06),
                   ],
                 ),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.18),
+                  color: Colors.white.withValues(alpha: 0.18),
                   width: 0.8,
                 ),
               ),
@@ -101,7 +101,7 @@ class GlassContainer extends StatelessWidget {
                           begin: Alignment.topLeft,
                           end: Alignment.centerRight,
                           colors: [
-                            Colors.white.withOpacity(0.22),
+                            Colors.white.withValues(alpha: 0.22),
                             Colors.transparent,
                           ],
                         ),
@@ -130,25 +130,25 @@ class GlassContainer extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                baseColor.withOpacity(0.11),
-                baseColor.withOpacity(0.05),
-                baseColor.withOpacity(0.02),
+                baseColor.withValues(alpha: 0.11),
+                baseColor.withValues(alpha: 0.05),
+                baseColor.withValues(alpha: 0.02),
               ],
               stops: const [0.0, 0.5, 1.0],
             ),
         border: border ??
             Border.all(
-              color: Colors.white.withOpacity(0.10),
+              color: Colors.white.withValues(alpha: 0.10),
               width: 0.8,
             ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF7B2FFF).withOpacity(0.06),
+            color: const Color(0xFF7B2FFF).withValues(alpha: 0.06),
             blurRadius: 20,
             spreadRadius: 0.5,
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.45),
+            color: Colors.black.withValues(alpha: 0.45),
             blurRadius: 18,
             offset: const Offset(0, 5),
           ),
@@ -172,7 +172,7 @@ class GlassContainer extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.white.withOpacity(0.10),
+                      Colors.white.withValues(alpha: 0.10),
                       Colors.transparent,
                     ],
                   ),

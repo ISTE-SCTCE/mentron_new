@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'dart:math' as math;
 
 /// Premium animated splash screen shown on app launch.
 /// Sequence:
@@ -161,7 +159,7 @@ class _SplashScreenState extends State<SplashScreen>
                 // Logo image with orb animation
                 AnimatedBuilder(
                   animation: _orbController,
-                  builder: (_, __) => Opacity(
+                  builder: (_, _) => Opacity(
                     opacity: _orbOpacity.value,
                     child: Transform.scale(
                       scale: _orbScale.value,
@@ -203,7 +201,7 @@ class _GlowBlob extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: RadialGradient(
-          colors: [color.withOpacity(opacity), Colors.transparent],
+          colors: [color.withValues(alpha: opacity), Colors.transparent],
           stops: const [0.0, 1.0],
         ),
       ),
@@ -243,7 +241,7 @@ class _PulsingLogoState extends State<_PulsingLogo> with SingleTickerProviderSta
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _pulse,
-      builder: (_, __) => Transform.scale(
+      builder: (_, _) => Transform.scale(
         scale: _pulse.value,
         child: Image.asset(
           'assets/images/mentron_logo.png',
@@ -287,11 +285,11 @@ class _PulsingBarState extends State<_PulsingBar>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _progress,
-      builder: (_, __) => Container(
+      builder: (_, _) => Container(
         width: 120,
         height: 2,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(2),
         ),
         child: FractionallySizedBox(

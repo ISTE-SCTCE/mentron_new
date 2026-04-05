@@ -70,7 +70,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                           Text('XP', style: TextStyle(color: AppTheme.textMuted, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
                         ]),
                       ),
-                      Divider(color: Colors.white.withOpacity(0.05), height: 1),
+                      Divider(color: Colors.white.withValues(alpha: 0.05), height: 1),
                       ...List.generate(_students.length, (index) => RepaintBoundary(child: _buildRankRow(_students[index], index))),
                     ]),
                   ).animate().fadeIn(delay: 300.ms),
@@ -96,7 +96,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             margin: EdgeInsets.only(bottom: isFirst ? 0 : 20, left: 4, right: 4),
             child: GlassContainer(
               padding: const EdgeInsets.all(16),
-              border: Border.all(color: colors[i].withOpacity(0.4), width: isFirst ? 2 : 1),
+              border: Border.all(color: colors[i].withValues(alpha: 0.4), width: isFirst ? 2 : 1),
               child: Column(children: [
                 Text(medals[i], style: const TextStyle(fontSize: 28)),
                 const SizedBox(height: 8),
@@ -118,7 +118,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.05))),
+        border: Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.05))),
       ),
       child: Row(children: [
         SizedBox(
@@ -126,7 +126,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           child: Container(
             width: 28, height: 28,
             decoration: BoxDecoration(
-              color: isTopThree ? AppTheme.accentSecondary.withOpacity(0.15) : Colors.white.withOpacity(0.05),
+              color: isTopThree ? AppTheme.accentSecondary.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
             child: Center(child: Text('${index + 1}', style: TextStyle(

@@ -112,12 +112,12 @@ class _FirstYearGroupScreenState extends State<FirstYearGroupScreen> {
                   borderRadius: BorderRadius.circular(24),
                   child: GlassContainer(
                     padding: const EdgeInsets.all(24),
-                    border: Border.all(color: color.withOpacity(0.35)),
+                    border: Border.all(color: color.withValues(alpha: 0.35)),
                     child: Row(children: [
                       Container(
                         width: 56, height: 56,
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.12),
+                          color: color.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Center(child: Text(meta['emoji']!, style: const TextStyle(fontSize: 26))),
@@ -130,7 +130,7 @@ class _FirstYearGroupScreenState extends State<FirstYearGroupScreen> {
                           Text(meta['streams']!, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
                         ]),
                       ),
-                      Icon(Icons.chevron_right_rounded, color: color.withOpacity(0.6)),
+                      Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.6)),
                     ]),
                   ),
                 ).animate().fadeIn(delay: (i * 80).ms).slideX(begin: -0.04),

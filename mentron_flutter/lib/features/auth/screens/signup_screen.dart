@@ -105,7 +105,7 @@ class _SignupScreenState extends State<SignupScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.red.withOpacity(0.9),
+            backgroundColor: Colors.red.withValues(alpha: 0.9),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             content: Text(ErrorHandler.friendly(e)),
@@ -252,9 +252,9 @@ class _SignupScreenState extends State<SignupScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: TextField(
         controller: controller,
@@ -263,13 +263,13 @@ class _SignupScreenState extends State<SignupScreen> {
         style: const TextStyle(color: Colors.white, fontSize: 14),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 13),
-          prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.4), size: 18),
+          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 13),
+          prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.4), size: 18),
           suffixIcon: isPassword
               ? IconButton(
                   icon: Icon(
                     _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                    color: Colors.white.withOpacity(0.4),
+                    color: Colors.white.withValues(alpha: 0.4),
                     size: 18,
                   ),
                   onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
@@ -293,9 +293,9 @@ class _SignupScreenState extends State<SignupScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -304,9 +304,9 @@ class _SignupScreenState extends State<SignupScreen> {
           dropdownColor: AppTheme.surfaceColor,
           style: const TextStyle(color: Colors.white, fontSize: 13),
           hint: Row(children: [
-            Icon(icon, color: Colors.white.withOpacity(0.3), size: 16),
+            Icon(icon, color: Colors.white.withValues(alpha: 0.3), size: 16),
             const SizedBox(width: 8),
-            Text(hint, style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 13)),
+            Text(hint, style: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 13)),
           ]),
           onChanged: onChanged,
           items: List.generate(items.length, (i) => DropdownMenuItem(
