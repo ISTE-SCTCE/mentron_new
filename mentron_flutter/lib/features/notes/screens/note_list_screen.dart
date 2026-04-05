@@ -341,7 +341,10 @@ class _NoteListScreenState extends State<NoteListScreen> {
       await file.writeAsBytes(pdfBytes);
 
       // ── Step 7: Dismiss loading, open with device PDF viewer / Drive ──
-      if (mounted) Navigator.of(context, rootNavigator: true).pop();
+      if (mounted) {
+        final nav = Navigator.of(context, rootNavigator: true);
+        if (nav.canPop()) nav.pop();
+      }
 
       final result = await OpenFile.open(file.path);
       if (result.type != ResultType.done && mounted) {
@@ -351,7 +354,8 @@ class _NoteListScreenState extends State<NoteListScreen> {
       }
     } catch (e) {
       if (mounted) {
-        Navigator.of(context, rootNavigator: true).pop(); // dismiss dialog
+        final nav = Navigator.of(context, rootNavigator: true);
+        if (nav.canPop()) nav.pop(); // dismiss dialog safely
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(backgroundColor: Colors.red, content: Text(e.toString())),
         );

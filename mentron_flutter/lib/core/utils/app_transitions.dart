@@ -11,6 +11,7 @@ class AppTransitions {
   /// Fade + slide up transition (default for most screens)
   static PageRouteBuilder<T> slideUp<T>(Widget page) {
     return PageRouteBuilder<T>(
+      opaque: false, // ← prevents black background during fade-out on pop
       transitionDuration: _duration,
       reverseTransitionDuration: _duration,
       pageBuilder: (_, __, ___) => page,
@@ -33,6 +34,7 @@ class AppTransitions {
   /// Pure fade transition (for modal-style screens)
   static PageRouteBuilder<T> fade<T>(Widget page) {
     return PageRouteBuilder<T>(
+      opaque: false, // ← prevents black background during fade-out on pop
       transitionDuration: _duration,
       reverseTransitionDuration: _duration,
       pageBuilder: (_, __, ___) => page,
@@ -48,6 +50,7 @@ class AppTransitions {
   /// Horizontal slide (for drill-down navigation)
   static PageRouteBuilder<T> slideLeft<T>(Widget page) {
     return PageRouteBuilder<T>(
+      opaque: false, // ← prevents black background during fade-out on pop
       transitionDuration: _duration,
       reverseTransitionDuration: _duration,
       pageBuilder: (_, __, ___) => page,
@@ -70,6 +73,7 @@ class AppTransitions {
   /// Horizontal slide from right to left (inverse of slideLeft)
   static PageRouteBuilder<T> slideRight<T>(Widget page) {
     return PageRouteBuilder<T>(
+      opaque: false, // ← prevents black background during fade-out on pop
       transitionDuration: _duration,
       reverseTransitionDuration: _duration,
       pageBuilder: (_, __, ___) => page,

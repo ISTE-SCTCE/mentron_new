@@ -158,11 +158,15 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/$cleanName.pdf');
       await file.writeAsBytes(pdfBytes);
-      if (mounted) Navigator.of(context, rootNavigator: true).pop();
+      if (mounted) {
+        final nav = Navigator.of(context, rootNavigator: true);
+        if (nav.canPop()) nav.pop();
+      }
       await OpenFile.open(file.path);
     } catch (e) {
       if (mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
+        final nav = Navigator.of(context, rootNavigator: true);
+        if (nav.canPop()) nav.pop();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(e.toString())));
       }
     }

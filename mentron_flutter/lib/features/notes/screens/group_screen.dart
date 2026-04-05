@@ -79,14 +79,11 @@ class _GroupScreenState extends State<GroupScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        automaticallyImplyLeading: false, // tab screen — no back button
         title: Column(children: [
           const Text('ACADEMIC', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
           const Text('Library', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
         ]),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
-          onPressed: () => Navigator.pop(context),
-        ),
       ),
       body: LiquidBackground(
         child: _isLoading
