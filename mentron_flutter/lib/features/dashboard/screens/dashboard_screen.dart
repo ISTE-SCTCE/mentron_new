@@ -35,6 +35,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int userXP = 0;
   bool _isCoreMember = false;
   String _userRole = 'member'; // 'member', 'exec', 'core'
+  Map<String, dynamic>? _profile;
+  bool _isExec = false;
 
   @override
   void initState() {
@@ -67,6 +69,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             setState(() {
               _userRole = userRole;
               _isCoreMember = userRole == 'core';
+              _isExec = userRole == 'exec' || userRole == 'core';
+              _profile = profileRes;
             });
           }
           if (profileRes['xp'] != null) {
