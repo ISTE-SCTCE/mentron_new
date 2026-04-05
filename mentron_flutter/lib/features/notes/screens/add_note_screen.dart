@@ -122,7 +122,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
       final fileUrl = supabase.client.storage.from('notes_bucket').getPublicUrl(fileName);
 
-      await supabase.client.from('pending_notes').insert({
+      await supabase.client.from('notes').insert({
         'title': _titleController.text.trim(),
         'description': _descController.text.trim(),
         'department': _selectedDeptOrGroup,
@@ -135,8 +135,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          backgroundColor: Colors.amber,
-          content: Text('📋 Note submitted for review! Execom will approve it shortly.'),
+          backgroundColor: Colors.green,
+          content: Text('✅ Note successfully published!'),
         ));
         Navigator.pop(context);
       }
