@@ -30,6 +30,9 @@ class ErrorHandler {
         msg.contains('already been registered')) {
       return 'An account with this email already exists.';
     }
+    if (msg.contains('roll number')) {
+      return 'This roll number is already registered.';
+    }
     if (msg.contains('email not confirmed')) {
       return 'Please verify your email before logging in.';
     }

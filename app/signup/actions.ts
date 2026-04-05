@@ -17,6 +17,25 @@ export async function signup(formData: FormData) {
     // Use manually selected department; fall back to roll number detection
     const selectedDept = formData.get('department') as string
     const department = selectedDept || getDepartmentFromRollNumber(rollNumber)
+    const upperRoll = rollNumber.trim().toUpperCase()
+
+    // 1. Check if email or roll number already exists in PROFILES to prevent ghost auth users
+    const { data: existingProfile, error: checkError } = await supabase
+        .from('profiles')
+        .select('id, email, roll_number')
+        .or(`email.eq.${email},roll_number.eq.${upperRoll}`)
+        .maybeSingle()
+
+    if (checkError) {
+        console.error('Pre-signup check error:', checkError)
+    }
+
+    if (existingProfile) {
+        if (existingProfile.roll_number === upperRoll) {
+            redirect(`/signup?error=${encodeURIComponent('This roll number is already registered.')}`)
+        }
+        redirect(`/signup?error=${encodeURIComponent('An account with this email already exists.')}`)
+    }
 
     const { data: { user }, error: signUpError } = await supabase.auth.signUp({
         email,
