@@ -75,7 +75,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Column(children: [
-          const Text('CORE', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
+          const Text('MANAGE', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
           const Text('Members', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
         ]),
         leading: IconButton(

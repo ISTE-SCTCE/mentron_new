@@ -246,7 +246,7 @@ export default async function DashboardPage() {
                                 >
                                     <div className="flex justify-between items-start mb-6">
                                         <div>
-                                            <h3 className="text-xs font-black tracking-[0.2em] text-purple-400 uppercase mb-2">Core Control</h3>
+                                            <h3 className="text-xs font-black tracking-[0.2em] text-purple-400 uppercase mb-2">Member Control</h3>
                                             <p className="text-2xl font-black text-white group-hover:text-glow transition-all">Manage Members</p>
                                         </div>
                                         <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-xl">
@@ -257,7 +257,7 @@ export default async function DashboardPage() {
                                         View all members, promote to Executive or demote to Normal Member.
                                     </p>
                                     <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-purple-400">
-                                        <span>Open Core</span>
+                                        <span>Open Member Control</span>
                                         <span>→</span>
                                     </div>
                                 </Link>

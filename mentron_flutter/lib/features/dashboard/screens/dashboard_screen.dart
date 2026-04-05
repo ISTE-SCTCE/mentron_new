@@ -499,7 +499,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (_isCoreMember) ...[
           const SizedBox(height: 12),
           _buildActionButton(
-            'Manage Core',
+            'Manage Members',
             'Promote, demote & view all members',
             Icons.admin_panel_settings_rounded,
             Colors.purpleAccent,

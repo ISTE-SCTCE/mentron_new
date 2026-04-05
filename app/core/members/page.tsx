@@ -125,7 +125,7 @@ export default function CoreMembersPage() {
                     { label: 'Total Members', value: members.length, icon: '👥' },
                     { label: 'Executive Members', value: members.filter((m) => m.role === 'exec').length, icon: '⭐' },
                     { label: 'Normal Members', value: members.filter((m) => m.role === 'member').length, icon: '🎓' },
-                    { label: 'Core Members', value: 1, icon: '🔐' },
+                    { label: 'Manage Members', value: 1, icon: '🔐' },
                 ].map((stat) => (
                     <div key={stat.label} className="glass-card text-center space-y-1">
                         <div className="text-3xl">{stat.icon}</div>
