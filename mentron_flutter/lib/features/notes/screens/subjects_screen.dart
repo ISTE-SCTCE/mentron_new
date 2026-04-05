@@ -13,6 +13,7 @@ class SubjectsScreen extends StatelessWidget {
   final Color color;
   final int year;
   final String dept;
+  final String sem;
 
   const SubjectsScreen({
     super.key,
@@ -22,6 +23,7 @@ class SubjectsScreen extends StatelessWidget {
     required this.color,
     required this.year,
     required this.dept,
+    required this.sem,
   });
 
   @override
@@ -79,7 +81,13 @@ class SubjectsScreen extends StatelessWidget {
                           runSpacing: 8,
                           children: electives.map((elective) => GestureDetector(
                             onTap: () => Navigator.push(context, AppTransitions.slideUp(
-                              NotesBySubjectScreen(subjectName: elective.trim(), color: color),
+                              NotesBySubjectScreen(
+                                subjectName: elective.trim(),
+                                color: color,
+                                year: year.toString(),
+                                semester: sem,
+                                dept: dept,
+                              ),
                             )),
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -106,7 +114,13 @@ class SubjectsScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 10),
                   child: InkWell(
                     onTap: () => Navigator.push(context, AppTransitions.slideUp(
-                      NotesBySubjectScreen(subjectName: subject, color: color),
+                      NotesBySubjectScreen(
+                        subjectName: subject,
+                        color: color,
+                        year: year.toString(),
+                        semester: sem,
+                        dept: dept,
+                      ),
                     )),
                     borderRadius: BorderRadius.circular(16),
                     child: GlassContainer(

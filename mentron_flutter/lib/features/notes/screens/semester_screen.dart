@@ -130,7 +130,8 @@ class _SemesterScreenState extends State<SemesterScreen> {
                             subjects: SubjectData.getFirstYearSubjects(groupKey, sem),
                             color: _groupColors[groupKey]!,
                             year: 1,
-                            dept: 'Group $groupKey',
+                            dept: groupKey,
+                            sem: sem,
                           )),
                         );
                       } else {

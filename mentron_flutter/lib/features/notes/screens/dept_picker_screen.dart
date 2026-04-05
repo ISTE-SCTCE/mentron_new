@@ -142,6 +142,7 @@ class _DeptPickerScreenState extends State<DeptPickerScreen> {
                         color: _deptColors[code]!,
                         year: widget.year,
                         dept: code,
+                        sem: widget.sem,
                       )),
                     );
                   },

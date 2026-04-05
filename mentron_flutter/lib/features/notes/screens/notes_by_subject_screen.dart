@@ -18,11 +18,17 @@ import '../../../core/utils/app_transitions.dart';
 class NotesBySubjectScreen extends StatefulWidget {
   final String subjectName;
   final Color color;
+  final String? year;
+  final String? semester;
+  final String? dept;
 
   const NotesBySubjectScreen({
     super.key,
     required this.subjectName,
     required this.color,
+    this.year,
+    this.semester,
+    this.dept,
   });
 
   @override
@@ -58,17 +64,25 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       } catch (_) {}
     }
 
-    // Search notes by subject name in title or description
+    // Filter by exact subject + department + year + semester if provided
     try {
       final supabaseClient = supabase.client;
-      final keywords = widget.subjectName.split(' ').where((w) => w.length > 3).take(3).join(' ');
-      
-      final response = await supabaseClient
+      var query = supabaseClient
           .from('notes')
           .select('*, profiles!notes_created_by_fkey(full_name)')
-          .or('title.ilike.%${widget.subjectName}%,description.ilike.%${widget.subjectName}%')
-          .order('created_at', ascending: false);
+          .eq('subject', widget.subjectName);
 
+      if (widget.dept != null && widget.dept!.isNotEmpty) {
+        query = query.eq('department', widget.dept!);
+      }
+      if (widget.year != null && widget.year!.isNotEmpty) {
+        query = query.eq('year', int.tryParse(widget.year!) ?? 1);
+      }
+      if (widget.semester != null && widget.semester!.isNotEmpty) {
+        query = query.eq('semester', widget.semester!);
+      }
+
+      final response = await query.order('created_at', ascending: false);
       final notes = (response as List).map((j) => Note.fromJson(j)).toList();
       if (mounted) setState(() { _notes = notes; _isLoading = false; });
     } catch (_) {
