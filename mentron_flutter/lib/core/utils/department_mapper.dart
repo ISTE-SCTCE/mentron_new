@@ -17,8 +17,8 @@ class DepartmentMapper {
     {'code': 'CSE', 'name': 'Computer Science & Engineering'},
     {'code': 'ECE', 'name': 'Electronics & Communication Engg'},
     {'code': 'ME',  'name': 'Mechanical Engineering'},
-    {'code': 'MEA', 'name': 'Automobile Engineering'},
-    {'code': 'BT',  'name': 'Bio Technology'},
+    {'code': 'MEA', 'name': 'AutoMech'},
+    {'code': 'BT',  'name': 'BT'},
   ];
 
   static String getName(String code) {

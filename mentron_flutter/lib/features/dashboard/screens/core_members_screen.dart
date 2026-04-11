@@ -101,7 +101,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
   @override
   Widget build(BuildContext context) {
     // 1. Get unique departments and years for dropdowns
-    final depts = ['All'];
+    final depts = ['All', 'CSE', 'ECE', 'ME', 'MEA', 'BT'];
     final years = ['All', '1', '2', '3', '4'];
     for (var m in _members) {
       final d = m['department'] as String?;
@@ -238,9 +238,17 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
           style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
           onChanged: onChanged,
           items: items.map((item) {
+            String labelText = item;
+            if (item == 'All') {
+              labelText = 'All $label';
+            } else if (item == 'MEA') {
+              labelText = 'AutoMech';
+            } else if (item == 'BT') {
+              labelText = 'BT';
+            }
             return DropdownMenuItem(
               value: item,
-              child: Text(item == 'All' ? 'All $label' : item),
+              child: Text(labelText),
             );
           }).toList(),
         ),
