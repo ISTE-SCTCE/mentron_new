@@ -71,10 +71,10 @@ export default async function YearPage({
                             if (!isPrivileged && assignedGroup) {
                                 href = `/notes/year/1/group/${assignedGroup}/${sem}`
                             } else {
-                                href = `/notes/year/1/group/${sem}`
+                                href = `/notes/year/1/semester/${sem}`
                             }
                         } else {
-                           href = `/notes/year/${yearNum}/dept/${sem}`
+                           href = `/notes/year/${yearNum}/semester/${sem}`
                         }
 
                         return (

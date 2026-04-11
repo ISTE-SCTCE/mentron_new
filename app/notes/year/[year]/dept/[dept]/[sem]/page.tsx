@@ -63,7 +63,7 @@ export default async function DeptSubjectsPage({
                             These notes are for <strong className="text-white">{deptKey}</strong> students.
                             Your department is <strong className="text-white">{userDept}</strong>.
                         </p>
-                        <Link href={`/notes/year/${yearNum}/dept/${semKey}/${userDept.toUpperCase()}`}
+                        <Link href={`/notes/year/${yearNum}/semester/${semKey}/${userDept.toUpperCase()}`}
                             className="glass glass-hover px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest text-blue-400 border-blue-500/20">
                             Go to My Department →
                         </Link>
@@ -103,7 +103,7 @@ export default async function DeptSubjectsPage({
                     <span className="text-gray-700">/</span>
                     <Link href={`/notes/year/${yearNum}`} className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">{yearMeta.label}</Link>
                     <span className="text-gray-700">/</span>
-                    <Link href={`/notes/year/${yearNum}/dept/${semKey}`} className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">{semKey}</Link>
+                    <Link href={`/notes/year/${yearNum}/semester/${semKey}`} className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">{semKey}</Link>
                     <span className="text-gray-700">/</span>
                     <span className={`${style.accent} uppercase tracking-widest`}>{deptKey}</span>
                 </div>

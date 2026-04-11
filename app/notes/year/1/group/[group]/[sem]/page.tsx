@@ -88,7 +88,7 @@ export default async function Year1SubjectsPage({
                     <span className="text-gray-700">/</span>
                     <Link href="/notes/year/1" className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">1st Year</Link>
                     <span className="text-gray-700">/</span>
-                    <Link href={`/notes/year/1/group/${sem}`} className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">{sem}</Link>
+                    <Link href={`/notes/year/1/semester/${sem}`} className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">{sem}</Link>
                     <span className="text-gray-700">/</span>
                     <span className={`${style.accent} uppercase tracking-widest`}>Group {groupKey}</span>
                 </div>
