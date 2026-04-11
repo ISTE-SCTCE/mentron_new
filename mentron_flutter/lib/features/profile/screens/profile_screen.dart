@@ -241,6 +241,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final rollController = TextEditingController(text: _profile?['roll_number']);
     final deptController = TextEditingController(text: _profile?['department']);
     final yearController = TextEditingController(text: _profile?['year']?.toString());
+    final isteIdController = TextEditingController(text: _profile?['iste_id']);
     bool isSaving = false;
 
     await showDialog(
@@ -262,7 +263,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 16),
                   _buildLabeledField('Department (e.g. CSE)', deptController, icon: Icons.school_outlined),
                   const SizedBox(height: 16),
-                  _buildLabeledField('Academic Year (1–4)', yearController, icon: Icons.calendar_today_rounded, keyboardType: TextInputType.number),
+                  _buildLabeledField('Academic Year (1–4', yearController, icon: Icons.calendar_today_rounded, keyboardType: TextInputType.number),
+                  const SizedBox(height: 16),
+                  _buildLabeledField('ISTE ID (Optional)', isteIdController, icon: Icons.card_membership_rounded),
                 ],
               ),
             ),
@@ -270,31 +273,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
               TextButton(onPressed: isSaving ? null : () => Navigator.pop(context), child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted))),
               ElevatedButton(
                 onPressed: isSaving ? null : () async {
+                  final newIsteId = isteIdController.text.trim();
+                  
                   setDialogState(() => isSaving = true);
                   try {
                     final supabase = Provider.of<SupabaseService>(context, listen: false);
+                    
+                    // Validate ISTE ID if provided and changed
+                    if (newIsteId.isNotEmpty && newIsteId != _profile?['iste_id']) {
+                      final response = await supabase.client
+                          .from('project_a.members')
+                          .select('ui_id')
+                          .eq('ui_id', newIsteId)
+                          .maybeSingle();
+                      
+                      if (response == null) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: Colors.redAccent,
+                              content: Text('Invalid ISTE ID. Access to notes will be restricted.'),
+                            ),
+                          );
+                        }
+                        setDialogState(() => isSaving = false);
+                        return;
+                      }
+                    }
+
                     final updates = {
                       'full_name': nameController.text.trim(),
-                      'roll_number': rollController.text.trim(),
+                      'roll_number': rollController.text.trim().toUpperCase(),
                       'department': deptController.text.trim(),
                       'year': int.tryParse(yearController.text.trim()) ?? 1,
+                      'iste_id': newIsteId.isEmpty ? null : newIsteId,
                     };
+
                     await supabase.client.from('profiles').update(updates).eq('id', _profile!['id']);
+                    
                     if (mounted) {
                       setState(() {
                          _profile = { ..._profile!, ...updates };
                       });
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text('Profile updated successfully')));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          backgroundColor: Colors.green, 
+                          content: Text('Profile updated successfully'),
+                        ),
+                      );
                     }
                   } catch (e) {
-                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.redAccent, content: Text(e.toString())));
+                     if (mounted) {
+                       ScaffoldMessenger.of(context).showSnackBar(
+                         SnackBar(
+                           backgroundColor: Colors.redAccent, 
+                           content: Text(e.toString()),
+                         ),
+                       );
+                     }
                   } finally {
                      if (mounted) setDialogState(() => isSaving = false);
                   }
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentSecondary, foregroundColor: Colors.black),
-                child: isSaving ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)) : const Text('SAVE', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: isSaving 
+                    ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)) 
+                    : const Text('SAVE', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           );
@@ -539,6 +584,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             'Year',
                             'Year ${_profile?['year'] ?? 'N/A'}',
                             Icons.calendar_today_rounded,
+                          ),
+                          _buildInfoRow(
+                            'ISTE ID',
+                            _profile?['iste_id'] ?? 'Not Linked',
+                            Icons.card_membership_rounded,
                           ),
                           _buildInfoRow(
                             'Email',

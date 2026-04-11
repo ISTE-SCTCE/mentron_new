@@ -60,7 +60,26 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   @override
   void initState() {
     super.initState();
+    _checkPermission();
     _autoFillFromProfile();
+  }
+
+  Future<void> _checkPermission() async {
+    final supabase = Provider.of<SupabaseService>(context, listen: false);
+    final isLeadership = await supabase.isLeadershipPosition();
+    final perms = await supabase.getPermissions();
+    
+    if (!isLeadership && perms['can_upload_notes'] != true) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Access Restricted: You do not have permission to upload notes.'),
+          ),
+        );
+        Navigator.pop(context);
+      }
+    }
   }
 
   Future<void> _autoFillFromProfile() async {
@@ -99,9 +118,12 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   }
 
   Future<void> _pickFile() async {
+    final bool isVideoType = _selectedSubject.startsWith('Video - ');
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx', 'ppt', 'pptx'],
+      allowedExtensions: isVideoType 
+        ? ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'mp4', 'mov', 'avi', 'mkv']
+        : ['pdf', 'doc', 'docx', 'ppt', 'pptx'],
     );
     if (result != null) {
       setState(() => _selectedFile = File(result.files.single.path!));

@@ -38,28 +38,36 @@ class NotesBySubjectScreen extends StatefulWidget {
 class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
   List<Note> _notes = [];
   bool _isLoading = true;
+  String? _currentUserIsteId;
   String? _currentUserId;
   String? _currentUserRole;
+  bool _isLeadership = false;
+  Map<String, bool> _permissions = {};
 
   @override
   void initState() {
     super.initState();
-    _loadNotes();
+    _loadNotesAndPermissions();
   }
 
-  Future<void> _loadNotes() async {
+  Future<void> _loadNotesAndPermissions() async {
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     _currentUserId = supabase.currentUser?.id;
+    _isLeadership = await supabase.isLeadershipPosition();
+    _permissions = await supabase.getPermissions();
 
     if (_currentUserId != null) {
       try {
         final profile = await supabase.client
             .from('profiles')
-            .select('role')
+            .select('role, iste_id')
             .eq('id', _currentUserId!)
             .maybeSingle();
         if (mounted && profile != null) {
-          setState(() => _currentUserRole = profile['role']);
+          setState(() {
+            _currentUserRole = profile['role'];
+            _currentUserIsteId = profile['iste_id'];
+          });
         }
       } catch (_) {}
     }
@@ -115,6 +123,108 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
 
   Future<void> _openNote(Note note) async {
     if (!mounted) return;
+
+    // 1. Check if user already has a valid ISTE ID or is admin
+    bool isAuthorized = (_currentUserRole == 'exec' || _currentUserRole == 'core' || _currentUserIsteId != null);
+
+    if (!isAuthorized) {
+      final String? enteredId = await showDialog<String>(
+        context: context,
+        barrierDismissible: true,
+        builder: (ctx) {
+          final controller = TextEditingController();
+          bool isValidating = false;
+          return StatefulBuilder(
+            builder: (ctx, setDialogState) {
+              return AlertDialog(
+                backgroundColor: AppTheme.surfaceColor,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                title: const Text('ISTE Membership Required', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'This resource is exclusive to ISTE members. Please provide your ISTE Membership ID to access it.',
+                      style: TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                      ),
+                      child: TextField(
+                        controller: controller,
+                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        decoration: const InputDecoration(
+                          hintText: 'Enter ISTE ID',
+                          hintStyle: TextStyle(color: Colors.white38),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted))),
+                  ElevatedButton(
+                    onPressed: isValidating ? null : () async {
+                      final id = controller.text.trim();
+                      if (id.isEmpty) return;
+                      
+                      setDialogState(() => isValidating = true);
+                      try {
+                        final supabase = Provider.of<SupabaseService>(context, listen: false);
+                        // Cross-project validation via FDW
+                        final member = await supabase.client
+                            .from('project_a.members')
+                            .select('ui_id')
+                            .eq('ui_id', id)
+                            .maybeSingle();
+
+                        if (member != null) {
+                          // Success! Save ID to profile
+                          await supabase.client
+                              .from('profiles')
+                              .update({'iste_id': id})
+                              .eq('id', _currentUserId!);
+                          
+                          if (mounted) {
+                            setState(() => _currentUserIsteId = id);
+                            Navigator.pop(ctx, id);
+                          }
+                        } else {
+                          if (mounted) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(backgroundColor: Colors.redAccent, content: Text('Invalid ISTE ID. Please check and try again.')),
+                            );
+                          }
+                        }
+                      } catch (e) {
+                         if (mounted) ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(e.toString())));
+                      } finally {
+                        if (mounted) setDialogState(() => isValidating = false);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentSecondary, foregroundColor: Colors.black),
+                    child: isValidating 
+                        ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                        : const Text('VERIFY', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              );
+            }
+          );
+        },
+      );
+
+      if (enteredId == null) return; // User cancelled
+    }
+
+    // Now proceed with normal download logic
+    if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -147,22 +257,37 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
         }
       }
       if (filePath.isEmpty) throw Exception('Cannot determine file path');
+      
+      // Determine extension from filePath
+      final ext = filePath.split('.').last.toLowerCase();
+      final hasExtension = filePath.contains('.');
+
       final signedUrl = await supabaseClient.storage.from(bucket).createSignedUrl(filePath, 3600);
       final response = await http.get(Uri.parse(signedUrl));
       if (response.statusCode != 200) throw Exception('Download failed');
-      Uint8List pdfBytes;
-      try { pdfBytes = Uint8List.fromList(GZipDecoder().decodeBytes(response.bodyBytes)); }
-      catch (_) { pdfBytes = response.bodyBytes; }
+      
+      Uint8List fileBytes;
+      try { 
+        fileBytes = Uint8List.fromList(GZipDecoder().decodeBytes(response.bodyBytes)); 
+      } catch (_) { 
+        fileBytes = response.bodyBytes; 
+      }
+
       String cleanName = note.title.replaceAll(RegExp(r'[^\w\s-]'), '').trim().replaceAll(RegExp(r'\s+'), '_');
       if (cleanName.isEmpty) cleanName = 'note';
+      
+      final fileName = hasExtension ? '$cleanName.$ext' : '$cleanName.pdf';
+
       final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/$cleanName.pdf');
-      await file.writeAsBytes(pdfBytes);
+      final file = File('${dir.path}/$fileName');
+      await file.writeAsBytes(fileBytes);
+      
       if (mounted) {
         final nav = Navigator.of(context, rootNavigator: true);
         if (nav.canPop()) nav.pop();
       }
       await OpenFile.open(file.path);
+
     } catch (e) {
       if (mounted) {
         final nav = Navigator.of(context, rootNavigator: true);
@@ -234,7 +359,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          if (_currentUserRole == 'exec' || _currentUserRole == 'core')
+          if (_isLeadership || _permissions['can_upload_notes'] == true)
             Padding(
               padding: const EdgeInsets.only(right: 16),
               child: TextButton.icon(
@@ -312,7 +437,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                               const SizedBox(height: 12),
                               const Text('No notes for this subject yet', style: TextStyle(color: AppTheme.textMuted, fontWeight: FontWeight.bold)),
                               const SizedBox(height: 8),
-                              if (_currentUserRole == 'exec' || _currentUserRole == 'core')
+                              if (_isLeadership || _permissions['can_upload_notes'] == true)
                                 TextButton(
                                   onPressed: () => Navigator.push(context, AppTransitions.slideUp(const AddNoteScreen())),
                                   child: Text('Be the first to contribute →', style: TextStyle(color: widget.color, fontWeight: FontWeight.bold)),

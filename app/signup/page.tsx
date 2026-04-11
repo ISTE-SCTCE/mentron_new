@@ -93,6 +93,13 @@ export default function SignupPage() {
                                 <option value="BT" className="bg-[#0a0a0a] text-white">Biotechnology</option>
                             </select>
                         </div>
+
+                        <input
+                            name="iste_id"
+                            type="text"
+                            placeholder="ISTE ID (Optional - for notes access)"
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
+                        />
                     </div>
 
                     <button

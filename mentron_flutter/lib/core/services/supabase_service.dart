@@ -59,4 +59,45 @@ class SupabaseService {
     ).subscribe();
     return channel;
   }
+
+  // Permission Helpers
+  Future<bool> isLeadershipPosition() async {
+    final userId = currentUser?.id;
+    if (userId == null) return false;
+    
+    final response = await client
+        .from('profiles')
+        .select('iste_position')
+        .eq('id', userId)
+        .maybeSingle();
+    
+    if (response == null) return false;
+    final position = response['iste_position'];
+    return position == 'Chairman' || position == 'Vice Chairman';
+  }
+
+  Future<Map<String, bool>> getPermissions() async {
+    final userId = currentUser?.id;
+    if (userId == null) return {};
+    
+    final response = await client
+        .from('profiles')
+        .select('permissions, iste_position')
+        .eq('id', userId)
+        .maybeSingle();
+    
+    if (response == null) return {};
+    
+    final position = response['iste_position'];
+    if (position == 'Chairman' || position == 'Vice Chairman') {
+      return {
+        'can_see_member_info': true,
+        'can_delete_account': true,
+        'can_upload_notes': true,
+      };
+    }
+
+    final Map<String, dynamic> rawPerms = response['permissions'] ?? {};
+    return rawPerms.map((key, value) => MapEntry(key, value == true));
+  }
 }

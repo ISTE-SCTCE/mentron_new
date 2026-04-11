@@ -5,6 +5,7 @@ import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
+import '../../admin/screens/permission_management_screen.dart';
 
 class CoreMembersScreen extends StatefulWidget {
   const CoreMembersScreen({super.key});
@@ -18,11 +19,26 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
   String _search = '';
   String _filterDept = 'All';
   String _filterYear = 'All';
+  bool _isLeadership = false;
+  Map<String, bool> _permissions = {};
 
   @override
   void initState() {
     super.initState();
+    _initPermissions();
     _fetchMembers();
+  }
+
+  Future<void> _initPermissions() async {
+    final supabase = Provider.of<SupabaseService>(context, listen: false);
+    final leadership = await supabase.isLeadershipPosition();
+    final perms = await supabase.getPermissions();
+    if (mounted) {
+      setState(() {
+        _isLeadership = leadership;
+        _permissions = perms;
+      });
+    }
   }
 
   Future<void> _fetchMembers() async {
@@ -116,6 +132,18 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          if (_isLeadership)
+            IconButton(
+              icon: const Icon(Icons.admin_panel_settings_outlined, color: AppTheme.accentSecondary, size: 22),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PermissionManagementScreen()),
+                ).then((_) => _initPermissions()); // Refresh permissions when returning
+              },
+            ),
+        ],
       ),
       body: LiquidBackground(
         child: Column(
@@ -277,7 +305,9 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
                           ),
                           const Spacer(),
                           Text(
-                            member['roll_number'] ?? 'No Roll No',
+                            (_permissions['can_see_member_info'] == true) 
+                                ? (member['roll_number'] ?? 'No Roll No')
+                                : '••••••••',
                             style: const TextStyle(color: AppTheme.textMuted, fontSize: 11, fontWeight: FontWeight.w900),
                           ),
                         ],
@@ -290,40 +320,57 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
             
             // Middle section: Info Grid
             const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('DEPARTMENT', style: TextStyle(color: AppTheme.textMuted, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
-                        const SizedBox(height: 4),
-                        Text(member['department'] ?? '—', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                      ],
+            if (_permissions['can_see_member_info'] == true)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('DEPARTMENT', style: TextStyle(color: AppTheme.textMuted, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                          const SizedBox(height: 4),
+                          Text(member['department'] ?? '—', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
                     ),
-                  ),
-                  Container(width: 1, height: 30, color: Colors.white.withValues(alpha: 0.1)),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('CLASS YEAR', style: TextStyle(color: AppTheme.textMuted, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
-                        const SizedBox(height: 4),
-                        Text(member['year'] != null ? 'Year ${member['year']}' : '—', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                      ],
+                    Container(width: 1, height: 30, color: Colors.white.withValues(alpha: 0.1)),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('CLASS YEAR', style: TextStyle(color: AppTheme.textMuted, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                          const SizedBox(height: 4),
+                          Text(member['year'] != null ? 'Year ${member['year']}' : '—', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Column(
+                  children: [
+                    Icon(Icons.lock_outline_rounded, color: Colors.white24, size: 20),
+                    SizedBox(height: 4),
+                    Text('INFO RESTRICTED', style: TextStyle(color: Colors.white24, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                  ],
+                ),
               ),
-            ),
             
             // Bottom Section: Actions
             const SizedBox(height: 16),
@@ -354,25 +401,49 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
                     ),
                   ),
                 
-                // Show delete button
-                const SizedBox(width: 12),
-                GestureDetector(
-                  onTap: () => _showDeleteDialog(member),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                // Manage Permissions Button
+                if (_isLeadership) ...[
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const PermissionManagementScreen()),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.accentSecondary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppTheme.accentSecondary.withValues(alpha: 0.3)),
+                      ),
+                      child: const Icon(Icons.security_rounded, color: AppTheme.accentSecondary, size: 18),
                     ),
-                    child: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 18),
                   ),
-                ),
+                ],
+
+                // Show delete button
+                if (_permissions['can_delete_account'] == true) ...[
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () => _showDeleteDialog(member),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                      ),
+                      child: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 18),
+                    ),
+                  ),
+                ],
               ],
             ),
           ],
         ),
-      ).animate().fadeIn(delay: (index * 40).ms).slideY(begin: 0.1, duration: 400.ms),
+      ).animate().fadeIn(delay: (index * 50).ms).slideY(begin: 0.05, curve: Curves.easeOut),
     );
   }
 

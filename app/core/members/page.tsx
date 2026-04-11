@@ -26,6 +26,8 @@ export default function CoreMembersPage() {
     const [updating, setUpdating] = useState<string | null>(null)
     const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null)
     const [currentUserRole, setCurrentUserRole] = useState<string>('')
+    const [userPermissions, setUserPermissions] = useState<any>(null)
+    const [isLeadership, setIsLeadership] = useState(false)
 
     // ── 1. Auth guard: must be core/exec ─────────────────────────────────────
     useEffect(() => {
@@ -35,7 +37,7 @@ export default function CoreMembersPage() {
 
             const { data: profile } = await supabase
                 .from('profiles')
-                .select('role')
+                .select('role, permissions, iste_position')
                 .eq('id', user.id)
                 .single()
 
@@ -43,6 +45,22 @@ export default function CoreMembersPage() {
                 router.replace('/dashboard')
             } else {
                 setCurrentUserRole(profile.role)
+                setIsLeadership(profile.iste_position === 'Chairman' || profile.iste_position === 'Vice Chairman')
+                
+                // Set permissions: Leadership gets all, otherwise use profile.permissions
+                if (profile.iste_position === 'Chairman' || profile.iste_position === 'Vice Chairman') {
+                    setUserPermissions({
+                        can_see_member_info: true,
+                        can_delete_account: true,
+                        can_upload_notes: true
+                    })
+                } else {
+                    setUserPermissions(profile.permissions || {
+                        can_see_member_info: false,
+                        can_delete_account: false,
+                        can_upload_notes: true
+                    })
+                }
             }
         }
         checkAccess()
@@ -159,9 +177,18 @@ export default function CoreMembersPage() {
                     { label: 'Total Members', value: members.length, icon: '👥' },
                     { label: 'Executive Members', value: members.filter((m) => m.role === 'exec').length, icon: '⭐' },
                     { label: 'Normal Members', value: members.filter((m) => m.role === 'member').length, icon: '🎓' },
-                    { label: 'Manage Members', value: 1, icon: '🔐' },
+                    { 
+                        label: 'Manage Permissions', 
+                        value: isLeadership ? 'GO →' : '🔐', 
+                        icon: '🛡️',
+                        onClick: isLeadership ? () => router.push('/admin/permissions') : undefined
+                    },
                 ].map((stat) => (
-                    <div key={stat.label} className="glass-card text-center space-y-1">
+                    <div 
+                        key={stat.label} 
+                        onClick={stat.onClick}
+                        className={`glass-card text-center space-y-1 ${stat.onClick ? 'cursor-pointer hover:border-blue-500/50 transition-all' : ''}`}
+                    >
                         <div className="text-3xl">{stat.icon}</div>
                         <div className="text-3xl font-black text-white">{stat.value}</div>
                         <div className="text-[10px] font-black tracking-widest text-gray-500 uppercase">{stat.label}</div>
@@ -230,22 +257,29 @@ export default function CoreMembersPage() {
                                 </div>
                             </div>
                             
-                            <div className="space-y-4 flex-1 z-10 mb-6 bg-black/20 p-4 rounded-2xl border border-white/5">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[9px] text-gray-500 font-black tracking-widest uppercase">Roll Number</span>
-                                    <span className="text-white font-bold text-sm tracking-wide bg-white/5 px-2 py-1 rounded-md">{m.roll_number || 'N/A'}</span>
+                            {userPermissions?.can_see_member_info ? (
+                                <div className="space-y-4 flex-1 z-10 mb-6 bg-black/20 p-4 rounded-2xl border border-white/5">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[9px] text-gray-500 font-black tracking-widest uppercase">Roll Number</span>
+                                        <span className="text-white font-bold text-sm tracking-wide bg-white/5 px-2 py-1 rounded-md">{m.roll_number || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[9px] text-gray-500 font-black tracking-widest uppercase">Department</span>
+                                        <span className="text-white font-bold text-sm">{m.department || '—'}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[9px] text-gray-500 font-black tracking-widest uppercase">Year / Class</span>
+                                        <span className="text-blue-400 font-bold text-sm bg-blue-500/10 px-2 flex items-center justify-center rounded-md border border-blue-500/20">
+                                            Year {m.year || '?'}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[9px] text-gray-500 font-black tracking-widest uppercase">Department</span>
-                                    <span className="text-white font-bold text-sm">{m.department || '—'}</span>
+                            ) : (
+                                <div className="space-y-4 flex-1 z-10 mb-6 bg-black/10 p-4 rounded-2xl border border-white/5 flex flex-col items-center justify-center">
+                                    <div className="text-xl opacity-20">🔒</div>
+                                    <p className="text-[8px] font-black uppercase text-gray-600 tracking-tighter">Information Restricted</p>
                                 </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[9px] text-gray-500 font-black tracking-widest uppercase">Year / Class</span>
-                                    <span className="text-blue-400 font-bold text-sm bg-blue-500/10 px-2 flex items-center justify-center rounded-md border border-blue-500/20">
-                                        Year {m.year || '?'}
-                                    </span>
-                                </div>
-                            </div>
+                            )}
 
                             <div className="flex gap-2 mt-auto z-10 pt-4 border-t border-white/10">
                                 {/* Role Promote/Demote Toggle */}
@@ -267,12 +301,12 @@ export default function CoreMembersPage() {
                                     </button>
                                 )}
                                 
-                                {/* Delete Action - Only visible appropriately */}
-                                {(currentUserRole === 'core' || currentUserRole === 'exec') && (
+                                {/* Delete Action - Only visible if has permission */}
+                                {userPermissions?.can_delete_account && (
                                     <button
                                         disabled={updating === m.id}
                                         onClick={() => handleDeleteUser(m.id, m.full_name)}
-                                        className="w-12 flex items-center justify-center rounded-xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all group-hover:block disabled:opacity-50"
+                                        className="w-12 flex items-center justify-center rounded-xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all disabled:opacity-50"
                                         title="Delete Account"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -3,7 +3,9 @@
 import Link from 'next/link'
 import { logout } from '@/app/login/actions'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useState, useRef, useTransition } from 'react'
+import { useState, useRef, useTransition, useEffect } from 'react'
+import { createClient } from '@/app/lib/supabase/client'
+import { getPermissionsClient } from '@/app/lib/utils/coreAuthClient'
 import {
     YEAR_SEMS,
     FIRST_YEAR_GROUPS,
@@ -41,7 +43,43 @@ export default function NotesUploadPage() {
     const [dept, setDept] = useState<DeptKey | ''>('')      // Year 2-4
     const [subject, setSubject] = useState('')
     const [isPending, startTransition] = useTransition()
+    const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null)
     const formRef = useRef<HTMLFormElement>(null)
+
+    // Auth check
+    useEffect(() => {
+        async function checkAuth() {
+            const perms = await getPermissionsClient()
+            
+            // Check if user is logged in (perms will be empty if not)
+            if (Object.keys(perms).length === 0) {
+                const { createClient } = await import('@/app/lib/supabase/client')
+                const supabase = createClient()
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) {
+                    router.push('/login')
+                    return
+                }
+            }
+
+            if (!perms.can_upload_notes) {
+                router.push('/notes?error=You do not have permission to upload notes.')
+            } else {
+                setIsAuthorized(true)
+            }
+        }
+        checkAuth()
+    }, [router])
+
+    if (isAuthorized === null) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+                <div className="text-gray-500 font-black tracking-widest text-xs uppercase animate-pulse">
+                    Verifying Permissions...
+                </div>
+            </div>
+        )
+    }
 
     const yearNum = parseInt(year)
     const isFirstYear = yearNum === 1

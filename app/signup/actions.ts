@@ -17,21 +17,22 @@ export async function signup(formData: FormData) {
     // Use manually selected department; fall back to roll number detection
     const selectedDept = formData.get('department') as string
     const department = selectedDept || getDepartmentFromRollNumber(rollNumber)
-    const upperRoll = rollNumber.trim().toUpperCase()
+    const isteId = (formData.get('iste_id') as string) || null;
+    const upperRoll = rollNumber.trim().toUpperCase();
 
     // 1. Check if roll number already exists in PROFILES to prevent ghost auth users
     const { data: existingProfile, error: checkError } = await supabase
         .from('profiles')
         .select('id, roll_number')
         .eq('roll_number', upperRoll)
-        .maybeSingle()
+        .maybeSingle();
 
     if (checkError) {
-        console.error('Pre-signup check error:', checkError)
+        console.error('Pre-signup check error:', checkError);
     }
 
     if (existingProfile) {
-        redirect(`/signup?error=${encodeURIComponent('This roll number is already registered.')}`)
+        redirect(`/signup?error=${encodeURIComponent('This roll number is already registered.')}`);
     }
 
     const { data: { user }, error: signUpError } = await supabase.auth.signUp({
@@ -44,13 +45,14 @@ export async function signup(formData: FormData) {
                 department: department,
                 year: year,
                 role: role,
+                iste_id: isteId,
             },
         },
-    })
+    });
 
     if (signUpError) {
-        console.error('Signup error:', signUpError)
-        redirect(`/signup?error=${encodeURIComponent(signUpError.message)}`)
+        console.error('Signup error:', signUpError);
+        redirect(`/signup?error=${encodeURIComponent(signUpError.message)}`);
     }
 
     // We manually insert the profile here as a fallback in case 
@@ -63,9 +65,10 @@ export async function signup(formData: FormData) {
             department: department,
             year: year,
             role: role,
-        })
+            iste_id: isteId,
+        });
         if (profileError) {
-            console.error('Fallback profile creation error:', profileError)
+            console.error('Fallback profile creation error:', profileError);
         }
     }
 

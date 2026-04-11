@@ -30,18 +30,35 @@ export function SettingsClient({ profile, userEmail }: SettingsClientProps) {
     const [departmentCode, setDepartmentCode] = useState(profile?.department_code || '')
     const [rollNumber, setRollNumber] = useState(profile?.roll_number || '')
     const [year, setYear] = useState(profile?.year?.toString() || '')
+    const [isteId, setIsteId] = useState(profile?.iste_id || '')
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
 
     const handleUpdateProfile = async () => {
         setIsUpdatingProfile(true)
         try {
+            // Optional: If ISTE ID is provided, we check it against Project A (via the local DB view/FDW)
+            if (isteId && isteId !== profile?.iste_id) {
+                const { data: member, error: memberError } = await supabase
+                    .from('project_a.members')
+                    .select('ui_id')
+                    .eq('ui_id', isteId)
+                    .maybeSingle()
+                
+                if (memberError || !member) {
+                    toast.error("Invalid ISTE ID. Please check and try again.")
+                    setIsUpdatingProfile(false)
+                    return
+                }
+            }
+
             const { error } = await supabase
                 .from('profiles')
                 .update({
                     full_name: fullName,
                     department_code: departmentCode,
                     roll_number: rollNumber,
-                    year: year ? parseInt(year) : null
+                    year: year ? parseInt(year) : null,
+                    iste_id: isteId || null
                 })
                 .eq('id', profile?.id)
             if (error) throw error
@@ -139,6 +156,12 @@ export function SettingsClient({ profile, userEmail }: SettingsClientProps) {
                         <label className="text-sm font-medium text-blue-400/80">Role</label>
                         <input type="text" disabled value={profile?.role || 'user'}
                             className="w-full glass bg-white/5 border-white/10 rounded-xl px-4 py-3 text-blue-300 opacity-80 cursor-not-allowed capitalize" />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-blue-400/80">ISTE ID (Optional)</label>
+                        <input type="text" value={isteId} onChange={e => setIsteId(e.target.value)}
+                            placeholder="Provide ISTE ID for notes access"
+                            className="w-full glass bg-white/5 border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 transition-colors" />
                     </div>
                 </div>
 

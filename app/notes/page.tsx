@@ -6,6 +6,8 @@ import { NotesSearch } from './NotesSearch'
 import { ThemeSwitcher } from '@/app/components/ThemeSwitcher'
 import { DeleteButton } from '@/app/components/DeleteButton'
 import { deleteNote } from '@/app/lib/actions/deleteActions'
+import { NoteAccessGate } from '@/app/components/NoteAccessGate'
+import { getPermissions } from '@/app/lib/utils/coreAuth'
 
 const YEARS = [
     { year: 1, label: '1st Year', sems: 'S1 & S2', emoji: '🌱', color: 'from-green-500/20 to-emerald-500/10', border: 'border-green-500/20', accent: 'text-green-400' },
@@ -68,12 +70,14 @@ export default async function NotesPage({
 
                     <div className="flex flex-wrap items-center gap-4 md:gap-6 w-full md:w-auto">
                         <ThemeSwitcher />
-                        <Link
-                            href="/notes/upload"
-                            className="glass glass-hover px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase text-blue-400 border-blue-500/20"
-                        >
-                            + Contribute Notes
-                        </Link>
+                        {(await getPermissions()).can_upload_notes && (
+                            <Link
+                                href="/notes/upload"
+                                className="glass glass-hover px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase text-blue-400 border-blue-500/20"
+                            >
+                                + Contribute Notes
+                            </Link>
+                        )}
                         <form action={logout}>
                             <button className="bg-red-500/10 hover:bg-red-500/20 text-red-500 px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition-all border border-red-500/20">
                                 Logout
@@ -116,9 +120,16 @@ export default async function NotesPage({
                                             {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin') && (
                                                 <DeleteButton onDelete={deleteNote.bind(null, note.id)} itemName="note" />
                                             )}
-                                            <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">
-                                                <a href={note.file_url} target="_blank" rel="noopener noreferrer" className="glass glass-hover p-3 rounded-xl text-blue-400 text-sm hover:scale-110 transition-all" title="View Document">↗</a>
-                                            </InteractionTracker>
+                                            <NoteAccessGate 
+                                                noteUrl={note.file_url} 
+                                                userId={profile?.id} 
+                                                userIsteId={profile?.iste_id} 
+                                                userRole={profile?.role}
+                                            >
+                                                <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">
+                                                    <a href={note.file_url} target="_blank" rel="noopener noreferrer" className="glass glass-hover p-3 rounded-xl text-blue-400 text-sm hover:scale-110 transition-all" title="View Document">↗</a>
+                                                </InteractionTracker>
+                                            </NoteAccessGate>
                                         </div>
                                     </div>
                                 </div>

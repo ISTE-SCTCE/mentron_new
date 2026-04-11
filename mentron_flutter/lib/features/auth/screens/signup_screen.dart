@@ -18,6 +18,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _rollNumberController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _isteIdController = TextEditingController(); // New field
   String? _selectedYear;
   String? _selectedDept;
   bool _isLoading = false;
@@ -62,6 +63,7 @@ class _SignupScreenState extends State<SignupScreen> {
           'year': int.tryParse(_selectedYear!) ?? 1,
           'role': 'member',
           'department': _selectedDept,
+          'iste_id': _isteIdController.text.trim().isEmpty ? null : _isteIdController.text.trim(),
         },
       );
 
@@ -89,6 +91,7 @@ class _SignupScreenState extends State<SignupScreen> {
           'role': newRole,
           'department': _selectedDept,
           'xp': 0,
+          'iste_id': _isteIdController.text.trim().isEmpty ? null : _isteIdController.text.trim(),
         });
 
         if (mounted) {
@@ -167,6 +170,9 @@ class _SignupScreenState extends State<SignupScreen> {
                         const SizedBox(height: 16),
                         _buildLabel('PASSWORD'),
                         _buildTextField(_passwordController, 'Create a strong password', Icons.lock_outline_rounded, isPassword: true),
+                        const SizedBox(height: 16),
+                        _buildLabel('ISTE ID (OPTIONAL)'),
+                        _buildTextField(_isteIdController, 'For PYQ & Video access', Icons.card_membership_rounded),
                         const SizedBox(height: 16),
                         // Year + Department row
                         Row(
