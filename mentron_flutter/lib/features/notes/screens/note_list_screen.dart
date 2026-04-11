@@ -126,10 +126,14 @@ class _NoteListScreenState extends State<NoteListScreen> {
       // Delete from database
       await supabase.client.from('notes').delete().eq('id', note.id);
       
-      // Try to delete the file from storage too
-      if (note.fileUrl.contains('notes_bucket')) {
-        final filePath = note.fileUrl.split('notes_bucket/').last;
-        await supabase.client.storage.from('notes_bucket').remove([filePath]);
+      // Try to delete the file from storage too (Legacy support only, new uploads shouldn't fail if we can't delete)
+      try {
+        if (note.fileUrl.contains('notes_bucket')) {
+          final filePath = note.fileUrl.split('notes_bucket/').last;
+          await supabase.client.storage.from('notes_bucket').remove([filePath]);
+        }
+      } catch (_) {
+        // Ignore storage delete errors for Cloudflare R2 migrated files
       }
 
       if (mounted) {
@@ -309,11 +313,11 @@ class _NoteListScreenState extends State<NoteListScreen> {
 
       if (filePath.isEmpty) throw Exception('Cannot determine file path from URL');
 
-      // ── Step 2: Get a 1-hour signed URL ──
-      final signedUrl = await supabase.storage.from(bucket).createSignedUrl(filePath, 3600);
-
-      // ── Step 3: Download the gzipped bytes ──
-      final response = await http.get(Uri.parse(signedUrl));
+      // ── Step 2: Download the gzipped bytes from API ──
+      const String apiBaseUrl = 'http://10.0.2.2:3000'; // Change to production URL when deployed
+      final fetchUrl = urlPath.startsWith('http') ? urlPath : '$apiBaseUrl/api/files/$bucket/$filePath';
+      
+      final response = await http.get(Uri.parse(fetchUrl));
       if (response.statusCode != 200) throw Exception('Download failed (${response.statusCode})');
       final compressedBytes = response.bodyBytes;
 

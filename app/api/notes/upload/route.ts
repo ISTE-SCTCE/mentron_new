@@ -37,12 +37,19 @@ export async function POST(request: NextRequest) {
     const compressedBuffer = await compressFile(buffer)
     const fileName = `${Date.now()}-${file.name}.gz`
 
-    const { error: uploadError } = await supabase.storage
-        .from('notes_bucket')
-        .upload(fileName, compressedBuffer, { contentType: file.type, cacheControl: '3600' })
+    const { s3Client, BUCKET_NAME } = await import('@/app/lib/s3')
+    const { PutObjectCommand, DeleteObjectCommand } = await import('@aws-sdk/client-s3')
 
-    if (uploadError) {
-        return NextResponse.json({ error: uploadError.message }, { status: 500 })
+    try {
+        await s3Client.send(new PutObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: `notes_bucket/${fileName}`,
+            Body: compressedBuffer,
+            ContentType: file.type,
+            CacheControl: 'max-age=31536000',
+        }))
+    } catch (e: any) {
+        return NextResponse.json({ error: e.message || 'Error uploading file to storage.' }, { status: 500 })
     }
 
     const fileUrl = `/api/files/notes_bucket/${fileName}`
@@ -59,7 +66,10 @@ export async function POST(request: NextRequest) {
     })
 
     if (insertError) {
-        await supabase.storage.from('notes_bucket').remove([fileName])
+        await s3Client.send(new DeleteObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: `notes_bucket/${fileName}`,
+        }))
         return NextResponse.json({ error: insertError.message }, { status: 500 })
     }
 

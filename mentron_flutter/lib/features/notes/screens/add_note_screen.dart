@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:http/http.dart' as http;
 import '../../../core/services/supabase_service.dart';
 import '../../../core/services/compression_service.dart';
 import '../../../core/theme/app_theme.dart';
@@ -119,29 +120,31 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
     setState(() => _isLoading = true);
     final supabase = Provider.of<SupabaseService>(context, listen: false);
-    final compression = CompressionService();
 
     try {
       final user = supabase.currentUser;
       if (user == null) throw Exception('Not logged in');
 
-      final compressedBytes = await compression.gzipCompress(_selectedFile!);
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}-${_selectedFile!.path.split('/').last}.gz';
-
-      await supabase.client.storage.from('notes_bucket').uploadBinary(fileName, compressedBytes);
-
-      final fileUrl = supabase.client.storage.from('notes_bucket').getPublicUrl(fileName);
-
-      await supabase.client.from('notes').insert({
-        'title': _titleController.text.trim(),
-        'description': _descController.text.trim(),
-        'department': _selectedDeptOrGroup,
-        'year': int.parse(_selectedYear),
-        'semester': _selectedSem,
-        'subject': _selectedSubject,
-        'file_url': fileUrl,
-        'profile_id': user.id,
-      });
+      // Use a multipart request to our Next.js API endpoint
+      const String apiBaseUrl = 'http://10.0.2.2:3000'; // Default to Android emulator loopback. Change to production URL when deployed.
+      final uri = Uri.parse('$apiBaseUrl/api/notes/upload');
+      final request = http.MultipartRequest('POST', uri);
+      
+      request.fields['title'] = _titleController.text.trim();
+      request.fields['description'] = _descController.text.trim();
+      request.fields['department'] = _selectedDeptOrGroup;
+      request.fields['year'] = _selectedYear;
+      request.fields['semester'] = _selectedSem;
+      request.fields['subject'] = _selectedSubject;
+      
+      request.files.add(await http.MultipartFile.fromPath('file', _selectedFile!.path));
+      
+      final response = await request.send();
+      final responseData = await response.stream.bytesToString();
+      
+      if (response.statusCode >= 400) {
+        throw Exception('Server Error: $responseData');
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

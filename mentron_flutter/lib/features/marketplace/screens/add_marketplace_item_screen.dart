@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
@@ -41,25 +42,24 @@ class _AddMarketplaceItemScreenState extends State<AddMarketplaceItemScreen> {
     if (userId == null) return;
 
     try {
-      String imageUrl = 'https://source.unsplash.com/random/400x300?book,study'; // default
-
-      // Upload image if selected
+      const String apiBaseUrl = 'http://10.0.2.2:3000'; // Change to production URL when deployed
+      final uri = Uri.parse('$apiBaseUrl/api/marketplace/upload');
+      final request = http.MultipartRequest('POST', uri);
+      
+      request.fields['title'] = _titleController.text.trim();
+      request.fields['description'] = _descriptionController.text.trim();
+      request.fields['price'] = _priceController.text.trim();
+      
       if (_selectedImage != null) {
-        final ext = _selectedImage!.path.split('.').last;
-        final fileName = 'marketplace_${DateTime.now().millisecondsSinceEpoch}.$ext';
-        await supabase.client.storage.from('marketplace_bucket').upload(fileName, _selectedImage!);
-        final uploaded = supabase.client.storage.from('marketplace_bucket').getPublicUrl(fileName);
-        imageUrl = uploaded;
+        request.files.add(await http.MultipartFile.fromPath('image', _selectedImage!.path));
       }
 
-      await supabase.client.from('marketplace_items').insert({
-        'title': _titleController.text.trim(),
-        'description': _descriptionController.text.trim(),
-        'price': double.tryParse(_priceController.text.trim()) ?? 0.0,
-        'image_url': imageUrl,
-        'seller_id': userId,
-        'is_sold': false,
-      });
+      final response = await request.send();
+      final responseData = await response.stream.bytesToString();
+      
+      if (response.statusCode >= 400) {
+        throw Exception('Server Error: $responseData');
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text('Item listed successfully! 🎉')));

@@ -9,18 +9,28 @@ export async function GET(
     const filePath = path.join('/')
     const supabase = await createClient()
 
-    // 1. Download file from Supabase Storage
-    const { data, error } = await supabase.storage
-        .from(bucket)
-        .download(filePath)
+    // 1. Download file from R2 Storage
+    const { s3Client, BUCKET_NAME } = await import('@/app/lib/s3')
+    const { GetObjectCommand } = await import('@aws-sdk/client-s3')
 
-    if (error || !data) {
+    let data: any
+    try {
+        const response = await s3Client.send(new GetObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: `${bucket}/${filePath}`,
+        }))
+        data = response.Body
+    } catch (error: any) {
         console.error('File Fetch error:', error)
         return new NextResponse('File not found', { status: 404 })
     }
 
-    // 2. Convert to ArrayBuffer -> Buffer
-    const buffer = Buffer.from(await data.arrayBuffer())
+    if (!data) {
+        return new NextResponse('File not found', { status: 404 })
+    }
+
+    // 2. Convert to ArrayBuffer -> Buffer (transformToByteArray available in recent AWS SDK)
+    const buffer = Buffer.from(await data.transformToByteArray())
 
     // 3. Determine Content-Type based on extension (simple approach)
     const ext = filePath.split('.').pop()?.toLowerCase()
