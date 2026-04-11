@@ -36,7 +36,7 @@ export default function CoreMembersPage() {
                 .eq('id', user.id)
                 .single()
 
-            if (profile?.role !== 'core') {
+            if (profile?.role !== 'core' && profile?.role !== 'exec') {
                 router.replace('/dashboard')
             }
         }
@@ -49,7 +49,7 @@ export default function CoreMembersPage() {
         const { data } = await supabase
             .from('profiles')
             .select('id, full_name, roll_number, department, year, role')
-            .neq('role', 'core')
+            .not('role', 'in', '("core", "exec")')
             .order('full_name', { ascending: true })
 
         const list = (data ?? []) as Profile[]
@@ -109,7 +109,7 @@ export default function CoreMembersPage() {
             <div className="mb-12 space-y-2">
                 <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase flex items-center gap-2">
                     <span className="w-8 h-[1px] bg-blue-500 inline-block" />
-                    Core Control
+                    Leadership Admin
                 </p>
                 <h1 className="text-5xl font-black tracking-tighter text-white">
                     Manage Members

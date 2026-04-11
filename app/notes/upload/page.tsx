@@ -50,14 +50,22 @@ export default function NotesUploadPage() {
     // Build subject list depending on year
     const subjectList: string[] = (() => {
         if (!sem) return []
+        let rawSubjects: string[] = []
         if (isFirstYear && group) {
             const s = FIRST_YEAR_SUBJECTS[group as GroupKey]?.[sem as 'S1' | 'S2'] ?? []
-            return s.filter(sub => !sub.startsWith('— Electives:'))
+            rawSubjects = s.filter(sub => !sub.startsWith('— Electives:'))
         }
-        if (!isFirstYear && dept) {
-            return (getSubjects(dept as DeptKey, sem as SemKey) ?? []).filter(s => !s.startsWith('— Electives:'))
+        else if (!isFirstYear && dept) {
+            rawSubjects = (getSubjects(dept as DeptKey, sem as SemKey) ?? []).filter(s => !s.startsWith('— Electives:'))
         }
-        return []
+
+        const expandedSubjects: string[] = []
+        for (const s of rawSubjects) {
+            expandedSubjects.push(s)
+            expandedSubjects.push(`PYQ - ${s}`)
+            expandedSubjects.push(`Video - ${s}`)
+        }
+        return expandedSubjects
     })()
 
     const inputBase = 'w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none'

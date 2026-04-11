@@ -498,7 +498,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             AppTransitions.slideUp(const TeamScreen()),
           ),
         ),
-        if (_isCoreMember) ...[
+        if (_isExec) ...[
           const SizedBox(height: 12),
           _buildActionButton(
             'Manage Members',

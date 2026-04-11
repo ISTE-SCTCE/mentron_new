@@ -1,8 +1,8 @@
 import { createClient } from '@/app/lib/supabase/server'
 
 /**
- * Returns true if the currently logged-in user's email
- * exists in the core_members table.
+ * Returns true if the currently logged-in user's role
+ * is 'core' or 'exec' (leadership roles).
  */
 export async function isCoreMember(): Promise<boolean> {
     const supabase = await createClient()
@@ -16,7 +16,7 @@ export async function isCoreMember(): Promise<boolean> {
         .select('role')
         .eq('id', user.id)
         .single()
-    return profile?.role === 'core'
+    return profile?.role === 'core' || profile?.role === 'exec'
 }
 
 /**

@@ -29,6 +29,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
       final res = await supabase
           .from('profiles')
           .select('id, full_name, role, department, year')
+          .not('role', 'in', '("core", "exec")')
           .order('full_name');
       if (mounted) setState(() { _members = List<Map<String, dynamic>>.from(res); _isLoading = false; });
     } catch (_) {

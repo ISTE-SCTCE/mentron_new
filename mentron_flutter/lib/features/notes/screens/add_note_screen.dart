@@ -37,13 +37,23 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
   List<String> get _subjectOptions {
     if (_selectedSem.isEmpty || _selectedDeptOrGroup.isEmpty) return [];
+    List<String> rawSubjects = [];
     if (_isFirstYear) {
       // dept/group field holds the group letter for Y1
-      return SubjectData.getFirstYearSubjects(_selectedDeptOrGroup, _selectedSem)
+      rawSubjects = SubjectData.getFirstYearSubjects(_selectedDeptOrGroup, _selectedSem)
           .where((s) => !s.startsWith('Electives:')).toList();
+    } else {
+      rawSubjects = SubjectData.getSubjects(_selectedDeptOrGroup, _selectedSem)
+          .where((s) => !s.startsWith('Electives:') && !s.startsWith('— Electives:')).toList();
     }
-    return SubjectData.getSubjects(_selectedDeptOrGroup, _selectedSem)
-        .where((s) => !s.startsWith('Electives:') && !s.startsWith('— Electives:')).toList();
+
+    List<String> expanded = [];
+    for (var s in rawSubjects) {
+      expanded.add(s);
+      expanded.add('PYQ - $s');
+      expanded.add('Video - $s');
+    }
+    return expanded;
   }
 
   @override

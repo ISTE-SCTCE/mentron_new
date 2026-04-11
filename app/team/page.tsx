@@ -5,11 +5,11 @@ import { createClient } from '@/app/lib/supabase/server'
 export default async function TeamPage() {
     const supabase = await createClient()
 
-    // Fetch all executive members
+    // Fetch all leadership members (exec and core)
     const { data: members, error } = await supabase
         .from('profiles')
         .select('full_name, department, role, xp, roll_number')
-        .eq('role', 'exec')
+        .in('role', ['exec', 'core'])
         .order('xp', { ascending: false })
 
     return (
@@ -55,7 +55,7 @@ export default async function TeamPage() {
                                 {member.full_name}
                             </h2>
                             <p className="text-blue-500 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-                                {member.role === 'exec' ? 'Executive Member' : member.role}
+                                {member.role === 'core' ? 'Core Member' : 'Executive Member'}
                             </p>
                             <div className="mt-auto space-y-4 w-full">
                                 <div className="px-4 py-1.5 glass rounded-full text-[9px] font-black tracking-widest text-gray-500 uppercase">

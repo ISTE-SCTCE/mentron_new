@@ -172,6 +172,49 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
     }
   }
 
+  Widget _buildFolderCard({
+    required BuildContext context,
+    required String emoji,
+    required String title,
+    required String subtitle,
+    required String type,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          AppTransitions.slideRight(
+            NotesBySubjectScreen(
+              subjectName: '$type${widget.subjectName}',
+              color: widget.color,
+              year: widget.year,
+              semester: widget.semester,
+              dept: widget.dept,
+            ),
+          ),
+        );
+      },
+      child: GlassContainer(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 24)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
+                  Text(subtitle, style: const TextStyle(color: AppTheme.textMuted, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1, overflow: TextOverflow.ellipsis)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -229,6 +272,37 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                     ).animate().fadeIn(),
                   ),
                   const SizedBox(height: 16),
+                  
+                  // Virtual Folders
+                  if (!widget.subjectName.startsWith('PYQ - ') && !widget.subjectName.startsWith('Video - '))
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _buildFolderCard(
+                              context: context,
+                              emoji: '📂',
+                              title: 'PYQs',
+                              subtitle: 'Past Year',
+                              type: 'PYQ - ',
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _buildFolderCard(
+                              context: context,
+                              emoji: '🎬',
+                              title: 'Videos',
+                              subtitle: 'Lectures',
+                              type: 'Video - ',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+                  
                   // Notes list
                   Expanded(
                     child: _notes.isEmpty

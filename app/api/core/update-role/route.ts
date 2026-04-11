@@ -13,16 +13,16 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // 2. Verify the caller is a core member
+    // 2. Verify the caller is an admin (core or exec)
     const { data: profile } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single()
-
-    if (profile?.role !== 'core') {
+ 
+    if (profile?.role !== 'core' && profile?.role !== 'exec') {
         return NextResponse.json(
-            { error: 'Forbidden: Not a core member' },
+            { error: 'Forbidden: Insufficient permissions' },
             { status: 403 }
         )
     }

@@ -50,6 +50,8 @@ export default async function Year1SubjectNotesPage({
 
     const uploadUrl = `/notes/upload?year=1&dept=${groupKey}&sem=${sem}&subject=${encodeURIComponent(subjectName)}`
 
+    const isSubfolder = subjectName.startsWith('PYQ - ') || subjectName.startsWith('Video - ')
+
     return (
         <div className="min-h-screen p-8 pt-32 text-[#ededed]">
             <div className="max-w-4xl mx-auto">
@@ -84,6 +86,32 @@ export default async function Year1SubjectNotesPage({
                         </Link>
                     </div>
                 </div>
+
+                {/* Virtual Folders */}
+                {!isSubfolder && (
+                    <div className="grid grid-cols-2 gap-6 mb-10">
+                        <Link
+                            href={`/notes/year/1/group/${groupKey}/${sem}/${encodeURIComponent('PYQ - ' + subjectName)}`}
+                            className="glass-card hover:bg-white/5 transition-all flex items-center gap-4 group cursor-pointer"
+                        >
+                            <div className="text-3xl group-hover:scale-110 transition-transform">📂</div>
+                            <div>
+                                <h3 className="text-lg font-black text-white">PYQs</h3>
+                                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Past Year Questions</p>
+                            </div>
+                        </Link>
+                        <Link
+                            href={`/notes/year/1/group/${groupKey}/${sem}/${encodeURIComponent('Video - ' + subjectName)}`}
+                            className="glass-card hover:bg-white/5 transition-all flex items-center gap-4 group cursor-pointer"
+                        >
+                            <div className="text-3xl group-hover:scale-110 transition-transform">🎬</div>
+                            <div>
+                                <h3 className="text-lg font-black text-white">Video Lectures</h3>
+                                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Tutorials & Guides</p>
+                            </div>
+                        </Link>
+                    </div>
+                )}
 
                 {/* Notes */}
                 {notes && notes.length > 0 ? (
