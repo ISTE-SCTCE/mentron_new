@@ -2,7 +2,7 @@ import { createClient } from '@/app/lib/supabase/server'
 import Link from 'next/link'
 import { applyToProject } from '../actions'
 
-export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
+export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
     const supabase = await createClient()
 

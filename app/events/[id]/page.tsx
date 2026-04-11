@@ -2,7 +2,7 @@ import { createClient } from '@/app/lib/supabase/server'
 import Link from 'next/link'
 import { registerForEvent } from '../actions'
 
-export default async function EventDetailPage({ params }: { params: { id: string } }) {
+export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
     const supabase = await createClient()
 
