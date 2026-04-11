@@ -20,11 +20,14 @@ export default function CoreMembersPage() {
     const [members, setMembers] = useState<Profile[]>([])
     const [filtered, setFiltered] = useState<Profile[]>([])
     const [search, setSearch] = useState('')
+    const [filterDept, setFilterDept] = useState('All')
+    const [filterYear, setFilterYear] = useState('All')
     const [loading, setLoading] = useState(true)
     const [updating, setUpdating] = useState<string | null>(null)
     const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null)
+    const [currentUserRole, setCurrentUserRole] = useState<string>('')
 
-    // ── 1. Auth guard: must be core member ───────────────────────────────────
+    // ── 1. Auth guard: must be core/exec ─────────────────────────────────────
     useEffect(() => {
         async function checkAccess() {
             const { data: { user } } = await supabase.auth.getUser()
@@ -38,6 +41,8 @@ export default function CoreMembersPage() {
 
             if (profile?.role !== 'core' && profile?.role !== 'exec') {
                 router.replace('/dashboard')
+            } else {
+                setCurrentUserRole(profile.role)
             }
         }
         checkAccess()
@@ -60,20 +65,27 @@ export default function CoreMembersPage() {
 
     useEffect(() => { fetchMembers() }, [fetchMembers])
 
-    // ── 3. Search filter ──────────────────────────────────────────────────────
+    // ── 3. Search & Filters ───────────────────────────────────────────────────
     useEffect(() => {
         const q = search.toLowerCase()
         setFiltered(
-            members.filter(
-                (m) =>
+            members.filter((m) => {
+                const matchesSearch = 
                     m.full_name?.toLowerCase().includes(q) ||
                     m.roll_number?.toLowerCase().includes(q) ||
-                    m.department?.toLowerCase().includes(q)
-            )
+                    m.department?.toLowerCase().includes(q);
+                const matchesDept = filterDept === 'All' || m.department === filterDept;
+                const matchesYear = filterYear === 'All' || String(m.year) === filterYear;
+                return matchesSearch && matchesDept && matchesYear;
+            })
         )
-    }, [search, members])
+    }, [search, filterDept, filterYear, members])
 
-    // ── 4. Role change ────────────────────────────────────────────────────────
+    // ── 4. Form Options ───────────────────────────────────────────────────────
+    const departments = ['All', ...Array.from(new Set(members.map(m => m.department).filter(Boolean))).sort()]
+    const years = ['All', '1', '2', '3', '4']
+
+    // ── 5. Role change ────────────────────────────────────────────────────────
     const handleRoleChange = async (profileId: string, newRole: 'member' | 'exec') => {
         setUpdating(profileId)
         try {
@@ -97,10 +109,32 @@ export default function CoreMembersPage() {
         }
     }
 
-    // ── 5. Role badge colour ──────────────────────────────────────────────────
+    // ── 6. Account Deletion ───────────────────────────────────────────────────
+    const handleDeleteUser = async (profileId: string, name: string) => {
+        if (!confirm(`Are you absolutely sure you want to delete the account for ${name}? This action cannot be undone.`)) return;
+        setUpdating(profileId)
+        try {
+            const res = await fetch('/api/core/delete-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ profileId }),
+            })
+            const json = await res.json()
+            if (!res.ok) throw new Error(json.error ?? 'Unknown error')
+
+            setMembers((prev) => prev.filter((m) => m.id !== profileId))
+            setToast({ msg: 'Account deleted successfully', ok: true })
+        } catch (e: any) {
+            setToast({ msg: e.message ?? 'Deletion failed', ok: false })
+        } finally {
+            setUpdating(null)
+            setTimeout(() => setToast(null), 3000)
+        }
+    }
+
     const roleStyle = (role: string) => {
-        if (role === 'exec') return 'bg-blue-500/20 text-blue-400 border border-blue-500/40'
-        return 'bg-white/5 text-gray-400 border border-white/10'
+        if (role === 'exec') return 'bg-blue-500/20 text-blue-400 border-blue-500/40'
+        return 'bg-white/5 text-gray-400 border-white/10'
     }
 
     return (
@@ -109,13 +143,13 @@ export default function CoreMembersPage() {
             <div className="mb-12 space-y-2">
                 <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase flex items-center gap-2">
                     <span className="w-8 h-[1px] bg-blue-500 inline-block" />
-                    Leadership Admin
+                    Student Management
                 </p>
                 <h1 className="text-5xl font-black tracking-tighter text-white">
-                    Manage Members
+                    Mentron Directory
                 </h1>
                 <p className="text-gray-500 font-medium">
-                    View all Mentron members and promote or demote their roles.
+                    View, filter, edit roles, and manage student accounts seamlessly.
                 </p>
             </div>
 
@@ -135,119 +169,128 @@ export default function CoreMembersPage() {
                 ))}
             </div>
 
-            {/* Search */}
-            <div className="mb-6">
-                <input
-                    type="text"
-                    placeholder="Search by name, roll number, department…"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
-                />
+            {/* Filters Bar */}
+            <div className="flex flex-col md:flex-row gap-4 mb-10 bg-white/5 p-4 rounded-3xl border border-white/5">
+                <div className="flex-1">
+                    <input
+                        type="text"
+                        placeholder="Search student name, roll no, department..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
+                    />
+                </div>
+                <div className="flex gap-4">
+                    <select
+                        value={filterDept}
+                        onChange={(e) => setFilterDept(e.target.value)}
+                        className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 outline-none appearance-none cursor-pointer"
+                    >
+                        {departments.map(d => <option key={d} value={d} className="bg-gray-900 text-white">{d === 'All' ? 'All Departments' : d}</option>)}
+                    </select>
+                    <select
+                        value={filterYear}
+                        onChange={(e) => setFilterYear(e.target.value)}
+                        className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 outline-none appearance-none cursor-pointer"
+                    >
+                        {years.map(y => <option key={y} value={y} className="bg-gray-900 text-white">{y === 'All' ? 'All Years' : `Year ${y}`}</option>)}
+                    </select>
+                </div>
             </div>
 
-            {/* Table */}
+            {/* Grid of ID Cards */}
             {loading ? (
                 <div className="flex justify-center items-center py-32 text-gray-500 font-bold tracking-widest text-xs uppercase">
                     Loading members…
                 </div>
+            ) : filtered.length === 0 ? (
+                <div className="text-center py-16 glass rounded-3xl border border-white/5 mx-auto max-w-lg">
+                    <div className="text-4xl mb-4">🔍</div>
+                    <p className="text-gray-400 font-bold uppercase text-xs tracking-widest">No students found matching your criteria.</p>
+                </div>
             ) : (
-                <div className="glass rounded-[2rem] overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-white/5">
-                                    <th className="text-left px-6 py-4 text-[10px] font-black tracking-[0.2em] text-blue-500 uppercase">Member</th>
-                                    <th className="text-left px-6 py-4 text-[10px] font-black tracking-[0.2em] text-blue-500 uppercase hidden md:table-cell">Roll No.</th>
-                                    <th className="text-left px-6 py-4 text-[10px] font-black tracking-[0.2em] text-blue-500 uppercase hidden lg:table-cell">Department</th>
-                                    <th className="text-left px-6 py-4 text-[10px] font-black tracking-[0.2em] text-blue-500 uppercase hidden lg:table-cell">Year</th>
-                                    <th className="text-left px-6 py-4 text-[10px] font-black tracking-[0.2em] text-blue-500 uppercase">Role</th>
-                                    <th className="text-center px-6 py-4 text-[10px] font-black tracking-[0.2em] text-blue-500 uppercase">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filtered.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={6} className="text-center py-16 text-gray-600 font-bold uppercase text-xs tracking-widest">
-                                            No members found
-                                        </td>
-                                    </tr>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filtered.map((m) => (
+                        <div key={m.id} className="glass-card flex flex-col group relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-900/20 hover:-translate-y-1 hover:border-blue-500/30">
+                            
+                            {/* Decorative background element */}
+                            <div className="absolute -top-12 -right-12 w-32 h-32 bg-blue-500/10 blur-3xl rounded-full" />
+                            
+                            <div className="flex items-start justify-between mb-6 z-10">
+                                <div className="flex gap-4 items-center">
+                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-800 flex items-center justify-center text-xl font-black text-white shadow-xl">
+                                        {m.full_name?.[0]?.toUpperCase() ?? '?'}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-black text-white leading-tight capitalize">{m.full_name || 'Unknown Student'}</h3>
+                                        <span className={`inline-block mt-1 px-3 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase border ${roleStyle(m.role)}`}>
+                                            {m.role || 'Member'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-4 flex-1 z-10 mb-6 bg-black/20 p-4 rounded-2xl border border-white/5">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[9px] text-gray-500 font-black tracking-widest uppercase">Roll Number</span>
+                                    <span className="text-white font-bold text-sm tracking-wide bg-white/5 px-2 py-1 rounded-md">{m.roll_number || 'N/A'}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[9px] text-gray-500 font-black tracking-widest uppercase">Department</span>
+                                    <span className="text-white font-bold text-sm">{m.department || '—'}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[9px] text-gray-500 font-black tracking-widest uppercase">Year / Class</span>
+                                    <span className="text-blue-400 font-bold text-sm bg-blue-500/10 px-2 flex items-center justify-center rounded-md border border-blue-500/20">
+                                        Year {m.year || '?'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2 mt-auto z-10 pt-4 border-t border-white/10">
+                                {/* Role Promote/Demote Toggle */}
+                                {m.role === 'member' ? (
+                                    <button
+                                        disabled={updating === m.id}
+                                        onClick={() => handleRoleChange(m.id, 'exec')}
+                                        className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                                    >
+                                        {updating === m.id ? '...' : 'Promote'}
+                                    </button>
                                 ) : (
-                                    filtered.map((m, idx) => (
-                                        <tr
-                                            key={m.id}
-                                            className={`border-b border-white/5 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? '' : 'bg-white/[0.02]'}`}
-                                        >
-                                            {/* Member */}
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-sm font-black text-white shrink-0">
-                                                        {m.full_name?.[0] ?? '?'}
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-bold text-white leading-tight">{m.full_name || '—'}</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-
-                                            {/* Roll No. */}
-                                            <td className="px-6 py-4 hidden md:table-cell">
-                                                <span className="text-sm font-bold text-white uppercase">{m.roll_number || '—'}</span>
-                                            </td>
-
-                                            {/* Department */}
-                                            <td className="px-6 py-4 hidden lg:table-cell">
-                                                <span className="text-sm text-gray-400">{m.department || '—'}</span>
-                                            </td>
-
-                                            {/* Year */}
-                                            <td className="px-6 py-4 hidden lg:table-cell">
-                                                <span className="text-sm text-gray-400">{m.year || '—'}</span>
-                                            </td>
-
-                                            {/* Role Badge */}
-                                            <td className="px-6 py-4">
-                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase ${roleStyle(m.role)}`}>
-                                                    {m.role || 'member'}
-                                                </span>
-                                            </td>
-
-                                            {/* Action */}
-                                            <td className="px-6 py-4 text-center">
-                                                {m.role === 'member' ? (
-                                                    <button
-                                                        disabled={updating === m.id}
-                                                        onClick={() => handleRoleChange(m.id, 'exec')}
-                                                        className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                                    >
-                                                        {updating === m.id ? '…' : 'Promote'}
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        disabled={updating === m.id}
-                                                        onClick={() => handleRoleChange(m.id, 'member')}
-                                                        className="px-4 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                                    >
-                                                        {updating === m.id ? '…' : 'Demote'}
-                                                    </button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))
+                                    <button
+                                        disabled={updating === m.id}
+                                        onClick={() => handleRoleChange(m.id, 'member')}
+                                        className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                                    >
+                                        {updating === m.id ? '...' : 'Demote'}
+                                    </button>
                                 )}
-                            </tbody>
-                        </table>
-                    </div>
+                                
+                                {/* Delete Action - Only visible appropriately */}
+                                {(currentUserRole === 'core' || currentUserRole === 'exec') && (
+                                    <button
+                                        disabled={updating === m.id}
+                                        onClick={() => handleDeleteUser(m.id, m.full_name)}
+                                        className="w-12 flex items-center justify-center rounded-xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all group-hover:block disabled:opacity-50"
+                                        title="Delete Account"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             )}
 
             {/* Toast */}
             {toast && (
                 <div
-                    className={`fixed bottom-8 right-8 px-6 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl transition-all z-50 ${
-                        toast.ok
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-red-500/90 text-white'
+                    className={`fixed bottom-8 right-8 px-6 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl transition-all z-50 animate-in slide-in-from-bottom ${
+                        toast.ok ? 'bg-blue-600 text-white' : 'bg-red-500 text-white'
                     }`}
                 >
                     {toast.msg}
