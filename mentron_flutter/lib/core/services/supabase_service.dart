@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:logger/logger.dart';
+import 'session_guard_service.dart';
 
 class SupabaseService {
   static final SupabaseService _instance = SupabaseService._internal();
@@ -8,6 +9,7 @@ class SupabaseService {
 
   final _logger = Logger();
   late final SupabaseClient client;
+  late final SessionGuardService sessionGuard;
 
   Future<void> initialize({
     required String url,
@@ -19,6 +21,7 @@ class SupabaseService {
         anonKey: anonKey,
       );
       client = Supabase.instance.client;
+      sessionGuard = SessionGuardService(client);
       _logger.i('Supabase Initialized Successfully');
     } catch (e) {
       _logger.e('Supabase Initialization Failed: $e');
@@ -42,6 +45,7 @@ class SupabaseService {
   }
 
   Future<void> signOut() async {
+    await sessionGuard.clearSession();
     await client.auth.signOut();
   }
 

@@ -43,10 +43,14 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (response.user != null && mounted) {
-        Navigator.pushReplacement(
-          context,
-          AppTransitions.fade(const MainScaffold()),
-        );
+        // Claim this device as the active session — kicks out any other device.
+        await supabase.sessionGuard.claimSession();
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            AppTransitions.fade(const MainScaffold()),
+          );
+        }
       }
     } catch (e) {
       debugPrint('Login error details: $e');

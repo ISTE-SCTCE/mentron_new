@@ -47,6 +47,7 @@ dependencies:
   logger: ^2.4.0
   open_file: ^3.3.2
   http: ^1.2.0
+  shared_preferences: ^2.3.2
 
 dev_dependencies:
   flutter_test:

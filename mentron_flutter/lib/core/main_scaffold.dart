@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../features/dashboard/screens/dashboard_screen.dart';
@@ -10,6 +11,7 @@ import '../features/requests/screens/requests_screen.dart';
 import '../core/services/supabase_service.dart';
 import 'theme/app_theme.dart';
 import 'utils/app_transitions.dart';
+import '../features/auth/screens/login_screen.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
@@ -34,6 +36,8 @@ class MainScaffoldState extends State<MainScaffold>
   bool _isExec = false;
   int _pendingCount = 0;
   RealtimeChannel? _roleChannel;
+  Timer? _sessionCheckTimer;
+  bool _isCheckingSession = false;
 
   // Animation controller for smooth show/hide
   late AnimationController _navbarAnimController;
@@ -61,6 +65,13 @@ class MainScaffoldState extends State<MainScaffold>
 
     _checkUserRole();
     _subscribeToRoleChanges();
+    // Start periodic session validation every 30 seconds
+    _sessionCheckTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) => _validateSession(),
+    );
+    // Also validate immediately on start (with a small delay for init)
+    Future.delayed(const Duration(seconds: 5), _validateSession);
   }
 
   /// Re-check role whenever the app comes back to the foreground.
@@ -68,6 +79,7 @@ class MainScaffoldState extends State<MainScaffold>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _checkUserRole();
+      _validateSession();
     }
   }
 
@@ -99,8 +111,48 @@ class MainScaffoldState extends State<MainScaffold>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _roleChannel?.unsubscribe();
+    _sessionCheckTimer?.cancel();
     _navbarAnimController.dispose();
     super.dispose();
+  }
+
+  /// Validates that this device still owns the active session.
+  /// Forces sign out if another device has taken over.
+  Future<void> _validateSession() async {
+    if (_isCheckingSession || !mounted) return;
+    _isCheckingSession = true;
+    try {
+      final supabase = Provider.of<SupabaseService>(context, listen: false);
+      final isValid = await supabase.sessionGuard.validateSession();
+      if (!isValid && mounted) {
+        _sessionCheckTimer?.cancel();
+        await supabase.signOut();
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            AppTransitions.fade(const LoginScreen()),
+            (_) => false,
+          );
+          // Show error after navigation
+          Future.delayed(const Duration(milliseconds: 600), () {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  backgroundColor: Color(0xFFB00020),
+                  duration: Duration(seconds: 6),
+                  behavior: SnackBarBehavior.floating,
+                  content: Text(
+                    '⚠️ Your account is being used on another device. You have been logged out.',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              );
+            }
+          });
+        }
+      }
+    } finally {
+      _isCheckingSession = false;
+    }
   }
 
   Future<void> _checkUserRole() async {
