@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { logout } from '@/app/login/actions'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useState, useRef, useTransition, useEffect } from 'react'
+import { useState, useRef, useTransition, useEffect, useCallback } from 'react'
 import { createClient } from '@/app/lib/supabase/client'
 import { getPermissionsClient } from '@/app/lib/utils/coreAuthClient'
 import {
@@ -42,6 +42,9 @@ export default function NotesUploadPage() {
     const [group, setGroup] = useState<GroupKey | ''>('')   // Year 1 only
     const [dept, setDept] = useState<DeptKey | ''>('')      // Year 2-4
     const [subject, setSubject] = useState('')
+    const [folderId, setFolderId] = useState('')
+    const [folders, setFolders] = useState<{ id: string; name: string }[]>([])
+    const [loadingFolders, setLoadingFolders] = useState(false)
     const [isPending, startTransition] = useTransition()
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null)
     const formRef = useRef<HTMLFormElement>(null)
@@ -109,6 +112,35 @@ export default function NotesUploadPage() {
     const inputBase = 'w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none'
     const labelBase = 'text-[10px] font-black tracking-widest text-gray-500 uppercase px-2 mb-2 block'
 
+    // Pre-fill folder_id from URL if coming from a folder page
+    useEffect(() => {
+        const urlFolderId = searchParams.get('folder_id')
+        if (urlFolderId) setFolderId(urlFolderId)
+    }, [searchParams])
+
+    // Load folders whenever subject + dept/group + sem + year are set
+    const loadFolders = useCallback(async (subj: string, deptOrGroup: string, y: string, s: string) => {
+        if (!subj || subj.startsWith('PYQ - ') || subj.startsWith('Video - ')) {
+            setFolders([])
+            setFolderId('')
+            return
+        }
+        setLoadingFolders(true)
+        try {
+            const supabase = createClient()
+            const { data } = await supabase
+                .from('note_folders')
+                .select('id, name')
+                .eq('subject', subj)
+                .eq('department', deptOrGroup)
+                .eq('year', y)
+                .eq('semester', s)
+                .order('created_at', { ascending: true })
+            setFolders(data ?? [])
+        } catch {}
+        setLoadingFolders(false)
+    }, [])
+
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
@@ -116,6 +148,7 @@ export default function NotesUploadPage() {
         formData.set('semester', sem)
         formData.set('subject', subject)
         formData.set('group', group)
+        if (folderId) formData.set('folder_id', folderId)
 
         startTransition(async () => {
             const res = await fetch('/api/notes/upload', { method: 'POST', body: formData })
@@ -260,12 +293,45 @@ export default function NotesUploadPage() {
                                         name="subject_display"
                                         required
                                         value={subject}
-                                        onChange={e => setSubject(e.target.value)}
+                                        onChange={e => {
+                                            const newSubject = e.target.value
+                                            setSubject(newSubject)
+                                            setFolderId('')
+                                            loadFolders(newSubject, dept || group, year, sem)
+                                        }}
                                         className={inputBase}
                                     >
                                         <option value="" disabled className="bg-[#111]">Select Subject</option>
                                         {subjectList.map((s, i) => <option key={i} value={s} className="bg-[#111] text-white">{s}</option>)}
                                     </select>
+                                </div>
+                            )}
+
+                            {/* Folder (optional) */}
+                            {subject && !subject.startsWith('PYQ - ') && !subject.startsWith('Video - ') && (
+                                <div className="space-y-2">
+                                    <label className={labelBase}>Folder <span className="text-gray-700 normal-case tracking-normal font-medium">(optional)</span></label>
+                                    {loadingFolders ? (
+                                        <div className={`${inputBase} flex items-center gap-3 opacity-50`}>
+                                            <span className="text-xs animate-pulse">Loading folders...</span>
+                                        </div>
+                                    ) : folders.length === 0 ? (
+                                        <div className={`${inputBase} text-gray-600 text-sm`}>
+                                            No folders for this subject yet
+                                        </div>
+                                    ) : (
+                                        <select
+                                            name="folder_display"
+                                            value={folderId}
+                                            onChange={e => setFolderId(e.target.value)}
+                                            className={inputBase}
+                                        >
+                                            <option value="" className="bg-[#111]">No folder (subject root)</option>
+                                            {folders.map(f => (
+                                                <option key={f.id} value={f.id} className="bg-[#111] text-white">📁 {f.name}</option>
+                                            ))}
+                                        </select>
+                                    )}
                                 </div>
                             )}
 

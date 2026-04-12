@@ -13,6 +13,7 @@ import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import '../../../data/models/note_model.dart';
 import 'add_note_screen.dart';
+import 'create_folder_screen.dart';
 import '../../../core/utils/app_transitions.dart';
 
 class NotesBySubjectScreen extends StatefulWidget {
@@ -21,6 +22,9 @@ class NotesBySubjectScreen extends StatefulWidget {
   final String? year;
   final String? semester;
   final String? dept;
+  // If set, this screen shows notes inside a specific custom folder
+  final String? folderId;
+  final String? folderName;
 
   const NotesBySubjectScreen({
     super.key,
@@ -29,6 +33,8 @@ class NotesBySubjectScreen extends StatefulWidget {
     this.year,
     this.semester,
     this.dept,
+    this.folderId,
+    this.folderName,
   });
 
   @override
@@ -37,6 +43,7 @@ class NotesBySubjectScreen extends StatefulWidget {
 
 class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
   List<Note> _notes = [];
+  List<Map<String, dynamic>> _folders = [];
   bool _isLoading = true;
   String? _currentUserIsteId;
   String? _currentUserId;
@@ -44,13 +51,15 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
   bool _isLeadership = false;
   Map<String, bool> _permissions = {};
 
+  bool get _isInFolder => widget.folderId != null;
+
   @override
   void initState() {
     super.initState();
-    _loadNotesAndPermissions();
+    _loadData();
   }
 
-  Future<void> _loadNotesAndPermissions() async {
+  Future<void> _loadData() async {
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     _currentUserId = supabase.currentUser?.id;
     _isLeadership = await supabase.isLeadershipPosition();
@@ -72,7 +81,13 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       } catch (_) {}
     }
 
-    // Filter by exact subject + department + year + semester if provided
+    await Future.wait([
+      _loadNotes(supabase),
+      if (!_isInFolder) _loadFolders(supabase),
+    ]);
+  }
+
+  Future<void> _loadNotes(SupabaseService supabase) async {
     try {
       final supabaseClient = supabase.client;
       var query = supabaseClient
@@ -90,12 +105,42 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
         query = query.eq('semester', widget.semester!);
       }
 
+      if (_isInFolder) {
+        // Show only notes inside this specific folder
+        query = query.eq('folder_id', widget.folderId!);
+      } else {
+        // Show only notes NOT in any folder (null folder_id)
+        query = query.isFilter('folder_id', null);
+      }
+
       final response = await query.order('created_at', ascending: false);
       final notes = (response as List).map((j) => Note.fromJson(j)).toList();
       if (mounted) setState(() { _notes = notes; _isLoading = false; });
     } catch (_) {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _loadFolders(SupabaseService supabase) async {
+    try {
+      var query = supabase.client
+          .from('note_folders')
+          .select('*')
+          .eq('subject', widget.subjectName);
+
+      if (widget.dept != null && widget.dept!.isNotEmpty) {
+        query = query.eq('department', widget.dept!);
+      }
+      if (widget.year != null && widget.year!.isNotEmpty) {
+        query = query.eq('year', widget.year!);
+      }
+      if (widget.semester != null && widget.semester!.isNotEmpty) {
+        query = query.eq('semester', widget.semester!);
+      }
+
+      final response = await query.order('created_at', ascending: true);
+      if (mounted) setState(() => _folders = List<Map<String, dynamic>>.from(response));
+    } catch (_) {}
   }
 
   bool _canDelete(Note note) =>
@@ -124,7 +169,6 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
   Future<void> _openNote(Note note) async {
     if (!mounted) return;
 
-    // 1. Check if user already has a valid ISTE ID or is admin
     bool isAuthorized = (_currentUserRole == 'exec' || _currentUserRole == 'core' || _currentUserIsteId != null);
 
     if (!isAuthorized) {
@@ -173,24 +217,19 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                     onPressed: isValidating ? null : () async {
                       final id = controller.text.trim();
                       if (id.isEmpty) return;
-                      
                       setDialogState(() => isValidating = true);
                       try {
                         final supabase = Provider.of<SupabaseService>(context, listen: false);
-                        // Cross-project validation via FDW
                         final member = await supabase.client
                             .from('project_a.members')
                             .select('ui_id')
                             .eq('ui_id', id)
                             .maybeSingle();
-
                         if (member != null) {
-                          // Success! Save ID to profile
                           await supabase.client
                               .from('profiles')
                               .update({'iste_id': id})
                               .eq('id', _currentUserId!);
-                          
                           if (mounted) {
                             setState(() => _currentUserIsteId = id);
                             Navigator.pop(ctx, id);
@@ -203,13 +242,13 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                           }
                         }
                       } catch (e) {
-                         if (mounted) ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(e.toString())));
+                        if (mounted) ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(e.toString())));
                       } finally {
                         if (mounted) setDialogState(() => isValidating = false);
                       }
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentSecondary, foregroundColor: Colors.black),
-                    child: isValidating 
+                    child: isValidating
                         ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
                         : const Text('VERIFY', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
@@ -220,10 +259,9 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
         },
       );
 
-      if (enteredId == null) return; // User cancelled
+      if (enteredId == null) return;
     }
 
-    // Now proceed with normal download logic
     if (!mounted) return;
     showDialog(
       context: context,
@@ -257,31 +295,30 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
         }
       }
       if (filePath.isEmpty) throw Exception('Cannot determine file path');
-      
-      // Determine extension from filePath
+
       final ext = filePath.split('.').last.toLowerCase();
       final hasExtension = filePath.contains('.');
 
       final signedUrl = await supabaseClient.storage.from(bucket).createSignedUrl(filePath, 3600);
       final response = await http.get(Uri.parse(signedUrl));
       if (response.statusCode != 200) throw Exception('Download failed');
-      
+
       Uint8List fileBytes;
-      try { 
-        fileBytes = Uint8List.fromList(GZipDecoder().decodeBytes(response.bodyBytes)); 
-      } catch (_) { 
-        fileBytes = response.bodyBytes; 
+      try {
+        fileBytes = Uint8List.fromList(GZipDecoder().decodeBytes(response.bodyBytes));
+      } catch (_) {
+        fileBytes = response.bodyBytes;
       }
 
       String cleanName = note.title.replaceAll(RegExp(r'[^\w\s-]'), '').trim().replaceAll(RegExp(r'\s+'), '_');
       if (cleanName.isEmpty) cleanName = 'note';
-      
+
       final fileName = hasExtension ? '$cleanName.$ext' : '$cleanName.pdf';
 
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/$fileName');
       await file.writeAsBytes(fileBytes);
-      
+
       if (mounted) {
         final nav = Navigator.of(context, rootNavigator: true);
         if (nav.canPop()) nav.pop();
@@ -297,7 +334,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
     }
   }
 
-  Widget _buildFolderCard({
+  Widget _buildVirtualFolderCard({
     required BuildContext context,
     required String emoji,
     required String title,
@@ -340,17 +377,97 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
     );
   }
 
+  Widget _buildCustomFolderCard(Map<String, dynamic> folder) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          AppTransitions.slideRight(
+            NotesBySubjectScreen(
+              subjectName: widget.subjectName,
+              color: widget.color,
+              year: widget.year,
+              semester: widget.semester,
+              dept: widget.dept,
+              folderId: folder['id'] as String,
+              folderName: folder['name'] as String,
+            ),
+          ),
+        ).then((refresh) {
+          if (refresh == true) _loadData();
+        });
+      },
+      child: GlassContainer(
+        padding: const EdgeInsets.all(16),
+        border: Border.all(color: widget.color.withValues(alpha: 0.2)),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: widget.color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Center(child: Text('📁', style: TextStyle(fontSize: 18))),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    folder['name'] as String,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    'Custom Folder',
+                    style: TextStyle(color: widget.color.withValues(alpha: 0.7), fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: widget.color.withValues(alpha: 0.5), size: 18),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _navigateToCreateFolder() async {
+    final result = await Navigator.push(
+      context,
+      AppTransitions.slideUp(
+        CreateFolderScreen(
+          subjectName: widget.subjectName,
+          department: widget.dept ?? '',
+          year: widget.year ?? '',
+          semester: widget.semester ?? '',
+        ),
+      ),
+    );
+    if (result == true) {
+      _loadData();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenTitle = _isInFolder
+        ? widget.folderName ?? 'Folder'
+        : widget.subjectName;
+    final screenSubtitle = _isInFolder ? 'FOLDER NOTES' : 'SUBJECT NOTES';
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Column(children: [
-          Text('SUBJECT NOTES', style: TextStyle(color: widget.color, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
+          Text(screenSubtitle, style: TextStyle(color: widget.color, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
           Text(
-            widget.subjectName.length > 30 ? '${widget.subjectName.substring(0, 28)}…' : widget.subjectName,
+            screenTitle.length > 30 ? '${screenTitle.substring(0, 28)}…' : screenTitle,
             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
           ),
         ]),
@@ -359,6 +476,12 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
+          if (!_isInFolder && (_isLeadership || _permissions['can_upload_notes'] == true))
+            IconButton(
+              onPressed: _navigateToCreateFolder,
+              icon: Icon(Icons.create_new_folder_outlined, color: widget.color, size: 20),
+              tooltip: 'Create Folder',
+            ),
           if (_isLeadership || _permissions['can_upload_notes'] == true)
             Padding(
               padding: const EdgeInsets.only(right: 16),
@@ -375,7 +498,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
             ? const Center(child: CircularProgressIndicator(color: AppTheme.accentSecondary))
             : Column(
                 children: [
-                  // Subject header card
+                  // Subject / Folder header card
                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 110, 24, 0),
                     child: GlassContainer(
@@ -384,28 +507,38 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                       child: Row(children: [
                         Container(
                           width: 44, height: 44,
-                          decoration: BoxDecoration(color: widget.color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
-                          child: Icon(Icons.menu_book_rounded, color: widget.color, size: 22),
+                          decoration: BoxDecoration(
+                            color: widget.color.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            _isInFolder ? Icons.folder_open_rounded : Icons.menu_book_rounded,
+                            color: widget.color,
+                            size: 22,
+                          ),
                         ),
                         const SizedBox(width: 14),
                         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(widget.subjectName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, height: 1.3)),
+                          Text(screenTitle, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, height: 1.3)),
                           const SizedBox(height: 4),
-                          Text('${_notes.length} note${_notes.length == 1 ? '' : 's'} found', style: TextStyle(color: widget.color.withValues(alpha: 0.7), fontSize: 11)),
+                          Text(
+                            '${_notes.length} note${_notes.length == 1 ? '' : 's'} found',
+                            style: TextStyle(color: widget.color.withValues(alpha: 0.7), fontSize: 11),
+                          ),
                         ])),
                       ]),
                     ).animate().fadeIn(),
                   ),
                   const SizedBox(height: 16),
-                  
-                  // Virtual Folders
-                  if (!widget.subjectName.startsWith('PYQ - ') && !widget.subjectName.startsWith('Video - '))
+
+                  // Virtual Folders (PYQ, Video) - only when not in a folder view
+                  if (!_isInFolder && !widget.subjectName.startsWith('PYQ - ') && !widget.subjectName.startsWith('Video - '))
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Row(
                         children: [
                           Expanded(
-                            child: _buildFolderCard(
+                            child: _buildVirtualFolderCard(
                               context: context,
                               emoji: '📂',
                               title: 'PYQs',
@@ -415,7 +548,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: _buildFolderCard(
+                            child: _buildVirtualFolderCard(
                               context: context,
                               emoji: '🎬',
                               title: 'Videos',
@@ -426,8 +559,66 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                         ],
                       ),
                     ),
+
+                  // Custom Folders - only when not in a folder view
+                  if (!_isInFolder && _folders.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'CUSTOM FOLDERS',
+                          style: TextStyle(color: widget.color, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        children: _folders.map((folder) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _buildCustomFolderCard(folder),
+                        )).toList(),
+                      ),
+                    ),
+                  ],
+
+                  // Create Folder prompt when no folders exist (leadership only)
+                  if (!_isInFolder && _folders.isEmpty && (_isLeadership || _permissions['can_upload_notes'] == true) &&
+                      !widget.subjectName.startsWith('PYQ - ') && !widget.subjectName.startsWith('Video - ')) ...[
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: InkWell(
+                        onTap: _navigateToCreateFolder,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: widget.color.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: widget.color.withValues(alpha: 0.15), style: BorderStyle.solid),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.create_new_folder_outlined, color: widget.color.withValues(alpha: 0.5), size: 14),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Create a folder for this subject',
+                                style: TextStyle(color: widget.color.withValues(alpha: 0.5), fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+
                   const SizedBox(height: 16),
-                  
+
                   // Notes list
                   Expanded(
                     child: _notes.isEmpty
@@ -435,7 +626,10 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                             child: Column(mainAxisSize: MainAxisSize.min, children: [
                               const Text('📭', style: TextStyle(fontSize: 40)),
                               const SizedBox(height: 12),
-                              const Text('No notes for this subject yet', style: TextStyle(color: AppTheme.textMuted, fontWeight: FontWeight.bold)),
+                              Text(
+                                _isInFolder ? 'No notes in this folder yet' : 'No notes for this subject yet',
+                                style: const TextStyle(color: AppTheme.textMuted, fontWeight: FontWeight.bold),
+                              ),
                               const SizedBox(height: 8),
                               if (_isLeadership || _permissions['can_upload_notes'] == true)
                                 TextButton(

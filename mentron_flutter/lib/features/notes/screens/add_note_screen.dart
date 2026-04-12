@@ -28,9 +28,13 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   String _selectedSem = '';
   String _selectedDeptOrGroup = 'CSE';
   String _selectedSubject = '';
+  String? _selectedFolderId;
+  String? _selectedFolderName;
 
   File? _selectedFile;
   bool _isLoading = false;
+  List<Map<String, dynamic>> _availableFolders = [];
+  bool _loadingFolders = false;
 
   bool get _isFirstYear => _selectedYear == '1';
 
@@ -40,7 +44,6 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     if (_selectedSem.isEmpty || _selectedDeptOrGroup.isEmpty) return [];
     List<String> rawSubjects = [];
     if (_isFirstYear) {
-      // dept/group field holds the group letter for Y1
       rawSubjects = SubjectData.getFirstYearSubjects(_selectedDeptOrGroup, _selectedSem)
           .where((s) => !s.startsWith('Electives:')).toList();
     } else {
@@ -68,7 +71,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     final isLeadership = await supabase.isLeadershipPosition();
     final perms = await supabase.getPermissions();
-    
+
     if (!isLeadership && perms['can_upload_notes'] != true) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -102,7 +105,6 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         final sems = SubjectData.semsForYear(int.parse(validYear));
         final sem = sems.isNotEmpty ? sems.first : '';
 
-        // For Year 1, convert dept to group letter
         final deptOrGroup = validYear == '1'
             ? SubjectData.getGroupFromDepartment(dept)
             : dept;
@@ -112,16 +114,54 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
           _selectedDeptOrGroup = deptOrGroup;
           _selectedSem = sem;
           _selectedSubject = '';
+          _selectedFolderId = null;
+          _selectedFolderName = null;
         });
       }
     } catch (_) {}
+  }
+
+  Future<void> _loadFoldersForSubject() async {
+    if (_selectedSubject.isEmpty) {
+      setState(() { _availableFolders = []; _selectedFolderId = null; _selectedFolderName = null; });
+      return;
+    }
+    // Only load folders for non-virtual subjects
+    if (_selectedSubject.startsWith('PYQ - ') || _selectedSubject.startsWith('Video - ')) {
+      setState(() { _availableFolders = []; _selectedFolderId = null; _selectedFolderName = null; });
+      return;
+    }
+
+    setState(() => _loadingFolders = true);
+    try {
+      final supabase = Provider.of<SupabaseService>(context, listen: false);
+      final response = await supabase.client
+          .from('note_folders')
+          .select('id, name')
+          .eq('subject', _selectedSubject)
+          .eq('department', _selectedDeptOrGroup)
+          .eq('year', _selectedYear)
+          .eq('semester', _selectedSem)
+          .order('created_at', ascending: true);
+
+      if (mounted) {
+        setState(() {
+          _availableFolders = List<Map<String, dynamic>>.from(response);
+          _selectedFolderId = null;
+          _selectedFolderName = null;
+          _loadingFolders = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingFolders = false);
+    }
   }
 
   Future<void> _pickFile() async {
     final bool isVideoType = _selectedSubject.startsWith('Video - ');
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: isVideoType 
+      allowedExtensions: isVideoType
         ? ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'mp4', 'mov', 'avi', 'mkv']
         : ['pdf', 'doc', 'docx', 'ppt', 'pptx'],
     );
@@ -147,31 +187,34 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       final user = supabase.currentUser;
       if (user == null) throw Exception('Not logged in');
 
-      // Use a multipart request to our Next.js API endpoint
-      const String apiBaseUrl = 'http://10.0.2.2:3000'; // Default to Android emulator loopback. Change to production URL when deployed.
+      const String apiBaseUrl = 'http://10.0.2.2:3000';
       final uri = Uri.parse('$apiBaseUrl/api/notes/upload');
       final request = http.MultipartRequest('POST', uri);
-      
+
       request.fields['title'] = _titleController.text.trim();
       request.fields['description'] = _descController.text.trim();
       request.fields['department'] = _selectedDeptOrGroup;
       request.fields['year'] = _selectedYear;
       request.fields['semester'] = _selectedSem;
       request.fields['subject'] = _selectedSubject;
-      
+      if (_selectedFolderId != null) {
+        request.fields['folder_id'] = _selectedFolderId!;
+      }
+
       request.files.add(await http.MultipartFile.fromPath('file', _selectedFile!.path));
-      
+
       final response = await request.send();
       final responseData = await response.stream.bytesToString();
-      
+
       if (response.statusCode >= 400) {
         throw Exception('Server Error: $responseData');
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        final folderMsg = _selectedFolderName != null ? ' in "$_selectedFolderName"' : '';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: Colors.green,
-          content: Text('✅ Note successfully published!'),
+          content: Text('✅ Note successfully published$folderMsg!'),
         ));
         Navigator.pop(context);
       }
@@ -231,8 +274,10 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                                   _selectedYear = val;
                                   _selectedSem = sems.isNotEmpty ? sems.first : '';
                                   _selectedSubject = '';
-                                  // Reset group/dept when year changes
                                   _selectedDeptOrGroup = val == '1' ? 'A' : 'CSE';
+                                  _availableFolders = [];
+                                  _selectedFolderId = null;
+                                  _selectedFolderName = null;
                                 });
                               },
                             ),
@@ -249,6 +294,9 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                               onChanged: (val) => setState(() {
                                 _selectedSem = val;
                                 _selectedSubject = '';
+                                _availableFolders = [];
+                                _selectedFolderId = null;
+                                _selectedFolderName = null;
                               }),
                             ),
                           ]),
@@ -275,6 +323,9 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                             onChanged: (val) => setState(() {
                               _selectedDeptOrGroup = val;
                               _selectedSubject = '';
+                              _availableFolders = [];
+                              _selectedFolderId = null;
+                              _selectedFolderName = null;
                             }),
                           )
                         : _buildDropdown(
@@ -293,19 +344,82 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                             onChanged: (val) => setState(() {
                               _selectedDeptOrGroup = val;
                               _selectedSubject = '';
+                              _availableFolders = [];
+                              _selectedFolderId = null;
+                              _selectedFolderName = null;
                             }),
                           ),
                     const SizedBox(height: 20),
 
-                    // Subject dropdown (shows only when semi + dept selected)
+                    // Subject dropdown
                     if (_subjectOptions.isNotEmpty) ...[
                       _buildLabel('SUBJECT'),
                       _buildDropdown(
                         value: _selectedSubject.isEmpty ? null : _selectedSubject,
                         items: _subjectOptions,
                         labelBuilder: (s) => s,
-                        onChanged: (val) => setState(() => _selectedSubject = val),
+                        onChanged: (val) {
+                          setState(() => _selectedSubject = val);
+                          _loadFoldersForSubject();
+                        },
                       ),
+                      const SizedBox(height: 20),
+                    ],
+
+                    // Folder dropdown (optional) - shown when subject is selected and has folders
+                    if (_selectedSubject.isNotEmpty &&
+                        !_selectedSubject.startsWith('PYQ - ') &&
+                        !_selectedSubject.startsWith('Video - ')) ...[
+                      _buildLabel('FOLDER (OPTIONAL)'),
+                      if (_loadingFolders)
+                        Container(
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                          ),
+                          child: const Center(
+                            child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.accentSecondary)),
+                          ),
+                        )
+                      else if (_availableFolders.isEmpty)
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.03),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.folder_off_outlined, color: AppTheme.textMuted, size: 16),
+                              const SizedBox(width: 10),
+                              Text(
+                                'No folders created for this subject yet',
+                                style: TextStyle(color: AppTheme.textMuted.withValues(alpha: 0.6), fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        _buildDropdownNullable(
+                          value: _selectedFolderId,
+                          items: [null, ..._availableFolders.map((f) => f['id'] as String)],
+                          labelBuilder: (id) {
+                            if (id == null) return 'No folder (subject root)';
+                            final folder = _availableFolders.firstWhere((f) => f['id'] == id, orElse: () => {});
+                            return '📁 ${folder['name'] ?? id}';
+                          },
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedFolderId = val;
+                              _selectedFolderName = val == null
+                                  ? null
+                                  : (_availableFolders.firstWhere((f) => f['id'] == val, orElse: () => {})['name'] as String?);
+                            });
+                          },
+                        ),
                       const SizedBox(height: 20),
                     ],
 
@@ -383,6 +497,36 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
           style: const TextStyle(color: Colors.white, fontSize: 14),
           onChanged: (val) { if (val != null) onChanged(val); },
           items: items.map((item) => DropdownMenuItem(
+            value: item,
+            child: Text(labelBuilder(item), overflow: TextOverflow.ellipsis),
+          )).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdownNullable({
+    required String? value,
+    required List<String?> items,
+    required String Function(String?) labelBuilder,
+    required void Function(String?) onChanged,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String?>(
+          value: value,
+          isExpanded: true,
+          dropdownColor: AppTheme.surfaceColor,
+          style: const TextStyle(color: Colors.white, fontSize: 14),
+          onChanged: onChanged,
+          items: items.map((item) => DropdownMenuItem<String?>(
             value: item,
             child: Text(labelBuilder(item), overflow: TextOverflow.ellipsis),
           )).toList(),

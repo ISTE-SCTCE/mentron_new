@@ -5,6 +5,8 @@ import { DEPARTMENTS, DeptKey, SemKey, getSubjects } from '@/app/lib/data/subjec
 import { InteractionTracker } from '@/app/components/InteractionTracker'
 import { DeleteButton } from '@/app/components/DeleteButton'
 import { deleteNote } from '@/app/lib/actions/deleteActions'
+import { SubjectFoldersClient } from '@/app/notes/SubjectFoldersClient'
+import { getPermissions } from '@/app/lib/utils/coreAuth'
 
 const DEPT_COLORS: Record<DeptKey, { color: string; border: string; accent: string }> = {
     CSE: { color: 'from-blue-500/20 to-cyan-500/10', border: 'border-blue-500/20', accent: 'text-blue-400' },
@@ -50,7 +52,13 @@ export default async function SubjectNotesPage({
         .eq('id', user?.id ?? '')
         .single()
 
-    // Fetch notes filtered by year + dept + semester + subject
+    const permissions = await getPermissions()
+    const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+    const canCreateFolder = isPrivileged || permissions.can_upload_notes === true
+
+    const isSubfolder = subjectName.startsWith('PYQ - ') || subjectName.startsWith('Video - ')
+
+    // Fetch notes filtered by year + dept + semester + subject (only those without a folder)
     const { data: notes } = await supabase
         .from('notes')
         .select('*, profiles!notes_profile_id_fkey(full_name)')
@@ -58,11 +66,25 @@ export default async function SubjectNotesPage({
         .ilike('department', `%${deptKey}%`)
         .eq('semester', semKey)
         .eq('subject', subjectName)
+        .is('folder_id', null)
         .order('created_at', { ascending: false })
 
-    const uploadUrl = `/notes/upload?year=${yearNum}&dept=${deptKey}&sem=${semKey}&subject=${encodeURIComponent(subjectName)}`
+    // Fetch custom folders for this subject (skip for PYQ/Video sub-folders)
+    let folders: { id: string; name: string }[] = []
+    if (!isSubfolder) {
+        const { data: foldersData } = await supabase
+            .from('note_folders')
+            .select('id, name')
+            .eq('subject', subjectName)
+            .eq('department', deptKey)
+            .eq('year', yearNum.toString())
+            .eq('semester', semKey)
+            .order('created_at', { ascending: true })
 
-    const isSubfolder = subjectName.startsWith('PYQ - ') || subjectName.startsWith('Video - ')
+        folders = foldersData ?? []
+    }
+
+    const uploadUrl = `/notes/upload?year=${yearNum}&dept=${deptKey}&sem=${semKey}&subject=${encodeURIComponent(subjectName)}`
 
     return (
         <div className="min-h-screen p-8 pt-32 text-[#ededed]">
@@ -99,7 +121,7 @@ export default async function SubjectNotesPage({
                     </div>
                 </div>
 
-                {/* Virtual Folders */}
+                {/* Virtual Folders (PYQ + Video) - only shown for the main subject, not sub-folders */}
                 {!isSubfolder && (
                     <div className="grid grid-cols-2 gap-6 mb-10">
                         <Link
@@ -119,44 +141,69 @@ export default async function SubjectNotesPage({
                             <div className="text-3xl group-hover:scale-110 transition-transform">🎬</div>
                             <div>
                                 <h3 className="text-lg font-black text-white">Video Lectures</h3>
-                                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Tutorials & Guides</p>
+                                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Tutorials &amp; Guides</p>
                             </div>
                         </Link>
                     </div>
                 )}
 
-                {/* Notes Grid */}
-                {notes && notes.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {notes.map((note: any) => (
-                            <div key={note.id} className="glass-card flex flex-col group">
-                                <h3 className="text-lg font-black text-white group-hover:text-glow transition-all mb-2 line-clamp-2">{note.title}</h3>
-                                <p className="text-gray-500 text-xs font-medium mb-4 line-clamp-2">{note.description || 'No description.'}</p>
-                                <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
-                                    <span className="text-[10px] text-gray-600 font-bold">{note.profiles?.full_name || 'Anonymous'}</span>
-                                    <div className="flex gap-3 items-center">
-                                        {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'core') && (
-                                            <DeleteButton onDelete={deleteNote.bind(null, note.id)} itemName="note" />
-                                        )}
-                                        <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">
-                                            <a href={note.file_url} target="_blank" rel="noopener noreferrer" className="glass glass-hover px-4 py-2 rounded-xl text-blue-400 text-xs font-black uppercase tracking-widest transition-all">
-                                                Open ↗
-                                            </a>
-                                        </InteractionTracker>
+                {/* Custom Folders (client component for interactivity) */}
+                {!isSubfolder && (
+                    <SubjectFoldersClient
+                        subjectName={subjectName}
+                        department={deptKey}
+                        year={yearNum.toString()}
+                        semester={semKey}
+                        initialFolders={folders}
+                        canCreateFolder={canCreateFolder}
+                        styleAccent={style.accent}
+                        styleBorder={style.border}
+                        yearNum={yearNum}
+                        deptKey={deptKey}
+                        semKey={semKey}
+                    />
+                )}
+
+                {/* Notes Grid - shows notes NOT in any folder */}
+                <div>
+                    <p className={`text-[10px] font-black tracking-[0.3em] uppercase ${style.accent} mb-4 flex items-center gap-2`}>
+                        <span className="w-6 h-[1px] bg-current inline-block" />
+                        {isSubfolder ? 'All Notes' : 'Notes (No Folder)'}
+                    </p>
+                    {notes && notes.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {notes.map((note: any) => (
+                                <div key={note.id} className="glass-card flex flex-col group">
+                                    <h3 className="text-lg font-black text-white group-hover:text-glow transition-all mb-2 line-clamp-2">{note.title}</h3>
+                                    <p className="text-gray-500 text-xs font-medium mb-4 line-clamp-2">{note.description || 'No description.'}</p>
+                                    <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
+                                        <span className="text-[10px] text-gray-600 font-bold">{note.profiles?.full_name || 'Anonymous'}</span>
+                                        <div className="flex gap-3 items-center">
+                                            {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'core') && (
+                                                <DeleteButton onDelete={deleteNote.bind(null, note.id)} itemName="note" />
+                                            )}
+                                            <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">
+                                                <a href={note.file_url} target="_blank" rel="noopener noreferrer" className="glass glass-hover px-4 py-2 rounded-xl text-blue-400 text-xs font-black uppercase tracking-widest transition-all">
+                                                    Open ↗
+                                                </a>
+                                            </InteractionTracker>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="glass-card text-center py-20 border-dashed">
-                        <p className="text-4xl mb-4">📂</p>
-                        <p className="text-gray-600 font-bold uppercase text-xs tracking-widest mb-6">No notes uploaded for this subject yet</p>
-                        <Link href={uploadUrl} className={`${style.accent} font-black text-xs uppercase tracking-widest hover:text-white transition-colors`}>
-                            Be the first to contribute →
-                        </Link>
-                    </div>
-                )}
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="glass-card text-center py-20 border-dashed">
+                            <p className="text-4xl mb-4">📂</p>
+                            <p className="text-gray-600 font-bold uppercase text-xs tracking-widest mb-6">
+                                {isSubfolder ? 'No notes uploaded here yet' : 'No notes without a folder yet'}
+                            </p>
+                            <Link href={uploadUrl} className={`${style.accent} font-black text-xs uppercase tracking-widest hover:text-white transition-colors`}>
+                                Be the first to contribute →
+                            </Link>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )

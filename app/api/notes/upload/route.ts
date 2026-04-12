@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
     const semester    = formData.get('semester') as string    // e.g. 'S3'
     const subject     = formData.get('subject') as string     // exact subject name
     const file        = formData.get('file') as File
+    const folderId    = formData.get('folder_id') as string | null  // optional custom folder
 
     if (!file || file.size === 0) {
         return NextResponse.json({ error: 'Please select a file to upload.' }, { status: 400 })
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     const fileUrl = `/api/files/notes_bucket/${fileName}`
 
-    const { error: insertError } = await supabase.from('notes').insert({
+    const insertPayload: Record<string, any> = {
         title,
         description,
         department,
@@ -63,7 +64,12 @@ export async function POST(request: NextRequest) {
         subject,
         file_url: fileUrl,
         profile_id: user.id,
-    })
+    }
+    if (folderId && folderId.trim() !== '') {
+        insertPayload.folder_id = folderId.trim()
+    }
+
+    const { error: insertError } = await supabase.from('notes').insert(insertPayload)
 
     if (insertError) {
         await s3Client.send(new DeleteObjectCommand({
