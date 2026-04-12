@@ -45,7 +45,8 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
             .eq('id', userId)
             .maybeSingle();
         if (mounted && profile != null) {
-          setState(() => _isExec = profile['role'] == 'exec');
+          final role = profile['role'] as String? ?? '';
+          setState(() => _isExec = role == 'exec' || role == 'core' || role == 'admin');
         }
       } catch (_) {}
     }
