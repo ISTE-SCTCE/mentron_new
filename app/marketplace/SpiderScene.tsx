@@ -10,8 +10,8 @@ import { easing } from 'maath'
 const BODY_RADIUS = 0.8
 const LEG_COUNT = 8
 const STEP_HEIGHT = 1.0
-const IDEAL_LEG_DIST = 3.0
-const STEP_THRESHOLD = 1.8
+const IDEAL_LEG_DIST = 2.0
+const STEP_THRESHOLD = 1.2
 
 const legConfigs = Array.from({ length: LEG_COUNT }).map((_, i) => {
     const angle = (i / LEG_COUNT) * Math.PI * 2
