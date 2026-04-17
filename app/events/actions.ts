@@ -104,3 +104,31 @@ export async function voteEventConcept(conceptId: string, voteValue: number) {
 
     return { success: true }
 }
+
+export async function deleteEventConcept(conceptId: string) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) return { error: 'Not authenticated' }
+
+    // Fetch the concept and the user's role
+    const [{ data: concept }, { data: profile }] = await Promise.all([
+        supabase.from('event_concepts').select('user_id').eq('id', conceptId).maybeSingle(),
+        supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
+    ])
+
+    if (!concept) return { error: 'Concept not found' }
+
+    const isOwner = concept.user_id === user.id
+    const userRole = profile?.role || user.user_metadata?.role || 'member'
+    const isAdmin = userRole === 'exec' || userRole === 'core'
+
+    if (!isOwner && !isAdmin) {
+        return { error: 'Unauthorized to delete this concept' }
+    }
+
+    const { error } = await supabase.from('event_concepts').delete().eq('id', conceptId)
+    if (error) return { error: error.message }
+    return { success: true }
+}
+

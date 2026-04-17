@@ -26,7 +26,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
       final response = await supabase
-          .from('profiles')
+          .from('leaderboard_view')
           .select('full_name, xp, roll_number, department')
           .order('xp', ascending: false)
           .limit(20);
@@ -44,7 +44,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         backgroundColor: Colors.transparent, elevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18), onPressed: () => Navigator.pop(context)),
         title: Column(children: [
-          const Text('GAMIFICATION', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
+          const Text('COMMUNITY INFLUENCE', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
           const Text('Leaderboard', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
         ]),
       ),
@@ -67,7 +67,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                         child: const Row(children: [
                           SizedBox(width: 40, child: Text('RANK', style: TextStyle(color: AppTheme.textMuted, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1))),
                           Expanded(child: Text('STUDENT', style: TextStyle(color: AppTheme.textMuted, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1))),
-                          Text('XP', style: TextStyle(color: AppTheme.textMuted, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                          Text('VOTES', style: TextStyle(color: AppTheme.textMuted, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
                         ]),
                       ),
                       Divider(color: Colors.white.withValues(alpha: 0.05), height: 1),
@@ -102,7 +102,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 const SizedBox(height: 8),
                 Text(student['full_name'] ?? '', textAlign: TextAlign.center, maxLines: 2, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.white)),
                 const SizedBox(height: 4),
-                Text('${student['xp'] ?? 0} XP', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: colors[i])),
+                Text('${student['xp'] ?? 0} Votes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: colors[i])),
                 if (student['department'] != null)
                   Text(student['department'], style: const TextStyle(color: AppTheme.textMuted, fontSize: 9, letterSpacing: 1)),
               ]),

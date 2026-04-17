@@ -5,6 +5,15 @@ import { EventConceptsForum } from '@/app/components/EventConceptsForum'
 export default async function EventsListPage() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+    
+    // Fetch user profile for role checking
+    const { data: profile } = user ? await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle() : { data: null }
+    
+    const currentUserRole = profile?.role || user?.user_metadata?.role || 'member'
 
     const { data: events, error } = await supabase
         .from('event_cal')
@@ -41,6 +50,7 @@ export default async function EventsListPage() {
             <EventConceptsForum 
                 concepts={conceptsData as any || []} 
                 currentUserId={user?.id}
+                currentUserRole={currentUserRole}
             />
         </div>
     )

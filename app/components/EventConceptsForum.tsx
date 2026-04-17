@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { proposeEventConcept, voteEventConcept } from '@/app/events/actions'
-import { ArrowBigUp, ArrowBigDown, MessagesSquare, Clock, User } from 'lucide-react'
+import { proposeEventConcept, voteEventConcept, deleteEventConcept } from '@/app/events/actions'
+import { ArrowBigUp, ArrowBigDown, MessagesSquare, Clock, User, Trash2 } from 'lucide-react'
 
 interface Vote {
     vote_value: number
@@ -24,16 +24,24 @@ interface Concept {
 interface Props {
     concepts: Concept[]
     currentUserId?: string
+    currentUserRole?: string
 }
 
-export function EventConceptsForum({ concepts, currentUserId }: Props) {
+export function EventConceptsForum({ concepts, currentUserId, currentUserRole }: Props) {
     const router = useRouter()
     const [isPending, startTransition] = useTransition()
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [error, setError] = useState('')
 
+    const [optimisticConcepts, setOptimisticConcepts] = useState<Concept[]>(concepts)
+
+    // Sync local state when server data updates
+    useEffect(() => {
+        setOptimisticConcepts(concepts)
+    }, [concepts])
+
     // Aggregate score and format Date manually to keep it functional
-    const displayConcepts = concepts.map(c => {
+    const displayConcepts = optimisticConcepts.map(c => {
         const score = c.event_concept_votes.reduce((acc, v) => acc + v.vote_value, 0)
         let userVote = 0
         if (currentUserId) {
@@ -64,9 +72,48 @@ export function EventConceptsForum({ concepts, currentUserId }: Props) {
             alert('Please login to vote!')
             return
         }
+
+        // Optimistic UI Update locally to remove lag
+        setOptimisticConcepts(prev => prev.map(concept => {
+            if (concept.id !== conceptId) return concept
+            
+            const existingVotes = [...concept.event_concept_votes]
+            const userVoteIndex = existingVotes.findIndex(v => v.user_id === currentUserId)
+            
+            if (userVoteIndex >= 0) {
+                if (existingVotes[userVoteIndex].vote_value === value) {
+                    existingVotes.splice(userVoteIndex, 1) // toggle off
+                } else {
+                    existingVotes[userVoteIndex].vote_value = value // change vote
+                }
+            } else {
+                existingVotes.push({ user_id: currentUserId, vote_value: value }) // new vote
+            }
+            return { ...concept, event_concept_votes: existingVotes }
+        }))
+
+        // Fire server request
         const res = await voteEventConcept(conceptId, value)
         if (res.error) {
             alert(res.error)
+            setOptimisticConcepts(concepts) // Quick revert
+        } else {
+            startTransition(() => {
+                router.refresh()
+            })
+        }
+    }
+
+    const handleDelete = async (conceptId: string) => {
+        if (!confirm('Are you sure you want to delete this concept?')) return
+
+        // Optimistic update
+        setOptimisticConcepts(prev => prev.filter(c => c.id !== conceptId))
+
+        const res = await deleteEventConcept(conceptId)
+        if (res.error) {
+            alert(res.error)
+            setOptimisticConcepts(concepts) // Quick revert
         } else {
             startTransition(() => {
                 router.refresh()
@@ -159,21 +206,33 @@ export function EventConceptsForum({ concepts, currentUserId }: Props) {
                             </div>
 
                             {/* Content Column */}
-                            <div className="p-4 md:p-6 flex-1 bg-black/20">
-                                <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
-                                    <span className="flex items-center gap-1 font-medium bg-white/5 px-2 py-1 rounded-full text-gray-300">
-                                        <User size={10} /> u/{concept.profiles?.full_name?.replace(/\s+/g, '') || 'deleted'}
-                                    </span>
-                                    <span>•</span>
-                                    <span className="flex items-center gap-1">
-                                        <Clock size={10} />
-                                        {new Date(concept.created_at).toLocaleDateString()}
-                                    </span>
+                            <div className="p-4 md:p-6 flex-1 bg-black/20 flex flex-col">
+                                <div className="flex items-center justify-between gap-2 mb-2">
+                                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                                        <span className="flex items-center gap-1 font-medium bg-white/5 px-2 py-1 rounded-full text-gray-300">
+                                            <User size={10} /> u/{concept.profiles?.full_name?.replace(/\s+/g, '') || 'deleted'}
+                                        </span>
+                                        <span>•</span>
+                                        <span className="flex items-center gap-1">
+                                            <Clock size={10} />
+                                            {new Date(concept.created_at).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    {/* Delete Button */}
+                                    {(currentUserId === concept.user_id || currentUserRole === 'exec' || currentUserRole === 'core') && (
+                                        <button 
+                                            onClick={() => handleDelete(concept.id)}
+                                            className="text-gray-600 hover:text-red-500 hover:bg-red-500/10 p-2 rounded-full transition-colors"
+                                            title="Delete Concept"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    )}
                                 </div>
                                 <h3 className="text-xl font-bold text-white mb-2 leading-tight">{concept.title}</h3>
                                 <p className="text-gray-400 text-sm leading-relaxed mb-4">{concept.description}</p>
                                 
-                                <div className="flex items-center gap-4 text-xs font-bold text-gray-500">
+                                <div className="mt-auto flex items-center gap-4 text-xs font-bold text-gray-500">
                                     <button className="flex items-center gap-1.5 hover:bg-white/5 py-1.5 px-3 rounded-lg transition-colors">
                                         <MessagesSquare size={14} /> Discuss Event
                                     </button>
