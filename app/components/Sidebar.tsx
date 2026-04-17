@@ -12,7 +12,6 @@ import {
     ShoppingBag,
     FlaskConical,
     Trophy,
-    Image,
     Dna,
     LogOut,
     ChevronLeft,

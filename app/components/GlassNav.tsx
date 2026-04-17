@@ -22,26 +22,9 @@ import {
 export function GlassNav() {
     const pathname = usePathname()
     const supabase = createClient()
-    const [userRole, setUserRole] = useState<string | null>(null)
     const [mobileOpen, setMobileOpen] = useState(false)
 
-    useEffect(() => {
-        async function fetchUserRole() {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (user) {
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', user.id)
-                    .single()
 
-                if (profile) {
-                    setUserRole(profile.role)
-                }
-            }
-        }
-        fetchUserRole()
-    }, [supabase])
 
     // Close mobile menu on route change
     useEffect(() => {

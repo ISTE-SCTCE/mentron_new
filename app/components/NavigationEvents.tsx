@@ -7,7 +7,7 @@ import { useLoading } from '@/app/lib/context/LoadingContext'
 export function NavigationEvents() {
     const pathname = usePathname()
     const searchParams = useSearchParams()
-    const { startLoading, stopLoading } = useLoading()
+    const { stopLoading } = useLoading()
 
     // Track previous path so we only show on actual navigation changes
     const prevPathRef = useRef<string | null>(null)

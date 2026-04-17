@@ -29,7 +29,7 @@ export async function uploadNote(formData: FormData) {
     const compressedBuffer = await compressFile(buffer)
 
     const fileName = `${Date.now()}-${file.name}.gz`
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
         .from('notes_bucket')
         .upload(fileName, compressedBuffer, {
             contentType: file.type,

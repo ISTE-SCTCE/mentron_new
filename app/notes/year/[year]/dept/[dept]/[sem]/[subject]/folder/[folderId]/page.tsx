@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/app/lib/supabase/server'
-import { DEPARTMENTS, DeptKey, SemKey } from '@/app/lib/data/subjects'
+import { DeptKey, SemKey } from '@/app/lib/data/subjects'
 import { InteractionTracker } from '@/app/components/InteractionTracker'
 import { DeleteButton } from '@/app/components/DeleteButton'
 import { deleteNote } from '@/app/lib/actions/deleteActions'
@@ -38,7 +38,7 @@ export default async function FolderNotesPage({
         notFound()
     }
 
-    const deptMeta = DEPARTMENTS[deptKey]
+
     const style = DEPT_COLORS[deptKey]
     const yearMeta = YEAR_META[yearNum]
 

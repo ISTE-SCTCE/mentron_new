@@ -1,7 +1,7 @@
 'use client'
 
 import { createClient } from '@/app/lib/supabase/client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 interface Stats {
     studentCount: number
@@ -23,7 +23,7 @@ export function RealTimeStats({ initialStats }: Props) {
     const [isRevealed, setIsRevealed] = useState(false)
     const supabase = createClient()
 
-    const fetchStats = async () => {
+    const fetchStats = useCallback(async () => {
         const { data: profiles } = await supabase.from('profiles').select('role, department, roll_number')
         if (profiles) {
             const studentCount = profiles.length
@@ -54,7 +54,7 @@ export function RealTimeStats({ initialStats }: Props) {
             const visitedCount = new Set(interactionLogs.map(l => l.user_id)).size
             setStats(prev => ({ ...prev, viewCount, visitedCount }))
         }
-    }
+    }, [supabase])
 
     useEffect(() => {
         fetchStats()
@@ -76,7 +76,7 @@ export function RealTimeStats({ initialStats }: Props) {
             supabase.removeChannel(notesChannel)
             supabase.removeChannel(logsChannel)
         }
-    }, [])
+    }, [fetchStats, supabase])
 
     return (
         <div className="space-y-12">

@@ -43,7 +43,7 @@ export function NavigationInterceptor() {
 
         document.addEventListener('click', handleClick, { capture: true })
         return () => document.removeEventListener('click', handleClick, { capture: true })
-    }, [startLoading, pathname])
+    }, [startLoading, pathname, currentFullUrl])
 
     return null
 }

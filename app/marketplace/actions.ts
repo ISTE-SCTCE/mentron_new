@@ -30,7 +30,7 @@ export async function createMarketplaceItem(formData: FormData) {
 
     const fileName = `${user.id}/${Date.now()}-${image.name.split('.')[0]}.webp`
 
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
         .from('marketplace_bucket')
         .upload(fileName, compressedBuffer, {
             contentType: 'image/webp',

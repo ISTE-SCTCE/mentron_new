@@ -85,7 +85,7 @@ export function EventBanner({ canAddEvent = false }: Props) {
             .limit(12)
         setEvents(data ?? [])
         setIsLoading(false)
-    }, [])
+    }, [supabase])
 
     useEffect(() => { fetchEvents() }, [fetchEvents])
 

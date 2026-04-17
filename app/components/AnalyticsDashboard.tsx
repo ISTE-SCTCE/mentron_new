@@ -1,7 +1,7 @@
 'use client'
 
 import { createClient } from '@/app/lib/supabase/client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Users, FileText, Zap, ChevronRight, Activity, Clock } from 'lucide-react'
 import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
 
@@ -34,7 +34,7 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
     const [logs, setLogs] = useState<InteractionLog[]>(initialLogs)
     const supabase = createClient()
 
-    const fetchStats = async () => {
+    const fetchStats = useCallback(async () => {
         // Fetch Profiles
         const { data: profiles } = await supabase.from('profiles').select('role, department, roll_number, year')
         if (profiles) {
@@ -82,7 +82,7 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
         if (recentLogs) {
             setLogs(recentLogs as any)
         }
-    }
+    }, [supabase, getDepartmentFromRollNumber])
 
     useEffect(() => {
         fetchStats()
@@ -104,7 +104,7 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
             supabase.removeChannel(notesSub)
             supabase.removeChannel(logsSub)
         }
-    }, [])
+    }, [fetchStats, supabase])
 
     return (
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
@@ -249,7 +249,7 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
                         {/* Timeline line */}
                         <div className="absolute left-[11px] top-2 bottom-2 w-[1px] bg-white/10"></div>
 
-                        {logs.slice(0, 5).map((log, i) => (
+                        {logs.slice(0, 5).map((log) => (
                             <div key={log.id} className="flex gap-6 relative group">
                                 <div className="mt-1.5 w-6 h-6 rounded-full bg-[#0A0A0A] border-4 border-emerald-500 flex-shrink-0 z-10 scale-75"></div>
                                 <div className="space-y-1 group-hover:translate-x-1 transition-transform">

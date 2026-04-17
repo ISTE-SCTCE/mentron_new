@@ -20,7 +20,7 @@ const DEPARTMENTS = [
     { code: 'BT', name: 'Bio Technology' },
 ]
 
-export function GroupView({ userDepartment, userRole, currentDept, currentYear, groupCounts = {} }: { userDepartment: string, userRole: string, currentDept?: string, currentYear?: string, groupCounts?: Record<string, number> }) {
+export function GroupView({ userDepartment, currentDept, currentYear, groupCounts = {} }: { userDepartment: string, userRole?: string, currentDept?: string, currentYear?: string, groupCounts?: Record<string, number> }) {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [customGroups, setCustomGroups] = useState<CustomGroupData[]>([])
 
@@ -39,7 +39,7 @@ export function GroupView({ userDepartment, userRole, currentDept, currentYear, 
         }
     })
 
-    const isExecOrAdmin = userRole === 'exec' || userRole === 'core' || userRole === 'admin'
+
 
     // If a specific group is selected, we might want to hide this view or make it smaller.
     // For now, if a group is selected, we will collapse or just show a back button.
@@ -137,7 +137,7 @@ export function GroupView({ userDepartment, userRole, currentDept, currentYear, 
                 {/* Custom Highlighted Groups */}
                 {customGroups.map((group, idx) => {
                     // Custom groups are universally accessible for now to show off the UI
-                    const isAccessible = true
+
                     const isActive = currentDept === group.deptCode && currentYear === group.year
                     const memberCount = 1
 

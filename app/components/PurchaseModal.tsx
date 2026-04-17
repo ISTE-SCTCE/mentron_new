@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/app/lib/supabase/client'
+
 import { createPurchase } from '@/app/lib/purchase/createPurchase'
 
 interface Item {

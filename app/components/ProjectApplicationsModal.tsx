@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/app/lib/supabase/client'
 
 interface Application {
@@ -29,11 +29,7 @@ export function ProjectApplicationsModal({ projectId, projectTitle, onClose }: P
 
     const supabase = createClient()
 
-    useEffect(() => {
-        fetchApplications()
-    }, [])
-
-    const fetchApplications = async () => {
+    const fetchApplications = useCallback(async () => {
         setLoading(true)
         setError('')
 
@@ -62,7 +58,11 @@ export function ProjectApplicationsModal({ projectId, projectTitle, onClose }: P
             setApplications(data as unknown as Application[])
         }
         setLoading(false)
-    }
+    }, [projectId, supabase])
+
+    useEffect(() => {
+        fetchApplications()
+    }, [fetchApplications])
 
     return (
         <div className="fixed inset-0 z-[9998] flex items-start justify-center p-4 pt-20 md:pt-32 overflow-y-auto">

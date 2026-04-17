@@ -8,7 +8,6 @@ import { createClient } from '@/app/lib/supabase/client'
 import { getPermissionsClient } from '@/app/lib/utils/coreAuthClient'
 import {
     YEAR_SEMS,
-    FIRST_YEAR_GROUPS,
     FIRST_YEAR_SUBJECTS,
     getSubjects,
     type GroupKey,
@@ -74,15 +73,7 @@ export default function NotesUploadPage() {
         checkAuth()
     }, [router])
 
-    if (isAuthorized === null) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
-                <div className="text-gray-500 font-black tracking-widest text-xs uppercase animate-pulse">
-                    Verifying Permissions...
-                </div>
-            </div>
-        )
-    }
+
 
     const yearNum = parseInt(year)
     const isFirstYear = yearNum === 1
@@ -140,6 +131,16 @@ export default function NotesUploadPage() {
         } catch {}
         setLoadingFolders(false)
     }, [])
+
+    if (isAuthorized === null) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+                <div className="text-gray-500 font-black tracking-widest text-xs uppercase animate-pulse">
+                    Verifying Permissions...
+                </div>
+            </div>
+        )
+    }
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()

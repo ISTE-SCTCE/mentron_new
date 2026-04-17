@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
     format,
     addMonths,
@@ -40,16 +40,16 @@ export function DashboardCalendar({ isExec }: CalendarProps) {
 
     const supabase = createClient()
 
-    useEffect(() => {
-        fetchEvents()
-    }, [])
-
-    const fetchEvents = async () => {
+    const fetchEvents = useCallback(async () => {
         const { data } = await supabase
             .from('event_cal')
             .select('id, event_name, event_date, venue')
         if (data) setEvents(data)
-    }
+    }, [supabase])
+
+    useEffect(() => {
+        fetchEvents()
+    }, [fetchEvents])
 
     const nextMonth = () => setCurrentDate(addMonths(currentDate, 1))
     const prevMonth = () => setCurrentDate(subMonths(currentDate, 1))
