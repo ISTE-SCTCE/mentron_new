@@ -178,50 +178,54 @@ export default async function DashboardPage() {
                             </div>
                         ) : (
                             <>
-                                <h3 className="text-xs font-black tracking-[0.2em] text-blue-500 uppercase mb-8 shrink-0">Recent Activity</h3>
-                                <div className="space-y-6 overflow-y-auto pr-2 custom-scrollbar">
-                                    {activity && activity.length > 0 ? (
-                                        activity.map((log: any) => (
-                                            <div key={log.id} className="flex gap-4 items-start group">
-                                                <div className="w-10 h-10 rounded-xl glass bg-white/5 flex items-center justify-center text-sm shrink-0 group-hover:bg-blue-500/10 transition-colors">
-                                                    {log.interaction_type === 'view' ? '👁️' : '📥'}
+                        ) : (
+                            <>
+                                <h3 className="text-xs font-black tracking-[0.2em] text-blue-500 uppercase mb-8 shrink-0">Live Projects</h3>
+                                <div className="space-y-6 overflow-y-auto pr-2 custom-scrollbar flex-1">
+                                    {latestProjects && latestProjects.length > 0 ? (
+                                        latestProjects.map((project: any) => (
+                                            <Link key={project.id} href="/projects" className="flex gap-4 items-start group hover:bg-white/[0.04] p-3 -m-3 rounded-2xl transition-all">
+                                                <div className="w-10 h-10 rounded-xl glass bg-blue-500/10 flex items-center justify-center text-sm shrink-0 group-hover:bg-blue-500/20 transition-colors">
+                                                    🚀
                                                 </div>
-                                                <div>
-                                                    <p className="text-xs font-bold text-white leading-tight">
-                                                        {log.profiles?.full_name || 'Someone'} {log.interaction_type}ed a {log.item_type.replace('_', ' ')}
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-xs font-bold text-white leading-tight truncate">
+                                                        {project.title}
                                                     </p>
-                                                    <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest mt-1">
-                                                        {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mt-1 truncate">
+                                                        by {project.profiles?.full_name || 'Anonymous'}
                                                     </p>
                                                 </div>
-                                            </div>
+                                                <ArrowUpRight size={12} className="text-gray-600 group-hover:text-blue-400 mt-1" />
+                                            </Link>
                                         ))
                                     ) : (
-                                        <p className="text-xs text-gray-500 italic">No activity detected.</p>
+                                        <p className="text-xs text-gray-500 italic">No projects active.</p>
                                     )}
                                 </div>
+                                <Link href="/projects" className="mt-8 text-[9px] font-black uppercase tracking-widest text-[#555] hover:text-white transition-colors flex items-center justify-center gap-2">
+                                    Browse All Projects <span className="text-xs">→</span>
+                                </Link>
                             </>
                         )}
                     </div>
 
                     {/* --- SECOND MAJOR ROW --- */}
 
-                    {/* 5. LIVE TICKER (Moved from Sidebar) */}
-                    <div className="xl:col-span-1 glass-card bg-blue-500/[0.02]">
-                        <LiveActivityTicker items={latestProjects || []} type="project" title="Live Projects" />
-                    </div>
-
-                    {/* 6. NOTES QUICK ACCESS */}
-                    <Link href="/notes" className="xl:col-span-1 glass-card group flex flex-col justify-between hover:bg-white/[0.04] transition-all">
-                        <div className="flex justify-between items-start mb-4">
+                    {/* 6. NOTES QUICK ACCESS (Expanded) */}
+                    <Link href="/notes" className="xl:col-span-2 glass-card group flex flex-col justify-between hover:bg-white/[0.04] transition-all relative overflow-hidden">
+                        {/* Ambient glow for bigger card */}
+                        <div className="absolute -top-12 -right-12 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/10 transition-colors" />
+                        
+                        <div className="flex justify-between items-start mb-4 relative z-10">
                             <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-xl grayscale group-hover:grayscale-0 transition-all group-hover:scale-110">
                                 📚
                             </div>
-                            <span className="text-[9px] font-black tracking-widest text-blue-500 uppercase">Academic</span>
+                            <span className="text-[9px] font-black tracking-widest text-blue-500 uppercase">Academic Hub</span>
                         </div>
-                        <div>
-                            <h2 className="text-2xl font-black text-white group-hover:text-glow transition-all mb-1">Notes</h2>
-                            <p className="text-xs text-gray-400 font-medium">SCTCE Unified Hub</p>
+                        <div className="relative z-10">
+                            <h2 className="text-3xl font-black text-white group-hover:text-glow transition-all mb-2">Notes & Materials</h2>
+                            <p className="text-sm text-gray-400 font-medium max-w-md">Access SCTCE unified study hub with categorized university notes, PYQs, and resources.</p>
                         </div>
                     </Link>
 
