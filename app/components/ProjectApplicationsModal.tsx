@@ -9,7 +9,7 @@ interface Application {
     message: string
     cv_url: string
     status: string
-    applicant_id: string
+    profile_id: string
     profiles: {
         full_name: string | null
         department: string | null
@@ -45,7 +45,7 @@ export function ProjectApplicationsModal({ projectId, projectTitle, onClose }: P
                 message,
                 cv_url,
                 status,
-                applicant_id,
+                profile_id,
                 profiles (
                     full_name,
                     department,
@@ -202,14 +202,14 @@ export function ProjectApplicationsModal({ projectId, projectTitle, onClose }: P
                                                     <>
                                                         <button 
                                                             disabled={updatingId === app.id}
-                                                            onClick={() => handleUpdateStatus(app.id, app.applicant_id, 'approved')}
+                                                            onClick={() => handleUpdateStatus(app.id, app.profile_id, 'approved')}
                                                             className="flex-1 md:flex-none px-4 py-2.5 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white border border-emerald-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
                                                         >
                                                             {updatingId === app.id ? '...' : '✓ Accept'}
                                                         </button>
                                                         <button 
                                                             disabled={updatingId === app.id}
-                                                            onClick={() => handleUpdateStatus(app.id, app.applicant_id, 'rejected')}
+                                                            onClick={() => handleUpdateStatus(app.id, app.profile_id, 'rejected')}
                                                             className="flex-1 md:flex-none px-4 py-2.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
                                                         >
                                                             {updatingId === app.id ? '...' : '✕ Reject'}

@@ -56,7 +56,7 @@ export async function updateApplicationStatus(formData: FormData) {
             : `Your application for "${updatedApp.projects?.title}" has been rejected. Thank you for your interest.`
             
         await supabase.from('notifications').insert({
-            user_id: updatedApp.applicant_id,
+            user_id: updatedApp.profile_id,
             title,
             message
         })

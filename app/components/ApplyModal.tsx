@@ -109,7 +109,7 @@ export function ApplyModal({ projectId, projectTitle, cvRequired = true, userNam
             .from('project_applications')
             .insert({
                 project_id: projectId,
-                applicant_id: user.id,
+                profile_id: user.id,
                 cv_url: finalCvUrl,
                 message: message.trim(),
             })

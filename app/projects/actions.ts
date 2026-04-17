@@ -44,7 +44,7 @@ export async function applyToProject(formData: FormData) {
         .from('project_applications')
         .insert({
             project_id: projectId,
-            applicant_id: user.id,
+            profile_id: user.id,
             cv_url: fileUrl,
         })
 

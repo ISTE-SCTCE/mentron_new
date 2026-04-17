@@ -26,7 +26,7 @@ export default async function ProjectsPage() {
     const { data: myApplications } = await supabase
         .from('project_applications')
         .select('project_id')
-        .eq('applicant_id', user.id)
+        .eq('profile_id', user.id)
 
     const appliedIds = myApplications?.map(a => a.project_id) ?? []
 
