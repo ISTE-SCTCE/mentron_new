@@ -39,13 +39,13 @@ export default async function AnalyticsPage() {
     const { count: viewCount } = await supabase
         .from('interaction_logs')
         .select('*, profiles!inner(role)', { count: 'exact', head: true })
-        .not('profiles.role', 'in', '("exec","core")')
+        .eq('profiles.role', 'member')
 
     // 2. Fetch profiles for distribution (EXCLUDING EXEC/CORE)
     const { data: profiles } = await supabase
         .from('profiles')
         .select('department, role, year, roll_number')
-        .not('role', 'in', '("exec","core")')
+        .eq('role', 'member')
 
 
     const deptMap: Record<string, number> = {}
@@ -67,7 +67,7 @@ export default async function AnalyticsPage() {
     const { data: recentInteractions } = await supabase
         .from('interaction_logs')
         .select('created_at, profiles!inner(role)')
-        .not('profiles.role', 'in', '("exec","core")')
+        .eq('profiles.role', 'member')
         .gte('created_at', sevenDaysAgo.toISOString())
 
     const weeklyActivity = [0, 0, 0, 0, 0, 0, 0]
@@ -85,7 +85,7 @@ export default async function AnalyticsPage() {
     const { data: recentLogs } = await supabase
         .from('interaction_logs')
         .select(`*, profiles!inner(full_name, role)`)
-        .not('profiles.role', 'in', '("exec","core")')
+        .eq('profiles.role', 'member')
         .order('created_at', { ascending: false })
         .limit(10)
 

@@ -60,21 +60,21 @@ export default async function DashboardPage() {
     const { count: realStudentCount } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true })
-        .not('role', 'in', '("exec","core")')
+        .eq('role', 'member')
         
     const { count: totalMaterialCount } = await supabase.from('notes').select('*', { count: 'exact', head: true })
 
     const { count: totalViews } = await supabase
         .from('interaction_logs')
         .select('*, profiles!inner(role)', { count: 'exact', head: true })
-        .not('profiles.role', 'in', '("exec","core")')
+        .eq('profiles.role', 'member')
 
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
     const { count: recentViews } = await supabase
         .from('interaction_logs')
         .select('*, profiles!inner(role)', { count: 'exact', head: true })
-        .not('profiles.role', 'in', '("exec","core")')
+        .eq('profiles.role', 'member')
         .gte('created_at', sevenDaysAgo.toISOString())
 
 

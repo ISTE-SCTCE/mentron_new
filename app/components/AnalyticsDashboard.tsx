@@ -43,7 +43,7 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
         const { data: profiles } = await supabase
             .from('profiles')
             .select('role, department, roll_number, year')
-            .not('role', 'in', '("exec","core")')
+            .eq('role', 'member')
 
         if (profiles) {
             const studentCount = profiles.length
@@ -76,7 +76,7 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
         const { data: recentInteractions } = await supabase
             .from('interaction_logs')
             .select('created_at, profiles!inner(role)')
-            .not('profiles.role', 'in', '("exec","core")')
+            .eq('profiles.role', 'member')
             .gte('created_at', sevenDaysAgo.toISOString())
 
         if (recentInteractions) {
@@ -99,7 +99,7 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
         const { count: viewCount } = await supabase
             .from('interaction_logs')
             .select('*, profiles!inner(role)', { count: 'exact', head: true })
-            .not('profiles.role', 'in', '("exec","core")')
+            .eq('profiles.role', 'member')
         setStats(prev => ({ ...prev, viewCount: viewCount || 0 }))
 
         // Fetch Recent Logs
@@ -109,7 +109,7 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
                 *,
                 profiles!inner ( full_name, role )
             `)
-            .not('profiles.role', 'in', '("exec","core")')
+            .eq('profiles.role', 'member')
             .order('created_at', { ascending: false })
             .limit(10)
 
