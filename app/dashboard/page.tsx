@@ -7,8 +7,7 @@ import { AboutSection } from '@/app/components/AboutSection'
 import { Footer } from '@/app/components/Footer'
 import { LiveActivityTicker } from '@/app/components/LiveActivityTicker'
 import { FloatingBanner } from '@/app/components/FloatingBanner'
-import { CyberPulseWidget } from '@/app/components/CyberPulseWidget'
-import { MentronOrbWidget } from '@/app/components/MentronOrbWidget'
+
 import { GlobalSearch } from '@/app/components/GlobalSearch'
 import { isCoreMember } from '@/app/lib/utils/coreAuth'
 import { EventBanner } from '@/app/components/EventBanner'
@@ -72,7 +71,7 @@ export default async function DashboardPage() {
                     <LiveActivityTicker items={latestProjects || []} type="project" title="Projects" />
 
                     {/* Surprise Features Underneath */}
-                    <CyberPulseWidget />
+
                 </div>
 
                 {/* Center Content */}
@@ -361,7 +360,7 @@ export default async function DashboardPage() {
                     </Link>
 
                     {/* The Interactive 3D Core Underneath */}
-                    <MentronOrbWidget />
+
                 </div>
             </div>
             <style>{`
