@@ -8,6 +8,8 @@ interface Application {
     created_at: string
     message: string
     cv_url: string
+    status: string
+    applicant_id: string
     profiles: {
         full_name: string | null
         department: string | null
@@ -25,6 +27,7 @@ interface Props {
 export function ProjectApplicationsModal({ projectId, projectTitle, onClose }: Props) {
     const [applications, setApplications] = useState<Application[]>([])
     const [loading, setLoading] = useState(true)
+    const [updatingId, setUpdatingId] = useState<string | null>(null)
     const [error, setError] = useState('')
 
     const supabase = createClient()
@@ -41,6 +44,8 @@ export function ProjectApplicationsModal({ projectId, projectTitle, onClose }: P
                 created_at,
                 message,
                 cv_url,
+                status,
+                applicant_id,
                 profiles (
                     full_name,
                     department,
@@ -59,6 +64,38 @@ export function ProjectApplicationsModal({ projectId, projectTitle, onClose }: P
         }
         setLoading(false)
     }, [projectId, supabase])
+
+    const handleUpdateStatus = async (appId: string, applicantId: string, newStatus: string) => {
+        setUpdatingId(appId)
+        
+        // Update the application status
+        const { error: updateErr } = await supabase
+            .from('project_applications')
+            .update({ status: newStatus })
+            .eq('id', appId)
+
+        if (updateErr) {
+            alert('Failed to update status: ' + updateErr.message)
+            setUpdatingId(null)
+            return
+        }
+
+        // Insert notification
+        const title = newStatus === 'approved' ? 'Application Accepted 🎉' : 'Application Update'
+        const message = newStatus === 'approved' 
+            ? `Your application for "${projectTitle}" has been accepted.`
+            : `Your application for "${projectTitle}" has been rejected. Thank you for your interest.`
+            
+        await supabase.from('notifications').insert({
+            user_id: applicantId,
+            title,
+            message
+        })
+
+        // Update local state
+        setApplications(apps => apps.map(app => app.id === appId ? { ...app, status: newStatus } : app))
+        setUpdatingId(null)
+    }
 
     useEffect(() => {
         fetchApplications()
@@ -147,16 +184,47 @@ export function ProjectApplicationsModal({ projectId, projectTitle, onClose }: P
                                             </p>
                                         </div>
 
-                                        {/* Action: CV */}
-                                        <div className="shrink-0 flex items-center md:items-start">
-                                            <a
-                                                href={app.cv_url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg shadow-blue-600/20 group-hover:scale-105 active:scale-95 w-full md:w-auto justify-center"
-                                            >
-                                                <span>📄</span> View CV
-                                            </a>
+                                        {/* Actions: CV & Status */}
+                                        <div className="shrink-0 flex flex-col md:items-end gap-3 w-full md:w-auto">
+                                            {app.cv_url && (
+                                                <a
+                                                    href={app.cv_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="px-6 py-2.5 bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-600/30 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all group-hover:scale-[1.02] active:scale-95 w-full md:w-auto justify-center"
+                                                >
+                                                    <span>📄</span> View CV
+                                                </a>
+                                            )}
+
+                                            <div className="flex items-center gap-2 w-full md:w-auto">
+                                                {app.status === 'pending' || !app.status ? (
+                                                    <>
+                                                        <button 
+                                                            disabled={updatingId === app.id}
+                                                            onClick={() => handleUpdateStatus(app.id, app.applicant_id, 'approved')}
+                                                            className="flex-1 md:flex-none px-4 py-2.5 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white border border-emerald-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                                                        >
+                                                            {updatingId === app.id ? '...' : '✓ Accept'}
+                                                        </button>
+                                                        <button 
+                                                            disabled={updatingId === app.id}
+                                                            onClick={() => handleUpdateStatus(app.id, app.applicant_id, 'rejected')}
+                                                            className="flex-1 md:flex-none px-4 py-2.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                                                        >
+                                                            {updatingId === app.id ? '...' : '✕ Reject'}
+                                                        </button>
+                                                    </>
+                                                ) : app.status === 'approved' ? (
+                                                    <span className="w-full md:w-auto text-center px-4 py-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+                                                        ✓ Accepted
+                                                    </span>
+                                                ) : (
+                                                    <span className="w-full md:w-auto text-center px-4 py-2.5 bg-red-500/20 text-red-400 rounded-xl text-[10px] font-black uppercase tracking-widest border border-red-500/20">
+                                                        ✕ Rejected
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

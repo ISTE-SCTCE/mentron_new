@@ -67,7 +67,7 @@ function ProjectCard({
                     {project.description}
                 </p>
 
-                <div className="flex items-center justify-between border-t border-white/5 pt-5 gap-3">
+                <div className="flex items-center justify-between border-t border-white/5 pt-5 gap-3 flex-wrap">
                     <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-[10px] text-blue-400 font-black shrink-0">
                             {(project.profiles?.full_name ?? 'E')[0]}
@@ -77,30 +77,35 @@ function ProjectCard({
                         </span>
                     </div>
 
-                    {isOwn || isExec ? (
-                        <div className="flex items-center gap-2 shrink-0">
-                            {isOwn && (
+                    <div className="flex items-center gap-2 shrink-0">
+                        {isOwn && (
+                            <button
+                                onClick={onViewApps}
+                                className="px-4 py-1.5 rounded-xl font-black text-[10px] uppercase tracking-widest bg-emerald-500/10 hover:bg-emerald-500 hover:text-white text-emerald-400 border border-emerald-500/20 hover:border-transparent transition-all active:scale-95"
+                            >
+                                Applications
+                            </button>
+                        )}
+
+                        {!isOwn && (
+                            hasApplied ? (
+                                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20 cursor-default">
+                                    Applied ✓
+                                </span>
+                            ) : (
                                 <button
-                                    onClick={onViewApps}
-                                    className="px-4 py-1.5 rounded-xl font-black text-[10px] uppercase tracking-widest bg-emerald-500/10 hover:bg-emerald-500 hover:text-white text-emerald-400 border border-emerald-500/20 hover:border-transparent transition-all active:scale-95"
+                                    onClick={onApply}
+                                    className="px-5 py-2 rounded-xl font-black text-xs uppercase tracking-widest bg-white text-black hover:bg-blue-500 hover:text-white active:scale-95 shadow-lg transition-all shrink-0"
                                 >
-                                    Applications
+                                    Apply Now
                                 </button>
-                            )}
+                            )
+                        )}
+
+                        {(isOwn || isExec) && (
                             <DeleteButton onDelete={() => deleteProject(project.id)} itemName="project" />
-                        </div>
-                    ) : hasApplied ? (
-                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20 cursor-default">
-                            Applied ✓
-                        </span>
-                    ) : (
-                        <button
-                            onClick={onApply}
-                            className="px-5 py-2 rounded-xl font-black text-xs uppercase tracking-widest bg-white text-black hover:bg-blue-500 hover:text-white active:scale-95 shadow-lg transition-all shrink-0"
-                        >
-                            Apply Now
-                        </button>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         </InteractionTracker>
