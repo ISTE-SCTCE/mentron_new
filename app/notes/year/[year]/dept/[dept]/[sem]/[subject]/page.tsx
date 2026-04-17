@@ -7,6 +7,7 @@ import { DeleteButton } from '@/app/components/DeleteButton'
 import { deleteNote } from '@/app/lib/actions/deleteActions'
 import { SubjectFoldersClient } from '@/app/notes/SubjectFoldersClient'
 import { getPermissions } from '@/app/lib/utils/coreAuth'
+import { NoteAccessGate } from '@/app/components/NoteAccessGate'
 
 const DEPT_COLORS: Record<DeptKey, { color: string; border: string; accent: string }> = {
     CSE: { color: 'from-blue-500/20 to-cyan-500/10', border: 'border-blue-500/20', accent: 'text-blue-400' },
@@ -48,7 +49,7 @@ export default async function SubjectNotesPage({
     const { data: { user } } = await supabase.auth.getUser()
     const { data: profile } = await supabase
         .from('profiles')
-        .select('id, role, department')
+        .select('id, role, department, iste_id')
         .eq('id', user?.id ?? '')
         .single()
 
@@ -182,11 +183,18 @@ export default async function SubjectNotesPage({
                                             {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'core') && (
                                                 <DeleteButton onDelete={deleteNote.bind(null, note.id)} itemName="note" />
                                             )}
-                                            <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">
-                                                <a href={note.file_url} target="_blank" rel="noopener noreferrer" className="glass glass-hover px-4 py-2 rounded-xl text-blue-400 text-xs font-black uppercase tracking-widest transition-all">
-                                                    Open ↗
-                                                </a>
-                                            </InteractionTracker>
+                                            <NoteAccessGate 
+                                                noteUrl={note.file_url} 
+                                                userId={profile?.id} 
+                                                userIsteId={profile?.iste_id} 
+                                                userRole={profile?.role}
+                                            >
+                                                <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">
+                                                    <a href={note.file_url} target="_blank" rel="noopener noreferrer" className="glass glass-hover px-4 py-2 rounded-xl text-blue-400 text-xs font-black uppercase tracking-widest transition-all">
+                                                        Open ↗
+                                                    </a>
+                                                </InteractionTracker>
+                                            </NoteAccessGate>
                                         </div>
                                     </div>
                                 </div>
