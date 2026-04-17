@@ -1,6 +1,6 @@
 import { createClient } from '@/app/lib/supabase/server'
-import Link from 'next/link'
 import { EventsBanner } from '@/app/components/EventsBanner'
+import { EventShowcase } from '@/app/components/EventShowcase'
 
 export default async function EventsListPage() {
     const supabase = await createClient()
@@ -19,6 +19,10 @@ export default async function EventsListPage() {
             {/* ─── Immersive Full-Width Banner ─── */}
             <EventsBanner events={events ?? []} />
 
+            {/* ─── The Surprise: Metrics & Legacy Showcase ─── */}
+            <div className="pt-20">
+                <EventShowcase />
+            </div>
         </div>
     )
 }

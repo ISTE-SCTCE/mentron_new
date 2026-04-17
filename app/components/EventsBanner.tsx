@@ -160,8 +160,6 @@ export function EventsBanner({ events }: Props) {
                 ))}
             </div>
 
-            {/* ── Bottom fade-to-background ── */}
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
         </section>
     )
 }
