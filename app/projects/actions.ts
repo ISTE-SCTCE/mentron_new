@@ -25,7 +25,7 @@ export async function applyToProject(formData: FormData) {
 
     // Folder structure: applicant_id/timestamp-filename
     const fileName = `${user.id}/${Date.now()}-${file.name}.gz`
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
         .from('cv_bucket')
         .upload(fileName, compressedBuffer, {
             contentType: file.type,

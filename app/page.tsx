@@ -10,18 +10,8 @@ export default function Home() {
   const [event, setEvent] = useState<any>(null)
   const supabase = createClient()
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      const { data } = await supabase
-        .from('events')
-        .select('*')
-        .single()
-
-      setEvent(data)
-    }
-
     fetchEvent()
-  }, [])
+  }, [supabase])
 
   return (
     <div className="flex flex-col min-h-screen">

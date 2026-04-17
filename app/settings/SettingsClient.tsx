@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/app/lib/supabase/client'
-import { Eye, EyeOff, User, Lock, Bell, AlertTriangle, LogOut } from 'lucide-react'
+import { User, Lock, Bell, AlertTriangle, LogOut } from 'lucide-react'
 import { logout } from '@/app/login/actions'
 import { toast, Toaster } from 'react-hot-toast'
 

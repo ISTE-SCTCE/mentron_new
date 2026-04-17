@@ -1,9 +1,8 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { createClient } from '@/app/lib/supabase/server'
 import { DEPARTMENTS, DeptKey, SemKey, getSubjects } from '@/app/lib/data/subjects'
 import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
-import { InteractionTracker } from '@/app/components/InteractionTracker'
 
 const DEPT_COLORS: Record<DeptKey, { color: string; border: string; accent: string }> = {
     CSE: { color: 'from-blue-500/20 to-cyan-500/10', border: 'border-blue-500/20', accent: 'text-blue-400' },
