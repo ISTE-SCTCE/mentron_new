@@ -1,4 +1,5 @@
 import { createClient } from '@/app/lib/supabase/server'
+import Link from 'next/link'
 import { EventsBanner } from '@/app/components/EventsBanner'
 
 export default async function EventsListPage() {
@@ -15,7 +16,9 @@ export default async function EventsListPage() {
 
     return (
         <div className="min-h-screen text-[#ededed]">
+            {/* ─── Immersive Full-Width Banner ─── */}
             <EventsBanner events={events ?? []} />
+
         </div>
     )
 }
