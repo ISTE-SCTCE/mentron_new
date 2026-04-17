@@ -145,44 +145,6 @@ function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: React.Ref
     )
 }
 
-function TesseractBody({ color }: { color: string }) {
-    const groupRef = useRef<THREE.Group>(null)
-    const innerRef = useRef<THREE.Group>(null)
-    
-    useFrame((state) => {
-        const t = state.clock.elapsedTime
-        if (groupRef.current) {
-            groupRef.current.rotation.y = t * 0.5
-            groupRef.current.rotation.x = t * 0.2
-        }
-        if (innerRef.current) {
-            // Pulse the inner cube's scale to fake w-axis translation in 4D projection
-            const wScale = 0.4 + (Math.sin(t * 2) + 1) * 0.25 
-            innerRef.current.scale.setScalar(wScale)
-            // Counter-rotate inner cube slightly for hypercube visual effect
-            innerRef.current.rotation.y = -t * 0.3
-            innerRef.current.rotation.z = t * 0.2
-        }
-    })
-
-    return (
-        <group ref={groupRef}>
-            {/* Outer projection box */}
-            <mesh>
-                <boxGeometry args={[BODY_RADIUS * 1.5, BODY_RADIUS * 1.5, BODY_RADIUS * 1.5]} />
-                <meshStandardMaterial color={color} wireframe emissive={color} emissiveIntensity={0.6} transparent opacity={0.7} />
-            </mesh>
-            {/* Inner projection box */}
-            <group ref={innerRef}>
-                <mesh>
-                    <boxGeometry args={[BODY_RADIUS * 1.5, BODY_RADIUS * 1.5, BODY_RADIUS * 1.5]} />
-                    <meshStandardMaterial color="#ffffff" wireframe emissive="#ffffff" emissiveIntensity={0.9} transparent opacity={0.4} />
-                </mesh>
-            </group>
-        </group>
-    )
-}
-
 function Spider() {
     const bodyRef = useRef<THREE.Group>(null)
     const { pointer, camera } = useThree()
@@ -219,11 +181,18 @@ function Spider() {
 
     return (
         <group>
-            {/* Spider Body Chassis (Tesseract) */}
+            {/* Spider Body Chassis */}
             <group ref={bodyRef}>
-                <TesseractBody color={bodyColor} />
+                <mesh position={[0, 0, 0]}>
+                    <octahedronGeometry args={[BODY_RADIUS, 1]} />
+                    <meshStandardMaterial color={bodyColor} wireframe={true} emissive={bodyColor} emissiveIntensity={0.5} opacity={0.8} transparent />
+                </mesh>
                 {/* Core engine glow */}
                 <pointLight distance={5} intensity={2} color={bodyColor} />
+                <mesh position={[0, 0, 0]}>
+                    <sphereGeometry args={[BODY_RADIUS * 0.4, 16, 16]} />
+                    <meshBasicMaterial color="#ffffff" />
+                </mesh>
             </group>
 
             {/* 8 Legs */}
