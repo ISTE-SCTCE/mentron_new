@@ -16,8 +16,7 @@ import {
     Menu,
     X,
     Zap,
-    Settings,
-    Crown
+    Settings
 } from 'lucide-react'
 
 export function GlassNav() {
