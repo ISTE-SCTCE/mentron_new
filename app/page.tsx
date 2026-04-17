@@ -75,44 +75,6 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Feature Preview / Event Card */}
-      <section className="px-8 pb-24 relative z-10">
-        <div className="max-w-5xl mx-auto">
-          {event && (
-            <div className="glass p-12 rounded-[3rem] flex flex-col md:flex-row items-center gap-12 group">
-              <div className="flex-1 space-y-6">
-                <div className="flex items-center gap-3">
-                  <span className="w-12 h-[1px] bg-blue-500"></span>
-                  <span className="text-xs font-black tracking-widest text-blue-500 uppercase">Featured Event</span>
-                </div>
-                <h2 className="text-4xl md:text-5xl font-black text-white group-hover:text-glow transition-all">
-                  {event.title}
-                </h2>
-                <p className="text-gray-400 leading-relaxed text-lg">
-                  {event.description || "Join us for an exclusive session featuring industry experts and hands-on workshops."}
-                </p>
-                <div className="flex items-center gap-6 text-sm text-gray-500 font-bold">
-                  <span className="flex items-center gap-2">
-                    <span className="text-blue-500">📍</span> {event.venue}
-                  </span>
-                  <span>|</span>
-                  <span>FREE FOR MEMBERS</span>
-                </div>
-              </div>
-              <div className="w-full md:w-1/3">
-                <Link
-                  href={`/events/${event.id}`}
-                  className="w-full aspect-square glass glass-hover rounded-[2rem] flex flex-col items-center justify-center gap-4 text-center"
-                >
-                  <span className="text-5xl">⚡</span>
-                  <span className="font-black text-white text-xl uppercase tracking-tighter">View Details</span>
-                </Link>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
       <AboutSection />
       <Footer />
 

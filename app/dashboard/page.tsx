@@ -12,6 +12,7 @@ import { GlobalSearch } from '@/app/components/GlobalSearch'
 import { isCoreMember } from '@/app/lib/utils/coreAuth'
 import { EventBanner } from '@/app/components/EventBanner'
 import { NotificationBell } from '@/app/components/NotificationBell'
+import { BarChart3, ArrowUpRight, Users, BookOpen } from 'lucide-react'
 
 export default async function DashboardPage() {
     const supabase = await createClient()
@@ -123,30 +124,75 @@ export default async function DashboardPage() {
                         <DashboardCalendar isExec={profile?.role === 'exec' || profile?.role === 'core'} />
                     </div>
 
-                    {/* 4. ACTIVITY FEED (Top Right) */}
+                    {/* 4. ACTIVITY FEED / ANALYTICS QUICK TAB (Top Right) */}
                     <div className="xl:col-span-1 xl:row-span-2 glass-card overflow-hidden flex flex-col">
-                        <h3 className="text-xs font-black tracking-[0.2em] text-blue-500 uppercase mb-8 shrink-0">Recent Activity</h3>
-                        <div className="space-y-6 overflow-y-auto pr-2 custom-scrollbar">
-                            {activity && activity.length > 0 ? (
-                                activity.map((log: any) => (
-                                    <div key={log.id} className="flex gap-4 items-start group">
-                                        <div className="w-10 h-10 rounded-xl glass bg-white/5 flex items-center justify-center text-sm shrink-0 group-hover:bg-blue-500/10 transition-colors">
-                                            {log.interaction_type === 'view' ? '👁️' : '📥'}
+                        {displayRole === 'exec' ? (
+                            <div className="flex flex-col h-full">
+                                <h3 className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase mb-8 shrink-0">Analytics Preview</h3>
+                                <div className="flex-1 space-y-6">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                                            <p className="text-[9px] font-black text-gray-500 uppercase mb-1">Impact</p>
+                                            <div className="flex items-center gap-2">
+                                                <BarChart3 size={14} className="text-blue-500" />
+                                                <span className="text-lg font-black text-white">Live</span>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-xs font-bold text-white leading-tight">
-                                                {log.profiles?.full_name || 'Someone'} {log.interaction_type}ed a {log.item_type.replace('_', ' ')}
-                                            </p>
-                                            <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest mt-1">
-                                                {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                            </p>
+                                        <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                                            <p className="text-[9px] font-black text-gray-500 uppercase mb-1">Growth</p>
+                                            <div className="flex items-center gap-2">
+                                                <ArrowUpRight size={14} className="text-emerald-500" />
+                                                <span className="text-lg font-black text-white">+12%</span>
+                                            </div>
                                         </div>
                                     </div>
-                                ))
-                            ) : (
-                                <p className="text-xs text-gray-500 italic">No activity detected.</p>
-                            )}
-                        </div>
+                                    
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl text-xs font-bold text-gray-400">
+                                            <div className="flex items-center gap-2">
+                                                <Users size={14} /> Total Members
+                                            </div>
+                                            <span className="text-white">Active</span>
+                                        </div>
+                                        <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl text-xs font-bold text-gray-400">
+                                            <div className="flex items-center gap-2">
+                                                <BookOpen size={14} /> Note Credits
+                                            </div>
+                                            <span className="text-white">Synced</span>
+                                        </div>
+                                    </div>
+
+                                    <Link href="/analytics" className="mt-auto group bg-white text-black py-4 rounded-2xl text-center font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
+                                        Open Full Dashboard <ArrowUpRight size={14} />
+                                    </Link>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <h3 className="text-xs font-black tracking-[0.2em] text-blue-500 uppercase mb-8 shrink-0">Recent Activity</h3>
+                                <div className="space-y-6 overflow-y-auto pr-2 custom-scrollbar">
+                                    {activity && activity.length > 0 ? (
+                                        activity.map((log: any) => (
+                                            <div key={log.id} className="flex gap-4 items-start group">
+                                                <div className="w-10 h-10 rounded-xl glass bg-white/5 flex items-center justify-center text-sm shrink-0 group-hover:bg-blue-500/10 transition-colors">
+                                                    {log.interaction_type === 'view' ? '👁️' : '📥'}
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-white leading-tight">
+                                                        {log.profiles?.full_name || 'Someone'} {log.interaction_type}ed a {log.item_type.replace('_', ' ')}
+                                                    </p>
+                                                    <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest mt-1">
+                                                        {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-xs text-gray-500 italic">No activity detected.</p>
+                                    )}
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {/* --- SECOND MAJOR ROW --- */}
