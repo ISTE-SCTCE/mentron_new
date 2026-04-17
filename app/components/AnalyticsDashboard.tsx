@@ -111,7 +111,7 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
         if (recentLogs) {
             setLogs(recentLogs as any)
         }
-    }, [supabase, getDepartmentFromRollNumber])
+    }, [supabase])
 
     useEffect(() => {
         fetchStats()
