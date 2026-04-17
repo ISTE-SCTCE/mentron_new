@@ -36,7 +36,10 @@ export default async function AnalyticsPage() {
 
     // 1. Fetch counts (Real-time and filtered)
     const { count: materialCount } = await supabase.from('notes').select('*', { count: 'exact', head: true })
-    const { count: viewCount } = await supabase.from('interaction_logs').select('*', { count: 'exact', head: true })
+    const { count: viewCount } = await supabase
+        .from('interaction_logs')
+        .select('*, profiles!inner(role)', { count: 'exact', head: true })
+        .not('profiles.role', 'in', '("exec","core")')
 
     // 2. Fetch profiles for distribution (EXCLUDING EXEC/CORE)
     const { data: profiles } = await supabase
@@ -63,7 +66,8 @@ export default async function AnalyticsPage() {
     
     const { data: recentInteractions } = await supabase
         .from('interaction_logs')
-        .select('created_at')
+        .select('created_at, profiles!inner(role)')
+        .not('profiles.role', 'in', '("exec","core")')
         .gte('created_at', sevenDaysAgo.toISOString())
 
     const weeklyActivity = [0, 0, 0, 0, 0, 0, 0]
@@ -80,7 +84,8 @@ export default async function AnalyticsPage() {
     // 5. Fetch recent interaction logs
     const { data: recentLogs } = await supabase
         .from('interaction_logs')
-        .select(`*, profiles ( full_name )`)
+        .select(`*, profiles!inner(full_name, role)`)
+        .not('profiles.role', 'in', '("exec","core")')
         .order('created_at', { ascending: false })
         .limit(10)
 

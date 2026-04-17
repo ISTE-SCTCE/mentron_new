@@ -75,7 +75,8 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
         
         const { data: recentInteractions } = await supabase
             .from('interaction_logs')
-            .select('created_at')
+            .select('created_at, profiles!inner(role)')
+            .not('profiles.role', 'in', '("exec","core")')
             .gte('created_at', sevenDaysAgo.toISOString())
 
         if (recentInteractions) {
@@ -95,7 +96,10 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
         setStats(prev => ({ ...prev, materialCount: materialCount || 0 }))
 
         // Fetch View count
-        const { count: viewCount } = await supabase.from('interaction_logs').select('*', { count: 'exact', head: true })
+        const { count: viewCount } = await supabase
+            .from('interaction_logs')
+            .select('*, profiles!inner(role)', { count: 'exact', head: true })
+            .not('profiles.role', 'in', '("exec","core")')
         setStats(prev => ({ ...prev, viewCount: viewCount || 0 }))
 
         // Fetch Recent Logs
@@ -103,8 +107,9 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
             .from('interaction_logs')
             .select(`
                 *,
-                profiles ( full_name )
+                profiles!inner ( full_name, role )
             `)
+            .not('profiles.role', 'in', '("exec","core")')
             .order('created_at', { ascending: false })
             .limit(10)
 

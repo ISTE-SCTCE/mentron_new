@@ -64,6 +64,19 @@ export default async function DashboardPage() {
         
     const { count: totalMaterialCount } = await supabase.from('notes').select('*', { count: 'exact', head: true })
 
+    const { count: totalViews } = await supabase
+        .from('interaction_logs')
+        .select('*, profiles!inner(role)', { count: 'exact', head: true })
+        .not('profiles.role', 'in', '("exec","core")')
+
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    const { count: recentViews } = await supabase
+        .from('interaction_logs')
+        .select('*, profiles!inner(role)', { count: 'exact', head: true })
+        .not('profiles.role', 'in', '("exec","core")')
+        .gte('created_at', sevenDaysAgo.toISOString())
+
 
     return (
         <div className="flex flex-col min-h-screen text-[#ededed] pt-16 md:pt-32 w-full pb-20">
@@ -137,14 +150,14 @@ export default async function DashboardPage() {
                                             <p className="text-[9px] font-black text-gray-500 uppercase mb-1">Impact</p>
                                             <div className="flex items-center gap-2">
                                                 <BarChart3 size={14} className="text-blue-500" />
-                                                <span className="text-lg font-black text-white">Live</span>
+                                                <span className="text-lg font-black text-white">{totalViews || 0}</span>
                                             </div>
                                         </div>
                                         <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                                            <p className="text-[9px] font-black text-gray-500 uppercase mb-1">Growth</p>
+                                            <p className="text-[9px] font-black text-gray-500 uppercase mb-1">Growth (7d)</p>
                                             <div className="flex items-center gap-2">
                                                 <ArrowUpRight size={14} className="text-emerald-500" />
-                                                <span className="text-lg font-black text-white">+12%</span>
+                                                <span className="text-lg font-black text-white">+{recentViews || 0}</span>
                                             </div>
                                         </div>
                                     </div>
