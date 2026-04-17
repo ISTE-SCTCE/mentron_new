@@ -11,6 +11,7 @@ import { FloatingBanner } from '@/app/components/FloatingBanner'
 import { GlobalSearch } from '@/app/components/GlobalSearch'
 import { isCoreMember } from '@/app/lib/utils/coreAuth'
 import { EventBanner } from '@/app/components/EventBanner'
+import { NotificationBell } from '@/app/components/NotificationBell'
 
 export default async function DashboardPage() {
     const supabase = await createClient()
@@ -80,9 +81,10 @@ export default async function DashboardPage() {
                             </h1>
                         </div>
 
-                        <div className="flex items-center gap-6 w-full md:w-auto">
+                        <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto">
                             <ThemeSwitcher />
                             <GlobalSearch />
+                            {user && <NotificationBell userId={user.id} />}
                         </div>
                     </header>
 
@@ -225,7 +227,7 @@ export default async function DashboardPage() {
                         {(profile?.role === 'exec' || profile?.role === 'core') && (
                             <div className="glass-card flex-1 bg-blue-500/5 group">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-[10px] font-black tracking-widest text-blue-500 uppercase">Power Tools</h3>
+                                    <h3 className="text-[10px] font-black tracking-widest text-blue-500 uppercase">Project Manager</h3>
                                     <span className="text-xl grayscale group-hover:grayscale-0 transition-all">⚙️</span>
                                 </div>
                                 <div className="flex gap-2">

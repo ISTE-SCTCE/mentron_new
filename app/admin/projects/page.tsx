@@ -22,7 +22,7 @@ export default async function AdminProjectsPage() {
         .order('created_at', { ascending: false })
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-[#ededed] p-8">
+        <div className="min-h-screen bg-[#0a0a0a] text-[#ededed] p-8 pt-24 md:pt-32">
             <div className="max-w-6xl mx-auto">
                 <header className="flex justify-between items-center mb-12">
                     <div className="flex items-center gap-6">
@@ -58,6 +58,20 @@ export default async function AdminProjectsPage() {
                                         required
                                         className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
                                     />
+                                </div>
+                                <div className="flex items-center gap-3 bg-[#0a0a0a] p-4 rounded-lg border border-white/10">
+                                    <input
+                                        type="checkbox"
+                                        name="cv_required"
+                                        id="cv_required_admin"
+                                        defaultChecked={true}
+                                        value="true"
+                                        className="w-5 h-5 rounded border-gray-600 text-blue-500 focus:ring-blue-500/50 bg-black/50"
+                                    />
+                                    <div>
+                                        <label htmlFor="cv_required_admin" className="text-sm font-bold text-white cursor-pointer block">Require CV Upload</label>
+                                        <p className="text-xs text-gray-400">If checked, applicants must provide a CV.</p>
+                                    </div>
                                 </div>
                                 <button
                                     type="submit"

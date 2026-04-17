@@ -14,6 +14,7 @@ interface Project {
     description: string
     created_at: string
     posted_by: string
+    cv_required?: boolean
     profiles?: { full_name: string | null }
 }
 
@@ -217,6 +218,7 @@ export function ProjectsList({ projects, userName, userEmail, userRole, userId, 
                 <ApplyModal
                     projectId={modalProject.id}
                     projectTitle={modalProject.title}
+                    cvRequired={modalProject.cv_required ?? true}
                     userName={userName}
                     userEmail={userEmail}
                     onClose={() => setModalProject(null)}

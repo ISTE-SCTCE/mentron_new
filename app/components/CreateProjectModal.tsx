@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 export function CreateProjectModal({ onClose }: { onClose: () => void }) {
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
+    const [cvRequired, setCvRequired] = useState(true)
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState('')
     const router = useRouter()
@@ -22,7 +23,7 @@ export function CreateProjectModal({ onClose }: { onClose: () => void }) {
 
         const { error: insertErr } = await supabase
             .from('projects')
-            .insert({ title: title.trim(), description: description.trim(), posted_by: user.id })
+            .insert({ title: title.trim(), description: description.trim(), posted_by: user.id, cv_required: cvRequired })
 
         setSubmitting(false)
         if (insertErr) { setError(insertErr.message); return }
@@ -65,6 +66,20 @@ export function CreateProjectModal({ onClose }: { onClose: () => void }) {
                             required
                             className="w-full glass bg-white/5 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none"
                         />
+                    </div>
+
+                    <div className="flex items-center gap-3 bg-white/5 p-4 rounded-xl border border-white/10">
+                        <input
+                            type="checkbox"
+                            id="cvRequired"
+                            checked={cvRequired}
+                            onChange={(e) => setCvRequired(e.target.checked)}
+                            className="w-5 h-5 rounded border-gray-600 text-blue-500 focus:ring-blue-500/50 bg-black/50"
+                        />
+                        <div>
+                            <label htmlFor="cvRequired" className="text-sm font-black text-white cursor-pointer block">Require CV Upload</label>
+                            <p className="text-[10px] text-gray-500">If checked, applicants must provide a CV/Resume.</p>
+                        </div>
                     </div>
 
                     {error && (

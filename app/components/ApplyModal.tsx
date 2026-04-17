@@ -6,6 +6,7 @@ import { createClient } from '@/app/lib/supabase/client'
 interface Props {
     projectId: string
     projectTitle: string
+    cvRequired?: boolean
     userName: string
     userEmail: string
     onClose: () => void
@@ -15,7 +16,7 @@ interface Props {
 const ALLOWED_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
 const MAX_SIZE_MB = 5
 
-export function ApplyModal({ projectId, projectTitle, userName, userEmail, onClose, onSuccess }: Props) {
+export function ApplyModal({ projectId, projectTitle, cvRequired = true, userName, userEmail, onClose, onSuccess }: Props) {
     const [name, setName] = useState(userName)
     const [message, setMessage] = useState('')
     const [file, setFile] = useState<File | null>(null)
@@ -45,7 +46,7 @@ export function ApplyModal({ projectId, projectTitle, userName, userEmail, onClo
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!file) { setFileError('Please upload your CV.'); return }
+        if (cvRequired && !file) { setFileError('Please upload your CV.'); return }
         setError('')
         setUploading(true)
         setUploadProgress(0)
@@ -71,39 +72,45 @@ export function ApplyModal({ projectId, projectTitle, userName, userEmail, onClo
             return
         }
 
-        // Simulate progress during upload
-        const progressInterval = setInterval(() => {
-            setUploadProgress(p => Math.min(p + 10, 85))
-        }, 150)
+        let finalCvUrl = null
 
-        const filePath = `${user.id}/${projectId}/cv.${file.name.split('.').pop()}`
-        const { error: uploadErr } = await supabase.storage
-            .from('cv_bucket')
-            .upload(filePath, file, { upsert: true })
+        if (file) {
+            // Simulate progress during upload
+            const progressInterval = setInterval(() => {
+                setUploadProgress(p => Math.min(p + 10, 85))
+            }, 150)
 
-        clearInterval(progressInterval)
+            const filePath = `${user.id}/${projectId}/cv.${file.name.split('.').pop()}`
+            const { error: uploadErr } = await supabase.storage
+                .from('cv_bucket')
+                .upload(filePath, file, { upsert: true })
 
-        if (uploadErr) {
-            setError(`Upload failed: ${uploadErr.message}`)
-            setUploading(false)
-            setUploadProgress(0)
-            return
+            clearInterval(progressInterval)
+
+            if (uploadErr) {
+                setError(`Upload failed: ${uploadErr.message}`)
+                setUploading(false)
+                setUploadProgress(0)
+                return
+            }
+
+            setUploadProgress(100)
+            const { data: { publicUrl } } = supabase.storage
+                .from('cv_bucket')
+                .getPublicUrl(filePath)
+            
+            finalCvUrl = publicUrl
         }
 
-        setUploadProgress(100)
         setUploading(false)
         setSubmitting(true)
-
-        const { data: { publicUrl } } = supabase.storage
-            .from('cv_bucket')
-            .getPublicUrl(filePath)
 
         const { error: insertErr } = await supabase
             .from('project_applications')
             .insert({
                 project_id: projectId,
                 applicant_id: user.id,
-                cv_url: publicUrl,
+                cv_url: finalCvUrl,
                 message: message.trim(),
             })
 
@@ -121,8 +128,8 @@ export function ApplyModal({ projectId, projectTitle, userName, userEmail, onClo
         onSuccess()
     }
 
-    const isUploadDone = uploadProgress === 100 && !uploading
-    const canSubmit = file && !fileError && !uploading && !submitting
+    const isUploadDone = uploadProgress === 100 && !uploading && file
+    const canSubmit = (!cvRequired || file) && !fileError && !uploading && !submitting
 
     return (
         <div className="fixed inset-0 z-[9998] flex items-start justify-center p-4 pt-48 overflow-y-auto">
@@ -194,7 +201,7 @@ export function ApplyModal({ projectId, projectTitle, userName, userEmail, onClo
                     {/* CV Upload */}
                     <div>
                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2">
-                            CV / Resume <span className="text-gray-600 normal-case">(PDF or DOCX · max 5MB)</span>
+                            CV / Resume <span className="text-gray-600 normal-case">{cvRequired ? '(PDF or DOCX · max 5MB)' : '(Optional)'}</span>
                         </label>
                         <div
                             className="relative border border-dashed border-white/10 rounded-2xl p-6 text-center cursor-pointer hover:border-blue-500/40 hover:bg-blue-500/5 transition-all"
