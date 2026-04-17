@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { createClient } from '@/app/lib/supabase/server'
 import Link from 'next/link'
 import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'

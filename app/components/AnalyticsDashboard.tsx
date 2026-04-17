@@ -31,12 +31,13 @@ interface Props {
 }
 
 export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
+    // Initialize supabase client ONCE outside the component or via useMemo
+    const [supabase] = useState(() => createClient())
     const [stats, setStats] = useState<Stats>({
         ...initialStats,
-        weeklyActivity: [0, 0, 0, 0, 0, 0, 0] // Default until fetched
+        weeklyActivity: initialStats.weeklyActivity || [0, 0, 0, 0, 0, 0, 0]
     })
     const [logs, setLogs] = useState<InteractionLog[]>(initialLogs)
-    const supabase = createClient()
 
     const fetchStats = useCallback(async () => {
         // Fetch Profiles (EXCLUDING EXEC/CORE)
