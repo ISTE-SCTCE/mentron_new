@@ -63,6 +63,15 @@ export default async function DashboardPage() {
         ? identifiedDept
         : (profile?.department || user?.user_metadata?.department || 'Not Assigned')
 
+    // 5. Analytics Quick Stats (Filtered)
+    const { count: realStudentCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .not('role', 'in', '("exec","core")')
+        
+    const { count: totalMaterialCount } = await supabase.from('notes').select('*', { count: 'exact', head: true })
+
+
     return (
         <div className="flex flex-col min-h-screen text-[#ededed] pt-16 md:pt-32 w-full pb-20">
             <div className="flex-1 w-full max-w-[1800px] mx-auto px-4 md:px-8">
@@ -152,13 +161,13 @@ export default async function DashboardPage() {
                                             <div className="flex items-center gap-2">
                                                 <Users size={14} /> Total Members
                                             </div>
-                                            <span className="text-white">Active</span>
+                                            <span className="text-white">{realStudentCount || 0}</span>
                                         </div>
                                         <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl text-xs font-bold text-gray-400">
                                             <div className="flex items-center gap-2">
-                                                <BookOpen size={14} /> Note Credits
+                                                <BookOpen size={14} /> Total Notes
                                             </div>
-                                            <span className="text-white">Synced</span>
+                                            <span className="text-white">{totalMaterialCount || 0}</span>
                                         </div>
                                     </div>
 

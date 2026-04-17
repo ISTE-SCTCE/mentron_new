@@ -11,6 +11,7 @@ interface Stats {
     viewCount: number
     deptStats: Record<string, number>
     yearStats: Record<string, number>
+    weeklyActivity: number[]
 }
 
 interface InteractionLog {
@@ -30,13 +31,20 @@ interface Props {
 }
 
 export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
-    const [stats, setStats] = useState<Stats>(initialStats)
+    const [stats, setStats] = useState<Stats>({
+        ...initialStats,
+        weeklyActivity: [0, 0, 0, 0, 0, 0, 0] // Default until fetched
+    })
     const [logs, setLogs] = useState<InteractionLog[]>(initialLogs)
     const supabase = createClient()
 
     const fetchStats = useCallback(async () => {
-        // Fetch Profiles
-        const { data: profiles } = await supabase.from('profiles').select('role, department, roll_number, year')
+        // Fetch Profiles (EXCLUDING EXEC/CORE)
+        const { data: profiles } = await supabase
+            .from('profiles')
+            .select('role, department, roll_number, year')
+            .not('role', 'in', '("exec","core")')
+
         if (profiles) {
             const studentCount = profiles.length
             const deptStats: Record<string, number> = {}
@@ -59,6 +67,27 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
             })
 
             setStats(prev => ({ ...prev, studentCount, deptStats, yearStats }))
+        }
+
+        // Fetch Weekly activity for Sparkline
+        const sevenDaysAgo = new Date()
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+        
+        const { data: recentInteractions } = await supabase
+            .from('interaction_logs')
+            .select('created_at')
+            .gte('created_at', sevenDaysAgo.toISOString())
+
+        if (recentInteractions) {
+            const activityByDay = [0, 0, 0, 0, 0, 0, 0]
+            const now = new Date()
+            recentInteractions.forEach(log => {
+                const dayDiff = Math.floor((now.getTime() - new Date(log.created_at).getTime()) / (1000 * 60 * 60 * 24))
+                if (dayDiff >= 0 && dayDiff < 7) {
+                    activityByDay[6 - dayDiff]++
+                }
+            })
+            setStats(prev => ({ ...prev, weeklyActivity: activityByDay }))
         }
 
         // Fetch Materials count
@@ -175,15 +204,20 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
                             </div>
                         </div>
 
-                        {/* Sparkline Visualization */}
+                        {/* Sparkline Visualization (Real Data) */}
                         <div className="flex items-end gap-1 h-20 w-32 pb-2">
-                            {[40, 60, 45, 70, 50, 85, 60].map((h, i) => (
-                                <div
-                                    key={i}
-                                    className="flex-1 rounded-t-sm bg-blue-500/30 transition-all duration-300 hover:bg-blue-400"
-                                    style={{ height: `${h}%` }}
-                                ></div>
-                            ))}
+                            {stats.weeklyActivity.map((count, i) => {
+                                const max = Math.max(...stats.weeklyActivity, 1)
+                                const height = (count / max) * 100
+                                return (
+                                    <div
+                                        key={i}
+                                        className="flex-1 rounded-t-sm bg-blue-500/30 transition-all duration-300 hover:bg-blue-400"
+                                        style={{ height: `${Math.max(height, 5)}%` }}
+                                        title={`${count} interactions`}
+                                    ></div>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>
