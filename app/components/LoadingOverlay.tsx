@@ -3,39 +3,36 @@
 import { useLoading } from '@/app/lib/context/LoadingContext'
 
 interface RouteConfig {
-    icon: string
     label: string
     sub: string
-    color: string   // Tailwind gradient class tail
-    glow: string    // rgba glow color
+    ballColor: string
+    shadowColor: string
+    glowColor: string
 }
 
 const ROUTE_MAP: Record<string, RouteConfig> = {
-    '/dashboard': { icon: '⊞', label: 'Dashboard', sub: 'System Overview', color: 'from-blue-600 to-blue-400', glow: 'rgba(59,130,246,0.3)' },
-    '/analytics': { icon: '📊', label: 'Analytics', sub: 'Performance Metrics', color: 'from-indigo-600 to-blue-400', glow: 'rgba(99,102,241,0.3)' },
-    '/notes': { icon: '📚', label: 'Notes', sub: 'Academic Resources', color: 'from-emerald-600 to-teal-400', glow: 'rgba(16,185,129,0.3)' },
-    '/events': { icon: '⚡', label: 'Events', sub: 'Upcoming Activities', color: 'from-purple-600 to-violet-400', glow: 'rgba(139,92,246,0.3)' },
-    '/marketplace': { icon: '🛍️', label: 'Marketplace', sub: 'Trade Hub', color: 'from-amber-600 to-yellow-400', glow: 'rgba(245,158,11,0.3)' },
-    '/projects': { icon: '🧪', label: 'Projects', sub: 'Innovation Lab', color: 'from-cyan-600 to-sky-400', glow: 'rgba(6,182,212,0.3)' },
-    '/leaderboard': { icon: '👑', label: 'Leaderboard', sub: 'Top Contributors', color: 'from-yellow-500 to-amber-400', glow: 'rgba(234,179,8,0.3)' },
-    '/gallery': { icon: '📸', label: 'Gallery', sub: 'Memories', color: 'from-pink-600 to-rose-400', glow: 'rgba(236,72,153,0.3)' },
-    '/team': { icon: '👥', label: 'Team', sub: 'The Executive Committee', color: 'from-slate-600 to-gray-400', glow: 'rgba(148,163,184,0.3)' },
-    '/societies': { icon: '🧬', label: 'Societies', sub: 'Chapters & Clubs', color: 'from-rose-600 to-pink-400', glow: 'rgba(244,63,94,0.3)' },
-    '/signup': { icon: '✨', label: 'Sign Up', sub: 'Create Account', color: 'from-blue-600 to-blue-400', glow: 'rgba(59,130,246,0.3)' },
-    '/login': { icon: '🔑', label: 'Login', sub: 'Access Portal', color: 'from-blue-600 to-blue-400', glow: 'rgba(59,130,246,0.3)' },
+    '/dashboard':   { label: 'Dashboard',   sub: 'System Overview',      ballColor: '#6366f1', shadowColor: 'rgba(99,102,241,0.4)',   glowColor: 'rgba(99,102,241,0.15)' },
+    '/analytics':   { label: 'Analytics',   sub: 'Performance Metrics',  ballColor: '#818cf8', shadowColor: 'rgba(129,140,248,0.4)',  glowColor: 'rgba(129,140,248,0.15)' },
+    '/notes':       { label: 'Notes',       sub: 'Academic Resources',   ballColor: '#34d399', shadowColor: 'rgba(52,211,153,0.4)',   glowColor: 'rgba(52,211,153,0.12)' },
+    '/events':      { label: 'Events',      sub: 'Upcoming Activities',  ballColor: '#a78bfa', shadowColor: 'rgba(167,139,250,0.4)',  glowColor: 'rgba(167,139,250,0.12)' },
+    '/marketplace': { label: 'Marketplace', sub: 'Trade Hub',            ballColor: '#fbbf24', shadowColor: 'rgba(251,191,36,0.4)',   glowColor: 'rgba(251,191,36,0.10)' },
+    '/projects':    { label: 'Projects',    sub: 'Innovation Lab',       ballColor: '#22d3ee', shadowColor: 'rgba(34,211,238,0.4)',   glowColor: 'rgba(34,211,238,0.12)' },
+    '/leaderboard': { label: 'Leaderboard', sub: 'Top Contributors',     ballColor: '#facc15', shadowColor: 'rgba(250,204,21,0.4)',   glowColor: 'rgba(250,204,21,0.10)' },
+    '/societies':   { label: 'Societies',   sub: 'Chapters & Clubs',     ballColor: '#f472b6', shadowColor: 'rgba(244,114,182,0.4)',  glowColor: 'rgba(244,114,182,0.12)' },
+    '/team':        { label: 'Team',        sub: 'Executive Committee',  ballColor: '#94a3b8', shadowColor: 'rgba(148,163,184,0.4)',  glowColor: 'rgba(148,163,184,0.10)' },
+    '/settings':    { label: 'Settings',    sub: 'Preferences',          ballColor: '#7000df', shadowColor: 'rgba(112,0,223,0.4)',   glowColor: 'rgba(112,0,223,0.12)' },
 }
 
 const DEFAULT_CONFIG: RouteConfig = {
-    icon: 'M',
     label: 'Mentron',
     sub: 'Loading…',
-    color: 'from-blue-600 to-blue-400',
-    glow: 'rgba(59,130,246,0.25)',
+    ballColor: '#7000df',
+    shadowColor: 'rgba(112,0,223,0.45)',
+    glowColor: 'rgba(112,0,223,0.15)',
 }
 
 function getConfig(destination: string | null): RouteConfig {
     if (!destination) return DEFAULT_CONFIG
-    // Match longest prefix
     const match = Object.keys(ROUTE_MAP)
         .filter(k => destination === k || destination.startsWith(k + '/'))
         .sort((a, b) => b.length - a.length)[0]
@@ -47,49 +44,112 @@ export function LoadingOverlay() {
     const cfg = getConfig(destination)
 
     return (
-        <div
-            aria-hidden={!isLoading}
-            role="status"
-            aria-label="Loading"
-            className={`
-                fixed inset-0 z-[9999] flex flex-col items-center justify-center
-                transition-opacity duration-300 ease-in-out
-                ${isLoading ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
-            `}
-            style={{ background: 'rgba(3,3,15,0.88)', backdropFilter: 'blur(16px)' }}
-        >
-            {/* Ambient glow blob */}
+        <>
+            <style>{`
+                @keyframes mentron-bounce {
+                    0% {
+                        top: 60px;
+                        height: 5px;
+                        border-radius: 50px 50px 25px 25px;
+                        transform: scaleX(1.7);
+                    }
+                    40% {
+                        height: 20px;
+                        border-radius: 50%;
+                        transform: scaleX(1);
+                    }
+                    100% {
+                        top: 0%;
+                        height: 20px;
+                        border-radius: 50%;
+                        transform: scaleX(1);
+                    }
+                }
+
+                @keyframes mentron-shadow {
+                    0%   { transform: scaleX(1.5); opacity: 0.8; }
+                    100% { transform: scaleX(0.2); opacity: 0.25; }
+                }
+
+                @keyframes mentron-fade-in {
+                    from { opacity: 0; transform: translateY(8px); }
+                    to   { opacity: 1; transform: translateY(0); }
+                }
+
+                .mball {
+                    position: absolute;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    animation: mentron-bounce 0.5s alternate infinite ease;
+                }
+
+                .mball:nth-child(2) { animation-delay: 0.15s; left: 80px; }
+                .mball:nth-child(3) { animation-delay: 0.3s;  left: 160px; }
+
+                .mshadow {
+                    position: absolute;
+                    top: 62px;
+                    width: 20px;
+                    height: 4px;
+                    border-radius: 50%;
+                    animation: mentron-shadow 0.5s alternate infinite ease;
+                }
+
+                .mshadow:nth-child(5) { animation-delay: 0.15s; left: 80px; }
+                .mshadow:nth-child(6) { animation-delay: 0.3s;  left: 160px; }
+
+                .mentron-label-in {
+                    animation: mentron-fade-in 0.4s ease both;
+                }
+                .mentron-label-in-delay {
+                    animation: mentron-fade-in 0.4s ease 0.1s both;
+                }
+            `}</style>
+
             <div
-                className="absolute w-64 h-64 rounded-full blur-3xl opacity-30 loading-blob"
-                style={{ background: cfg.glow }}
-            />
-
-            {/* Icon card with pulse ring */}
-            <div className="relative mb-8">
-                {/* Pulse rings */}
-                <span className="absolute inset-0 rounded-3xl loading-ring" style={{ boxShadow: `0 0 0 0 ${cfg.glow}` }} />
+                aria-hidden={!isLoading}
+                role="status"
+                aria-label="Loading"
+                className={`
+                    fixed inset-0 z-[9999] flex flex-col items-center justify-center
+                    transition-opacity duration-300 ease-in-out
+                    ${isLoading ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
+                `}
+                style={{ background: 'rgba(3,3,15,0.92)', backdropFilter: 'blur(18px)' }}
+            >
+                {/* Ambient glow */}
                 <div
-                    className={`relative w-20 h-20 rounded-3xl flex items-center justify-center text-3xl
-                        bg-gradient-to-br ${cfg.color} shadow-2xl loading-icon-bounce`}
-                >
-                    {cfg.icon}
-                </div>
-            </div>
-
-            {/* Route label */}
-            <h2 className="text-2xl font-black tracking-tight text-white mb-1 loading-fade-up">
-                {cfg.label}
-            </h2>
-            <p className="text-[11px] font-black tracking-[0.3em] text-gray-500 uppercase mb-10 loading-fade-up-delay">
-                {cfg.sub}
-            </p>
-
-            {/* Animated bar */}
-            <div className="relative w-48 h-[2px] bg-white/10 rounded-full overflow-hidden">
-                <div
-                    className={`absolute inset-y-0 left-0 w-2/5 bg-gradient-to-r ${cfg.color} rounded-full ${isLoading ? 'loading-bar' : ''}`}
+                    className="absolute w-72 h-72 rounded-full pointer-events-none"
+                    style={{
+                        background: `radial-gradient(circle, ${cfg.glowColor} 0%, transparent 70%)`,
+                        filter: 'blur(40px)',
+                        animation: 'mentron-fade-in 0.6s ease both'
+                    }}
                 />
+
+                {/* ── Bouncing Balls Rig ── */}
+                <div style={{ position: 'relative', width: '180px', height: '68px', marginBottom: '40px' }}>
+                    {/* Balls */}
+                    <div className="mball" style={{ left: 0,     top: 60, background: cfg.ballColor, boxShadow: `0 0 12px 2px ${cfg.glowColor}` }} />
+                    <div className="mball" style={{ left: '80px', top: 60, background: cfg.ballColor, boxShadow: `0 0 12px 2px ${cfg.glowColor}` }} />
+                    <div className="mball" style={{ left: '160px', top: 60, background: cfg.ballColor, boxShadow: `0 0 12px 2px ${cfg.glowColor}` }} />
+
+                    {/* Shadows */}
+                    <div className="mshadow" style={{ left: 0,      background: cfg.shadowColor, filter: 'blur(2px)' }} />
+                    <div className="mshadow" style={{ left: '80px',  background: cfg.shadowColor, filter: 'blur(2px)' }} />
+                    <div className="mshadow" style={{ left: '160px', background: cfg.shadowColor, filter: 'blur(2px)' }} />
+                </div>
+
+                {/* Route label */}
+                <h2 className="text-xl font-black tracking-tight text-white mb-1 mentron-label-in">
+                    {cfg.label}
+                </h2>
+                <p className="text-[10px] font-black tracking-[0.3em] uppercase mentron-label-in-delay"
+                    style={{ color: 'rgba(139,148,168,0.7)' }}>
+                    {cfg.sub}
+                </p>
             </div>
-        </div>
+        </>
     )
 }
