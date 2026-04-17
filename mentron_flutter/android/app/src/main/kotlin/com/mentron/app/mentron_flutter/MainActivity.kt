@@ -8,9 +8,10 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Block screenshots and screen recording across the entire app
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_SECURE,
-            WindowManager.LayoutParams.FLAG_SECURE
-        )
+        // TODO: Re-enable FLAG_SECURE after taking Play Store screenshots
+        // window.setFlags(
+        //     WindowManager.LayoutParams.FLAG_SECURE,
+        //     WindowManager.LayoutParams.FLAG_SECURE
+        // )
     }
 }
