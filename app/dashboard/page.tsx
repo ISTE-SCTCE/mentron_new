@@ -5,11 +5,6 @@ import { DashboardCalendar } from '@/app/components/DashboardCalendar'
 import { ThemeSwitcher } from '@/app/components/ThemeSwitcher'
 import { AboutSection } from '@/app/components/AboutSection'
 import { Footer } from '@/app/components/Footer'
-import { LiveActivityTicker } from '@/app/components/LiveActivityTicker'
-import { FloatingBanner } from '@/app/components/FloatingBanner'
-
-import { GlobalSearch } from '@/app/components/GlobalSearch'
-import { isCoreMember } from '@/app/lib/utils/coreAuth'
 import { EventBanner } from '@/app/components/EventBanner'
 import { NotificationBell } from '@/app/components/NotificationBell'
 import { BarChart3, ArrowUpRight, Users, BookOpen } from 'lucide-react'
@@ -28,8 +23,8 @@ export default async function DashboardPage() {
         .eq('id', user?.id)
         .single()
 
-    // 2. Fetch Recent Activity (re-adding this)
-    const { data: activity } = await supabase
+    // 2. Fetch Recent Activity (hidden in UI)
+    await supabase
         .from('interaction_logs')
         .select('*, profiles(full_name)')
         .order('created_at', { ascending: false })
@@ -48,11 +43,7 @@ export default async function DashboardPage() {
         .order('created_at', { ascending: false })
         .limit(5)
 
-    const { data: latestItems } = await supabase
-        .from('marketplace_items')
-        .select('*, profiles(full_name)')
-        .order('created_at', { ascending: false })
-        .limit(5)
+    await supabase.from('marketplace_items').select('*, profiles(full_name)').order('created_at', { ascending: false }).limit(5)
 
     //Greeting Logic
     const hours = new Date().getHours()

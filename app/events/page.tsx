@@ -29,6 +29,7 @@ export default async function EventsListPage() {
         .from('event_concepts')
         .select(`
             id, 
+            user_id,
             title, 
             description, 
             created_at, 
