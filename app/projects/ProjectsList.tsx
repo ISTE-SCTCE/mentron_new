@@ -44,35 +44,55 @@ function ProjectCard({
 }) {
     return (
         <InteractionTracker itemType="project" itemId={project.id} interactionType="view" trigger="mount">
-            <div className="glass-card flex flex-col group relative overflow-hidden h-full">
-                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                    <span className="text-8xl font-black">🚀</span>
+            <div 
+                className={`glass-card flex flex-col group relative overflow-hidden h-full cursor-pointer transition-all duration-300 border-white/5 hover:border-blue-500/50 hover:shadow-[0_0_50px_-12px_rgba(59,130,246,0.3)] ${!isOwn && !hasApplied ? 'hover:-translate-y-1' : ''}`}
+                onClick={(e) => {
+                    if (isOwn) {
+                        onViewApps?.();
+                    } else if (!hasApplied) {
+                        onApply();
+                    }
+                }}
+            >
+                <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-10 transition-all duration-500 pointer-events-none group-hover:scale-125 group-hover:rotate-12">
+                    <span className="text-9xl font-black">🚀</span>
                 </div>
 
-                <div className="flex justify-between items-start mb-5">
+                {/* Hover Indicator Overlay */}
+                {!isOwn && !hasApplied && (
+                    <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/[0.02] transition-colors pointer-events-none flex items-center justify-center">
+                        <span className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 bg-blue-600 text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
+                            Click to Apply
+                        </span>
+                    </div>
+                )}
+
+                <div className="flex justify-between items-start mb-5 relative z-10">
                     <span className="text-[10px] font-black tracking-widest text-gray-600 uppercase">
                         {new Date(project.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </span>
                     {hasApplied && (
-                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full">
+                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 backdrop-blur-sm">
                             ✓ Applied
                         </span>
                     )}
                 </div>
 
-                <h2 className="text-xl font-black leading-tight text-white group-hover:text-glow transition-all mb-2">
-                    {project.title}
-                </h2>
-                <p className="text-gray-400 font-medium leading-relaxed line-clamp-3 text-sm flex-1 mb-6">
-                    {project.description}
-                </p>
+                <div className="relative z-10 flex-1 flex flex-col">
+                    <h2 className="text-xl font-black leading-tight text-white group-hover:text-blue-400 transition-all mb-2">
+                        {project.title}
+                    </h2>
+                    <p className="text-gray-400 font-medium leading-relaxed line-clamp-3 text-sm flex-1 mb-6">
+                        {project.description}
+                    </p>
+                </div>
 
-                <div className="flex items-center justify-between border-t border-white/5 pt-5 gap-3 flex-wrap">
+                <div className="flex items-center justify-between border-t border-white/5 pt-5 gap-3 flex-wrap relative z-10">
                     <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-[10px] text-blue-400 font-black shrink-0">
+                        <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-[10px] text-blue-400 font-black shrink-0 border border-blue-500/20">
                             {(project.profiles?.full_name ?? 'E')[0]}
                         </div>
-                        <span className="text-[10px] font-black tracking-widest text-gray-600 uppercase">
+                        <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase group-hover:text-gray-300 transition-colors">
                             {project.profiles?.full_name || 'Anonymous'}
                         </span>
                     </div>
@@ -80,8 +100,8 @@ function ProjectCard({
                     <div className="flex items-center gap-2 shrink-0">
                         {isOwn && (
                             <button
-                                onClick={onViewApps}
-                                className="px-4 py-1.5 rounded-xl font-black text-[10px] uppercase tracking-widest bg-emerald-500/10 hover:bg-emerald-500 hover:text-white text-emerald-400 border border-emerald-500/20 hover:border-transparent transition-all active:scale-95"
+                                onClick={(e) => { e.stopPropagation(); onViewApps?.(); }}
+                                className="px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest bg-emerald-500/10 hover:bg-emerald-500 hover:text-white text-emerald-400 border border-emerald-500/20 hover:border-transparent transition-all active:scale-95 shadow-lg"
                             >
                                 Applications
                             </button>
@@ -89,13 +109,13 @@ function ProjectCard({
 
                         {!isOwn && (
                             hasApplied ? (
-                                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20 cursor-default">
-                                    Applied ✓
+                                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-4 py-2.5 rounded-xl border border-emerald-500/20 cursor-default backdrop-blur-sm">
+                                    Status: Applied
                                 </span>
                             ) : (
                                 <button
-                                    onClick={onApply}
-                                    className="px-5 py-2 rounded-xl font-black text-xs uppercase tracking-widest bg-white text-black hover:bg-blue-500 hover:text-white active:scale-95 shadow-lg transition-all shrink-0"
+                                    onClick={(e) => { e.stopPropagation(); onApply(); }}
+                                    className="px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest bg-white text-black hover:bg-blue-600 hover:text-white active:scale-95 shadow-[0_4px_20px_rgba(255,255,255,0.1)] hover:shadow-blue-600/40 transition-all shrink-0"
                                 >
                                     Apply Now
                                 </button>
@@ -103,7 +123,9 @@ function ProjectCard({
                         )}
 
                         {(isOwn || isExec) && (
-                            <DeleteButton onDelete={() => deleteProject(project.id)} itemName="project" />
+                            <div onClick={(e) => e.stopPropagation()} className="ml-1">
+                                <DeleteButton onDelete={() => deleteProject(project.id)} itemName="project" />
+                            </div>
                         )}
                     </div>
                 </div>

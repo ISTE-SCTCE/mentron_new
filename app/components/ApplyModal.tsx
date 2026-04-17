@@ -132,7 +132,7 @@ export function ApplyModal({ projectId, projectTitle, cvRequired = true, userNam
     const canSubmit = (!cvRequired || file) && !fileError && !uploading && !submitting
 
     return (
-        <div className="fixed inset-0 z-[9998] flex items-start justify-center p-4 pt-48 overflow-y-auto">
+        <div className="fixed inset-0 z-[9998] flex items-start justify-center p-4 pt-12 md:pt-32 overflow-y-auto">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/70 backdrop-blur-md"
