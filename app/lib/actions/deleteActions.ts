@@ -124,3 +124,48 @@ export async function deleteMarketplaceItem(itemId: string) {
     revalidatePath('/marketplace')
     return { success: true }
 }
+
+export async function withdrawApplication(projectId: string) {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Unauthorized' }
+
+    // Fetch application details for this user on this project
+    const { data: app, error: fetchError } = await supabase
+        .from('project_applications')
+        .select('id, cv_url, status')
+        .eq('project_id', projectId)
+        .eq('profile_id', user.id)
+        .single()
+
+    if (fetchError || !app) return { error: 'Application not found' }
+    
+    // Only allow withdrawing if status is 'pending' OR null (to prevent withdrawing after acceptance)
+    if (app.status && app.status !== 'pending') {
+        return { error: `Cannot withdraw an application that has already been ${app.status}.` }
+    }
+
+    // Try to delete CV file
+    try {
+        if (app.cv_url) {
+            const match = app.cv_url.match(/cv_bucket\/(.+)/)
+            if (match && match[1]) {
+                const filePath = match[1]
+                await supabase.storage.from('cv_bucket').remove([filePath])
+            }
+        }
+    } catch (e) {
+        console.error("CV delete error during withdrawal", e)
+    }
+
+    const { error: deleteError } = await supabase
+        .from('project_applications')
+        .delete()
+        .eq('id', app.id)
+
+    if (deleteError) return { error: deleteError.message }
+
+    revalidatePath('/projects')
+    return { success: true }
+}

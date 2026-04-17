@@ -6,7 +6,7 @@ import { CreateProjectModal } from '@/app/components/CreateProjectModal'
 import { ProjectApplicationsModal } from '@/app/components/ProjectApplicationsModal'
 import { InteractionTracker } from '@/app/components/InteractionTracker'
 import { DeleteButton } from '@/app/components/DeleteButton'
-import { deleteProject } from '@/app/lib/actions/deleteActions'
+import { deleteProject, withdrawApplication } from '@/app/lib/actions/deleteActions'
 
 interface Project {
     id: string
@@ -33,6 +33,7 @@ function ProjectCard({
     isExec,
     hasApplied,
     onApply,
+    onWithdraw,
     onViewApps,
 }: {
     project: Project
@@ -40,6 +41,7 @@ function ProjectCard({
     isExec: boolean
     hasApplied: boolean
     onApply: () => void
+    onWithdraw?: () => void
     onViewApps?: () => void
 }) {
     return (
@@ -109,9 +111,17 @@ function ProjectCard({
 
                         {!isOwn && (
                             hasApplied ? (
-                                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-4 py-2.5 rounded-xl border border-emerald-500/20 cursor-default backdrop-blur-sm">
-                                    Status: Applied
-                                </span>
+                                <div className="flex flex-col items-end gap-1.5">
+                                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-4 py-2.5 rounded-xl border border-emerald-500/20 cursor-default backdrop-blur-sm">
+                                        Status: Applied
+                                    </span>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); onWithdraw?.(); }}
+                                        className="text-[9px] font-black text-red-400/50 hover:text-red-400 uppercase tracking-widest transition-colors"
+                                    >
+                                        Withdraw Application
+                                    </button>
+                                </div>
                             ) : (
                                 <button
                                     onClick={(e) => { e.stopPropagation(); onApply(); }}
@@ -150,6 +160,21 @@ export function ProjectsList({ projects, userName, userEmail, userRole, userId, 
         setSuccessId(projectId)
         setModalProject(null)
         setTimeout(() => setSuccessId(null), 4000)
+    }
+
+    const handleWithdraw = async (projectId: string) => {
+        if (!confirm("Are you sure you want to withdraw your application? This will remove your record and delete your uploaded CV.")) return
+
+        const res = await withdrawApplication(projectId)
+        if (res.success) {
+            setAppliedIds(prev => {
+                const next = new Set(prev)
+                next.delete(projectId)
+                return next
+            })
+        } else {
+            alert(res.error || "Failed to withdraw application.")
+        }
     }
 
     return (
@@ -234,6 +259,7 @@ export function ProjectsList({ projects, userName, userEmail, userRole, userId, 
                                 isExec={isExec}
                                 hasApplied={appliedIds.has(p.id)}
                                 onApply={() => setModalProject(p)}
+                                onWithdraw={() => handleWithdraw(p.id)}
                             />
                         ))}
                     </div>
