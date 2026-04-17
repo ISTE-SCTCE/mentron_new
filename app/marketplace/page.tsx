@@ -1,6 +1,7 @@
 import { createClient } from '@/app/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { SpiderScene } from './SpiderScene'
 
 export default async function MarketplacePage() {
     const supabase = await createClient()
@@ -10,22 +11,10 @@ export default async function MarketplacePage() {
     return (
         <div className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
 
-            {/* Blurred background — blurred item cards as ghost content */}
-            <div className="absolute inset-0 z-0 pointer-events-none select-none" aria-hidden="true">
-                {/* Fake blurred cards grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 p-12 pt-20 md:pt-32 opacity-30 blur-md scale-105">
-                    {Array.from({ length: 9 }).map((_, i) => (
-                        <div key={i} className="glass-card h-56 flex flex-col gap-3 animate-pulse">
-                            <div className="w-full h-28 rounded-xl bg-white/5" />
-                            <div className="h-3 w-3/4 bg-white/10 rounded-full" />
-                            <div className="h-3 w-1/2 bg-white/5 rounded-full" />
-                            <div className="h-3 w-1/4 bg-purple-500/20 rounded-full" />
-                        </div>
-                    ))}
-                </div>
-                {/* Extra overlay gradient to deepen the blur */}
-                <div className="absolute inset-0 bg-[#030305]/60 backdrop-blur-sm" />
-            </div>
+            {/* 3D Spider Background */}
+            <SpiderScene />
+            {/* Overlay gradient to ensure text readability */}
+            <div className="absolute inset-0 bg-[#030305]/40 pointer-events-none z-[1]" />
 
             {/* Coming Soon content */}
             <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-lg">

@@ -178,8 +178,6 @@ export default async function DashboardPage() {
                             </div>
                         ) : (
                             <>
-                        ) : (
-                            <>
                                 <h3 className="text-xs font-black tracking-[0.2em] text-blue-500 uppercase mb-8 shrink-0">Live Projects</h3>
                                 <div className="space-y-6 overflow-y-auto pr-2 custom-scrollbar flex-1">
                                     {latestProjects && latestProjects.length > 0 ? (
