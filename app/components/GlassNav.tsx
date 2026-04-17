@@ -68,12 +68,12 @@ export function GlassNav() {
         { href: '/dashboard', icon: LayoutGrid, label: 'Dashboard' },
         { href: '/analytics', icon: BarChart3, label: 'Analytics' },
         { href: '/events', icon: Zap, label: 'Events' },
-        { href: '/societies', icon: Users, label: 'Societies' },
         { href: '/notes', icon: BookOpen, label: 'Notes' },
         { href: '/projects', icon: FlaskConical, label: 'Projects' },
         { href: '/marketplace', icon: ShoppingBag, label: 'Marketplace' },
         { href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
         { href: '/settings', icon: Settings, label: 'Settings' },
+        { href: '/societies', icon: Users, label: 'Societies' },
     ]
 
     return (
