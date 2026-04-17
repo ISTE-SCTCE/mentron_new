@@ -56,7 +56,7 @@ export default async function NotesPage({
 
     return (
         <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-[1800px] mx-auto">
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0 mb-10 md:mb-16">
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
                         <Link href="/dashboard" className="text-gray-500 hover:text-white transition-all text-sm font-bold uppercase tracking-widest">
@@ -93,7 +93,7 @@ export default async function NotesPage({
 
                 {/* Search results OR Year cards */}
                 {(query || filter === 'contributions') ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mt-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-6 md:gap-8 mt-4">
                         {notes && notes.length > 0 ? (
                             notes.map((note) => (
                                 <div key={note.id} className="glass-card flex flex-col group relative overflow-hidden">
@@ -151,7 +151,7 @@ export default async function NotesPage({
                             </p>
                             <h2 className="text-3xl font-black text-white tracking-tighter mt-2">Select Your Year</h2>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
                             {YEARS.map(({ year, label, sems, emoji, color, border, accent }) => (
                                 <Link
                                     key={year}

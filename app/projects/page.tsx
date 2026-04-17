@@ -30,7 +30,7 @@ export default async function ProjectsPage() {
 
     return (
         <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-[1800px] mx-auto">
                 <header className="mb-10">
                     <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase mb-3">Innovations</p>
                     <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white">Active Projects</h1>

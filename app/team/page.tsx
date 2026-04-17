@@ -14,7 +14,7 @@ export default async function TeamPage() {
 
     return (
         <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-[1800px] mx-auto">
                 <header className="flex justify-between items-center mb-16">
                     <div className="flex items-center gap-8">
                         <Link href="/dashboard" className="text-gray-500 hover:text-white transition-all text-sm font-bold uppercase tracking-widest">
@@ -38,7 +38,7 @@ export default async function TeamPage() {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-8">
                     {members?.map((member, index) => (
                         <div
                             key={index}

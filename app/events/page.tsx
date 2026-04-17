@@ -17,7 +17,7 @@ export default async function EventsListPage() {
 
     return (
         <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-[1800px] mx-auto">
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 md:mb-16">
                     <div className="flex items-center gap-8">
                         <Link href="/dashboard" className="text-gray-500 hover:text-white transition-all text-sm font-bold uppercase tracking-widest">
@@ -35,7 +35,7 @@ export default async function EventsListPage() {
                     </form>
                 </header>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-8">
                     {events && events.length > 0 ? (
                         events.map((event) => (
                             <Link

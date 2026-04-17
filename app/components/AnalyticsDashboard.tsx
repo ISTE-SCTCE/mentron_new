@@ -109,7 +109,7 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
     return (
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
             {/* Top Row: Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 2xl:grid-cols-3 3xl:grid-cols-4 gap-6">
                 {/* Total Students */}
                 <div className="glass-card group p-8 flex flex-col justify-between h-56 relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 group-hover:opacity-20 transition-all duration-500">
@@ -190,7 +190,7 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
             </div>
 
             {/* Bottom Row: Distribution & Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-8">
                 {/* Student Distribution */}
                 <div className="glass-card p-10 space-y-8">
                     <div>

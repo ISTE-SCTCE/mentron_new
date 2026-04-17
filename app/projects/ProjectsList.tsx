@@ -164,7 +164,7 @@ export function ProjectsList({ projects, userName, userEmail, userRole, userId, 
                         </button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-6">
                         {myProjects.map(p => (
                             <ProjectCard
                                 key={p.id}
@@ -197,7 +197,7 @@ export function ProjectsList({ projects, userName, userEmail, userRole, userId, 
                         <p className="text-gray-700 text-xs mt-1">Check back soon for new listings!</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-6">
                         {otherProjects.map(p => (
                             <ProjectCard
                                 key={p.id}

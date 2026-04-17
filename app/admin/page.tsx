@@ -16,8 +16,8 @@ export default async function AdminPage() {
         .single()
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-[#ededed] p-4 md:p-8 pt-20 md:pt-32">
-            <div className="max-w-4xl mx-auto">
+        <div className="min-h-screen pt-20 md:pt-32 pb-20 px-8 max-w-[1800px] mx-auto text-[#ededed]">
+            <div className="max-w-[1800px] mx-auto">
                 <header className="flex justify-between items-center mb-12">
                     <div className="flex items-center gap-4">
                         <Link href="/dashboard" className="text-gray-400 hover:text-white transition-all">

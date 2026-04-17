@@ -156,7 +156,7 @@ export default function CoreMembersPage() {
     }
 
     return (
-        <div className="min-h-screen pt-20 md:pt-32 pb-20 px-4 md:px-10 max-w-7xl mx-auto">
+        <div className="min-h-screen pt-20 md:pt-32 pb-20 px-4 md:px-10 max-w-[1800px] mx-auto">
             {/* Header */}
             <div className="mb-12 space-y-2">
                 <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase flex items-center gap-2">
@@ -236,7 +236,7 @@ export default function CoreMembersPage() {
                     <p className="text-gray-400 font-bold uppercase text-xs tracking-widest">No students found matching your criteria.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-6">
                     {filtered.map((m) => (
                         <div key={m.id} className="glass-card flex flex-col group relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-900/20 hover:-translate-y-1 hover:border-blue-500/30">
                             
