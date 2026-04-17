@@ -77,16 +77,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
       }
 
-      final membersRes = await supabase.rpc('get_total_members');
-      final membersCount = membersRes is int ? membersRes : 0;
+      // Sync logic with Web: Filter for 'member' role only
+      final membersRes = await supabase
+        .from('profiles')
+        .count(CountOption.exact)
+        .eq('role', 'member');
+      final membersCount = membersRes;
 
-      var notesQuery = supabase.from('notes').count(CountOption.exact);
-      if (userDept != null) notesQuery = notesQuery.eq('department', userDept);
-      final notesCount = await notesQuery;
+      // Global notes count (matching Web)
+      final notesCount = await supabase
+        .from('notes')
+        .count(CountOption.exact);
 
-      var projectsQuery = supabase.from('projects').count(CountOption.exact);
-      if (userDept != null) projectsQuery = projectsQuery.eq('department', userDept);
-      final projectsCount = await projectsQuery;
+      // Total projects count
+      final projectsCount = await supabase
+        .from('projects')
+        .count(CountOption.exact);
 
       if (mounted) {
         setState(() {

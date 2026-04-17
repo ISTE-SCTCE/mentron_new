@@ -238,7 +238,7 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
                         <div className="h-1 w-12 bg-blue-500 mt-2"></div>
                     </div>
                     <div className="space-y-6">
-                        {['ECE', 'CSE', 'EEE', 'ME', 'CE'].map(dept => (
+                        {Object.keys(stats.deptStats).sort((a,b) => (stats.deptStats[b] || 0) - (stats.deptStats[a] || 0)).map(dept => (
                             <div key={dept} className="group cursor-default">
                                 <div className="flex justify-between items-center mb-1.5">
                                     <span className="text-xs font-black text-white tracking-widest uppercase group-hover:text-blue-400 transition-colors">{dept}</span>
