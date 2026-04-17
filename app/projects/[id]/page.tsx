@@ -28,7 +28,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         .from('project_applications')
         .select('*')
         .eq('project_id', id)
-        .eq('applicant_id', user?.id)
+        .eq('profile_id', user?.id)
         .single()
 
     return (

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/app/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 
 export async function createProject(formData: FormData) {
     const supabase = await createClient()
@@ -10,20 +11,26 @@ export async function createProject(formData: FormData) {
     const description = formData.get('description') as string
     const cv_required = formData.get('cv_required') === 'true'
 
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) redirect('/admin/projects?error=Unauthorized')
+
     const { error } = await supabase
         .from('projects')
         .insert({
             title,
             description,
             cv_required,
+            posted_by: user.id
         })
 
     if (error) {
-        console.error('Project creation error:', error)
+        console.error('Create project error:', error)
         redirect(`/admin/projects?error=${encodeURIComponent(error.message)}`)
     }
 
-    redirect('/admin/projects?success=Project created successfully')
+    revalidatePath('/admin/projects')
+    revalidatePath('/projects')
+    redirect('/admin/projects')
 }
 
 export async function updateApplicationStatus(formData: FormData) {

@@ -24,6 +24,11 @@ export default async function AdminProjectsPage() {
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-[#ededed] p-8 pt-24 md:pt-32">
             <div className="max-w-6xl mx-auto">
+                {projectsError && (
+                    <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                        <p className="text-red-400 text-sm font-bold">Error fetching data: {projectsError.message}</p>
+                    </div>
+                )}
                 <header className="flex justify-between items-center mb-12">
                     <div className="flex items-center gap-6">
                         <Link href="/admin" className="text-gray-400 hover:text-white transition-all">

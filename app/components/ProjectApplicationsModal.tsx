@@ -58,8 +58,9 @@ export function ProjectApplicationsModal({ projectId, projectTitle, onClose }: P
 
         if (fetchErr) {
             console.error('Fetch error:', fetchErr)
-            setError('Failed to load applications. Please try again.')
+            setError(`Failed to load applications: ${fetchErr.message}`)
         } else if (data) {
+            console.log(`Successfully fetched ${data.length} applications for project: ${projectId}`)
             setApplications(data as unknown as Application[])
         }
         setLoading(false)
