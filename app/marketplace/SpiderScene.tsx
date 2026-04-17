@@ -8,6 +8,100 @@ import { easing } from 'maath'
 
 // Spider Configuration
 const BODY_RADIUS = 0.8
+const LEG_COUNT = 8
+const STEP_HEIGHT = 1.0
+const IDEAL_LEG_DIST = 3.0
+const STEP_THRESHOLD = 1.8
+
+const legConfigs = Array.from({ length: LEG_COUNT }).map((_, i) => {
+    const angle = (i / LEG_COUNT) * Math.PI * 2
+    // Base attaches to the edge of the body radius
+    const baseX = Math.cos(angle) * BODY_RADIUS
+    const baseZ = Math.sin(angle) * BODY_RADIUS
+    // Ideal foot is further out
+    const idealX = Math.cos(angle) * IDEAL_LEG_DIST
+    const idealZ = Math.sin(angle) * IDEAL_LEG_DIST
+
+    // We pair legs into two gait groups (Evens vs Odds) so they don't all step at once
+    const gaitGroup = i % 2
+
+    return { baseX, baseZ, idealX, idealZ, gaitGroup, angle }
+})
+
+// --- Inverse Kinematics Leg Component (Disconnected Spore Dots) ---
+function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: React.RefObject<THREE.Group | null>, color: string }) {
+    const footRef = useRef<THREE.Mesh>(null)
+    
+    // State of the leg
+    const state = useRef({
+        currentPos: new THREE.Vector3(config.idealX, 0, config.idealZ),
+        targetPos: new THREE.Vector3(config.idealX, 0, config.idealZ),
+        isStepping: false,
+        stepProgress: 0,
+        basePos: new THREE.Vector3(),
+        idealPos: new THREE.Vector3(),
+    })
+
+    useFrame((_, dt) => {
+        if (!bodyRef.current) return
+
+        const s = state.current
+        
+        // Calculate where the leg *wants* to be based on current body pos
+        s.idealPos.set(config.idealX, 0, config.idealZ)
+            .applyQuaternion(bodyRef.current.quaternion)
+            .add(bodyRef.current.position)
+        
+        // Calculate body attachment point
+        s.basePos.set(config.baseX, 0, config.baseZ)
+            .applyQuaternion(bodyRef.current.quaternion)
+            .add(bodyRef.current.position)
+
+        // Step logic
+        const distToIdeal = s.currentPos.distanceTo(s.idealPos)
+        
+        if (!s.isStepping && distToIdeal > STEP_THRESHOLD) {
+            s.isStepping = true
+            s.stepProgress = 0
+            // Overshoot the ideal slightly to anticipate movement
+            const velocityDir = new THREE.Vector3().subVectors(s.idealPos, s.currentPos).normalize().multiplyScalar(0.5)
+            s.targetPos.copy(s.idealPos).add(velocityDir)
+        }
+
+        if (s.isStepping) {
+            s.stepProgress += dt * 8 // step speed
+            if (s.stepProgress >= 1) {
+                s.stepProgress = 1
+                s.isStepping = false
+            }
+
+            // Parabolic arc interpolation for the step
+            s.currentPos.lerpVectors(s.currentPos, s.targetPos, s.stepProgress)
+            // add arc height
+            const arc = Math.sin(s.stepProgress * Math.PI) * STEP_HEIGHT
+            s.currentPos.y = arc
+        } else {
+             // stick to ground
+             s.currentPos.y = 0
+        }
+
+        if (footRef.current) {
+            footRef.current.position.copy(s.currentPos)
+        }
+    })
+
+    return (
+        <group>
+            {/* The foot point (spore dot) */}
+            <mesh ref={footRef}>
+                <sphereGeometry args={[0.15, 8, 8]} />
+                <meshBasicMaterial color={color} />
+                <pointLight distance={1.5} intensity={1} color={color} />
+            </mesh>
+        </group>
+    )
+}
+
 
 function Spider() {
     const bodyRef = useRef<THREE.Group>(null)
@@ -41,6 +135,7 @@ function Spider() {
     })
 
     const bodyColor = "#0080FF"
+    const legColor = "#00ffff" // Cyan colored spore dots
 
     return (
         <group>
@@ -58,6 +153,10 @@ function Spider() {
                 </mesh>
             </group>
 
+            {/* 8 Legs (Disconnected Dots) */}
+            {legConfigs.map((config, i) => (
+                <SpiderLeg key={i} config={config} bodyRef={bodyRef} color={legColor} />
+            ))}
         </group>
     )
 }
