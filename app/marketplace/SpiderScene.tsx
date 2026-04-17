@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useMemo, useState, useEffect } from 'react'
+import React, { useRef, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { PerspectiveCamera, Environment, Sparkles } from '@react-three/drei'
 import * as THREE from 'three'
@@ -229,10 +229,10 @@ function Leash() {
 
 export function SpiderScene() {
     return (
-        <div className="absolute inset-0 z-0">
-            <Canvas shadows={false} dpr={[1, 2]}>
-                <PerspectiveCamera makeDefault position={[0, 8, 12]} fov={45} />
-                <color attach="background" args={['#030305']} />
+        <div className="fixed inset-0 z-[100] pointer-events-none">
+            <Canvas shadows={false} dpr={[1, 2]} eventSource={document.documentElement} eventPrefix="client">
+                <PerspectiveCamera makeDefault position={[0, 15, 20]} fov={35} />
+                {/* Remove background color to allow transparency */}
                 
                 <ambientLight intensity={0.5} />
                 
