@@ -1,6 +1,5 @@
 import { createClient } from '@/app/lib/supabase/server'
 import Link from 'next/link'
-import { logout } from '@/app/login/actions'
 import { InteractionTracker } from '@/app/components/InteractionTracker'
 import { NotesSearch } from './NotesSearch'
 import { ThemeSwitcher } from '@/app/components/ThemeSwitcher'
@@ -78,11 +77,6 @@ export default async function NotesPage({
                                 + Contribute Notes
                             </Link>
                         )}
-                        <form action={logout}>
-                            <button className="bg-red-500/10 hover:bg-red-500/20 text-red-500 px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition-all border border-red-500/20">
-                                Logout
-                            </button>
-                        </form>
                     </div>
                 </header>
 

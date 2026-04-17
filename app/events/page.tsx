@@ -1,5 +1,4 @@
 import { createClient } from '@/app/lib/supabase/server'
-import Link from 'next/link'
 import { EventsBanner } from '@/app/components/EventsBanner'
 
 export default async function EventsListPage() {
