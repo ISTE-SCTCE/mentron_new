@@ -1,18 +1,21 @@
 'use client'
 
-import React, { useRef } from 'react'
+import React, { useRef, useMemo, useState, useEffect } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { PerspectiveCamera, Environment, Sparkles } from '@react-three/drei'
 import * as THREE from 'three'
 import { easing } from 'maath'
 
+const ThreeLine = 'line' as any
+
 // Spider Configuration
-const BODY_RADIUS = 0.8
 const LEG_COUNT = 8
 const STEP_HEIGHT = 1.0
-const IDEAL_LEG_DIST = 2.0
-const STEP_THRESHOLD = 1.2
+const BODY_RADIUS = 0.8
+const IDEAL_LEG_DIST = 3.0
+const STEP_THRESHOLD = 1.8
 
+// Define leg attachment points and ideal resting positions (circular distribution)
 const legConfigs = Array.from({ length: LEG_COUNT }).map((_, i) => {
     const angle = (i / LEG_COUNT) * Math.PI * 2
     // Base attaches to the edge of the body radius
@@ -28,9 +31,10 @@ const legConfigs = Array.from({ length: LEG_COUNT }).map((_, i) => {
     return { baseX, baseZ, idealX, idealZ, gaitGroup, angle }
 })
 
-// --- Inverse Kinematics Leg Component (Disconnected Spore Dots) ---
+// --- Inverse Kinematics Leg Component ---
 function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: React.RefObject<THREE.Group | null>, color: string }) {
     const footRef = useRef<THREE.Mesh>(null)
+    const lineRef = useRef<THREE.Line>(null)
     
     // State of the leg
     const state = useRef({
@@ -40,7 +44,15 @@ function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: React.Ref
         stepProgress: 0,
         basePos: new THREE.Vector3(),
         idealPos: new THREE.Vector3(),
+        p1: new THREE.Vector3(),
+        p2: new THREE.Vector3()
     })
+
+    const geom = useMemo(() => {
+        const g = new THREE.BufferGeometry()
+        g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(30 * 3), 3))
+        return g
+    }, [])
 
     useFrame((_, dt) => {
         if (!bodyRef.current) return
@@ -61,6 +73,9 @@ function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: React.Ref
         const distToIdeal = s.currentPos.distanceTo(s.idealPos)
         
         if (!s.isStepping && distToIdeal > STEP_THRESHOLD) {
+            // Trigger step if far enough (could add gait sync here for more realism)
+            // Wait to step until it's "our group's turn" by adding a time/frame based offset or 
+            // relying on natural stagger. For now, distance threshold creates organic stepping.
             s.isStepping = true
             s.stepProgress = 0
             // Overshoot the ideal slightly to anticipate movement
@@ -88,20 +103,47 @@ function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: React.Ref
         if (footRef.current) {
             footRef.current.position.copy(s.currentPos)
         }
+
+        // Draw bezier curve for the leg (Jointed look)
+        if (lineRef.current) {
+            // Control point for quadratic curve: halfway between base and foot, but raised up
+            const midPoint = s.basePos.clone().lerp(s.currentPos, 0.5)
+            midPoint.y = Math.max(s.basePos.y, s.currentPos.y) + 1.5 // Knees high
+
+            const posArray = lineRef.current.geometry.attributes.position.array as Float32Array
+            for (let i = 0; i < 30; i++) {
+                const t = i / 29
+                // Quadratic Bezier Formula: P(t) = (1-t)^2*P0 + 2(1-t)t*P1 + t^2*P2
+                const t1 = 1 - t
+                s.p1.copy(s.basePos).multiplyScalar(t1 * t1)
+                s.p2.copy(midPoint).multiplyScalar(2 * t1 * t)
+                const point = s.p1.add(s.p2).add(s.currentPos.clone().multiplyScalar(t * t))
+                
+                posArray[i * 3] = point.x
+                posArray[i * 3 + 1] = point.y
+                posArray[i * 3 + 2] = point.z
+            }
+            lineRef.current.geometry.attributes.position.needsUpdate = true
+        }
     })
 
     return (
         <group>
-            {/* The foot point (spore dot) */}
+            {/* The leg line */}
+            <ThreeLine ref={lineRef} geometry={geom}>
+                <lineBasicMaterial color={color} linewidth={2} />
+            </ThreeLine>
+            
+            {/* The foot point */}
             <mesh ref={footRef}>
-                <sphereGeometry args={[0.15, 8, 8]} />
+                <sphereGeometry args={[0.1, 8, 8]} />
                 <meshBasicMaterial color={color} />
+                {/* Small glow blob on foot */}
                 <pointLight distance={1.5} intensity={1} color={color} />
             </mesh>
         </group>
     )
 }
-
 
 function Spider() {
     const bodyRef = useRef<THREE.Group>(null)
@@ -135,7 +177,7 @@ function Spider() {
     })
 
     const bodyColor = "#0080FF"
-    const legColor = "#00ffff" // Cyan colored spore dots
+    const legColor = "#7B2FFF" // Purple
 
     return (
         <group>
@@ -153,7 +195,7 @@ function Spider() {
                 </mesh>
             </group>
 
-            {/* 8 Legs (Disconnected Dots) */}
+            {/* 8 Legs */}
             {legConfigs.map((config, i) => (
                 <SpiderLeg key={i} config={config} bodyRef={bodyRef} color={legColor} />
             ))}
@@ -186,18 +228,11 @@ function Leash() {
 }
 
 export function SpiderScene() {
-    // Use a state to securely attach global document events without hydration errors
-    const [mounted, setMounted] = React.useState(false)
-    React.useEffect(() => setMounted(true), [])
-
     return (
-        <div className="fixed inset-0 z-[100] pointer-events-none">
-            {mounted && (
-                <Canvas shadows={false} dpr={[1, 2]} eventSource={document.documentElement} eventPrefix="client">
-                {/* Top-down view creates the 'single 2D plane' feel */}
-                <PerspectiveCamera makeDefault position={[0, 20, 0]} rotation={[-Math.PI / 2, 0, 0]} fov={40} />
-                {/* Remove background color to make canvas transparent so user can see text below */}
-                {/* <color attach="background" args={['#030305']} /> */}
+        <div className="absolute inset-0 z-0">
+            <Canvas shadows={false} dpr={[1, 2]}>
+                <PerspectiveCamera makeDefault position={[0, 8, 12]} fov={45} />
+                <color attach="background" args={['#030305']} />
                 
                 <ambientLight intensity={0.5} />
                 
@@ -219,7 +254,6 @@ export function SpiderScene() {
                 {/* Environment for shiny reflections if we use PBR */}
                 <Environment preset="city" />
             </Canvas>
-            )}
         </div>
     )
 }
