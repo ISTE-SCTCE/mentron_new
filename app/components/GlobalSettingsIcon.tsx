@@ -16,7 +16,7 @@ export function GlobalSettingsIcon() {
         <Link
             href="/settings"
             title="Settings"
-            className="fixed top-6 right-6 z-[100] group flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 bg-[#050514]/80 backdrop-blur-xl border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:bg-cyan-500/10 hover:border-cyan-500/30 hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]"
+            className="fixed top-6 right-6 z-[100] group hidden md:flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 bg-[#050514]/80 backdrop-blur-xl border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:bg-cyan-500/10 hover:border-cyan-500/30 hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]"
         >
             <Settings size={22} className="text-gray-400 group-hover:text-cyan-400 group-hover:rotate-90 transition-all duration-500" />
 

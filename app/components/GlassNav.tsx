@@ -110,32 +110,48 @@ export function GlassNav() {
                 </nav>
             </header>
 
-            {/* ─── MOBILE: Top-left Logo + Top-right Hamburger ─── */}
-            <div className="fixed top-0 left-0 right-0 z-[1000] md:hidden flex items-center justify-between px-4 py-3 pointer-events-auto"
-                style={{ background: 'rgba(3,3,5,0.7)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                {/* Mobile Logo */}
-                <Link href="/dashboard" className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+            {/* ─── MOBILE: Bubble Navigation (Top-left Logo + Top-right Hamburger/Settings) ─── */}
+            <div className="fixed top-4 left-0 right-0 z-[1000] md:hidden flex items-center justify-between px-4 pointer-events-none">
+                
+                {/* Mobile Logo Pill */}
+                <Link 
+                    href="/dashboard" 
+                    className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] pointer-events-auto transition-all active:scale-95"
+                >
+                    <div className="w-8 h-8 rounded-full bg-white/10 border border-white/10 flex items-center justify-center shadow-inner">
                         <span className="font-black text-lg text-white">M</span>
                     </div>
-                    <span className="text-white font-black text-sm tracking-tight">Mentron</span>
+                    <span className="text-white font-black text-sm tracking-tight pr-1">Mentron</span>
                 </Link>
 
-                {/* Hamburger Toggle */}
-                <button
-                    onClick={() => setMobileOpen(!mobileOpen)}
-                    aria-label="Toggle menu"
-                    className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
-                    style={{
-                        background: mobileOpen ? 'rgba(112,0,223,0.3)' : 'rgba(255,255,255,0.05)',
-                        border: `1px solid ${mobileOpen ? 'rgba(112,0,223,0.5)' : 'rgba(255,255,255,0.1)'}`,
-                    }}
-                >
-                    {mobileOpen
-                        ? <X size={20} className="text-white" />
-                        : <Menu size={20} className="text-white" />
-                    }
-                </button>
+                {/* Mobile Action Bubbles */}
+                <div className="flex items-center gap-2 pointer-events-auto">
+                    {/* Settings Bubble (Separate to avoid collision) */}
+                    <Link
+                        href="/settings"
+                        className="w-11 h-11 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all active:scale-95 text-[#8b9bb4] hover:text-white"
+                    >
+                        <Settings size={20} />
+                    </Link>
+
+                    {/* Hamburger Toggle Bubble */}
+                    <button
+                        onClick={() => setMobileOpen(!mobileOpen)}
+                        aria-label="Toggle menu"
+                        className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 pointer-events-auto active:scale-95"
+                        style={{
+                            background: mobileOpen ? 'rgba(112,0,223,0.4)' : 'rgba(0,0,0,0.4)',
+                            backdropFilter: 'blur(24px)',
+                            border: `1px solid ${mobileOpen ? 'rgba(112,0,223,0.6)' : 'rgba(255,255,255,0.1)'}`,
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
+                        }}
+                    >
+                        {mobileOpen
+                            ? <X size={20} className="text-white" />
+                            : <Menu size={20} className="text-white" />
+                        }
+                    </button>
+                </div>
             </div>
 
             {/* ─── MOBILE FULL-SCREEN OVERLAY MENU ─── */}
