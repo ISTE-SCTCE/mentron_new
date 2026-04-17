@@ -14,6 +14,7 @@ interface Project {
     description: string
     created_at: string
     posted_by: string
+    is_approved?: boolean
     cv_required?: boolean
     profiles?: { full_name: string | null }
 }
@@ -76,6 +77,11 @@ function ProjectCard({
                     {hasApplied && (
                         <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 backdrop-blur-sm">
                             ✓ Applied
+                        </span>
+                    )}
+                    {isOwn && !project.is_approved && (
+                        <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20 backdrop-blur-sm animate-pulse">
+                            ⚠ Pending Approval
                         </span>
                     )}
                 </div>

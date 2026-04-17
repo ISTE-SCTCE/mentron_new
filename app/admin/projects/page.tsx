@@ -1,15 +1,24 @@
 import { createClient } from '@/app/lib/supabase/server'
 import Link from 'next/link'
-import { createProject, updateApplicationStatus } from './actions'
+import { createProject, updateApplicationStatus, approveProject } from './actions'
+import { deleteProject } from '@/app/lib/actions/deleteActions'
+import { Check, Trash2, ShieldCheck, Clock } from 'lucide-react'
 
 export default async function AdminProjectsPage() {
     const supabase = await createClient()
+
+    // Get user role for conditional layout
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user?.id ?? '').single()
+    const isFullAdmin = profile?.role === 'admin'
+    const isLeadership = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
 
     // 1. Fetch all projects with their applications
     const { data: projects, error: projectsError } = await supabase
         .from('projects')
         .select(`
       *,
+      profiles(full_name),
       project_applications (
         *,
         profiles (
@@ -38,12 +47,18 @@ export default async function AdminProjectsPage() {
                     </div>
                 </header>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Create Project Section */}
-                    <div className="lg:col-span-1">
-                        <section className="bg-[#171717] p-6 rounded-2xl border border-white/10 sticky top-8">
-                            <h2 className="text-xl font-bold mb-6 text-blue-500">Create New Project</h2>
-                            <form action={createProject} className="space-y-4">
+                <div className={`grid grid-cols-1 ${isFullAdmin ? 'lg:grid-cols-3' : 'lg:grid-cols-1'} gap-8`}>
+                    {/* Create Project Section - Only for Full Admins */}
+                    {isFullAdmin && (
+                        <div className="lg:col-span-1">
+                            <section className="bg-[#171717] p-6 rounded-2xl border border-white/10 sticky top-8 animate-in slide-in-from-left duration-500">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                                        <ShieldCheck size={20} />
+                                    </div>
+                                    <h2 className="text-xl font-bold text-white tracking-tight">Post New Project</h2>
+                                </div>
+                                <form action={createProject} className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-400 mb-1">Project Title</label>
                                     <input
@@ -87,15 +102,51 @@ export default async function AdminProjectsPage() {
                             </form>
                         </section>
                     </div>
+                )}
 
-                    {/* Projects and Applications List */}
-                    <div className="lg:col-span-2 space-y-6">
+                {/* Projects and Applications List */}
+                <div className="lg:col-span-2 space-y-6">
                         {projects && projects.length > 0 ? (
                             projects.map((project: any) => (
                                 <div key={project.id} className="bg-[#171717] rounded-2xl border border-white/10 overflow-hidden">
-                                    <div className="p-6 border-b border-white/5 bg-white/[0.02]">
-                                        <h3 className="text-2xl font-bold mb-1">{project.title}</h3>
-                                        <p className="text-xs text-gray-500">Created {new Date(project.created_at).toLocaleDateString()}</p>
+                                    <div className="p-6 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+                                        <div>
+                                            <div className="flex items-center gap-3 mb-1">
+                                                <h3 className="text-2xl font-bold">{project.title}</h3>
+                                                {project.is_approved ? (
+                                                    <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+                                                        <Check size={10} /> Live
+                                                    </span>
+                                                ) : (
+                                                    <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-500/10 text-yellow-500 text-[10px] font-black uppercase tracking-widest border border-yellow-500/20">
+                                                        <Clock size={10} /> Pending Approval
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-gray-500 font-medium">
+                                                Posted by {project.profiles?.full_name || 'Admin'} • {new Date(project.created_at).toLocaleDateString()}
+                                            </p>
+                                        </div>
+
+                                        <div className="flex items-center gap-3">
+                                            {!project.is_approved && isLeadership && (
+                                                <form action={approveProject}>
+                                                    <input type="hidden" name="project_id" value={project.id} />
+                                                    <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-500/20">
+                                                        <Check size={14} /> Approve Project
+                                                    </button>
+                                                </form>
+                                            )}
+                                            <form action={async (formData) => {
+                                                'use server'
+                                                const res = await deleteProject(project.id)
+                                                if (!res.success) throw new Error(res.error)
+                                            }}>
+                                                <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-transparent hover:border-red-500/20">
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
 
                                     <div className="p-6">

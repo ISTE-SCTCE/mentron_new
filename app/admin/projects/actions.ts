@@ -3,6 +3,7 @@
 import { createClient } from '@/app/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { getPermissions } from '@/app/lib/utils/coreAuth'
 
 export async function createProject(formData: FormData) {
     const supabase = await createClient()
@@ -14,13 +15,18 @@ export async function createProject(formData: FormData) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect('/admin/projects?error=Unauthorized')
 
+    // Check if user is exec/admin for auto-approval
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    const isAutoApprove = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+
     const { error } = await supabase
         .from('projects')
         .insert({
             title,
             description,
             cv_required,
-            posted_by: user.id
+            posted_by: user.id,
+            is_approved: isAutoApprove // Auto approve leadership projects
         })
 
     if (error) {
@@ -71,3 +77,34 @@ export async function updateApplicationStatus(formData: FormData) {
 
     redirect('/admin/projects?success=Status updated')
 }
+
+export async function approveProject(formData: FormData) {
+    const supabase = await createClient()
+    const projectId = formData.get('project_id') as string
+
+    if (!projectId) redirect('/admin/projects?error=Missing project id')
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) redirect('/admin/projects?error=Unauthorized')
+
+    // Check permission (must be exec/core/admin)
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    const isAuthorized = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+
+    if (!isAuthorized) redirect('/admin/projects?error=Unauthorized')
+
+    const { error } = await supabase
+        .from('projects')
+        .update({ is_approved: true })
+        .eq('id', projectId)
+
+    if (error) {
+        console.error('Approve project error:', error)
+        redirect(`/admin/projects?error=${encodeURIComponent(error.message)}`)
+    }
+
+    revalidatePath('/admin/projects')
+    revalidatePath('/projects')
+    redirect('/admin/projects?success=Project approved')
+}
+

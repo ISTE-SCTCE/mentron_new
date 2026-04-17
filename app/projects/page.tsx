@@ -19,6 +19,7 @@ export default async function ProjectsPage() {
     const { data: projects, error } = await supabase
         .from('projects')
         .select('*, profiles(full_name)')
+        .or(`is_approved.eq.true,posted_by.eq.${user.id}`) // Show approved OR own projects
         .order('created_at', { ascending: false })
 
     if (error) console.error('Fetch projects error:', error)
