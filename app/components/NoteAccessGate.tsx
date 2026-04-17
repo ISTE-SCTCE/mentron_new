@@ -4,17 +4,20 @@ import { useState } from 'react'
 import { createClient } from '@/app/lib/supabase/client'
 import { toast } from 'react-hot-toast'
 import { Lock, Check } from 'lucide-react'
+import { PdfViewerModal } from './PdfViewerModal'
 
 interface NoteAccessGateProps {
     noteUrl: string
     userId: string
     userIsteId: string | null
     userRole: string
+    title: string
     children: React.ReactNode
 }
 
-export function NoteAccessGate({ noteUrl, userId, userIsteId, userRole, children }: NoteAccessGateProps) {
+export function NoteAccessGate({ noteUrl, userId, userIsteId, userRole, title, children }: NoteAccessGateProps) {
     const [isOpen, setIsOpen] = useState(false)
+    const [showViewer, setShowViewer] = useState(false)
     const [isteId, setIsteId] = useState('')
     const [isVerifying, setIsVerifying] = useState(false)
     const [localIsteId, setLocalIsteId] = useState(userIsteId)
@@ -47,12 +50,12 @@ export function NoteAccessGate({ noteUrl, userId, userIsteId, userRole, children
 
             if (updateError) throw updateError
 
-            toast.success("ISTE ID Verified! You can now access notes.")
+            toast.success("ISTE ID Verified! Opening note...")
             setLocalIsteId(isteId.trim())
             setIsOpen(false)
             
-            // Auto open the link
-            window.open(noteUrl, '_blank', 'noopener,noreferrer')
+            // Open the secure viewer
+            setShowViewer(true)
         } catch (error: any) {
             toast.error(error.message || "Verification failed")
         } finally {
@@ -61,7 +64,26 @@ export function NoteAccessGate({ noteUrl, userId, userIsteId, userRole, children
     }
 
     if (isAuthorized) {
-        return <>{children}</>
+        return (
+            <>
+                {/* Clone the child it so we can hook into its click */}
+                {/* But a simpler way is to wrap it in a div if it's just an icon/button */}
+                <div onClick={(e) => {
+                    e.preventDefault();
+                    setShowViewer(true);
+                }}>
+                    {children}
+                </div>
+
+                {showViewer && (
+                    <PdfViewerModal 
+                        url={noteUrl} 
+                        title={title} 
+                        onClose={() => setShowViewer(false)} 
+                    />
+                )}
+            </>
+        )
     }
 
     return (
@@ -122,6 +144,13 @@ export function NoteAccessGate({ noteUrl, userId, userIsteId, userRole, children
                         </div>
                     </div>
                 </div>
+            )}
+            {showViewer && (
+                <PdfViewerModal 
+                    url={noteUrl} 
+                    title={title} 
+                    onClose={() => setShowViewer(false)} 
+                />
             )}
         </>
     )

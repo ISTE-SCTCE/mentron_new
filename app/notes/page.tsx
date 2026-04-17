@@ -119,9 +119,12 @@ export default async function NotesPage({
                                                 userId={profile?.id} 
                                                 userIsteId={profile?.iste_id} 
                                                 userRole={profile?.role}
+                                                title={note.title}
                                             >
                                                 <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">
-                                                    <a href={note.file_url} target="_blank" rel="noopener noreferrer" className="glass glass-hover p-3 rounded-xl text-blue-400 text-sm hover:scale-110 transition-all" title="View Document">↗</a>
+                                                    <button className="glass glass-hover p-3 rounded-xl text-blue-400 text-sm hover:scale-110 transition-all font-bold" title="View Document">
+                                                        View Note
+                                                    </button>
                                                 </InteractionTracker>
                                             </NoteAccessGate>
                                         </div>
