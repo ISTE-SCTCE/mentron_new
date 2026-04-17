@@ -7,21 +7,8 @@ const SOCIETIES = [
         full: "Software as a Service",
         desc: "The premier coding and software development community. Focusing on modern stacks, open source, and building products.",
         icon: "💻",
-        color: "blue"
-    },
-    {
-        name: "MECH",
-        full: "Mechanical Society",
-        desc: "Exploring the world of robotics, automotive engineering, and thermal sciences. Hands-on projects and design workshops.",
-        icon: "⚙️",
-        color: "purple"
-    },
-    {
-        name: "BIOTECH",
-        full: "Life Sciences Forum",
-        desc: "Bridging biology and technology. Investigating bioinformatics, genetics, and pharmaceutical innovations.",
-        icon: "🧬",
-        color: "emerald"
+        color: "blue",
+        href: "https://istesctce.in/forum-swas.html"
     },
 ]
 
@@ -48,9 +35,12 @@ export default function SocietiesPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {SOCIETIES.map((soc, index) => (
-                        <div
+                        <a
                             key={index}
-                            className="glass glass-hover p-10 rounded-[3.5rem] flex flex-col group relative overflow-hidden"
+                            href={soc.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="glass glass-hover p-10 rounded-[3.5rem] flex flex-col group relative overflow-hidden transition-all hover:scale-[1.02]"
                         >
                             <div className={`absolute top-0 right-0 p-8 opacity-10 blur-xl group-hover:blur-none transition-all duration-700`}>
                                 <span className="text-9xl">{soc.icon}</span>
@@ -69,10 +59,10 @@ export default function SocietiesPage() {
                                 {soc.desc}
                             </p>
 
-                            <button className="mt-auto glass glass-hover px-8 py-4 rounded-2xl text-[10px] font-black tracking-[0.2em] text-white uppercase group-hover:bg-white group-hover:text-black transition-all">
+                            <div className="mt-auto glass glass-hover px-8 py-4 rounded-2xl text-[10px] font-black tracking-[0.2em] text-white uppercase group-hover:bg-white group-hover:text-black transition-all text-center">
                                 View Community →
-                            </button>
-                        </div>
+                            </div>
+                        </a>
                     ))}
                 </div>
             </div>
