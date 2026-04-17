@@ -5,10 +5,10 @@ import { logout } from '@/app/login/actions'
 export default async function LeaderboardPage() {
     const supabase = await createClient()
 
-    // 1. Fetch top students by XP
+    // 1. Fetch top students by Event Ideas Votes dynamically via View
     const { data: students, error } = await supabase
-        .from('profiles')
-        .select('full_name, xp, roll_number, department')
+        .from('leaderboard_view')
+        .select('full_name, roll_number, department, xp')
         .order('xp', { ascending: false })
         .limit(10)
 
@@ -21,8 +21,8 @@ export default async function LeaderboardPage() {
                             ← Dashboard
                         </Link>
                         <div className="space-y-1">
-                            <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Gamification</p>
-                            <h1 className="text-5xl font-black tracking-tighter text-white">Leaderboard</h1>
+                            <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Community Influence</p>
+                            <h1 className="text-5xl font-black tracking-tighter text-white">Event Leaderboard</h1>
                         </div>
                     </div>
                     <form action={logout}>
@@ -35,7 +35,7 @@ export default async function LeaderboardPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Top 3 Spooky Podiums */}
                     <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                        {students && students.slice(0, 3).map((student, index) => (
+                        {students && students.slice(0, 3).map((student: any, index: number) => (
                             <div
                                 key={index}
                                 className={`glass p-10 rounded-[3rem] text-center border-t-4 ${index === 0 ? 'border-blue-500 scale-110 relative z-10 shadow-[0_0_50px_rgba(59,130,246,0.3)]' :
@@ -43,10 +43,10 @@ export default async function LeaderboardPage() {
                                     }`}
                             >
                                 <div className="text-4xl mb-4">{index === 0 ? '👑' : index === 1 ? '🥈' : '🥉'}</div>
-                                <h2 className="text-2xl font-black text-white mb-2">{student.full_name}</h2>
+                                <h2 className="text-2xl font-black text-white mb-2">{student.full_name || 'Member'}</h2>
                                 <p className="text-[10px] font-black tracking-[0.2em] text-gray-500 uppercase mb-6">{student.department || 'Elite Member'}</p>
                                 <div className="text-4xl font-black text-white text-glow">
-                                    {student.xp || 0} <span className="text-xs uppercase tracking-widest text-blue-400">XP</span>
+                                    {student.xp || 0} <span className="text-xs uppercase tracking-widest text-blue-400">VOTES</span>
                                 </div>
                             </div>
                         ))}
@@ -59,11 +59,11 @@ export default async function LeaderboardPage() {
                                 <tr className="border-b border-white/5">
                                     <th className="p-8 text-[10px] font-black tracking-widest text-gray-500 uppercase">Rank</th>
                                     <th className="p-8 text-[10px] font-black tracking-widest text-gray-500 uppercase">Student</th>
-                                    <th className="p-8 text-[10px] font-black tracking-widest text-gray-500 uppercase text-right">Points</th>
+                                    <th className="p-8 text-[10px] font-black tracking-widest text-gray-500 uppercase text-right">Votes</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {students && students.map((student, index) => (
+                                {students && students.map((student: any, index: number) => (
                                     <tr
                                         key={index}
                                         className="group hover:bg-white/5 transition-all border-b border-white/5 last:border-0"
@@ -76,8 +76,8 @@ export default async function LeaderboardPage() {
                                         </td>
                                         <td className="p-8">
                                             <div className="flex flex-col">
-                                                <span className="text-white font-bold group-hover:text-blue-400 transition-colors">{student.full_name}</span>
-                                                <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">{student.roll_number}</span>
+                                                <span className="text-white font-bold group-hover:text-blue-400 transition-colors">{student.full_name || 'Member'}</span>
+                                                <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">{student.roll_number || 'N/A'}</span>
                                             </div>
                                         </td>
                                         <td className="p-8 text-right">
@@ -93,3 +93,4 @@ export default async function LeaderboardPage() {
         </div>
     )
 }
+

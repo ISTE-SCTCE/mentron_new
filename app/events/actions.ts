@@ -44,3 +44,63 @@ export async function registerForEvent(formData: FormData) {
 
     redirect(`/events/${eventId}?success=true`)
 }
+
+export async function proposeEventConcept(formData: FormData) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) return { error: 'Not authenticated' }
+
+    const title = formData.get('title') as string
+    const description = formData.get('description') as string
+
+    if (!title || !description) return { error: 'Missing fields' }
+
+    const { error } = await supabase
+        .from('event_concepts')
+        .insert({
+            user_id: user.id,
+            title,
+            description
+        })
+
+    if (error) return { error: error.message }
+    return { success: true }
+}
+
+export async function voteEventConcept(conceptId: string, voteValue: number) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return { error: 'Not authenticated' }
+
+    // Check for existing vote
+    const { data: existingVote } = await supabase
+        .from('event_concept_votes')
+        .select('*')
+        .eq('concept_id', conceptId)
+        .eq('user_id', user.id)
+        .single()
+
+    if (existingVote) {
+        if (existingVote.vote_value === voteValue) {
+            // Toggle vote off if clicking the same button
+            const { error } = await supabase.from('event_concept_votes').delete().eq('id', existingVote.id)
+            if (error) return { error: error.message }
+        } else {
+            // Switch direction
+            const { error } = await supabase.from('event_concept_votes').update({ vote_value: voteValue }).eq('id', existingVote.id)
+            if (error) return { error: error.message }
+        }
+    } else {
+        // Create new vote
+        const { error } = await supabase.from('event_concept_votes').insert({
+            concept_id: conceptId,
+            user_id: user.id,
+            vote_value: voteValue
+        })
+        if (error) return { error: error.message }
+    }
+
+    return { success: true }
+}

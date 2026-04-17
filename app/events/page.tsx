@@ -1,8 +1,10 @@
 import { createClient } from '@/app/lib/supabase/server'
 import { EventsBanner } from '@/app/components/EventsBanner'
+import { EventConceptsForum } from '@/app/components/EventConceptsForum'
 
 export default async function EventsListPage() {
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
     const { data: events, error } = await supabase
         .from('event_cal')
@@ -13,11 +15,33 @@ export default async function EventsListPage() {
         console.error('Fetch events error:', error)
     }
 
+    // Fetch Event Concepts and Votes
+    const { data: conceptsData, error: conceptError } = await supabase
+        .from('event_concepts')
+        .select(`
+            id, 
+            title, 
+            description, 
+            created_at, 
+            profiles(full_name),
+            event_concept_votes(vote_value, user_id)
+        `)
+        .order('created_at', { ascending: false })
+
+    if (conceptError) {
+        console.error('Fetch concepts error:', conceptError)
+    }
+
     return (
         <div className="min-h-screen text-[#ededed]">
             {/* ─── Immersive Full-Width Banner ─── */}
             <EventsBanner events={events ?? []} />
 
+            {/* ─── Reddit-Style Event Concepts Forum ─── */}
+            <EventConceptsForum 
+                concepts={conceptsData as any || []} 
+                currentUserId={user?.id}
+            />
         </div>
     )
 }
