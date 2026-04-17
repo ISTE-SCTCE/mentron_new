@@ -14,6 +14,8 @@ const IDEAL_LEG_DIST = 3.0
 const STEP_THRESHOLD = 1.8
 
 // Define leg attachment points and ideal resting positions (circular distribution)
+const ThreeLine = 'line' as any
+
 const legConfigs = Array.from({ length: LEG_COUNT }).map((_, i) => {
     const angle = (i / LEG_COUNT) * Math.PI * 2
     // Base attaches to the edge of the body radius
@@ -128,9 +130,9 @@ function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: React.Ref
     return (
         <group>
             {/* The leg line */}
-            <line ref={lineRef} geometry={geom}>
+            <ThreeLine ref={lineRef} geometry={geom}>
                 <lineBasicMaterial color={color} linewidth={2} />
-            </line>
+            </ThreeLine>
             
             {/* The foot point */}
             <mesh ref={footRef}>
