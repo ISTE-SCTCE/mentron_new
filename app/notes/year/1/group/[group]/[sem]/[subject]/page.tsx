@@ -53,7 +53,7 @@ export default async function Year1SubjectNotesPage({
     const isSubfolder = subjectName.startsWith('PYQ - ') || subjectName.startsWith('Video - ')
 
     return (
-        <div className="min-h-screen p-8 pt-32 text-[#ededed]">
+        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
             <div className="max-w-4xl mx-auto">
                 {/* Breadcrumb */}
                 <div className="flex items-center gap-2 flex-wrap mb-12 text-sm font-bold">

@@ -55,7 +55,7 @@ export default async function DeptSubjectsPage({
         if (userDept && userDept.toUpperCase() !== deptKey) {
             // Show restricted page instead of redirect — keeps breadcrumb intact
             return (
-                <div className="min-h-screen p-8 pt-32 text-[#ededed] flex items-center justify-center">
+                <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed] flex items-center justify-center">
                     <div className="glass-card max-w-md text-center border-red-500/20 bg-red-500/5">
                         <div className="text-5xl mb-4">🔒</div>
                         <h2 className="text-2xl font-black text-white mb-2">Access Restricted</h2>
@@ -95,7 +95,7 @@ export default async function DeptSubjectsPage({
     const uploadUrl = `/notes/upload`
 
     return (
-        <div className="min-h-screen p-8 pt-32 text-[#ededed]">
+        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
             <div className="max-w-6xl mx-auto">
                 {/* Breadcrumb */}
                 <div className="flex items-center gap-2 flex-wrap mb-12 text-sm font-bold">

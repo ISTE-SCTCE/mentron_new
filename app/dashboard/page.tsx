@@ -63,7 +63,7 @@ export default async function DashboardPage() {
         : (profile?.department || user?.user_metadata?.department || 'Not Assigned')
 
     return (
-        <div className="flex flex-col min-h-screen text-[#ededed] pt-32 w-full">
+        <div className="flex flex-col min-h-screen text-[#ededed] pt-16 md:pt-32 w-full">
             <div className="flex-1 w-full max-w-[1700px] mx-auto px-4 md:px-8 flex flex-col xl:flex-row gap-8 items-start">
 
                 {/* Left side: Innovation Hub */}

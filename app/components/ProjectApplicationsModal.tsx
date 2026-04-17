@@ -65,7 +65,7 @@ export function ProjectApplicationsModal({ projectId, projectTitle, onClose }: P
     }
 
     return (
-        <div className="fixed inset-0 z-[9998] flex items-start justify-center p-4 pt-32 overflow-y-auto">
+        <div className="fixed inset-0 z-[9998] flex items-start justify-center p-4 pt-20 md:pt-32 overflow-y-auto">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/70 backdrop-blur-md"

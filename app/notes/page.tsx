@@ -55,7 +55,7 @@ export default async function NotesPage({
     }
 
     return (
-        <div className="min-h-screen p-8 pt-32 text-[#ededed]">
+        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
             <div className="max-w-6xl mx-auto">
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0 mb-10 md:mb-16">
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">

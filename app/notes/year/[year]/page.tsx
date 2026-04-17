@@ -43,7 +43,7 @@ export default async function YearPage({
     const deptList = (Object.entries(DEPARTMENTS) as [DeptKey, typeof DEPARTMENTS[DeptKey]][])
 
     return (
-        <div className="min-h-screen p-8 pt-32 text-[#ededed]">
+        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
             <div className="max-w-6xl mx-auto">
                 {/* Breadcrumb */}
                 <div className="flex items-center gap-3 mb-12 text-sm font-bold">

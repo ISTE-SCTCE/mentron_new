@@ -74,7 +74,7 @@ export default async function FolderNotesPage({
     const uploadUrl = `/notes/upload?year=${yearNum}&dept=${deptKey}&sem=${semKey}&subject=${encodeURIComponent(subjectName)}&folder_id=${folderId}`
 
     return (
-        <div className="min-h-screen p-8 pt-32 text-[#ededed]">
+        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
             <div className="max-w-4xl mx-auto">
                 {/* Breadcrumb */}
                 <div className="flex items-center gap-2 flex-wrap mb-12 text-sm font-bold">

@@ -132,7 +132,21 @@ body {
   }
 
   .content-offset {
-    padding-top: 120px;
+    padding-top: 72px; /* mobile: below fixed header bar */
+  }
+
+  @media (min-width: 768px) {
+    .content-offset {
+      padding-top: 120px;
+    }
+  }
+
+  /* Mobile glass-card padding reduction */
+  @media (max-width: 767px) {
+    .glass-card {
+      padding: 1.25rem;
+      border-radius: 16px;
+    }
   }
 
   /* Loading bar sweep animation */

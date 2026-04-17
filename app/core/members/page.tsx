@@ -156,7 +156,7 @@ export default function CoreMembersPage() {
     }
 
     return (
-        <div className="min-h-screen pt-32 pb-20 px-4 md:px-10 max-w-7xl mx-auto">
+        <div className="min-h-screen pt-20 md:pt-32 pb-20 px-4 md:px-10 max-w-7xl mx-auto">
             {/* Header */}
             <div className="mb-12 space-y-2">
                 <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase flex items-center gap-2">

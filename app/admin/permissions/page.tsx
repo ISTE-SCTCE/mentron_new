@@ -124,7 +124,7 @@ export default function PermissionControlPage() {
     }
 
     return (
-        <div className="min-h-screen pt-32 pb-20 px-8 max-w-7xl mx-auto text-[#ededed]">
+        <div className="min-h-screen pt-20 md:pt-32 pb-20 px-8 max-w-7xl mx-auto text-[#ededed]">
             <Toaster position="bottom-right" />
             
             <header className="mb-12 space-y-4">

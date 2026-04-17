@@ -23,7 +23,7 @@ export default async function SettingsPage() {
 
     // Pass profile info to the client component
     return (
-        <div className="flex flex-col min-h-screen text-[#ededed] pt-32 w-full max-w-[1700px] mx-auto px-4 md:px-8">
+        <div className="flex flex-col min-h-screen text-[#ededed] pt-20 md:pt-32 w-full max-w-[1700px] mx-auto px-4 md:px-8">
             <div className="max-w-4xl w-full mx-auto space-y-8 flex-1">
 
                 {/* Header */}

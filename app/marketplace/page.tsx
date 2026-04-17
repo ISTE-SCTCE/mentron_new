@@ -13,7 +13,7 @@ export default async function MarketplacePage() {
             {/* Blurred background — blurred item cards as ghost content */}
             <div className="absolute inset-0 z-0 pointer-events-none select-none" aria-hidden="true">
                 {/* Fake blurred cards grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 p-12 pt-32 opacity-30 blur-md scale-105">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 p-12 pt-20 md:pt-32 opacity-30 blur-md scale-105">
                     {Array.from({ length: 9 }).map((_, i) => (
                         <div key={i} className="glass-card h-56 flex flex-col gap-3 animate-pulse">
                             <div className="w-full h-28 rounded-xl bg-white/5" />

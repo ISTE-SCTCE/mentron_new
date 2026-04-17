@@ -13,7 +13,7 @@ export default async function TeamPage() {
         .order('xp', { ascending: false })
 
     return (
-        <div className="min-h-screen p-8 pt-32 text-[#ededed]">
+        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
             <div className="max-w-6xl mx-auto">
                 <header className="flex justify-between items-center mb-16">
                     <div className="flex items-center gap-8">

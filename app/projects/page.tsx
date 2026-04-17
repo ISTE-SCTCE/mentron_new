@@ -29,7 +29,7 @@ export default async function ProjectsPage() {
     const appliedIds = myApplications?.map(a => a.project_id) ?? []
 
     return (
-        <div className="min-h-screen p-8 pt-32 text-[#ededed]">
+        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
             <div className="max-w-6xl mx-auto">
                 <header className="mb-10">
                     <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase mb-3">Innovations</p>

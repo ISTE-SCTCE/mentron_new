@@ -32,7 +32,7 @@ export function CreateProjectModal({ onClose }: { onClose: () => void }) {
     }
 
     return (
-        <div className="fixed inset-0 z-[9998] flex items-start justify-center p-4 pt-32 overflow-y-auto">
+        <div className="fixed inset-0 z-[9998] flex items-start justify-center p-4 pt-20 md:pt-32 overflow-y-auto">
             <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
             <div className="relative z-10 w-full max-w-lg glass rounded-[2.5rem] p-8 border border-white/10 shadow-2xl">
                 <div className="flex justify-between items-start mb-8">
