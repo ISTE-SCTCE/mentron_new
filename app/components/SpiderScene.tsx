@@ -295,7 +295,7 @@ export function SpiderScene() {
         <div className="fixed inset-0 z-[100] pointer-events-none">
             <Canvas shadows={false} dpr={[1, 2]} eventSource={typeof document !== 'undefined' ? document.documentElement : undefined} eventPrefix="client">
                 {/* 2D Orthographic Camera looking straight down */}
-                <OrthographicCamera makeDefault position={[0, 50, 0]} zoom={20} up={[0, 0, -1]} />
+                <OrthographicCamera makeDefault position={[0, 50, 0]} rotation={[-Math.PI / 2, 0, 0]} zoom={40} />
                 
                 <ambientLight intensity={1.5} />
                 
