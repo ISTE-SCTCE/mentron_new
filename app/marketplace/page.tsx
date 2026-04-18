@@ -1,7 +1,7 @@
 import { createClient } from '@/app/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { SpiderScene } from '@/app/components/SpiderScene'
+
 
 export default async function MarketplacePage() {
     const supabase = await createClient()
@@ -11,8 +11,7 @@ export default async function MarketplacePage() {
     return (
         <div className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-[#030305]">
             
-            {/* 3D Spider Background */}
-            <SpiderScene />
+
             
             {/* Overlay gradient to ensure text readability */}
             <div className="absolute inset-0 bg-[#030305]/40 pointer-events-none z-[1]" />
