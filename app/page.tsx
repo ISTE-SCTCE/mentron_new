@@ -24,9 +24,18 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen relative overflow-hidden bg-[#030305]">
-      {/* Background Overlay - Solid Aesthetic */}
+      {/* Premium Background Aesthetic */}
       <div className="absolute inset-0 bg-[#030305] z-0" />
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-transparent to-purple-900/5 pointer-events-none z-[1]" />
+      
+      {/* Animated Orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-600/10 blur-[120px] animate-pulse pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/10 blur-[120px] animate-pulse pointer-events-none" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] rounded-full bg-blue-400/5 blur-[100px] animate-pulse pointer-events-none" style={{ animationDelay: '4s' }} />
+
+      {/* Grid Texture */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-[1]" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
+      
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#030305]/20 to-[#030305]/80 pointer-events-none z-[2]" />
 
       {/* Navigation */}
       <nav className="py-4 px-8 flex justify-between items-center bg-transparent relative z-20">
