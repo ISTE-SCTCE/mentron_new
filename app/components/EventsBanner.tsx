@@ -120,7 +120,7 @@ export function EventsBanner({ events }: Props) {
                             paginate(offset.x > 0 ? -1 : 1)
                         }
                     }}
-                    className="absolute inset-0 flex items-center justify-center px-6 md:px-12 py-20 lg:py-0"
+                    className="absolute inset-0 flex items-center justify-center px-6 md:px-12 py-32 lg:py-0"
                 >
                     <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                         {/* Event Content */}
@@ -191,7 +191,7 @@ export function EventsBanner({ events }: Props) {
 
                         {/* Event Visual */}
                         <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
-                             <div className="relative w-56 h-56 md:w-[500px] md:h-[500px]">
+                             <div className="relative w-48 h-48 md:w-[500px] md:h-[500px]">
                                 <motion.div 
                                     initial={{ scale: 0.8, opacity: 0, rotate: -10 }}
                                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
