@@ -17,7 +17,7 @@ export default async function LeaderboardPage() {
                     <div className="flex items-center gap-8">
                         <div className="space-y-1">
                             <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Community Influence</p>
-                            <h1 className="text-5xl font-black tracking-tighter text-white">Event Leaderboard</h1>
+                            <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white">Event Leaderboard</h1>
                         </div>
                     </div>
                 </header>
@@ -28,8 +28,8 @@ export default async function LeaderboardPage() {
                         {students && students.slice(0, 3).map((student: any, index: number) => (
                             <div
                                 key={index}
-                                className={`glass p-10 rounded-[3rem] text-center border-t-4 ${index === 0 ? 'border-blue-500 scale-110 relative z-10 shadow-[0_0_50px_rgba(59,130,246,0.3)]' :
-                                    index === 1 ? 'border-purple-500 mt-4' : 'border-emerald-500 mt-8'
+                                className={`glass p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] text-center border-t-4 ${index === 0 ? 'border-blue-500 scale-105 md:scale-110 relative z-10 shadow-[0_0_50px_rgba(59,130,246,0.3)]' :
+                                    index === 1 ? 'border-purple-500 mt-0 md:mt-4' : 'border-emerald-500 mt-0 md:mt-8'
                                     }`}
                             >
                                 <div className="text-4xl mb-4">{index === 0 ? '👑' : index === 1 ? '🥈' : '🥉'}</div>
@@ -47,9 +47,9 @@ export default async function LeaderboardPage() {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-white/5">
-                                    <th className="p-8 text-[10px] font-black tracking-widest text-gray-500 uppercase">Rank</th>
-                                    <th className="p-8 text-[10px] font-black tracking-widest text-gray-500 uppercase">Student</th>
-                                    <th className="p-8 text-[10px] font-black tracking-widest text-gray-500 uppercase text-right">Votes</th>
+                                    <th className="p-4 md:p-8 text-[10px] font-black tracking-widest text-gray-500 uppercase italic">Rank</th>
+                                    <th className="p-4 md:p-8 text-[10px] font-black tracking-widest text-gray-500 uppercase italic">Student</th>
+                                    <th className="p-4 md:p-8 text-[10px] font-black tracking-widest text-gray-500 uppercase italic text-right">Votes</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -58,20 +58,20 @@ export default async function LeaderboardPage() {
                                         key={index}
                                         className="group hover:bg-white/5 transition-all border-b border-white/5 last:border-0"
                                     >
-                                        <td className="p-8">
+                                        <td className="p-4 md:p-8">
                                             <span className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black ${index < 3 ? 'bg-blue-500/20 text-blue-400' : 'bg-white/5 text-gray-500'
                                                 }`}>
                                                 {index + 1}
                                             </span>
                                         </td>
-                                        <td className="p-8">
+                                        <td className="p-4 md:p-8">
                                             <div className="flex flex-col">
                                                 <span className="text-white font-bold group-hover:text-blue-400 transition-colors">{student.full_name || 'Member'}</span>
                                                 <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">{student.roll_number || 'N/A'}</span>
                                             </div>
                                         </td>
-                                        <td className="p-8 text-right">
-                                            <span className="text-xl font-black text-white text-glow">{student.xp || 0}</span>
+                                        <td className="p-4 md:p-8 text-right">
+                                            <span className="text-lg md:text-xl font-black text-white text-glow">{student.xp || 0}</span>
                                         </td>
                                     </tr>
                                 ))}

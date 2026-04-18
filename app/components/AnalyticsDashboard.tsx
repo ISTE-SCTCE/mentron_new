@@ -152,7 +152,7 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
                     </div>
                     <div className="relative z-10">
                         <p className="text-[10px] font-black tracking-[0.3em] text-blue-400 uppercase mb-2">Total Students</p>
-                        <h2 className="text-6xl font-black text-white tracking-tighter">{stats.studentCount}</h2>
+                        <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter">{stats.studentCount}</h2>
                     </div>
                     <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mt-4 flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
@@ -167,7 +167,7 @@ export function AnalyticsDashboard({ initialStats, initialLogs }: Props) {
                     </div>
                     <div className="relative z-10">
                         <p className="text-[10px] font-black tracking-[0.3em] text-purple-400 uppercase mb-2">Total Materials</p>
-                        <h2 className="text-6xl font-black text-white tracking-tighter">{stats.materialCount}</h2>
+                        <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter">{stats.materialCount}</h2>
                     </div>
                     <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mt-4 flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>

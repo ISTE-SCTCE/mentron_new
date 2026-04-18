@@ -95,9 +95,9 @@ export function EventsBanner({ events }: Props) {
     const currentEvent = allEvents[page]
 
     return (
-        <section className="relative w-full min-h-[70vh] md:min-h-[85vh] bg-[#030303] flex items-center justify-center overflow-hidden">
+        <section className="relative w-full min-h-screen lg:min-h-[85vh] bg-[#030303]/60 backdrop-blur-3xl flex items-center justify-center overflow-hidden border-b border-white/10 mb-12 lg:mb-0">
             {/* Background Texture */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+            <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
             
             <AnimatePresence initial={false} custom={direction}>
                 <motion.div
@@ -120,9 +120,9 @@ export function EventsBanner({ events }: Props) {
                             paginate(offset.x > 0 ? -1 : 1)
                         }
                     }}
-                    className="absolute inset-0 flex items-center justify-center px-6 md:px-12"
+                    className="absolute inset-0 flex items-center justify-center px-6 md:px-12 py-20 lg:py-0"
                 >
-                    <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                         {/* Event Content */}
                         <div className="space-y-8 order-2 lg:order-1">
                             <motion.div 
@@ -140,7 +140,7 @@ export function EventsBanner({ events }: Props) {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.3 }}
-                                    className="text-5xl md:text-8xl font-black tracking-tighter text-white leading-[0.9]"
+                                    className="text-4xl md:text-8xl font-black tracking-tighter text-white leading-[0.9] text-center lg:text-left"
                                 >
                                     {currentEvent.event_name}
                                 </motion.h2>
@@ -166,7 +166,7 @@ export function EventsBanner({ events }: Props) {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.5 }}
-                                className="text-gray-400 text-lg md:text-xl leading-relaxed max-w-xl"
+                                className="text-gray-400 text-base md:text-xl leading-relaxed max-w-xl pb-28 lg:pb-0 text-center lg:text-left"
                             >
                                 {currentEvent.description || 'Join us for an incredible event experience at SCTCE.'}
                             </motion.p>
@@ -189,14 +189,14 @@ export function EventsBanner({ events }: Props) {
                             </motion.div>
                         </div>
 
-                        {/* Event Visual (Placeholder for now, could be dynamic images) */}
+                        {/* Event Visual */}
                         <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
-                             <div className="relative w-full aspect-square md:w-[500px] md:h-[500px]">
+                             <div className="relative w-56 h-56 md:w-[500px] md:h-[500px]">
                                 <motion.div 
                                     initial={{ scale: 0.8, opacity: 0, rotate: -10 }}
                                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
                                     transition={{ duration: 0.8, ease: "easeOut" }}
-                                    className="w-full h-full rounded-[3rem] bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/5 flex items-center justify-center overflow-hidden relative"
+                                    className="w-full h-full rounded-[2.5rem] md:rounded-[3rem] bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center overflow-hidden relative shadow-2xl"
                                 >
                                     <div className="absolute inset-0 bg-blue-500/5 backdrop-blur-3xl" />
                                     {currentEvent.image_url ? (
@@ -206,7 +206,7 @@ export function EventsBanner({ events }: Props) {
                                             className="w-full h-full object-cover relative z-10"
                                         />
                                     ) : (
-                                        <span className="text-9xl md:text-[12rem] relative z-10 filter drop-shadow-[0_0_50px_rgba(59,130,246,0.5)]">
+                                        <span className="text-7xl md:text-[12rem] relative z-10 filter drop-shadow-[0_0_50px_rgba(59,130,246,0.5)]">
                                             {page === 0 ? '🏆' : page === 1 ? '🎓' : page === 2 ? '💻' : '🌐'}
                                         </span>
                                     )}
