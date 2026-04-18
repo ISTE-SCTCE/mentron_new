@@ -15,6 +15,7 @@ import { LoadingProvider } from "./lib/context/LoadingContext";
 import { LoadingOverlay } from "./components/LoadingOverlay";
 import { NavigationInterceptor } from "./components/NavigationInterceptor";
 import { NavigationEventsWrapper } from "./components/NavigationEventsWrapper";
+import { GlobalSettingsIcon } from "./components/GlobalSettingsIcon";
 
 export const metadata: Metadata = {
   title: "Mentron | Tech Community",
@@ -38,6 +39,7 @@ export default function RootLayout({
           <LoadingOverlay />
           <NavigationInterceptor />
           <NavigationEventsWrapper />
+          <GlobalSettingsIcon />
           <div className="relative z-10 w-full">
             {children}
           </div>
