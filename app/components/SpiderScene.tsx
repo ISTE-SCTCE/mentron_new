@@ -289,7 +289,7 @@ export function SpiderScene() {
 
     return (
         <div className="fixed inset-0 z-[100] pointer-events-none">
-            <Canvas shadows={false} dpr={[1, 2]} eventSource={document.documentElement} eventPrefix="client">
+            <Canvas shadows={false} dpr={[1, 2]} eventSource={typeof document !== 'undefined' ? document.documentElement : undefined} eventPrefix="client">
                 <PerspectiveCamera makeDefault position={[0, 15, 20]} fov={35} />
                 {/* Remove background color to allow transparency */}
                 

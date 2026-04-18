@@ -1,7 +1,8 @@
 import { createClient } from '@/app/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { SpiderScene } from '@/app/components/SpiderScene'
+import dynamic from 'next/dynamic'
+const SpiderScene = dynamic(() => import('@/app/components/SpiderScene').then(mod => mod.SpiderScene), { ssr: false })
 
 export default async function MarketplacePage() {
     const supabase = await createClient()
