@@ -40,7 +40,7 @@ const legConfigs = [
 ]
 
 // --- Inverse Kinematics Realistic Leg Component ---
-function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: React.RefObject<THREE.Group | null>, color: string }) {
+function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: any, color: string }) {
     const femurRef = useRef<THREE.Mesh>(null)
     const tibiaRef = useRef<THREE.Mesh>(null)
     const footRef = useRef<THREE.Mesh>(null)
@@ -140,7 +140,7 @@ function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: React.Ref
     )
 }
 
-function Spider({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: React.RefObject<THREE.Group | null> }) {
+function Spider({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: any }) {
     const { pointer, camera } = useThree()
     const groundTarget = useRef(new THREE.Vector3())
     const plane = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0))
@@ -213,7 +213,7 @@ function Spider({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: React.R
     )
 }
 
-function Leash({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: React.RefObject<THREE.Group | null> }) {
+function Leash({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: any }) {
     const { pointer, camera } = useThree()
     const pointerPos = useRef(new THREE.Vector3())
     const plane = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0))
@@ -269,7 +269,7 @@ function Leash({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: React.Re
 
 export function SpiderScene() {
     const [isDragging, setIsDragging] = useState(false)
-    const bodyRef = useRef<THREE.Group>(null)
+    const bodyRef = useRef<any>(null)
 
     useEffect(() => {
         const handleDown = () => setIsDragging(true)
