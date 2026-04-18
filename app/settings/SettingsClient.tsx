@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/app/lib/supabase/client'
-import { User, Lock, Bell, AlertTriangle, LogOut } from 'lucide-react'
-import { logout } from '@/app/login/actions'
+import { User, Lock, Bell, AlertTriangle } from 'lucide-react'
 import { toast, Toaster } from 'react-hot-toast'
 
 interface SettingsClientProps {
@@ -280,14 +279,9 @@ export function SettingsClient({ profile, userEmail }: SettingsClientProps) {
                 </div>
 
                 <p className="text-xs text-blue-400/60 mb-8">These actions are irreversible. Please be careful.</p>
-
-                <form action={logout}>
-                    <button type="submit"
-                        className="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 font-black tracking-widest text-[10px] px-6 py-3 rounded-full flex items-center gap-2 transition-colors">
-                        <LogOut size={16} />
-                        SIGN OUT
-                    </button>
-                </form>
+                <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10 text-[10px] font-black tracking-widest text-red-400 uppercase">
+                    Account deletion is currently managed by system administrators.
+                </div>
             </div>
 
         </div>

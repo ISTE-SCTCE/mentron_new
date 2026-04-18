@@ -1,6 +1,5 @@
 import { createClient } from '@/app/lib/supabase/server'
 import Link from 'next/link'
-import { logout } from '@/app/login/actions'
 
 export default async function LeaderboardPage() {
     const supabase = await createClient()
@@ -25,11 +24,6 @@ export default async function LeaderboardPage() {
                             <h1 className="text-5xl font-black tracking-tighter text-white">Event Leaderboard</h1>
                         </div>
                     </div>
-                    <form action={logout}>
-                        <button className="bg-red-500/10 hover:bg-red-500/20 text-red-500 px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition-all border border-red-500/20">
-                            Logout
-                        </button>
-                    </form>
                 </header>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

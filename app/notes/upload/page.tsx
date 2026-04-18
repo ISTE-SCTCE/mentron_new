@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { logout } from '@/app/login/actions'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useState, useRef, useTransition, useEffect, useCallback } from 'react'
 import { createClient } from '@/app/lib/supabase/client'
@@ -175,11 +174,6 @@ export default function NotesUploadPage() {
                             <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white">Upload Notes</h1>
                         </div>
                     </div>
-                    <form action={logout}>
-                        <button className="bg-red-500/10 hover:bg-red-500/20 text-red-500 px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase transition-all border border-red-500/20">
-                            Logout
-                        </button>
-                    </form>
                 </header>
 
                 <div className="glass p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">

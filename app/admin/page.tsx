@@ -1,5 +1,4 @@
 import { createClient } from '@/app/lib/supabase/server'
-import { logout } from '@/app/login/actions'
 import Link from 'next/link'
 
 export default async function AdminPage() {
@@ -25,11 +24,6 @@ export default async function AdminPage() {
                         </Link>
                         <h1 className="text-4xl font-bold tracking-tight text-purple-500">Admin Panel</h1>
                     </div>
-                    <form action={logout}>
-                        <button className="bg-red-500/10 hover:bg-red-500/20 text-red-500 px-4 py-2 rounded-lg transition-all">
-                            Logout
-                        </button>
-                    </form>
                 </header>
 
                 <section className="bg-[#171717] p-8 rounded-2xl border border-purple-500/20 shadow-2xl shadow-purple-500/5">
