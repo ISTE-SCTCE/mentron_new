@@ -59,17 +59,14 @@ function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: any, colo
 
         const s = state.current
         
-        // Calculate ideal position in world space
         s.idealPos.set(config.idealX, 0, config.idealZ)
             .applyQuaternion(bodyRef.current.quaternion)
             .add(bodyRef.current.position)
         
-        // Calculate base position in world space
-        s.basePos.set(config.baseX, 0.4, config.baseZ) // Base slightly elevated (cephalothorax height)
+        s.basePos.set(config.baseX, 0.4, config.baseZ) 
             .applyQuaternion(bodyRef.current.quaternion)
             .add(bodyRef.current.position)
 
-        // Step logic
         const distToIdeal = s.currentPos.distanceTo(s.idealPos)
         if (!s.isStepping && distToIdeal > STEP_THRESHOLD) {
             s.isStepping = true
@@ -79,7 +76,7 @@ function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: any, colo
         }
 
         if (s.isStepping) {
-            s.stepProgress += dt * 10 // step speed
+            s.stepProgress += dt * 10
             if (s.stepProgress >= 1) {
                 s.stepProgress = 1
                 s.isStepping = false
@@ -91,27 +88,24 @@ function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: any, colo
              s.currentPos.y = 0
         }
 
-        // Calculate Knees for rigid segments
         const midPoint = s.basePos.clone().lerp(s.currentPos, 0.4)
         const dist = s.basePos.distanceTo(s.currentPos)
         midPoint.y = Math.max(s.basePos.y, s.currentPos.y) + (IDEAL_LEG_DIST - dist * 0.4)
 
-        // Orient Femur (base to knee)
         if (femurRef.current) {
             const fDir = midPoint.clone().sub(s.basePos)
             const fLen = fDir.length()
             femurRef.current.position.copy(s.basePos).add(fDir.clone().multiplyScalar(0.5))
             if (fLen > 0.001) femurRef.current.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), fDir.normalize())
-            femurRef.current.scale.set(1, fLen, 1)
+            femurRef.current.scale.set(1.2, fLen, 1.2)
         }
 
-        // Orient Tibia (knee to foot)
         if (tibiaRef.current) {
             const tDir = s.currentPos.clone().sub(midPoint)
             const tLen = tDir.length()
             tibiaRef.current.position.copy(midPoint).add(tDir.clone().multiplyScalar(0.5))
             if (tLen > 0.001) tibiaRef.current.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tDir.normalize())
-            tibiaRef.current.scale.set(0.6, tLen, 0.6)
+            tibiaRef.current.scale.set(0.8, tLen, 0.8)
         }
 
         if (footRef.current) {
@@ -121,20 +115,17 @@ function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: any, colo
 
     return (
         <group>
-            {/* Femur */}
             <mesh ref={femurRef}>
-                <cylinderGeometry args={[0.15, 0.12, 1, 16]} />
-                <meshStandardMaterial color={color} roughness={0.9} />
+                <cylinderGeometry args={[0.2, 0.18, 1, 16]} />
+                <meshStandardMaterial color={color} roughness={0.5} metalness={0.4} />
             </mesh>
-            {/* Tibia */}
             <mesh ref={tibiaRef}>
-                <cylinderGeometry args={[0.12, 0.06, 1, 16]} />
-                <meshStandardMaterial color={color} roughness={0.9} />
+                <cylinderGeometry args={[0.18, 0.1, 1, 16]} />
+                <meshStandardMaterial color={color} roughness={0.5} metalness={0.4} />
             </mesh>
-            {/* Foot */}
             <mesh ref={footRef}>
-                <sphereGeometry args={[0.08, 16, 16]} />
-                <meshStandardMaterial color={color} roughness={1.0} />
+                <sphereGeometry args={[0.12, 16, 16]} />
+                <meshStandardMaterial color="#ff8c00" emissive="#ff8c00" emissiveIntensity={0.5} />
             </mesh>
         </group>
     )
@@ -150,64 +141,53 @@ function Spider({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: any }) 
         if (!bodyRef.current) return
 
         if (isDragging) {
-            // Find intersection of mouse with ground plane
             raycaster.current.setFromCamera(pointer, camera)
             raycaster.current.ray.intersectPlane(plane.current, groundTarget.current)
         } else {
-            // Stop moving by setting target to current ground pos of the body
             groundTarget.current.x = bodyRef.current.position.x
             groundTarget.current.z = bodyRef.current.position.z
         }
         
-        // Add some hovering bob to the target body height
-        const targetY = 1.0 + Math.sin(state.clock.elapsedTime * 2) * 0.2
+        const targetY = 0.8 + Math.sin(state.clock.elapsedTime * 2) * 0.1
 
-        // Smoothly move body towards mouse
         const moveTarget = new THREE.Vector3(groundTarget.current.x, targetY, groundTarget.current.z)
         easing.damp3(bodyRef.current.position, moveTarget, 0.2, dt)
         
-        // Rotate body to face movement direction (if moving fast enough)
         const dir = new THREE.Vector3(groundTarget.current.x - bodyRef.current.position.x, 0, groundTarget.current.z - bodyRef.current.position.z)
         if (dir.lengthSq() > 0.01) {
             const targetRotation = Math.atan2(dir.x, dir.z)
-            // easing.dampAngle doesn't natively exist simply in maath string format, we can do quaternion spherical lerp
             const targetQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), targetRotation)
             easing.dampQ(bodyRef.current.quaternion, targetQuat, 0.2, dt)
         }
     })
 
-    const bodyColor = "#a855f7" // Neon Purple real body
-    const legColor = "#7e22ce" // Slightly darker neon purple for legs
+    const bodyColor = "#2563eb" // Blue
+    const centerColor = "#ff8c00" // Glowing Orange
 
     return (
-        <group scale={[1.5, 1.5, 1.5]}>
-            {/* Realistic Spider Body Chassis */}
+        <group scale={[0.6, 0.6, 0.6]}>
             <group ref={bodyRef}>
-                {/* Abdomen (Back) */}
-                <mesh position={[0, 0.5, -1.0]} scale={[1.0, 0.8, 1.2]}>
-                    <sphereGeometry args={[1.5, 32, 32]} />
-                    <meshStandardMaterial color={bodyColor} roughness={0.9} />
-                </mesh>
-                {/* Cephalothorax (Front) */}
-                <mesh position={[0, 0.3, 0.8]} scale={[1.0, 0.6, 1.0]}>
-                    <sphereGeometry args={[1.0, 32, 32]} />
-                    <meshStandardMaterial color={bodyColor} roughness={0.7} metalness={0.2} />
+                {/* Robotic Hub Body */}
+                <mesh position={[0, 0.4, 0]} scale={[1.2, 0.8, 1.2]}>
+                    <sphereGeometry args={[1.2, 32, 32]} />
+                    <meshStandardMaterial color={bodyColor} roughness={0.3} metalness={0.7} />
                 </mesh>
                 
-                {/* Fangs */}
-                <mesh position={[-0.3, 0.2, 1.8]} rotation={[Math.PI/2, 0, -Math.PI/8]}>
-                    <coneGeometry args={[0.15, 0.6, 16]} />
-                    <meshStandardMaterial color={bodyColor} roughness={0.8} />
+                {/* Glowing Core */}
+                <mesh position={[0, 0.4, 0.8]}>
+                    <sphereGeometry args={[0.5, 16, 16]} />
+                    <meshStandardMaterial color={centerColor} emissive={centerColor} emissiveIntensity={2} />
                 </mesh>
-                <mesh position={[0.3, 0.2, 1.8]} rotation={[Math.PI/2, 0, Math.PI/8]}>
-                    <coneGeometry args={[0.15, 0.6, 16]} />
-                    <meshStandardMaterial color={bodyColor} roughness={0.8} />
+
+                {/* Top decorative cap */}
+                <mesh position={[0, 1.2, 0]} scale={[0.8, 0.2, 0.8]}>
+                    <cylinderGeometry args={[1, 1, 1, 32]} />
+                    <meshStandardMaterial color="#1e3a8a" roughness={0.2} metalness={0.8} />
                 </mesh>
             </group>
 
-            {/* 8 Legs */}
             {legConfigs.map((config, i) => (
-                <SpiderLeg key={i} config={config} bodyRef={bodyRef} color={legColor} />
+                <SpiderLeg key={i} config={config} bodyRef={bodyRef} color={bodyColor} />
             ))}
         </group>
     )
@@ -218,52 +198,64 @@ function Leash({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: any }) {
     const pointerPos = useRef(new THREE.Vector3())
     const plane = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0))
     const raycaster = useRef(new THREE.Raycaster())
-    const meshRef = useRef<THREE.Mesh>(null)
-    const lineRef = useRef<THREE.Line>(null)
-    const geom = useMemo(() => new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), [])
+    const dotRef = useRef<THREE.Mesh>(null)
+    const points = useMemo(() => {
+        const p = []
+        for (let i = 0; i < 20; i++) p.push(new THREE.Vector3())
+        return p
+    }, [])
 
     useFrame(() => {
-        if (!isDragging) {
-            if (meshRef.current) meshRef.current.visible = false
-            if (lineRef.current) lineRef.current.visible = false
+        if (!isDragging || !bodyRef.current) {
+            if (dotRef.current) dotRef.current.visible = false
             return
         }
 
         raycaster.current.setFromCamera(pointer, camera)
         raycaster.current.ray.intersectPlane(plane.current, pointerPos.current)
         
-        if (meshRef.current) {
-            meshRef.current.visible = true
-            meshRef.current.position.set(pointerPos.current.x, 0.1, pointerPos.current.z)
-        }
-
-        if (lineRef.current && bodyRef.current) {
-            lineRef.current.visible = true
-            const posArray = lineRef.current.geometry.attributes.position.array as Float32Array;
-            posArray[0] = pointerPos.current.x
-            posArray[1] = 0.1
-            posArray[2] = pointerPos.current.z
-            
-            // start leash at spider body
-            posArray[3] = bodyRef.current.position.x
-            posArray[4] = bodyRef.current.position.y + 0.5
-            posArray[5] = bodyRef.current.position.z
-            lineRef.current.geometry.attributes.position.needsUpdate = true
+        if (dotRef.current) {
+            dotRef.current.visible = true
+            dotRef.current.position.set(pointerPos.current.x, 0.1, pointerPos.current.z)
         }
     })
 
-
-
     return (
         <group>
-            <mesh ref={meshRef} rotation={[-Math.PI/2, 0, 0]}>
-                <ringGeometry args={[0.4, 0.5, 32]} />
-                <meshBasicMaterial color="#00ffff" transparent opacity={0.5} />
+            {/* Target Dot */}
+            <mesh ref={dotRef} rotation={[-Math.PI/2, 0, 0]}>
+                <circleGeometry args={[0.3, 32]} />
+                <meshBasicMaterial color="#ff8c00" transparent opacity={0.8} />
             </mesh>
-            <ThreeLine ref={lineRef} geometry={geom}>
-                <lineBasicMaterial color="#00ffff" linewidth={2} transparent opacity={0.3}/>
-            </ThreeLine>
+
+            {/* Dotted Line segments */}
+            {points.map((_, i) => (
+                <LeashSegment key={i} index={i} total={points.length} bodyRef={bodyRef} pointerPos={pointerPos} isDragging={isDragging} />
+            ))}
         </group>
+    )
+}
+
+function LeashSegment({ index, total, bodyRef, pointerPos, isDragging }: any) {
+    const meshRef = useRef<THREE.Mesh>(null)
+
+    useFrame(() => {
+        if (!isDragging || !bodyRef.current || !meshRef.current) {
+            if (meshRef.current) meshRef.current.visible = false
+            return
+        }
+
+        meshRef.current.visible = true
+        const lerpFactor = index / total
+        meshRef.current.position.lerpVectors(bodyRef.current.position, pointerPos.current, lerpFactor)
+        meshRef.current.position.y = bodyRef.current.position.y * (1 - lerpFactor) + 0.1 * lerpFactor
+    })
+
+    return (
+        <mesh ref={meshRef}>
+            <sphereGeometry args={[0.08, 8, 8]} />
+            <meshBasicMaterial color="#ff8c00" transparent opacity={0.6} />
+        </mesh>
     )
 }
 
@@ -306,7 +298,7 @@ export function SpiderScene() {
                 </mesh>
 
                 <Spider isDragging={isDragging} bodyRef={bodyRef} />
-                {/* Removed Leash to perfectly mimic the 3dstack aesthetic without tech lines */}
+                <Leash isDragging={isDragging} bodyRef={bodyRef} />
             </Canvas>
         </div>
     )
