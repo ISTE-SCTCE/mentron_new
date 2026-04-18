@@ -132,7 +132,7 @@ export function EventsBanner({ events }: Props) {
                                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-500/20 bg-blue-500/5 text-blue-400 text-[10px] font-black uppercase tracking-[0.3em]"
                             >
                                 <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                                {page < OFFICIAL_EVENTS.length ? 'Official Website Event' : 'Community Event'}
+                                {page < OFFICIAL_EVENTS.length ? 'Official ISTE Event' : 'Community Event'}
                             </motion.div>
 
                             <div className="space-y-4">
