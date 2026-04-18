@@ -1,7 +1,6 @@
 import { createClient } from '@/app/lib/supabase/server'
 import { EventsBanner } from '@/app/components/EventsBanner'
 import { EventConceptsForum } from '@/app/components/EventConceptsForum'
-import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
 
 export default async function EventsListPage() {
     const supabase = await createClient()
@@ -10,21 +9,16 @@ export default async function EventsListPage() {
     // Fetch user profile for role checking
     const { data: profile } = user ? await supabase
         .from('profiles')
-        .select('role, roll_number')
+        .select('role')
         .eq('id', user.id)
         .maybeSingle() : { data: null }
-    
-    const userDept = getDepartmentFromRollNumber(profile?.roll_number)
     
     const currentUserRole = profile?.role || user?.user_metadata?.role || 'member'
 
     // Fetch Official/Local events from both possible tables
     const [eventsResult, eventCalResult] = await Promise.all([
         supabase.from('event').select('*').order('created_at', { ascending: false }),
-        supabase.from('event_cal')
-            .select('*')
-            .or(`department.eq.General,department.eq.${userDept}`)
-            .order('created_at', { ascending: false })
+        supabase.from('event_cal').select('*').order('created_at', { ascending: false })
     ])
 
     const mergedEvents = [

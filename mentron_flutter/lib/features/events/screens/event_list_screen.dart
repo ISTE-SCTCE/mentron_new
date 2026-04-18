@@ -9,7 +9,6 @@ import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import 'event_detail_screen.dart';
 import '../../../core/utils/app_transitions.dart';
-import '../../../core/utils/department_mapper.dart';
 
 
 class EventListScreen extends StatefulWidget {
@@ -23,7 +22,6 @@ class _EventListScreenState extends State<EventListScreen> {
   List<Map<String, dynamic>> _concepts = [];
   bool _isLoading = true;
   bool _isLeader = false;
-  String _userDept = 'General';
   RealtimeChannel? _voteSubscription;
 
   @override
@@ -45,16 +43,6 @@ class _EventListScreenState extends State<EventListScreen> {
     // Check if current user is exec/core/leadership
     _isLeader = await supabaseService.isLeadershipPosition();
 
-    // Fetch profile for department detection
-    final userId = supabaseService.currentUser?.id;
-    if (userId != null) {
-      final profile = await supabaseService.client.from('profiles').select('roll_number').eq('id', userId).maybeSingle();
-      final roll = profile?['roll_number'] as String?;
-      // Note: I need to import DepartmentMapper or use it if available
-      // Adding import to top of file in next chunk
-      _userDept = DepartmentMapper.getDepartmentFromRoll(roll);
-    }
-
     await Future.wait([
       _fetchEvents(),
       _fetchConcepts(),
@@ -68,7 +56,6 @@ class _EventListScreenState extends State<EventListScreen> {
       final response = await supabase
           .from('event_cal')
           .select('*')
-          .or('department.eq.General,department.eq.$_userDept')
           .order('created_at', ascending: false);
       _events = List<Map<String, dynamic>>.from(response);
     } catch (e) {
