@@ -30,11 +30,12 @@ const OFFICIAL_EVENTS: Event[] = [
     },
     {
         id: 'off-2',
-        event_name: 'I CUBE Initiative',
+        event_name: 'i3 Internship Initiative',
         venue: 'Innovation Hub',
         date: 'Active',
         description: 'Bridging the gap between academia and industry through strategic internships and mentorship.',
-        external_url: 'https://istesctce.in/icube.html'
+        external_url: 'https://istesctce.in/icube.html',
+        image_url: '/images/i3_event.jpg'
     },
     {
         id: 'off-3',
