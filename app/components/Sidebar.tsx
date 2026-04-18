@@ -32,7 +32,6 @@ const navItems = [
     { href: '/projects', icon: FlaskConical, label: 'Projects' },
     { href: '/leaderboard', icon: Trophy, label: 'Rankings' },
     { href: '/societies', icon: Dna, label: 'Societies' },
-    { href: '/settings', icon: Settings, label: 'Settings' },
 ]
 
 export function Sidebar() {

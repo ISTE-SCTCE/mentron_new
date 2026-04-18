@@ -2,7 +2,7 @@
 
 import React, { useRef, useMemo, useState, useEffect } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { PerspectiveCamera, Environment, Sparkles } from '@react-three/drei'
+import { OrthographicCamera } from '@react-three/drei'
 import * as THREE from 'three'
 import { easing } from 'maath'
 
@@ -11,32 +11,32 @@ const ThreeLine = 'line' as any
 // Spider Configuration
 const LEG_COUNT = 8
 const STEP_HEIGHT = 1.0
-const BODY_RADIUS = 0.8
-const IDEAL_LEG_DIST = 3.0
-const STEP_THRESHOLD = 1.8
+const BODY_RADIUS = 1.2
+const IDEAL_LEG_DIST = 4.5
+const STEP_THRESHOLD = 2.5
 
 // Define realistic spider leg configurations
 // A real spider has legs originating from the cephalothorax (front segment).
 const legConfigs = [
     // Front right
-    { baseX: 0.4, baseZ: 0.6, idealX: 2.5, idealZ: 3.0, gaitGroup: 0 },
+    { baseX: 0.6, baseZ: 0.9, idealX: 3.5, idealZ: 4.5, gaitGroup: 0 },
     // Front left
-    { baseX: -0.4, baseZ: 0.6, idealX: -2.5, idealZ: 3.0, gaitGroup: 1 },
+    { baseX: -0.6, baseZ: 0.9, idealX: -3.5, idealZ: 4.5, gaitGroup: 1 },
     
     // Middle-front right
-    { baseX: 0.5, baseZ: 0.3, idealX: 3.5, idealZ: 1.0, gaitGroup: 1 },
+    { baseX: 0.7, baseZ: 0.4, idealX: 5.0, idealZ: 1.5, gaitGroup: 1 },
     // Middle-front left
-    { baseX: -0.5, baseZ: 0.3, idealX: -3.5, idealZ: 1.0, gaitGroup: 0 },
+    { baseX: -0.7, baseZ: 0.4, idealX: -5.0, idealZ: 1.5, gaitGroup: 0 },
     
     // Middle-back right
-    { baseX: 0.5, baseZ: 0.0, idealX: 3.0, idealZ: -1.5, gaitGroup: 0 },
+    { baseX: 0.7, baseZ: 0.0, idealX: 4.5, idealZ: -2.0, gaitGroup: 0 },
     // Middle-back left
-    { baseX: -0.5, baseZ: 0.0, idealX: -3.0, idealZ: -1.5, gaitGroup: 1 },
+    { baseX: -0.7, baseZ: 0.0, idealX: -4.5, idealZ: -2.0, gaitGroup: 1 },
     
     // Back right
-    { baseX: 0.3, baseZ: -0.3, idealX: 2.0, idealZ: -3.5, gaitGroup: 1 },
+    { baseX: 0.4, baseZ: -0.4, idealX: 3.0, idealZ: -4.5, gaitGroup: 1 },
     // Back left
-    { baseX: -0.3, baseZ: -0.3, idealX: -2.0, idealZ: -3.5, gaitGroup: 0 },
+    { baseX: -0.4, baseZ: -0.4, idealX: -3.0, idealZ: -4.5, gaitGroup: 0 },
 ]
 
 // --- Inverse Kinematics Realistic Leg Component ---
@@ -123,17 +123,17 @@ function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: any, colo
         <group>
             {/* Femur */}
             <mesh ref={femurRef}>
-                <cylinderGeometry args={[0.08, 0.06, 1, 8]} />
+                <cylinderGeometry args={[0.15, 0.12, 1, 16]} />
                 <meshStandardMaterial color={color} roughness={0.9} />
             </mesh>
             {/* Tibia */}
             <mesh ref={tibiaRef}>
-                <cylinderGeometry args={[0.06, 0.02, 1, 8]} />
+                <cylinderGeometry args={[0.12, 0.06, 1, 16]} />
                 <meshStandardMaterial color={color} roughness={0.9} />
             </mesh>
             {/* Foot */}
             <mesh ref={footRef}>
-                <sphereGeometry args={[0.05, 8, 8]} />
+                <sphereGeometry args={[0.08, 16, 16]} />
                 <meshStandardMaterial color={color} roughness={1.0} />
             </mesh>
         </group>
@@ -176,31 +176,31 @@ function Spider({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: any }) 
         }
     })
 
-    const bodyColor = "#111111" // Dark grey/black real body
-    const legColor = "#1a1a1a" // Slightly lighter black for legs
+    const bodyColor = "#a855f7" // Neon Purple real body
+    const legColor = "#7e22ce" // Slightly darker neon purple for legs
 
     return (
-        <group>
+        <group scale={[1.5, 1.5, 1.5]}>
             {/* Realistic Spider Body Chassis */}
             <group ref={bodyRef}>
                 {/* Abdomen (Back) */}
                 <mesh position={[0, 0.5, -1.0]} scale={[1.0, 0.8, 1.2]}>
-                    <sphereGeometry args={[1.0, 32, 32]} />
+                    <sphereGeometry args={[1.5, 32, 32]} />
                     <meshStandardMaterial color={bodyColor} roughness={0.9} />
                 </mesh>
                 {/* Cephalothorax (Front) */}
-                <mesh position={[0, 0.3, 0.6]} scale={[1.0, 0.6, 1.0]}>
-                    <sphereGeometry args={[0.7, 32, 32]} />
+                <mesh position={[0, 0.3, 0.8]} scale={[1.0, 0.6, 1.0]}>
+                    <sphereGeometry args={[1.0, 32, 32]} />
                     <meshStandardMaterial color={bodyColor} roughness={0.7} metalness={0.2} />
                 </mesh>
                 
                 {/* Fangs */}
-                <mesh position={[-0.2, 0.2, 1.2]} rotation={[Math.PI/2, 0, -Math.PI/8]}>
-                    <coneGeometry args={[0.08, 0.4, 8]} />
+                <mesh position={[-0.3, 0.2, 1.8]} rotation={[Math.PI/2, 0, -Math.PI/8]}>
+                    <coneGeometry args={[0.15, 0.6, 16]} />
                     <meshStandardMaterial color={bodyColor} roughness={0.8} />
                 </mesh>
-                <mesh position={[0.2, 0.2, 1.2]} rotation={[Math.PI/2, 0, Math.PI/8]}>
-                    <coneGeometry args={[0.08, 0.4, 8]} />
+                <mesh position={[0.3, 0.2, 1.8]} rotation={[Math.PI/2, 0, Math.PI/8]}>
+                    <coneGeometry args={[0.15, 0.6, 16]} />
                     <meshStandardMaterial color={bodyColor} roughness={0.8} />
                 </mesh>
             </group>
@@ -294,28 +294,19 @@ export function SpiderScene() {
     return (
         <div className="fixed inset-0 z-[100] pointer-events-none">
             <Canvas shadows={false} dpr={[1, 2]} eventSource={typeof document !== 'undefined' ? document.documentElement : undefined} eventPrefix="client">
-                <PerspectiveCamera makeDefault position={[0, 15, 20]} fov={35} />
-                {/* Remove background color to allow transparency */}
+                {/* 2D Orthographic Camera looking straight down */}
+                <OrthographicCamera makeDefault position={[0, 50, 0]} zoom={20} up={[0, 0, -1]} />
                 
-                <ambientLight intensity={0.5} />
+                <ambientLight intensity={1.5} />
                 
-                {/* Subtle tech grid floor */}
-                <gridHelper args={[50, 50, '#ffffff', '#ffffff']} position={[0, -0.01, 0]} material-opacity={0.05} material-transparent />
-                
-                {/* Ground plane for raycasting (invisible) */}
+                {/* Ground plane for raycasting (invisible), scaled massively for full screen tracking */}
                 <mesh rotation={[-Math.PI / 2, 0, 0]} visible={false}>
-                    <planeGeometry args={[100, 100]} />
+                    <planeGeometry args={[1000, 1000]} />
                     <meshBasicMaterial color="black" />
                 </mesh>
 
                 <Spider isDragging={isDragging} bodyRef={bodyRef} />
-                <Leash isDragging={isDragging} bodyRef={bodyRef} />
-
-                {/* Floating ambient particles for sci-fi feel */}
-                <Sparkles count={100} scale={20} size={2} speed={0.4} color="#00ffff" opacity={0.2} />
-
-                {/* Environment for shiny reflections if we use PBR */}
-                <Environment preset="city" />
+                {/* Removed Leash to perfectly mimic the 3dstack aesthetic without tech lines */}
             </Canvas>
         </div>
     )

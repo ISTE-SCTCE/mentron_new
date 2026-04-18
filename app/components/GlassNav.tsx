@@ -54,7 +54,6 @@ export function GlassNav() {
         { href: '/projects', icon: FlaskConical, label: 'Projects' },
         { href: '/marketplace', icon: ShoppingBag, label: 'Marketplace' },
         { href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
-        { href: '/settings', icon: Settings, label: 'Settings' },
         { href: '/societies', icon: Users, label: 'Societies' },
     ]
 
@@ -126,14 +125,6 @@ export function GlassNav() {
 
                 {/* Mobile Action Bubbles */}
                 <div className="flex items-center gap-2 pointer-events-auto">
-                    {/* Settings Bubble (Separate to avoid collision) */}
-                    <Link
-                        href="/settings"
-                        className="w-11 h-11 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all active:scale-95 text-[#8b9bb4] hover:text-white"
-                    >
-                        <Settings size={20} />
-                    </Link>
-
                     {/* Hamburger Toggle Bubble */}
                     <button
                         onClick={() => setMobileOpen(!mobileOpen)}
