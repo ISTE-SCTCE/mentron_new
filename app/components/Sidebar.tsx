@@ -23,7 +23,6 @@ import { useState } from 'react'
 
 const navItems = [
     { href: '/dashboard', icon: LayoutGrid, label: 'Dashboard' },
-    { href: '/analytics', icon: BarChart3, label: 'Analytics' },
     { href: '/team', icon: Users, label: 'Team' },
     { href: '/core', icon: ShieldAlert, label: 'Core' },
     { href: '/notes', icon: BookOpen, label: 'Notes' },
@@ -32,6 +31,7 @@ const navItems = [
     { href: '/projects', icon: FlaskConical, label: 'Projects' },
     { href: '/leaderboard', icon: Trophy, label: 'Rankings' },
     { href: '/societies', icon: Dna, label: 'Societies' },
+    { href: '/settings', icon: Settings, label: 'Settings' },
 ]
 
 export function Sidebar() {

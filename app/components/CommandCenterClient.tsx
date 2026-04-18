@@ -8,6 +8,7 @@ import { NotificationBell } from '@/app/components/NotificationBell'
 import { DashboardCalendar } from '@/app/components/DashboardCalendar'
 import { EventBanner } from '@/app/components/EventBanner'
 import { AnalyticsDashboard } from '@/app/components/AnalyticsDashboard'
+import { ProfileCard } from '@/app/components/ProfileCard'
 import { BarChart3, ArrowUpRight, Users, BookOpen, Activity } from 'lucide-react'
 
 // Defining props based on previous dashboard and analytics structures
@@ -110,35 +111,14 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
             {/* DASHBOARD MODE VIEW */}
             {!isAnalyticsMode && (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 xl:grid-rows-[auto_auto_auto] animate-in slide-in-from-bottom-8 fade-in duration-700">
-                    {/* 2. PROFILE CARD */}
-                    <div className="xl:col-span-1 xl:row-span-2 glass-card flex flex-col items-center justify-center text-center space-y-6">
-                        <div className="flex flex-col items-center text-center space-y-4">
-                            <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 p-[2px]">
-                                <div className="w-full h-full rounded-full bg-[#030303] flex items-center justify-center text-4xl font-black uppercase">
-                                    {displayName[0]}
-                                </div>
-                            </div>
-                            <div>
-                                <h1 className="text-3xl font-black text-white">{displayName}</h1>
-                                <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">{displayRole}</p>
-                            </div>
-                        </div>
-
-                        <div className="space-y-4 pt-6 border-t border-white/5 w-full">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-medium">Dept</span>
-                                <span className="text-white font-black">{displayDept}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-medium">Roll</span>
-                                <span className="text-white font-black uppercase">{displayRoll}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-medium">Year</span>
-                                <span className="text-white font-black">{displayYear}</span>
-                            </div>
-                        </div>
-                    </div>
+                    <ProfileCard 
+                        displayName={displayName}
+                        displayRole={displayRole}
+                        displayDept={displayDept}
+                        displayRoll={displayRoll}
+                        displayYear={displayYear}
+                        className="xl:col-span-1 xl:row-span-2"
+                    />
 
                     {/* 3. CALENDAR */}
                     <div className="xl:col-span-2 xl:row-span-2">
