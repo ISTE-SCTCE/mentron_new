@@ -25,7 +25,8 @@ const OFFICIAL_EVENTS: Event[] = [
         venue: 'Main Campus',
         date: 'Ongoing 2025',
         description: 'The ultimate peer-to-peer platform for SCTCE. Explore, contribute, and excel together.',
-        external_url: 'https://istesctce.in/mentron.html'
+        external_url: 'https://istesctce.in/mentron.html',
+        image_url: '/images/mentron_event.png'
     },
     {
         id: 'off-2',
@@ -196,9 +197,17 @@ export function EventsBanner({ events }: Props) {
                                     className="w-full h-full rounded-[3rem] bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/5 flex items-center justify-center overflow-hidden relative"
                                 >
                                     <div className="absolute inset-0 bg-blue-500/5 backdrop-blur-3xl" />
-                                    <span className="text-9xl md:text-[12rem] relative z-10 filter drop-shadow-[0_0_50px_rgba(59,130,246,0.5)]">
-                                        {page === 0 ? '🏆' : page === 1 ? '🎓' : page === 2 ? '💻' : '🌐'}
-                                    </span>
+                                    {currentEvent.image_url ? (
+                                        <img 
+                                            src={currentEvent.image_url} 
+                                            alt={currentEvent.event_name}
+                                            className="w-full h-full object-cover relative z-10"
+                                        />
+                                    ) : (
+                                        <span className="text-9xl md:text-[12rem] relative z-10 filter drop-shadow-[0_0_50px_rgba(59,130,246,0.5)]">
+                                            {page === 0 ? '🏆' : page === 1 ? '🎓' : page === 2 ? '💻' : '🌐'}
+                                        </span>
+                                    )}
                                 </motion.div>
                              </div>
                         </div>
