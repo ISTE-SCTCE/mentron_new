@@ -58,5 +58,16 @@ export default async function MarketplacePage() {
                 </Link>
             </div>
         </div>
+            
+            {/* Draggable hint */}
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 pointer-events-none animate-pulse">
+                <div className="glass px-6 py-2 rounded-full border border-white/10 flex items-center gap-3 bg-black/20 backdrop-blur-md">
+                    <span className="text-sm">👆</span>
+                    <span className="text-xs font-black tracking-widest text-white/90 uppercase">
+                        Drag to walk the spider
+                    </span>
+                </div>
+            </div>
+        </div>
     )
 }

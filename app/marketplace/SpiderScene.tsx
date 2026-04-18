@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useMemo } from 'react'
+import React, { useRef, useMemo, useState, useEffect } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { PerspectiveCamera, Environment, Sparkles } from '@react-three/drei'
 import * as THREE from 'three'
@@ -145,34 +145,39 @@ function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: React.Ref
     )
 }
 
-function Spider() {
-    const bodyRef = useRef<THREE.Group>(null)
+function Spider({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: React.RefObject<THREE.Group> }) {
     const { pointer, camera } = useThree()
-    const targetPos = useRef(new THREE.Vector3())
+    const groundTarget = useRef(new THREE.Vector3())
     const plane = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0))
     const raycaster = useRef(new THREE.Raycaster())
 
     useFrame((state, dt) => {
-        // Find intersection of mouse with ground plane
-        raycaster.current.setFromCamera(pointer, camera)
-        raycaster.current.ray.intersectPlane(plane.current, targetPos.current)
+        if (!bodyRef.current) return
+
+        if (isDragging) {
+            // Find intersection of mouse with ground plane
+            raycaster.current.setFromCamera(pointer, camera)
+            raycaster.current.ray.intersectPlane(plane.current, groundTarget.current)
+        } else {
+            // Stop moving by setting target to current ground pos of the body
+            groundTarget.current.x = bodyRef.current.position.x
+            groundTarget.current.z = bodyRef.current.position.z
+        }
         
         // Add some hovering bob to the target body height
-        targetPos.current.y = 1.0 + Math.sin(state.clock.elapsedTime * 2) * 0.2
+        const targetY = 1.0 + Math.sin(state.clock.elapsedTime * 2) * 0.2
 
-        if (bodyRef.current) {
-            // Smoothly move body towards mouse
-            easing.damp3(bodyRef.current.position, targetPos.current, 0.2, dt)
-            
-            // Rotate body to face movement direction (if moving fast enough)
-            const dir = new THREE.Vector3().subVectors(targetPos.current, bodyRef.current.position)
-            dir.y = 0
-            if (dir.lengthSq() > 0.01) {
-                const targetRotation = Math.atan2(dir.x, dir.z)
-                // easing.dampAngle doesn't natively exist simply in maath string format, we can do quaternion spherical lerp
-                const targetQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), targetRotation)
-                easing.dampQ(bodyRef.current.quaternion, targetQuat, 0.2, dt)
-            }
+        // Smoothly move body towards mouse
+        const moveTarget = new THREE.Vector3(groundTarget.current.x, targetY, groundTarget.current.z)
+        easing.damp3(bodyRef.current.position, moveTarget, 0.2, dt)
+        
+        // Rotate body to face movement direction (if moving fast enough)
+        const dir = new THREE.Vector3(groundTarget.current.x - bodyRef.current.position.x, 0, groundTarget.current.z - bodyRef.current.position.z)
+        if (dir.lengthSq() > 0.01) {
+            const targetRotation = Math.atan2(dir.x, dir.z)
+            // easing.dampAngle doesn't natively exist simply in maath string format, we can do quaternion spherical lerp
+            const targetQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), targetRotation)
+            easing.dampQ(bodyRef.current.quaternion, targetQuat, 0.2, dt)
         }
     })
 
@@ -203,31 +208,80 @@ function Spider() {
     )
 }
 
-function Leash() {
+function Leash({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: React.RefObject<THREE.Group> }) {
     const { pointer, camera } = useThree()
-    const targetPos = useRef(new THREE.Vector3())
+    const pointerPos = useRef(new THREE.Vector3())
     const plane = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0))
     const raycaster = useRef(new THREE.Raycaster())
     const meshRef = useRef<THREE.Mesh>(null)
+    const lineRef = useRef<THREE.Line>(null)
+    const geom = useMemo(() => new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), [])
 
     useFrame(() => {
+        if (!isDragging) {
+            if (meshRef.current) meshRef.current.visible = false
+            if (lineRef.current) lineRef.current.visible = false
+            return
+        }
+
         raycaster.current.setFromCamera(pointer, camera)
-        raycaster.current.ray.intersectPlane(plane.current, targetPos.current)
+        raycaster.current.ray.intersectPlane(plane.current, pointerPos.current)
         
         if (meshRef.current) {
-            meshRef.current.position.set(targetPos.current.x, 0.1, targetPos.current.z)
+            meshRef.current.visible = true
+            meshRef.current.position.set(pointerPos.current.x, 0.1, pointerPos.current.z)
+        }
+
+        if (lineRef.current && bodyRef.current) {
+            lineRef.current.visible = true
+            const posArray = lineRef.current.geometry.attributes.position.array as Float32Array;
+            posArray[0] = pointerPos.current.x
+            posArray[1] = 0.1
+            posArray[2] = pointerPos.current.z
+            
+            // start leash at spider body
+            posArray[3] = bodyRef.current.position.x
+            posArray[4] = bodyRef.current.position.y + 0.5
+            posArray[5] = bodyRef.current.position.z
+            lineRef.current.geometry.attributes.position.needsUpdate = true
         }
     })
 
+
+
     return (
-        <mesh ref={meshRef} rotation={[-Math.PI/2, 0, 0]}>
-            <ringGeometry args={[0.4, 0.5, 32]} />
-            <meshBasicMaterial color="#00ffff" transparent opacity={0.3} />
-        </mesh>
+        <group>
+            <mesh ref={meshRef} rotation={[-Math.PI/2, 0, 0]}>
+                <ringGeometry args={[0.4, 0.5, 32]} />
+                <meshBasicMaterial color="#00ffff" transparent opacity={0.5} />
+            </mesh>
+            <ThreeLine ref={lineRef} geometry={geom}>
+                <lineBasicMaterial color="#00ffff" linewidth={2} transparent opacity={0.3}/>
+            </ThreeLine>
+        </group>
     )
 }
 
 export function SpiderScene() {
+    const [isDragging, setIsDragging] = useState(false)
+    const bodyRef = useRef<THREE.Group>(null)
+
+    useEffect(() => {
+        const handleDown = () => setIsDragging(true)
+        const handleUp = () => setIsDragging(false)
+        window.addEventListener('pointerdown', handleDown)
+        window.addEventListener('pointerup', handleUp)
+        window.addEventListener('pointerleave', handleUp)
+        window.addEventListener('pointercancel', handleUp)
+        
+        return () => {
+            window.removeEventListener('pointerdown', handleDown)
+            window.removeEventListener('pointerup', handleUp)
+            window.removeEventListener('pointerleave', handleUp)
+            window.removeEventListener('pointercancel', handleUp)
+        }
+    }, [])
+
     return (
         <div className="fixed inset-0 z-[100] pointer-events-none">
             <Canvas shadows={false} dpr={[1, 2]} eventSource={document.documentElement} eventPrefix="client">
@@ -245,8 +299,8 @@ export function SpiderScene() {
                     <meshBasicMaterial color="black" />
                 </mesh>
 
-                <Spider />
-                <Leash />
+                <Spider isDragging={isDragging} bodyRef={bodyRef} />
+                <Leash isDragging={isDragging} bodyRef={bodyRef} />
 
                 {/* Floating ambient particles for sci-fi feel */}
                 <Sparkles count={100} scale={20} size={2} speed={0.4} color="#00ffff" opacity={0.2} />
