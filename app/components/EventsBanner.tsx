@@ -43,7 +43,8 @@ const OFFICIAL_EVENTS: Event[] = [
         venue: 'Conference Room',
         date: 'Upcoming',
         description: 'A masterclass designed to simplify C programming concepts for developers at all levels.',
-        external_url: 'https://istesctce.in/events.html'
+        external_url: 'https://istesctce.in/events.html',
+        image_url: '/images/understanding_c.png'
     },
     {
         id: 'off-4',
