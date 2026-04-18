@@ -15,28 +15,36 @@ const BODY_RADIUS = 0.8
 const IDEAL_LEG_DIST = 3.0
 const STEP_THRESHOLD = 1.8
 
-// Define leg attachment points and ideal resting positions (circular distribution)
-const legConfigs = Array.from({ length: LEG_COUNT }).map((_, i) => {
-    const angle = (i / LEG_COUNT) * Math.PI * 2
-    // Base attaches to the edge of the body radius
-    const baseX = Math.cos(angle) * BODY_RADIUS
-    const baseZ = Math.sin(angle) * BODY_RADIUS
-    // Ideal foot is further out
-    const idealX = Math.cos(angle) * IDEAL_LEG_DIST
-    const idealZ = Math.sin(angle) * IDEAL_LEG_DIST
-
-    // We pair legs into two gait groups (Evens vs Odds) so they don't all step at once
-    const gaitGroup = i % 2
-
-    return { baseX, baseZ, idealX, idealZ, gaitGroup, angle }
-})
-
-// --- Inverse Kinematics Leg Component ---
-function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: React.RefObject<THREE.Group | null>, color: string }) {
-    const footRef = useRef<THREE.Mesh>(null)
-    const lineRef = useRef<THREE.Line>(null)
+// Define realistic spider leg configurations
+// A real spider has legs originating from the cephalothorax (front segment).
+const legConfigs = [
+    // Front right
+    { baseX: 0.4, baseZ: 0.6, idealX: 2.5, idealZ: 3.0, gaitGroup: 0 },
+    // Front left
+    { baseX: -0.4, baseZ: 0.6, idealX: -2.5, idealZ: 3.0, gaitGroup: 1 },
     
-    // State of the leg
+    // Middle-front right
+    { baseX: 0.5, baseZ: 0.3, idealX: 3.5, idealZ: 1.0, gaitGroup: 1 },
+    // Middle-front left
+    { baseX: -0.5, baseZ: 0.3, idealX: -3.5, idealZ: 1.0, gaitGroup: 0 },
+    
+    // Middle-back right
+    { baseX: 0.5, baseZ: 0.0, idealX: 3.0, idealZ: -1.5, gaitGroup: 0 },
+    // Middle-back left
+    { baseX: -0.5, baseZ: 0.0, idealX: -3.0, idealZ: -1.5, gaitGroup: 1 },
+    
+    // Back right
+    { baseX: 0.3, baseZ: -0.3, idealX: 2.0, idealZ: -3.5, gaitGroup: 1 },
+    // Back left
+    { baseX: -0.3, baseZ: -0.3, idealX: -2.0, idealZ: -3.5, gaitGroup: 0 },
+]
+
+// --- Inverse Kinematics Realistic Leg Component ---
+function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: React.RefObject<THREE.Group | null>, color: string }) {
+    const femurRef = useRef<THREE.Mesh>(null)
+    const tibiaRef = useRef<THREE.Mesh>(null)
+    const footRef = useRef<THREE.Mesh>(null)
+
     const state = useRef({
         currentPos: new THREE.Vector3(config.idealX, 0, config.idealZ),
         targetPos: new THREE.Vector3(config.idealX, 0, config.idealZ),
@@ -44,102 +52,89 @@ function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: React.Ref
         stepProgress: 0,
         basePos: new THREE.Vector3(),
         idealPos: new THREE.Vector3(),
-        p1: new THREE.Vector3(),
-        p2: new THREE.Vector3()
     })
-
-    const geom = useMemo(() => {
-        const g = new THREE.BufferGeometry()
-        g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(30 * 3), 3))
-        return g
-    }, [])
 
     useFrame((_, dt) => {
         if (!bodyRef.current) return
 
         const s = state.current
         
-        // Calculate where the leg *wants* to be based on current body pos
+        // Calculate ideal position in world space
         s.idealPos.set(config.idealX, 0, config.idealZ)
             .applyQuaternion(bodyRef.current.quaternion)
             .add(bodyRef.current.position)
         
-        // Calculate body attachment point
-        s.basePos.set(config.baseX, 0, config.baseZ)
+        // Calculate base position in world space
+        s.basePos.set(config.baseX, 0.4, config.baseZ) // Base slightly elevated (cephalothorax height)
             .applyQuaternion(bodyRef.current.quaternion)
             .add(bodyRef.current.position)
 
         // Step logic
         const distToIdeal = s.currentPos.distanceTo(s.idealPos)
-        
         if (!s.isStepping && distToIdeal > STEP_THRESHOLD) {
-            // Trigger step if far enough (could add gait sync here for more realism)
-            // Wait to step until it's "our group's turn" by adding a time/frame based offset or 
-            // relying on natural stagger. For now, distance threshold creates organic stepping.
             s.isStepping = true
             s.stepProgress = 0
-            // Overshoot the ideal slightly to anticipate movement
-            const velocityDir = new THREE.Vector3().subVectors(s.idealPos, s.currentPos).normalize().multiplyScalar(0.5)
+            const velocityDir = new THREE.Vector3().subVectors(s.idealPos, s.currentPos).normalize().multiplyScalar(0.8)
             s.targetPos.copy(s.idealPos).add(velocityDir)
         }
 
         if (s.isStepping) {
-            s.stepProgress += dt * 8 // step speed
+            s.stepProgress += dt * 10 // step speed
             if (s.stepProgress >= 1) {
                 s.stepProgress = 1
                 s.isStepping = false
             }
-
-            // Parabolic arc interpolation for the step
             s.currentPos.lerpVectors(s.currentPos, s.targetPos, s.stepProgress)
-            // add arc height
             const arc = Math.sin(s.stepProgress * Math.PI) * STEP_HEIGHT
-            s.currentPos.y = arc
+            s.currentPos.y = Math.max(0, arc)
         } else {
-             // stick to ground
              s.currentPos.y = 0
+        }
+
+        // Calculate Knees for rigid segments
+        const midPoint = s.basePos.clone().lerp(s.currentPos, 0.4)
+        const dist = s.basePos.distanceTo(s.currentPos)
+        midPoint.y = Math.max(s.basePos.y, s.currentPos.y) + (IDEAL_LEG_DIST - dist * 0.4)
+
+        // Orient Femur (base to knee)
+        if (femurRef.current) {
+            const fDir = midPoint.clone().sub(s.basePos)
+            const fLen = fDir.length()
+            femurRef.current.position.copy(s.basePos).add(fDir.clone().multiplyScalar(0.5))
+            if (fLen > 0.001) femurRef.current.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), fDir.normalize())
+            femurRef.current.scale.set(1, fLen, 1)
+        }
+
+        // Orient Tibia (knee to foot)
+        if (tibiaRef.current) {
+            const tDir = s.currentPos.clone().sub(midPoint)
+            const tLen = tDir.length()
+            tibiaRef.current.position.copy(midPoint).add(tDir.clone().multiplyScalar(0.5))
+            if (tLen > 0.001) tibiaRef.current.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tDir.normalize())
+            tibiaRef.current.scale.set(0.6, tLen, 0.6)
         }
 
         if (footRef.current) {
             footRef.current.position.copy(s.currentPos)
         }
-
-        // Draw bezier curve for the leg (Jointed look)
-        if (lineRef.current) {
-            // Control point for quadratic curve: halfway between base and foot, but raised up
-            const midPoint = s.basePos.clone().lerp(s.currentPos, 0.5)
-            midPoint.y = Math.max(s.basePos.y, s.currentPos.y) + 1.5 // Knees high
-
-            const posArray = lineRef.current.geometry.attributes.position.array as Float32Array
-            for (let i = 0; i < 30; i++) {
-                const t = i / 29
-                // Quadratic Bezier Formula: P(t) = (1-t)^2*P0 + 2(1-t)t*P1 + t^2*P2
-                const t1 = 1 - t
-                s.p1.copy(s.basePos).multiplyScalar(t1 * t1)
-                s.p2.copy(midPoint).multiplyScalar(2 * t1 * t)
-                const point = s.p1.add(s.p2).add(s.currentPos.clone().multiplyScalar(t * t))
-                
-                posArray[i * 3] = point.x
-                posArray[i * 3 + 1] = point.y
-                posArray[i * 3 + 2] = point.z
-            }
-            lineRef.current.geometry.attributes.position.needsUpdate = true
-        }
     })
 
     return (
         <group>
-            {/* The leg line */}
-            <ThreeLine ref={lineRef} geometry={geom}>
-                <lineBasicMaterial color={color} linewidth={2} />
-            </ThreeLine>
-            
-            {/* The foot point */}
+            {/* Femur */}
+            <mesh ref={femurRef}>
+                <cylinderGeometry args={[0.08, 0.06, 1, 8]} />
+                <meshStandardMaterial color={color} roughness={0.9} />
+            </mesh>
+            {/* Tibia */}
+            <mesh ref={tibiaRef}>
+                <cylinderGeometry args={[0.06, 0.02, 1, 8]} />
+                <meshStandardMaterial color={color} roughness={0.9} />
+            </mesh>
+            {/* Foot */}
             <mesh ref={footRef}>
-                <sphereGeometry args={[0.1, 8, 8]} />
-                <meshBasicMaterial color={color} />
-                {/* Small glow blob on foot */}
-                <pointLight distance={1.5} intensity={1} color={color} />
+                <sphereGeometry args={[0.05, 8, 8]} />
+                <meshStandardMaterial color={color} roughness={1.0} />
             </mesh>
         </group>
     )
@@ -181,22 +176,32 @@ function Spider({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: React.R
         }
     })
 
-    const bodyColor = "#0080FF"
-    const legColor = "#7B2FFF" // Purple
+    const bodyColor = "#111111" // Dark grey/black real body
+    const legColor = "#1a1a1a" // Slightly lighter black for legs
 
     return (
         <group>
-            {/* Spider Body Chassis */}
+            {/* Realistic Spider Body Chassis */}
             <group ref={bodyRef}>
-                <mesh position={[0, 0, 0]}>
-                    <octahedronGeometry args={[BODY_RADIUS, 1]} />
-                    <meshStandardMaterial color={bodyColor} wireframe={true} emissive={bodyColor} emissiveIntensity={0.5} opacity={0.8} transparent />
+                {/* Abdomen (Back) */}
+                <mesh position={[0, 0.5, -1.0]} scale={[1.0, 0.8, 1.2]}>
+                    <sphereGeometry args={[1.0, 32, 32]} />
+                    <meshStandardMaterial color={bodyColor} roughness={0.9} />
                 </mesh>
-                {/* Core engine glow */}
-                <pointLight distance={5} intensity={2} color={bodyColor} />
-                <mesh position={[0, 0, 0]}>
-                    <sphereGeometry args={[BODY_RADIUS * 0.4, 16, 16]} />
-                    <meshBasicMaterial color="#ffffff" />
+                {/* Cephalothorax (Front) */}
+                <mesh position={[0, 0.3, 0.6]} scale={[1.0, 0.6, 1.0]}>
+                    <sphereGeometry args={[0.7, 32, 32]} />
+                    <meshStandardMaterial color={bodyColor} roughness={0.7} metalness={0.2} />
+                </mesh>
+                
+                {/* Fangs */}
+                <mesh position={[-0.2, 0.2, 1.2]} rotation={[Math.PI/2, 0, -Math.PI/8]}>
+                    <coneGeometry args={[0.08, 0.4, 8]} />
+                    <meshStandardMaterial color={bodyColor} roughness={0.8} />
+                </mesh>
+                <mesh position={[0.2, 0.2, 1.2]} rotation={[Math.PI/2, 0, Math.PI/8]}>
+                    <coneGeometry args={[0.08, 0.4, 8]} />
+                    <meshStandardMaterial color={bodyColor} roughness={0.8} />
                 </mesh>
             </group>
 
