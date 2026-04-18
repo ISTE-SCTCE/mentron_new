@@ -1,16 +1,11 @@
-export const dynamic = 'force-dynamic'
 import { createClient } from '@/app/lib/supabase/server'
-import Link from 'next/link'
 import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
-import { DashboardCalendar } from '@/app/components/DashboardCalendar'
-import { ThemeSwitcher } from '@/app/components/ThemeSwitcher'
+import { isCoreMember } from '@/app/lib/utils/coreAuth'
+import { CommandCenterClient } from '@/app/components/CommandCenterClient'
 import { AboutSection } from '@/app/components/AboutSection'
 import { Footer } from '@/app/components/Footer'
-import { GlobalSearch } from '@/app/components/GlobalSearch'
-import { isCoreMember } from '@/app/lib/utils/coreAuth'
-import { EventBanner } from '@/app/components/EventBanner'
-import { NotificationBell } from '@/app/components/NotificationBell'
-import { BarChart3, ArrowUpRight, Users, BookOpen } from 'lucide-react'
+
+export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
     const supabase = await createClient()
@@ -26,29 +21,18 @@ export default async function DashboardPage() {
         .eq('id', user?.id)
         .single()
 
-    // 2. Fetch Recent Activity (hidden in UI)
-    await supabase
-        .from('interaction_logs')
-        .select('*, profiles(full_name)')
-        .order('created_at', { ascending: false })
-        .limit(3)
-
-    // Fallback logic: Use user_metadata if profile row is missing or fields are null
+    // Dashboard Data
     const displayName = profile?.full_name || user?.user_metadata?.full_name || 'Member'
     const displayRole = profile?.role || user?.user_metadata?.role || 'member'
     const displayRoll = profile?.roll_number || user?.user_metadata?.roll_number || 'N/A'
     const displayYear = profile?.year || user?.user_metadata?.year || 'N/A'
 
-    // 4. Fetch data for live tickers
     const { data: latestProjects } = await supabase
         .from('projects')
         .select('*, profiles(full_name)')
         .order('created_at', { ascending: false })
         .limit(5)
 
-    await supabase.from('marketplace_items').select('*, profiles(full_name)').order('created_at', { ascending: false }).limit(5)
-
-    //Greeting Logic
     const hours = new Date().getHours()
     const greeting = hours < 12 ? 'Good morning' : hours < 17 ? 'Good afternoon' : 'Good evening'
 
@@ -57,262 +41,112 @@ export default async function DashboardPage() {
         ? identifiedDept
         : (profile?.department || user?.user_metadata?.department || 'Not Assigned')
 
-    // 5. Analytics Quick Stats (Filtered)
-    const { count: realStudentCount } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('role', 'member')
+    const dashboardData = {
+        user,
+        profile,
+        coreMember,
+        displayName,
+        displayRole,
+        displayRoll,
+        displayYear,
+        displayDept,
+        greeting,
+        latestProjects: latestProjects || []
+    }
+
+    // Analytics Data (Only fetched if exec/core)
+    let analyticsData = null
+
+    if (displayRole === 'exec' || displayRole === 'core') {
+        // Fetch Materials count for analytics
+        const { count: totalMaterialCount } = await supabase.from('notes').select('*', { count: 'exact', head: true })
+
+        // Fetch View count for analytics
+        const { count: totalViews } = await supabase
+            .from('interaction_logs')
+            .select('*, profiles!inner(role)', { count: 'exact', head: true })
+            .eq('profiles.role', 'member')
+
+        const sevenDaysAgo = new Date()
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
         
-    const { count: totalMaterialCount } = await supabase.from('notes').select('*', { count: 'exact', head: true })
+        const { count: recentViews } = await supabase
+            .from('interaction_logs')
+            .select('*, profiles!inner(role)', { count: 'exact', head: true })
+            .eq('profiles.role', 'member')
+            .gte('created_at', sevenDaysAgo.toISOString())
 
-    const { count: totalViews } = await supabase
-        .from('interaction_logs')
-        .select('*, profiles!inner(role)', { count: 'exact', head: true })
-        .eq('profiles.role', 'member')
+        const { data: profiles } = await supabase
+            .from('profiles')
+            .select('department, role, year, roll_number')
+            .eq('role', 'member')
 
-    const sevenDaysAgo = new Date()
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-    const { count: recentViews } = await supabase
-        .from('interaction_logs')
-        .select('*, profiles!inner(role)', { count: 'exact', head: true })
-        .eq('profiles.role', 'member')
-        .gte('created_at', sevenDaysAgo.toISOString())
+        const deptMap: Record<string, number> = {}
+        const yearMap: Record<string, number> = { '1': 0, '2': 0, '3': 0, '4': 0 }
 
+        profiles?.forEach((p) => {
+            const dept = getDepartmentFromRollNumber(p.roll_number) || p.department || 'Other'
+            deptMap[dept] = (deptMap[dept] || 0) + 1
+
+            if (p.year && p.year >= 1 && p.year <= 4) {
+                yearMap[p.year.toString()] = (yearMap[p.year.toString()] || 0) + 1
+            }
+        })
+
+        const { data: recentInteractions } = await supabase
+            .from('interaction_logs')
+            .select('created_at, profiles!inner(role)')
+            .eq('profiles.role', 'member')
+            .gte('created_at', sevenDaysAgo.toISOString())
+
+        const weeklyActivity = [0, 0, 0, 0, 0, 0, 0]
+        if (recentInteractions) {
+            const now = new Date()
+            recentInteractions.forEach(log => {
+                const dayDiff = Math.floor((now.getTime() - new Date(log.created_at).getTime()) / (1000 * 60 * 60 * 24))
+                if (dayDiff >= 0 && dayDiff < 7) {
+                    weeklyActivity[6 - dayDiff]++
+                }
+            })
+        }
+
+        const { data: recentLogs } = await supabase
+            .from('interaction_logs')
+            .select(`*, profiles!inner(full_name, role)`)
+            .eq('profiles.role', 'member')
+            .order('created_at', { ascending: false })
+            .limit(10)
+
+        analyticsData = {
+            totalViews: totalViews || 0,
+            recentViews: recentViews || 0,
+            realStudentCount: profiles?.length || 0,
+            totalMaterialCount: totalMaterialCount || 0,
+            initialStats: {
+                studentCount: profiles?.length || 0,
+                materialCount: totalMaterialCount || 0,
+                viewCount: totalViews || 0,
+                deptStats: deptMap,
+                yearStats: yearMap,
+                weeklyActivity
+            },
+            initialLogs: (recentLogs as any) || []
+        }
+    }
 
     return (
         <div className="flex flex-col min-h-screen text-[#ededed] pt-16 md:pt-32 w-full pb-20">
             <div className="flex-1 w-full max-w-[1800px] mx-auto px-4 md:px-8">
+                
+                {/* 
+                   Dual-Mode Command Center Client 
+                   Handles toggle between Dashboard & Analytics
+                */}
+                <CommandCenterClient 
+                    dashboardData={dashboardData as any} 
+                    analyticsData={analyticsData} 
+                />
 
-                {/* --- BENTO GRID CONTAINER --- */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 xl:grid-rows-[auto_auto_auto]">
-
-                    {/* 1. HERO GREETING (Span Full Width on all) */}
-                    <header className="col-span-1 md:col-span-2 xl:col-span-4 flex flex-col md:flex-row justify-between items-start md:items-center mb-8 xl:mb-12 gap-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8 md:p-12 backdrop-blur-md">
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2">
-                                <span className="w-10 h-[1px] bg-blue-500"></span>
-                                <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">System Overview</p>
-                            </div>
-                            <h1 className="text-4xl md:text-7xl font-black tracking-tighter text-white">
-                                {greeting}, <span className="text-glow text-blue-400">{displayName.split(' ')[0]}</span>
-                            </h1>
-                        </div>
-
-                        <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto">
-                            <ThemeSwitcher />
-                            <GlobalSearch />
-                            {user && <NotificationBell userId={user.id} />}
-                        </div>
-                    </header>
-
-                    {/* 2. PROFILE CARD (Top Left) */}
-                    <div className="xl:col-span-1 xl:row-span-2 glass-card flex flex-col items-center justify-center text-center space-y-6">
-                        <div className="flex flex-col items-center text-center space-y-4">
-                            <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 p-[2px]">
-                                <div className="w-full h-full rounded-full bg-[#030303] flex items-center justify-center text-4xl font-black uppercase">
-                                    {displayName[0]}
-                                </div>
-                            </div>
-                            <div>
-                                <h1 className="text-3xl font-black text-white">{displayName}</h1>
-                                <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">{displayRole}</p>
-                            </div>
-                        </div>
-
-                        <div className="space-y-4 pt-6 border-t border-white/5 w-full">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-medium">Dept</span>
-                                <span className="text-white font-black">{displayDept}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-medium">Roll</span>
-                                <span className="text-white font-black uppercase">{displayRoll}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-medium">Year</span>
-                                <span className="text-white font-black">{displayYear}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 3. CALENDAR (Center Big) */}
-                    <div className="xl:col-span-2 xl:row-span-2">
-                        <DashboardCalendar isExec={profile?.role === 'exec' || profile?.role === 'core'} />
-                    </div>
-
-                    {/* 4. ACTIVITY FEED / ANALYTICS QUICK TAB (Top Right) */}
-                    <div className="xl:col-span-1 xl:row-span-2 glass-card overflow-hidden flex flex-col">
-                        {displayRole === 'exec' ? (
-                            <div className="flex flex-col h-full">
-                                <h3 className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase mb-8 shrink-0">Analytics Preview</h3>
-                                <div className="flex-1 space-y-6">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                                            <p className="text-[9px] font-black text-gray-500 uppercase mb-1">Impact</p>
-                                            <div className="flex items-center gap-2">
-                                                <BarChart3 size={14} className="text-blue-500" />
-                                                <span className="text-lg font-black text-white">{totalViews || 0}</span>
-                                            </div>
-                                        </div>
-                                        <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                                            <p className="text-[9px] font-black text-gray-500 uppercase mb-1">Growth (7d)</p>
-                                            <div className="flex items-center gap-2">
-                                                <ArrowUpRight size={14} className="text-emerald-500" />
-                                                <span className="text-lg font-black text-white">+{recentViews || 0}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="space-y-3">
-                                        <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl text-xs font-bold text-gray-400">
-                                            <div className="flex items-center gap-2">
-                                                <Users size={14} /> Total Members
-                                            </div>
-                                            <span className="text-white">{realStudentCount || 0}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl text-xs font-bold text-gray-400">
-                                            <div className="flex items-center gap-2">
-                                                <BookOpen size={14} /> Total Notes
-                                            </div>
-                                            <span className="text-white">{totalMaterialCount || 0}</span>
-                                        </div>
-                                    </div>
-
-                                    <Link href="/analytics" className="mt-auto group bg-white text-black py-4 rounded-2xl text-center font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
-                                        Open Full Dashboard <ArrowUpRight size={14} />
-                                    </Link>
-                                </div>
-                            </div>
-                        ) : (
-                            <>
-                                <h3 className="text-xs font-black tracking-[0.2em] text-blue-500 uppercase mb-8 shrink-0">Live Projects</h3>
-                                <div className="space-y-6 overflow-y-auto pr-2 custom-scrollbar flex-1">
-                                    {latestProjects && latestProjects.length > 0 ? (
-                                        latestProjects.map((project: any) => (
-                                            <Link key={project.id} href="/projects" className="flex gap-4 items-start group hover:bg-white/[0.04] p-3 -m-3 rounded-2xl transition-all">
-                                                <div className="w-10 h-10 rounded-xl glass bg-blue-500/10 flex items-center justify-center text-sm shrink-0 group-hover:bg-blue-500/20 transition-colors">
-                                                    🚀
-                                                </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="text-xs font-bold text-white leading-tight truncate">
-                                                        {project.title}
-                                                    </p>
-                                                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mt-1 truncate">
-                                                        by {project.profiles?.full_name || 'Anonymous'}
-                                                    </p>
-                                                </div>
-                                                <ArrowUpRight size={12} className="text-gray-600 group-hover:text-blue-400 mt-1" />
-                                            </Link>
-                                        ))
-                                    ) : (
-                                        <p className="text-xs text-gray-500 italic">No projects active.</p>
-                                    )}
-                                </div>
-                                <Link href="/projects" className="mt-8 text-[9px] font-black uppercase tracking-widest text-[#555] hover:text-white transition-colors flex items-center justify-center gap-2">
-                                    Browse All Projects <span className="text-xs">→</span>
-                                </Link>
-                            </>
-                        )}
-                    </div>
-
-                    {/* --- SECOND MAJOR ROW --- */}
-
-                    {/* 6. NOTES QUICK ACCESS (Expanded) */}
-                    <Link href="/notes" className="xl:col-span-2 glass-card group flex flex-col justify-between hover:bg-white/[0.04] transition-all relative overflow-hidden">
-                        {/* Ambient glow for bigger card */}
-                        <div className="absolute -top-12 -right-12 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/10 transition-colors" />
-                        
-                        <div className="flex justify-between items-start mb-4 relative z-10">
-                            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-xl grayscale group-hover:grayscale-0 transition-all group-hover:scale-110">
-                                📚
-                            </div>
-                            <span className="text-[9px] font-black tracking-widest text-blue-500 uppercase">Academic Hub</span>
-                        </div>
-                        <div className="relative z-10">
-                            <h2 className="text-3xl font-black text-white group-hover:text-glow transition-all mb-2">Notes & Materials</h2>
-                            <p className="text-sm text-gray-400 font-medium max-w-md">Access SCTCE unified study hub with categorized university notes, PYQs, and resources.</p>
-                        </div>
-                    </Link>
-
-                    {/* 7. LEADERBOARD QUICK ACCESS */}
-                    <Link href="/leaderboard" className="xl:col-span-1 glass-card group flex flex-col justify-between hover:bg-white/[0.04] transition-all bg-purple-500/5">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-xl grayscale group-hover:grayscale-0 transition-all group-hover:scale-110">
-                                👑
-                            </div>
-                            <span className="text-[9px] font-black tracking-widest text-purple-400 uppercase">Rankings</span>
-                        </div>
-                        <div>
-                            <h2 className="text-2xl font-black text-white group-hover:text-glow transition-all mb-1">Leaderboard</h2>
-                            <p className="text-xs text-gray-400 font-medium">Top contributors</p>
-                        </div>
-                    </Link>
-
-                    {/* 8. MARKETPLACE POSTER (Moved from Sidebar) */}
-                    <div className="xl:col-span-1 xl:row-span-2 relative h-full min-h-[400px]">
-                        <Link href="/marketplace" className="group absolute inset-0 overflow-hidden rounded-[2.5rem] block border border-white/5 transition-all hover:border-blue-500/30">
-                            {/* Reusing existing Marketplace visuals within the grid tile */}
-                            <div className="absolute inset-0 bg-[#03000F]" />
-                            <div className="absolute inset-0 rounded-3xl overflow-hidden">
-                                <div className="absolute bottom-0 left-0 right-0 h-40 opacity-40" style={{
-                                    backgroundImage: 'linear-gradient(to right, rgba(120,40,255,0.25) 1px, transparent 1px), linear-gradient(to bottom, rgba(120,40,255,0.25) 1px, transparent 1px)',
-                                    backgroundSize: '24px 24px',
-                                    transform: 'perspective(200px) rotateX(55deg)',
-                                    transformOrigin: 'bottom center',
-                                }} />
-                            </div>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 gap-4">
-                                <div className="relative">
-                                    <div className="absolute inset-0 rounded-full blur-2xl bg-blue-500/20 animate-pulse" />
-                                    <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">
-                                        🛍️
-                                    </div>
-                                </div>
-                                <div>
-                                    <h3 className="text-2xl font-black text-white tracking-widest uppercase mb-1">Marketplace</h3>
-                                    <p className="text-[10px] font-bold text-blue-400 uppercase tracking-[0.2em]">Live Trading</p>
-                                </div>
-                                <div className="px-6 py-2.5 rounded-xl bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest group-hover:bg-blue-500 transition-colors">
-                                    Open TradeHub
-                                </div>
-                            </div>
-                        </Link>
-                    </div>
-
-                    {/* --- THIRD ROW --- */}
-
-                    {/* 9. EVENT BANNER (Large Bottom Tile) */}
-                    <div className="xl:col-span-3">
-                        <EventBanner canAddEvent={profile?.role === 'exec' || profile?.role === 'core'} />
-                    </div>
-
-                    {/* 10. ADMIN/CORE MODALS (Compact Tile) */}
-                    <div className="xl:col-span-1 flex flex-col gap-4">
-                        {(profile?.role === 'exec' || profile?.role === 'core') && (
-                            <div className="glass-card flex-1 bg-blue-500/5 group">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-[10px] font-black tracking-widest text-blue-500 uppercase">Project Manager</h3>
-                                    <span className="text-xl grayscale group-hover:grayscale-0 transition-all">⚙️</span>
-                                </div>
-                                <div className="flex gap-2">
-                                    <Link href="/admin/notes" className="flex-1 glass glass-hover py-3 rounded-xl text-[10px] font-black text-blue-400 text-center uppercase">Upload</Link>
-                                    <Link href="/admin/projects" className="flex-1 bg-blue-600 hover:bg-blue-500 py-3 rounded-xl text-[10px] font-black text-white text-center uppercase transition-all">Manage</Link>
-                                </div>
-                            </div>
-                        )}
-                        {coreMember && (
-                            <Link href="/core/members" className="glass-card bg-purple-500/5 hover:bg-purple-500/10 transition-all group">
-                                <div className="flex justify-between items-center">
-                                    <p className="text-sm font-black text-white group-hover:text-glow transition-all">Members Control</p>
-                                    <span className="text-xl">🔐</span>
-                                </div>
-                            </Link>
-                        )}
-                    </div>
-
-                </div>
-
-                {/* Footer and About sections remain centered but full-width adapted */}
                 <div className="mt-20">
                     <AboutSection />
                 </div>

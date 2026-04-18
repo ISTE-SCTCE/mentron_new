@@ -97,6 +97,19 @@ export function EventBanner({ canAddEvent = false }: Props) {
         return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
     }, [events.length])
 
+    // Real-time listener for event_cal table
+    useEffect(() => {
+        const channel = supabase.channel('event-banner-realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'event_cal' }, () => {
+                fetchEvents()
+            })
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [supabase, fetchEvents])
+
     const handleAddEvent = async () => {
         if (!newName.trim() || !newDate) { setAddError('Event name and date are required.'); return }
         setAddError('')
