@@ -397,12 +397,12 @@ export function EventBanner({ canAddEvent = false, userDept }: Props) {
                                     onChange={e => setNewDept(e.target.value)}
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all [color-scheme:dark]"
                                 >
-                                    <option value="General">General (Everyone)</option>
-                                    <option value="CSE">CSE</option>
-                                    <option value="ECE">ECE</option>
-                                    <option value="BT">BT</option>
-                                    <option value="ME">ME</option>
-                                    <option value="MEA">MEA</option>
+                                    <option value="General" className="bg-[#0a0a15] text-white">General (Everyone)</option>
+                                    <option value="CSE" className="bg-[#0a0a15] text-white">CSE</option>
+                                    <option value="ECE" className="bg-[#0a0a15] text-white">ECE</option>
+                                    <option value="BT" className="bg-[#0a0a15] text-white">BT</option>
+                                    <option value="ME" className="bg-[#0a0a15] text-white">ME</option>
+                                    <option value="MEA" className="bg-[#0a0a15] text-white">MEA</option>
                                 </select>
                             </div>
                             <div className="space-y-1.5">

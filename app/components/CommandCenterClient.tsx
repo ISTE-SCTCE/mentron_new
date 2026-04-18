@@ -124,7 +124,10 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
 
                     {/* 3. CALENDAR */}
                     <div className="xl:col-span-2 xl:row-span-2">
-                        <DashboardCalendar isExec={profile?.role === 'exec' || profile?.role === 'core'} />
+                        <DashboardCalendar 
+                            isExec={profile?.role === 'exec' || profile?.role === 'core'} 
+                            userDept={getDepartmentFromRollNumber(profile?.roll_number)}
+                        />
                     </div>
 
                     {/* 4. ACTIVITY FEED / MULTI USE */}

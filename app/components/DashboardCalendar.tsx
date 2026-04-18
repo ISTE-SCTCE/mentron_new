@@ -27,15 +27,17 @@ interface Event {
 
 interface CalendarProps {
     isExec: boolean
+    userDept?: string
 }
 
-export function DashboardCalendar({ isExec }: CalendarProps) {
+export function DashboardCalendar({ isExec, userDept }: CalendarProps) {
     const [currentDate, setCurrentDate] = useState(new Date())
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [events, setEvents] = useState<Event[]>([])
     const [isAddingMode, setIsAddingMode] = useState(false)
     const [newEventName, setNewEventName] = useState('')
     const [newEventVenue, setNewEventVenue] = useState('')
+    const [newEventDept, setNewEventDept] = useState('General')
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const supabase = createClient()
@@ -43,9 +45,10 @@ export function DashboardCalendar({ isExec }: CalendarProps) {
     const fetchEvents = useCallback(async () => {
         const { data } = await supabase
             .from('event_cal')
-            .select('id, event_name, event_date, venue')
+            .select('id, event_name, event_date, venue, department')
+            .or(`department.eq.General,department.eq.${userDept}`)
         if (data) setEvents(data)
-    }, [supabase])
+    }, [supabase, userDept])
 
     useEffect(() => {
         fetchEvents()
@@ -74,12 +77,14 @@ export function DashboardCalendar({ isExec }: CalendarProps) {
             id: uuidv4(),
             event_name: newEventName,
             event_date: eventDateString,
-            venue: newEventVenue || 'TBA'
+            venue: newEventVenue || 'TBA',
+            department: newEventDept
         })
 
         if (!error) {
             setNewEventName('')
             setNewEventVenue('')
+            setNewEventDept('General')
             setIsAddingMode(false)
             fetchEvents()
         }
@@ -217,6 +222,21 @@ export function DashboardCalendar({ isExec }: CalendarProps) {
                                     onChange={e => setNewEventVenue(e.target.value)}
                                     className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-cyan-500/50"
                                 />
+                                <div className="space-y-1">
+                                    <label className="text-[8px] font-black tracking-widest text-cyan-400/50 uppercase ml-1">Target Department</label>
+                                    <select
+                                        value={newEventDept}
+                                        onChange={e => setNewEventDept(e.target.value)}
+                                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-cyan-500/50 [color-scheme:dark]"
+                                    >
+                                        <option value="General" className="bg-[#030305]">General (Everyone)</option>
+                                        <option value="CSE" className="bg-[#030305]">CSE</option>
+                                        <option value="ECE" className="bg-[#030305]">ECE</option>
+                                        <option value="BT" className="bg-[#030305]">BT</option>
+                                        <option value="ME" className="bg-[#030305]">ME</option>
+                                        <option value="MEA" className="bg-[#030305]">MEA</option>
+                                    </select>
+                                </div>
                                 <button
                                     onClick={handleAddEvent}
                                     disabled={!newEventName.trim() || isSubmitting}
