@@ -140,7 +140,7 @@ function SpiderLeg({ config, bodyRef, color }: { config: any; bodyRef: React.Ref
     )
 }
 
-function Spider({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: React.RefObject<THREE.Group> }) {
+function Spider({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: React.RefObject<THREE.Group | null> }) {
     const { pointer, camera } = useThree()
     const groundTarget = useRef(new THREE.Vector3())
     const plane = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0))
@@ -213,7 +213,7 @@ function Spider({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: React.R
     )
 }
 
-function Leash({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: React.RefObject<THREE.Group> }) {
+function Leash({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: React.RefObject<THREE.Group | null> }) {
     const { pointer, camera } = useThree()
     const pointerPos = useRef(new THREE.Vector3())
     const plane = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0))
