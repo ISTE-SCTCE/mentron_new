@@ -166,7 +166,7 @@ export function EventsBanner({ events }: Props) {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.5 }}
-                                className="text-gray-400 text-base md:text-xl leading-relaxed max-w-xl pb-28 lg:pb-0 text-center lg:text-left"
+                                className="text-gray-400 text-base md:text-xl leading-relaxed max-w-xl pb-10 lg:pb-0 text-center lg:text-left"
                             >
                                 {currentEvent.description || 'Join us for an incredible event experience at SCTCE.'}
                             </motion.p>
@@ -175,13 +175,13 @@ export function EventsBanner({ events }: Props) {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.6 }}
-                                className="pt-4"
+                                className="pt-4 flex justify-center lg:justify-start"
                             >
                                 <a 
                                     href={currentEvent.external_url || '/events'}
                                     target={currentEvent.external_url ? "_blank" : "_self"}
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-4 bg-white text-black px-10 py-5 rounded-3xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all group"
+                                    className="inline-flex items-center gap-4 bg-white text-black px-8 py-4 md:px-10 md:py-5 rounded-3xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all group relative z-40"
                                 >
                                     {currentEvent.external_url ? 'Register Online' : 'Mark Interest'}
                                     <ArrowRight className="group-hover:translate-x-2 transition-transform" />
@@ -218,12 +218,12 @@ export function EventsBanner({ events }: Props) {
             </AnimatePresence>
 
             {/* Navigation Overlay */}
-            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-8 z-30">
+            <div className="absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-8 z-30">
                 <button 
                     onClick={() => paginate(-1)}
-                    className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black hover:border-white transition-all"
+                    className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black hover:border-white transition-all"
                 >
-                    <ChevronLeft />
+                    <ChevronLeft size={20} />
                 </button>
                 
                 <div className="flex gap-2">
@@ -238,12 +238,12 @@ export function EventsBanner({ events }: Props) {
                         />
                     ))}
                 </div>
-
+                
                 <button 
                     onClick={() => paginate(1)}
-                    className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black hover:border-white transition-all"
+                    className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black hover:border-white transition-all"
                 >
-                    <ChevronRight />
+                    <ChevronRight size={20} />
                 </button>
             </div>
 
