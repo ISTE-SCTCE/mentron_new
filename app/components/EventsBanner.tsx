@@ -33,7 +33,7 @@ const OFFICIAL_EVENTS: Event[] = [
         event_name: 'i³ Internship Initiative',
         venue: 'Innovation Hub',
         date: 'Active',
-        description: 'iraise to 3: Bridging the gap between academia and industry through strategic internships and mentorship.',
+        description: 'i³: Bridging the gap between academia and industry through strategic internships and mentorship.',
         external_url: 'https://istesctce.in/icube.html',
         image_url: '/images/i3_event.jpg'
     },
