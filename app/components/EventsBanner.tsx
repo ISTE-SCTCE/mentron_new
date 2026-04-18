@@ -1,6 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Calendar, MapPin, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Event {
     id: string
@@ -8,160 +10,236 @@ interface Event {
     venue?: string
     date?: string
     description?: string
+    external_url?: string
+    image_url?: string
 }
 
 interface Props {
     events: Event[]
 }
 
-const FALLBACK_EVENTS: Event[] = [
-    { id: '1', event_name: 'Tech Symposium 2025', venue: 'Main Auditorium', description: 'An immersive deep dive into emerging technologies and innovation.' },
-    { id: '2', event_name: 'Workshop: AI & ML', venue: 'CS Seminar Hall', description: 'Hands-on machine learning session with industry mentors.' },
-    { id: '3', event_name: 'Hackathon Season IV', venue: 'Innovation Lab', description: '24-hour intense coding challenge. Build, learn, and win.' },
-]
-
-// A set of vivid gradient pairs to cycle across cards
-const GRADIENTS = [
-    'from-blue-900/80 via-indigo-900/60 to-transparent',
-    'from-purple-900/80 via-violet-900/60 to-transparent',
-    'from-cyan-900/80 via-sky-900/60 to-transparent',
-    'from-rose-900/80 via-pink-900/60 to-transparent',
-    'from-emerald-900/80 via-teal-900/60 to-transparent',
-]
-
-const ACCENT_COLORS = [
-    'text-blue-400 border-blue-500/40',
-    'text-purple-400 border-purple-500/40',
-    'text-cyan-400 border-cyan-500/40',
-    'text-rose-400 border-rose-500/40',
-    'text-emerald-400 border-emerald-500/40',
-]
-
-const DOT_COLORS = [
-    'bg-blue-500',
-    'bg-purple-500',
-    'bg-cyan-500',
-    'bg-rose-500',
-    'bg-emerald-500',
+const OFFICIAL_EVENTS: Event[] = [
+    {
+        id: 'off-1',
+        event_name: 'Mentron 2.0',
+        venue: 'Main Campus',
+        date: 'Ongoing 2025',
+        description: 'The ultimate peer-to-peer platform for SCTCE. Explore, contribute, and excel together.',
+        external_url: 'https://istesctce.in/mentron.html'
+    },
+    {
+        id: 'off-2',
+        event_name: 'I CUBE Initiative',
+        venue: 'Innovation Hub',
+        date: 'Active',
+        description: 'Bridging the gap between academia and industry through strategic internships and mentorship.',
+        external_url: 'https://istesctce.in/icube.html'
+    },
+    {
+        id: 'off-3',
+        event_name: 'Understanding "C"',
+        venue: 'Conference Room',
+        date: 'Upcoming',
+        description: 'A masterclass designed to simplify C programming concepts for developers at all levels.',
+        external_url: 'https://istesctce.in/events.html'
+    },
+    {
+        id: 'off-4',
+        event_name: 'Web Genesis',
+        venue: 'Digital Lab',
+        date: 'Coming Soon',
+        description: 'Dive deep into modern web development stacks, from frontend aesthetics to robust backend architecture.',
+        external_url: 'https://istesctce.in/events.html'
+    }
 ]
 
 export function EventsBanner({ events }: Props) {
-    const displayEvents = events.length > 0 ? events : FALLBACK_EVENTS
-    const [active, setActive] = useState(0)
-    const [isPaused, setIsPaused] = useState(false)
-    const intervalRef = useRef<NodeJS.Timeout | null>(null)
+    // Merge Official events first, then database events
+    const allEvents = [...OFFICIAL_EVENTS, ...events]
+    const [page, setPage] = useState(0)
+    const [direction, setDirection] = useState(0)
 
-    const startSlider = () => {
-        intervalRef.current = setInterval(() => {
-            setActive(prev => (prev + 1) % displayEvents.length)
-        }, 4000)
-    }
+    const paginate = useCallback((newDirection: number) => {
+        setDirection(newDirection)
+        setPage(prev => (prev + newDirection + allEvents.length) % allEvents.length)
+    }, [allEvents.length])
 
-    const stopSlider = () => {
-        if (intervalRef.current) clearInterval(intervalRef.current)
-    }
-
+    // Auto-advance
     useEffect(() => {
-        if (!isPaused) startSlider()
-        else stopSlider()
-        return () => stopSlider()
-    }, [isPaused, displayEvents.length])
+        const timer = setInterval(() => {
+            paginate(1)
+        }, 8000)
+        return () => clearInterval(timer)
+    }, [paginate])
 
-    const currentEvent = displayEvents[active]
-    const gradient = GRADIENTS[active % GRADIENTS.length]
-    const accent = ACCENT_COLORS[active % ACCENT_COLORS.length]
-    const dot = DOT_COLORS[active % DOT_COLORS.length]
+    const variants = {
+        enter: (direction: number) => ({
+            x: direction > 0 ? 1000 : -1000,
+            opacity: 0
+        }),
+        center: {
+            zIndex: 1,
+            x: 0,
+            opacity: 1
+        },
+        exit: (direction: number) => ({
+            zIndex: 0,
+            x: direction < 0 ? 1000 : -1000,
+            opacity: 0
+        })
+    }
+
+    const currentEvent = allEvents[page]
 
     return (
-        <section
-            className="relative w-full min-h-[60vh] md:min-h-[80vh] overflow-hidden flex items-end pt-24 pb-12 md:pb-20 px-4 md:px-12"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-        >
-            {/* ── Dynamic Background: parallax gradient ── */}
-            <div
-                className={`absolute inset-0 bg-gradient-to-br ${gradient} transition-all duration-1000`}
-            />
-
-            {/* ── Grid overlay texture ── */}
-            <div
-                className="absolute inset-0 opacity-[0.04]"
-                style={{
-                    backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 40px,white 40px,white 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,white 40px,white 41px)',
-                }}
-            />
-
-            {/* ── Animated orb ── */}
-            <div className={`absolute top-1/4 right-1/4 w-96 h-96 rounded-full blur-[160px] opacity-25 transition-all duration-1000 ${dot}`} />
-
-            {/* ── LIVE badge ── */}
-            <div className="absolute top-28 md:top-36 left-4 md:left-12 flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full animate-pulse ${dot}`} />
-                <span className="text-[9px] font-black tracking-[0.35em] text-white/60 uppercase">Upcoming Event</span>
-            </div>
-
-            {/* ── Count indicator ── */}
-            <div className="absolute top-28 md:top-36 right-4 md:right-12 text-right">
-                <span className="text-[10px] font-black text-white/30 tracking-widest">
-                    {String(active + 1).padStart(2, '0')} / {String(displayEvents.length).padStart(2, '0')}
-                </span>
-            </div>
-
-            {/* ── Main Content ── */}
-            <a
-                href="https://istesctce.in/events.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="relative z-10 w-full max-w-5xl group cursor-pointer"
-                style={{ transition: 'opacity 0.7s ease' }}
-            >
-                {/* Sub-label */}
-                <p className={`text-[10px] font-black uppercase tracking-[0.4em] mb-6 transition-all duration-700 ${accent.split(' ')[0]}`}>
-                    {currentEvent.venue ? `📍 ${currentEvent.venue}` : 'ISTE SCTCE'}
-                </p>
-
-                {/* Large Event Name */}
-                <h2
-                    key={active}
-                    className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter text-white leading-none mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700"
+        <section className="relative w-full min-h-[70vh] md:min-h-[85vh] bg-[#030303] flex items-center justify-center overflow-hidden">
+            {/* Background Texture */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+            
+            <AnimatePresence initial={false} custom={direction}>
+                <motion.div
+                    key={page}
+                    custom={direction}
+                    variants={variants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{
+                        x: { type: "spring", stiffness: 300, damping: 30 },
+                        opacity: { duration: 0.2 }
+                    }}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={1}
+                    onDragEnd={(e, { offset, velocity }) => {
+                        const swipe = Math.abs(offset.x) > 50 && Math.abs(velocity.x) > 500
+                        if (swipe) {
+                            paginate(offset.x > 0 ? -1 : 1)
+                        }
+                    }}
+                    className="absolute inset-0 flex items-center justify-center px-6 md:px-12"
                 >
-                    {currentEvent.event_name}
-                </h2>
+                    <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        {/* Event Content */}
+                        <div className="space-y-8 order-2 lg:order-1">
+                            <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-500/20 bg-blue-500/5 text-blue-400 text-[10px] font-black uppercase tracking-[0.3em]"
+                            >
+                                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                                {page < OFFICIAL_EVENTS.length ? 'Official Website Event' : 'Community Event'}
+                            </motion.div>
 
-                {/* Description */}
-                <p
-                    key={`desc-${active}`}
-                    className="text-gray-300 text-base md:text-lg max-w-2xl leading-relaxed mb-10 animate-in fade-in duration-1000"
+                            <div className="space-y-4">
+                                <motion.h2 
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="text-5xl md:text-8xl font-black tracking-tighter text-white leading-[0.9]"
+                                >
+                                    {currentEvent.event_name}
+                                </motion.h2>
+                                
+                                <motion.div 
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.4 }}
+                                    className="flex flex-wrap gap-6 text-gray-500 font-bold uppercase tracking-widest text-[10px]"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <MapPin size={14} className="text-blue-500" />
+                                        {currentEvent.venue || 'TBA'}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Calendar size={14} className="text-blue-500" />
+                                        {currentEvent.date || 'To be announced'}
+                                    </div>
+                                </motion.div>
+                            </div>
+
+                            <motion.p 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.5 }}
+                                className="text-gray-400 text-lg md:text-xl leading-relaxed max-w-xl"
+                            >
+                                {currentEvent.description || 'Join us for an incredible event experience at SCTCE.'}
+                            </motion.p>
+
+                            <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.6 }}
+                                className="pt-4"
+                            >
+                                <a 
+                                    href={currentEvent.external_url || '/events'}
+                                    target={currentEvent.external_url ? "_blank" : "_self"}
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-4 bg-white text-black px-10 py-5 rounded-3xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all group"
+                                >
+                                    {currentEvent.external_url ? 'Register Online' : 'Mark Interest'}
+                                    <ArrowRight className="group-hover:translate-x-2 transition-transform" />
+                                </a>
+                            </motion.div>
+                        </div>
+
+                        {/* Event Visual (Placeholder for now, could be dynamic images) */}
+                        <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
+                             <div className="relative w-full aspect-square md:w-[500px] md:h-[500px]">
+                                <motion.div 
+                                    initial={{ scale: 0.8, opacity: 0, rotate: -10 }}
+                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                    transition={{ duration: 0.8, ease: "easeOut" }}
+                                    className="w-full h-full rounded-[3rem] bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/5 flex items-center justify-center overflow-hidden relative"
+                                >
+                                    <div className="absolute inset-0 bg-blue-500/5 backdrop-blur-3xl" />
+                                    <span className="text-9xl md:text-[12rem] relative z-10 filter drop-shadow-[0_0_50px_rgba(59,130,246,0.5)]">
+                                        {page === 0 ? '🏆' : page === 1 ? '🎓' : page === 2 ? '💻' : '🌐'}
+                                    </span>
+                                </motion.div>
+                             </div>
+                        </div>
+                    </div>
+                </motion.div>
+            </AnimatePresence>
+
+            {/* Navigation Overlay */}
+            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-8 z-30">
+                <button 
+                    onClick={() => paginate(-1)}
+                    className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black hover:border-white transition-all"
                 >
-                    {currentEvent.description || 'An unforgettable event experience crafted for the SCTCE tech community.'}
-                </p>
-
-                {/* CTA arrows */}
-                <div className="flex items-center gap-4">
-                    <span className={`inline-flex items-center gap-3 text-xs font-black uppercase tracking-widest px-8 py-4 rounded-2xl border glass group-hover:bg-white group-hover:text-black transition-all duration-300 ${accent}`}>
-                        Explore All Events
-                        <span className="inline-block group-hover:translate-x-2 transition-transform duration-300">→</span>
-                    </span>
+                    <ChevronLeft />
+                </button>
+                
+                <div className="flex gap-2">
+                    {allEvents.map((_, i) => (
+                        <button 
+                            key={i}
+                            onClick={() => {
+                                setDirection(i > page ? 1 : -1)
+                                setPage(i)
+                            }}
+                            className={`h-1.5 rounded-full transition-all duration-300 ${i === page ? 'w-8 bg-blue-500' : 'w-1.5 bg-white/10 hover:bg-white/30'}`}
+                        />
+                    ))}
                 </div>
-            </a>
 
-            {/* ── Slide Dot Navigation ── */}
-            <div className="absolute bottom-6 md:bottom-10 right-4 md:right-12 flex items-center gap-3 z-10">
-                {displayEvents.map((_, i) => (
-                    <button
-                        key={i}
-                        onClick={() => { setActive(i); stopSlider(); setTimeout(startSlider, 100) }}
-                        className={`rounded-full transition-all duration-500 ${i === active
-                            ? `w-8 h-2 ${dot}`
-                            : 'w-2 h-2 bg-white/20 hover:bg-white/50'
-                        }`}
-                        aria-label={`Go to event ${i + 1}`}
-                    />
-                ))}
+                <button 
+                    onClick={() => paginate(1)}
+                    className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black hover:border-white transition-all"
+                >
+                    <ChevronRight />
+                </button>
             </div>
 
-            {/* ── Bottom fade-to-background ── */}
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
+            {/* Event Number Background */}
+            <div className="absolute top-1/2 -left-20 -translate-y-1/2 text-[30vw] font-black text-white/[0.02] select-none pointer-events-none transition-all duration-500">
+                {page + 1}
+            </div>
         </section>
     )
 }

@@ -15,14 +15,22 @@ export default async function EventsListPage() {
     
     const currentUserRole = profile?.role || user?.user_metadata?.role || 'member'
 
-    const { data: events, error } = await supabase
-        .from('event_cal')
-        .select('*')
-        .order('created_at', { ascending: false })
+    // Fetch Official/Local events from both possible tables
+    const [eventsResult, eventCalResult] = await Promise.all([
+        supabase.from('event').select('*').order('created_at', { ascending: false }),
+        supabase.from('event_cal').select('*').order('created_at', { ascending: false })
+    ])
 
-    if (error) {
-        console.error('Fetch events error:', error)
-    }
+    const mergedEvents = [
+        ...(eventsResult.data || []),
+        ...(eventCalResult.data || [])
+    ].map(e => ({
+        id: e.id,
+        event_name: e.event_name || e.title || 'Untitled Event',
+        venue: e.venue || 'TBA',
+        date: e.date || e.event_date || 'Upcoming',
+        description: e.description || ''
+    }))
 
     // Fetch Event Concepts and Votes
     const { data: conceptsData, error: conceptError } = await supabase
@@ -45,7 +53,7 @@ export default async function EventsListPage() {
     return (
         <div className="min-h-screen text-[#ededed]">
             {/* ─── Immersive Full-Width Banner ─── */}
-            <EventsBanner events={events ?? []} />
+            <EventsBanner events={mergedEvents} />
 
             {/* ─── Reddit-Style Event Concepts Forum ─── */}
             <EventConceptsForum 
