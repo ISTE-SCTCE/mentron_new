@@ -9,6 +9,8 @@ import { DashboardCalendar } from '@/app/components/DashboardCalendar'
 import { EventBanner } from '@/app/components/EventBanner'
 import { AnalyticsDashboard } from '@/app/components/AnalyticsDashboard'
 import { ProfileCard } from '@/app/components/ProfileCard'
+import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
+
 import { BarChart3, ArrowUpRight, Users, BookOpen, Activity } from 'lucide-react'
 
 // Defining props based on previous dashboard and analytics structures
@@ -217,7 +219,10 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
 
                     {/* 9. EVENT BANNER */}
                     <div className="xl:col-span-3">
-                        <EventBanner canAddEvent={profile?.role === 'exec' || profile?.role === 'core'} />
+                        <EventBanner 
+                            canAddEvent={profile?.role === 'exec' || profile?.role === 'core'} 
+                            userDept={getDepartmentFromRollNumber(profile?.roll_number)}
+                        />
                     </div>
 
                     {/* 10. ADMIN/CORE MODALS */}

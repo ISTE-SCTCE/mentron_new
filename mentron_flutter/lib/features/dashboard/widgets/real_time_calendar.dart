@@ -6,6 +6,8 @@ import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../core/utils/error_handler.dart';
+import '../../../core/utils/department_mapper.dart';
+
 
 class RealTimeCalendar extends StatefulWidget {
   const RealTimeCalendar({super.key});
@@ -21,11 +23,12 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
   // Events fetched from Supabase
   Map<DateTime, List<Map<String, dynamic>>> _events = {};
   bool _isExec = false;
+  String _userDept = 'General';
 
   // Add-event form state
   bool _showAddForm = false;
-  final _eventNameController = TextEditingController();
   final _venueController = TextEditingController();
+  String _selectedDept = 'General';
   bool _isSubmitting = false;
 
   @override
@@ -41,12 +44,16 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
       try {
         final profile = await supabase.client
             .from('profiles')
-            .select('role')
+            .select('role, roll_number')
             .eq('id', userId)
             .maybeSingle();
         if (mounted && profile != null) {
           final role = profile['role'] as String? ?? '';
-          setState(() => _isExec = role == 'exec' || role == 'core' || role == 'admin');
+          final roll = profile['roll_number'] as String?;
+          setState(() {
+            _isExec = role == 'exec' || role == 'core' || role == 'admin';
+            _userDept = DepartmentMapper.getDepartmentFromRoll(roll);
+          });
         }
       } catch (_) {}
     }
@@ -61,7 +68,8 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
     try {
       final response = await supabase
           .from('event_cal')
-          .select('id, event_name, event_date, venue');
+          .select('id, event_name, event_date, venue, department')
+          .or('department.eq.General,department.eq.$_userDept');
 
       final Map<DateTime, List<Map<String, dynamic>>> grouped = {};
       for (final event in (response as List)) {
@@ -108,6 +116,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
             ? 'TBA'
             : _venueController.text.trim(),
         'event_date': eventDate.toIso8601String(),
+        'department': _selectedDept,
       });
 
       _eventNameController.clear();
@@ -393,9 +402,28 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
                 ),
                 const SizedBox(height: 12),
                 _buildTextField(
-                  _venueController,
-                  'Venue (or leave blank for TBA)',
                   Icons.location_on_outlined,
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedDept,
+                      dropdownColor: const Color(0xFF0E0E1A),
+                      isExpanded: true,
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      items: ['General', 'CSE', 'ECE', 'BT', 'ME', 'MEA']
+                          .map((d) => DropdownMenuItem(value: d, child: Text(d)))
+                          .toList(),
+                      onChanged: (val) { if (val != null) setState(() => _selectedDept = val); },
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(

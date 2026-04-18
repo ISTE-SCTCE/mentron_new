@@ -6,6 +6,8 @@ import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../core/utils/error_handler.dart';
+import '../../../core/utils/department_mapper.dart';
+
 
 class EventBannerWidget extends StatefulWidget {
   const EventBannerWidget({super.key});
@@ -20,6 +22,8 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
   bool _canAddEvent = false;
   final PageController _pageController = PageController(viewportFraction: 0.90);
   int _currentPage = 0;
+  String _userDept = 'General';
+
 
   // Palette config: gradient pair + glow color + line color
   static const List<List<Color>> _gradients = [
@@ -62,9 +66,16 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
       final supabase = Provider.of<SupabaseService>(context, listen: false);
       final userId = supabase.currentUser?.id;
       if (userId == null) return;
-      final profile = await supabase.client.from('profiles').select('role').eq('id', userId).maybeSingle();
+      final profile = await supabase.client.from('profiles').select('role, roll_number').eq('id', userId).maybeSingle();
       final role = profile?['role'] as String? ?? '';
-      if (mounted) setState(() => _canAddEvent = role == 'exec' || role == 'core' || role == 'admin');
+      final roll = profile?['roll_number'] as String?;
+      final dept = DepartmentMapper.getDepartmentFromRoll(roll);
+      if (mounted) {
+        setState(() {
+          _canAddEvent = role == 'exec' || role == 'core' || role == 'admin';
+          _userDept = dept;
+        });
+      }
     } catch (_) {}
   }
 
@@ -74,8 +85,9 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
       final now = DateTime.now().toIso8601String().substring(0, 10);
       final response = await supabase
           .from('event_cal')
-          .select('id, event_name, event_date, venue, description')
+          .select('id, event_name, event_date, venue, description, department')
           .gte('event_date', now)
+          .or('department.eq.General,department.eq.$_userDept')
           .order('event_date', ascending: true)
           .limit(12);
 
@@ -143,6 +155,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
     final descCtrl = TextEditingController();
     DateTime selectedDate = DateTime.now().add(const Duration(days: 1));
     bool isSubmitting = false;
+    String selectedDept = 'General';
     String? error;
 
     showModalBottomSheet(
@@ -223,6 +236,32 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                 const SizedBox(height: 12),
                 _sheetField(venueCtrl, 'Venue (optional)', Icons.location_on_outlined),
                 const SizedBox(height: 12),
+                
+                // Department Picker
+                const Text('TARGET DEPARTMENT', style: TextStyle(color: AppTheme.textMuted, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 2)),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: selectedDept,
+                      dropdownColor: const Color(0xFF0E0E1A),
+                      isExpanded: true,
+                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                      items: ['General', 'CSE', 'ECE', 'BT', 'ME', 'MEA']
+                          .map((d) => DropdownMenuItem(value: d, child: Text(d)))
+                          .toList(),
+                      onChanged: (val) { if (val != null) setSheet(() => selectedDept = val); },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
                 _sheetField(descCtrl, 'Description (optional)', Icons.notes_rounded, maxLines: 2),
                 const SizedBox(height: 20),
 
@@ -239,6 +278,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                         'event_date': eventDate.toIso8601String(),
                         'venue': venueCtrl.text.trim().isEmpty ? 'TBA' : venueCtrl.text.trim(),
                         'description': descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
+                        'department': selectedDept,
                       });
                       if (ctx.mounted) Navigator.pop(ctx);
                       if (mounted) {

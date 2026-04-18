@@ -10,6 +10,7 @@ interface CalEvent {
     event_date: string
     venue?: string
     description?: string
+    department?: string
 }
 
 const CARD_PALETTES = [
@@ -59,6 +60,7 @@ function formatDate(dateStr: string) {
 
 interface Props {
     canAddEvent?: boolean
+    userDept?: string
 }
 
 export function EventBanner({ canAddEvent = false }: Props) {
@@ -70,6 +72,7 @@ export function EventBanner({ canAddEvent = false }: Props) {
     const [newDate, setNewDate] = useState(() => new Date().toISOString().split('T')[0])
     const [newVenue, setNewVenue] = useState('')
     const [newDesc, setNewDesc] = useState('')
+    const [newDept, setNewDept] = useState('General')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [addError, setAddError] = useState('')
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -79,13 +82,14 @@ export function EventBanner({ canAddEvent = false }: Props) {
         const today = new Date().toISOString().split('T')[0]
         const { data } = await supabase
             .from('event_cal')
-            .select('id, event_name, event_date, venue, description')
+            .select('id, event_name, event_date, venue, description, department')
             .gte('event_date', today)
+            .or(`department.eq.General,department.eq.${userDept}`)
             .order('event_date', { ascending: true })
             .limit(12)
         setEvents(data ?? [])
         setIsLoading(false)
-    }, [supabase])
+    }, [supabase, userDept])
 
     useEffect(() => { fetchEvents() }, [fetchEvents])
 
@@ -122,6 +126,7 @@ export function EventBanner({ canAddEvent = false }: Props) {
                 event_date: eventDate.toISOString(),
                 venue: newVenue.trim() || 'TBA',
                 description: newDesc.trim() || null,
+                department: newDept
             })
             if (error) throw error
             setNewName(''); setNewDate(new Date().toISOString().split('T')[0])
@@ -384,6 +389,21 @@ export function EventBanner({ canAddEvent = false }: Props) {
                                     placeholder="e.g. Main Auditorium (leave blank for TBA)"
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
                                 />
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black tracking-widest text-gray-500 uppercase block">Target Department</label>
+                                <select
+                                    value={newDept}
+                                    onChange={e => setNewDept(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all [color-scheme:dark]"
+                                >
+                                    <option value="General">General (Everyone)</option>
+                                    <option value="CSE">CSE</option>
+                                    <option value="ECE">ECE</option>
+                                    <option value="BT">BT</option>
+                                    <option value="ME">ME</option>
+                                    <option value="MEA">MEA</option>
+                                </select>
                             </div>
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black tracking-widest text-gray-500 uppercase block">Description</label>
