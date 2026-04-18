@@ -21,19 +21,19 @@ interface Props {
 const OFFICIAL_EVENTS: Event[] = [
     {
         id: 'off-1',
-        event_name: 'Mentron 2.0',
+        event_name: 'Mentron Reloaded',
         venue: 'Main Campus',
-        date: 'Ongoing 2025',
-        description: 'The ultimate peer-to-peer platform for SCTCE. Explore, contribute, and excel together.',
+        date: '20 April Onwards',
+        description: 'Back with power, purpose, and a whole new level. Join the ultimate guided learning experience.',
         external_url: 'https://istesctce.in/mentron.html',
-        image_url: '/images/mentron_event.png'
+        image_url: '/images/mentron_reloaded.jpg'
     },
     {
         id: 'off-2',
-        event_name: 'i3 Internship Initiative',
+        event_name: 'i³ Internship Initiative',
         venue: 'Innovation Hub',
         date: 'Active',
-        description: 'Bridging the gap between academia and industry through strategic internships and mentorship.',
+        description: 'iraise to 3: Bridging the gap between academia and industry through strategic internships and mentorship.',
         external_url: 'https://istesctce.in/icube.html',
         image_url: '/images/i3_event.jpg'
     },
