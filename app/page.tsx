@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { createClient } from './lib/supabase/client'
 import Link from 'next/link'
-import { SpiderScene } from './components/SpiderScene'
 import { Footer } from './components/Footer'
 import { AboutSection } from './components/AboutSection'
 
@@ -25,11 +24,9 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen relative overflow-hidden bg-[#030305]">
-      {/* 3D Spider Background */}
-      <SpiderScene />
-      
-      {/* Background Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#030305]/60 via-[#030305]/40 to-[#030305]/80 pointer-events-none z-[1]" />
+      {/* Background Overlay - Solid Aesthetic */}
+      <div className="absolute inset-0 bg-[#030305] z-0" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-transparent to-purple-900/5 pointer-events-none z-[1]" />
 
       {/* Navigation */}
       <nav className="py-4 px-8 flex justify-between items-center bg-transparent relative z-20">
@@ -84,16 +81,6 @@ export default function Home() {
 
       <AboutSection />
       <Footer />
-
-      {/* Draggable hint */}
-      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-30 pointer-events-none animate-pulse">
-          <div className="glass px-6 py-2 rounded-full border border-white/10 flex items-center gap-3 bg-black/20 backdrop-blur-md">
-              <span className="text-sm">👆</span>
-              <span className="text-xs font-black tracking-widest text-white/90 uppercase">
-                  Drag to walk the spider
-              </span>
-          </div>
-      </div>
 
       {/* Animation Overrides */}
       <style jsx global>{`

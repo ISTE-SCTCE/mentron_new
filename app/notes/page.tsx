@@ -58,9 +58,6 @@ export default async function NotesPage({
             <div className="max-w-[1800px] mx-auto">
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0 mb-10 md:mb-16">
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
-                        <Link href="/dashboard" className="text-gray-500 hover:text-white transition-all text-sm font-bold uppercase tracking-widest">
-                            ← Dashboard
-                        </Link>
                         <div className="space-y-1">
                             <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Knowledge Base</p>
                             <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white">Academic Notes</h1>

@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { createClient } from '@/app/lib/supabase/server'
 
 export default async function TeamPage() {
@@ -16,9 +15,6 @@ export default async function TeamPage() {
             <div className="max-w-[1800px] mx-auto">
                 <header className="flex justify-between items-center mb-16">
                     <div className="flex items-center gap-8">
-                        <Link href="/dashboard" className="text-gray-500 hover:text-white transition-all text-sm font-bold uppercase tracking-widest">
-                            ← Dashboard
-                        </Link>
                         <div className="space-y-1">
                             <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Leadership</p>
                             <h1 className="text-5xl font-black tracking-tighter text-white">The EXECOM</h1>

@@ -1,5 +1,3 @@
-import Link from 'next/link'
-
 const SOCIETIES = [
     {
         name: "SWaS",
@@ -16,9 +14,6 @@ export default function SocietiesPage() {
         <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
             <div className="max-w-[1800px] mx-auto">
                 <header className="flex flex-col items-center text-center mb-16 md:mb-24">
-                    <Link href="/dashboard" className="text-gray-500 hover:text-white transition-all text-sm font-bold uppercase tracking-widest mb-6 block">
-                        ← Dashboard
-                    </Link>
                     <div className="space-y-2">
                         <p className="text-[10px] font-black tracking-[0.4em] text-blue-500 uppercase">Communities</p>
                         <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white">Sub-Societies</h1>

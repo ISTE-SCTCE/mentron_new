@@ -1,5 +1,4 @@
 import { createClient } from '@/app/lib/supabase/server'
-import Link from 'next/link'
 
 export default async function LeaderboardPage() {
     const supabase = await createClient()
@@ -16,9 +15,6 @@ export default async function LeaderboardPage() {
             <div className="max-w-[1800px] mx-auto">
                 <header className="flex justify-between items-center mb-16">
                     <div className="flex items-center gap-8">
-                        <Link href="/dashboard" className="text-gray-500 hover:text-white transition-all text-sm font-bold uppercase tracking-widest">
-                            ← Dashboard
-                        </Link>
                         <div className="space-y-1">
                             <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Community Influence</p>
                             <h1 className="text-5xl font-black tracking-tighter text-white">Event Leaderboard</h1>

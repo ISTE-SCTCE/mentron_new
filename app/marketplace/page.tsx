@@ -50,13 +50,7 @@ export default async function MarketplacePage() {
                     ))}
                 </div>
 
-                {/* Back button */}
-                <Link
-                    href="/dashboard"
-                    className="glass border border-white/10 px-8 py-3 rounded-2xl text-sm font-black text-white uppercase tracking-widest hover:border-blue-500/40 hover:bg-blue-500/10 transition-all"
-                >
-                    ← Back to Dashboard
-                </Link>
+
 
             </div>
         </div>

@@ -19,9 +19,6 @@ export default async function AdminPage() {
             <div className="max-w-[1800px] mx-auto">
                 <header className="flex justify-between items-center mb-12">
                     <div className="flex items-center gap-4">
-                        <Link href="/dashboard" className="text-gray-400 hover:text-white transition-all">
-                            ← Back
-                        </Link>
                         <h1 className="text-4xl font-bold tracking-tight text-purple-500">Admin Panel</h1>
                     </div>
                 </header>

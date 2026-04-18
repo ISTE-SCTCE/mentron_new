@@ -48,7 +48,6 @@ export function GlassNav() {
 
     const navItems = [
         { href: '/dashboard', icon: LayoutGrid, label: 'Dashboard' },
-        { href: '/analytics', icon: BarChart3, label: 'Analytics' },
         { href: '/events', icon: Zap, label: 'Events' },
         { href: '/notes', icon: BookOpen, label: 'Notes' },
         { href: '/projects', icon: FlaskConical, label: 'Projects' },
