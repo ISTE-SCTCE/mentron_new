@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from './lib/supabase/client'
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
-const SpiderScene = dynamic(() => import('./components/SpiderScene').then(mod => mod.SpiderScene), { ssr: false })
+import { SpiderScene } from './components/SpiderScene'
 import { Footer } from './components/Footer'
 import { AboutSection } from './components/AboutSection'
 

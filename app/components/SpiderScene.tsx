@@ -268,10 +268,12 @@ function Leash({ isDragging, bodyRef }: { isDragging: boolean, bodyRef: any }) {
 }
 
 export function SpiderScene() {
+    const [mounted, setMounted] = useState(false)
     const [isDragging, setIsDragging] = useState(false)
     const bodyRef = useRef<any>(null)
 
     useEffect(() => {
+        setMounted(true)
         const handleDown = () => setIsDragging(true)
         const handleUp = () => setIsDragging(false)
         window.addEventListener('pointerdown', handleDown)
@@ -286,6 +288,8 @@ export function SpiderScene() {
             window.removeEventListener('pointercancel', handleUp)
         }
     }, [])
+
+    if (!mounted) return null
 
     return (
         <div className="fixed inset-0 z-[100] pointer-events-none">
