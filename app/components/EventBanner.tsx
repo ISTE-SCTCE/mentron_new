@@ -63,7 +63,7 @@ interface Props {
     userDept?: string
 }
 
-export function EventBanner({ canAddEvent = false }: Props) {
+export function EventBanner({ canAddEvent = false, userDept }: Props) {
     const [events, setEvents] = useState<CalEvent[]>([])
     const [activeIndex, setActiveIndex] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
