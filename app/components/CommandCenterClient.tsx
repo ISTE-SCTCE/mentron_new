@@ -231,7 +231,7 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
                     </div>
 
                     {/* 10. ADMIN/CORE MODALS */}
-                    <div className="xl:col-span-1 flex flex-col gap-4">
+                    <div className="xl:col-span-1 flex flex-col gap-10">
                         {(profile?.role === 'exec' || profile?.role === 'core') && (
                             <div className="glass-card flex-1 bg-blue-500/5 group">
                                 <div className="flex justify-between items-center mb-4">

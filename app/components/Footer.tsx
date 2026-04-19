@@ -5,7 +5,7 @@ import { Instagram, Linkedin, Mail } from 'lucide-react'
 
 export function Footer() {
     return (
-        <footer className="border-t border-white/5 bg-[#030305] relative z-20 pt-16 pb-8 px-8 md:px-16 w-full">
+        <footer className="border-t border-white/5 bg-[#030305] relative z-20 pt-16 pb-8 px-8 md:px-16 w-full rounded-t-[3rem] shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
             <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
                     {/* Left Section - Logo & Description */}
