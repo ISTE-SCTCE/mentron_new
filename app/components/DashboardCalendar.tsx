@@ -14,7 +14,7 @@ import {
     addDays,
     parseISO,
 } from 'date-fns'
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react'
 import { createClient } from '@/app/lib/supabase/client'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -23,14 +23,17 @@ interface Event {
     event_name: string
     event_date: string
     venue?: string
+    department?: string
+    year?: string
 }
 
 interface CalendarProps {
     isExec: boolean
     userDept?: string
+    userYear?: string
 }
 
-export function DashboardCalendar({ isExec, userDept }: CalendarProps) {
+export function DashboardCalendar({ isExec, userDept, userYear }: CalendarProps) {
     const [currentDate, setCurrentDate] = useState(new Date())
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [events, setEvents] = useState<Event[]>([])
@@ -38,17 +41,29 @@ export function DashboardCalendar({ isExec, userDept }: CalendarProps) {
     const [newEventName, setNewEventName] = useState('')
     const [newEventVenue, setNewEventVenue] = useState('')
     const [newEventDept, setNewEventDept] = useState('General')
+    const [newEventYear, setNewEventYear] = useState('General')
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [deletingId, setDeletingId] = useState<string | null>(null)
 
     const supabase = createClient()
 
     const fetchEvents = useCallback(async () => {
+        // Build filter: show events that match the user's dept OR are General
+        // AND match the user's year OR are General
+        const deptFilter = userDept && userDept !== 'Other'
+            ? `department.eq.General,department.eq.${userDept}`
+            : 'department.eq.General'
+        const yearFilter = userYear && userYear !== 'General'
+            ? `year.eq.General,year.eq.${userYear}`
+            : 'year.eq.General'
+
         const { data } = await supabase
             .from('event_cal')
-            .select('id, event_name, event_date, venue, department')
-            .or(`department.eq.General,department.eq.${userDept}`)
+            .select('id, event_name, event_date, venue, department, year')
+            .or(deptFilter)
+            .or(yearFilter)
         if (data) setEvents(data)
-    }, [supabase, userDept])
+    }, [supabase, userDept, userYear])
 
     useEffect(() => {
         fetchEvents()
@@ -65,7 +80,6 @@ export function DashboardCalendar({ isExec, userDept }: CalendarProps) {
         if (!newEventName.trim()) return
         setIsSubmitting(true)
 
-        // Set the event time to noon on the selected date to avoid timezone stripping
         const eventDateString = new Date(
             selectedDate.getFullYear(),
             selectedDate.getMonth(),
@@ -78,17 +92,26 @@ export function DashboardCalendar({ isExec, userDept }: CalendarProps) {
             event_name: newEventName,
             event_date: eventDateString,
             venue: newEventVenue || 'TBA',
-            department: newEventDept
+            department: newEventDept,
+            year: newEventYear
         })
 
         if (!error) {
             setNewEventName('')
             setNewEventVenue('')
             setNewEventDept('General')
+            setNewEventYear('General')
             setIsAddingMode(false)
             fetchEvents()
         }
         setIsSubmitting(false)
+    }
+
+    const handleDeleteEvent = async (id: string) => {
+        setDeletingId(id)
+        await supabase.from('event_cal').delete().eq('id', id)
+        setDeletingId(null)
+        fetchEvents()
     }
 
     // -- Calendar Grid Builder --
@@ -108,7 +131,6 @@ export function DashboardCalendar({ isExec, userDept }: CalendarProps) {
             formattedDate = format(day, dateFormat)
             const cloneDay = day
 
-            // Check if day has events
             const dayEvents = events.filter(e => isSameDay(parseISO(e.event_date), cloneDay))
             const hasEvents = dayEvents.length > 0
             const isSelected = isSameDay(day, selectedDate)
@@ -139,7 +161,6 @@ export function DashboardCalendar({ isExec, userDept }: CalendarProps) {
         days = []
     }
 
-    // Selected Date Events
     const selectedDateEvents = events.filter(e => isSameDay(parseISO(e.event_date), selectedDate))
 
     return (
@@ -181,9 +202,37 @@ export function DashboardCalendar({ isExec, userDept }: CalendarProps) {
                 {selectedDateEvents.length > 0 ? (
                     <div className="space-y-3">
                         {selectedDateEvents.map((evt) => (
-                            <div key={evt.id} className="flex flex-col gap-1 px-4 py-3 rounded-2xl bg-white/5 border border-white/5">
-                                <span className="text-xs font-bold text-cyan-400">{evt.event_name}</span>
-                                {evt.venue && <span className="text-[10px] text-gray-400 uppercase tracking-widest">📍 {evt.venue}</span>}
+                            <div key={evt.id} className="flex items-start gap-2 px-4 py-3 rounded-2xl bg-white/5 border border-white/5">
+                                <div className="flex-1 min-w-0">
+                                    <span className="text-xs font-bold text-cyan-400 block">{evt.event_name}</span>
+                                    {evt.venue && <span className="text-[10px] text-gray-400 uppercase tracking-widest">📍 {evt.venue}</span>}
+                                    {/* Year / Dept badges */}
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                        {evt.year && evt.year !== 'General' && (
+                                            <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                                                {evt.year} Year
+                                            </span>
+                                        )}
+                                        {evt.department && evt.department !== 'General' && (
+                                            <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                                                {evt.department}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                {isExec && (
+                                    <button
+                                        onClick={() => handleDeleteEvent(evt.id)}
+                                        disabled={deletingId === evt.id}
+                                        className="shrink-0 w-7 h-7 rounded-lg bg-red-500/10 hover:bg-red-500/25 border border-red-500/20 flex items-center justify-center text-red-400 hover:text-red-300 transition-all disabled:opacity-40"
+                                        title="Delete event"
+                                    >
+                                        {deletingId === evt.id
+                                            ? <span className="text-[10px] animate-spin">⏳</span>
+                                            : <Trash2 size={12} />
+                                        }
+                                    </button>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -222,6 +271,7 @@ export function DashboardCalendar({ isExec, userDept }: CalendarProps) {
                                     onChange={e => setNewEventVenue(e.target.value)}
                                     className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-cyan-500/50"
                                 />
+                                {/* Department */}
                                 <div className="space-y-1">
                                     <label className="text-[8px] font-black tracking-widest text-cyan-400/50 uppercase ml-1">Target Department</label>
                                     <select
@@ -229,12 +279,27 @@ export function DashboardCalendar({ isExec, userDept }: CalendarProps) {
                                         onChange={e => setNewEventDept(e.target.value)}
                                         className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-cyan-500/50 [color-scheme:dark]"
                                     >
-                                        <option value="General" className="bg-[#030305]">General (Everyone)</option>
+                                        <option value="General" className="bg-[#030305]">General (All Depts)</option>
                                         <option value="CSE" className="bg-[#030305]">CSE</option>
                                         <option value="ECE" className="bg-[#030305]">ECE</option>
                                         <option value="BT" className="bg-[#030305]">BT</option>
                                         <option value="ME" className="bg-[#030305]">ME</option>
                                         <option value="MEA" className="bg-[#030305]">MEA</option>
+                                    </select>
+                                </div>
+                                {/* Year */}
+                                <div className="space-y-1">
+                                    <label className="text-[8px] font-black tracking-widest text-amber-400/50 uppercase ml-1">Target Year</label>
+                                    <select
+                                        value={newEventYear}
+                                        onChange={e => setNewEventYear(e.target.value)}
+                                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-cyan-500/50 [color-scheme:dark]"
+                                    >
+                                        <option value="General" className="bg-[#030305]">General (All Years)</option>
+                                        <option value="1st" className="bg-[#030305]">1st Year</option>
+                                        <option value="2nd" className="bg-[#030305]">2nd Year</option>
+                                        <option value="3rd" className="bg-[#030305]">3rd Year</option>
+                                        <option value="4th" className="bg-[#030305]">4th Year</option>
                                     </select>
                                 </div>
                                 <button

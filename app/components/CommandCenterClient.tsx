@@ -9,7 +9,7 @@ import { DashboardCalendar } from '@/app/components/DashboardCalendar'
 import { EventBanner } from '@/app/components/EventBanner'
 import { AnalyticsDashboard } from '@/app/components/AnalyticsDashboard'
 import { ProfileCard } from '@/app/components/ProfileCard'
-import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
+import { getDepartmentFromRollNumber, getYearString } from '@/app/lib/utils/departmentMapper'
 
 import { BarChart3, ArrowUpRight, Users, BookOpen, Activity } from 'lucide-react'
 
@@ -127,6 +127,7 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
                         <DashboardCalendar 
                             isExec={profile?.role === 'exec' || profile?.role === 'core'} 
                             userDept={getDepartmentFromRollNumber(profile?.roll_number)}
+                            userYear={getYearString(profile?.year)}
                         />
                     </div>
 
@@ -225,6 +226,7 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
                         <EventBanner 
                             canAddEvent={profile?.role === 'exec' || profile?.role === 'core'} 
                             userDept={getDepartmentFromRollNumber(profile?.roll_number)}
+                            userYear={getYearString(profile?.year)}
                         />
                     </div>
 

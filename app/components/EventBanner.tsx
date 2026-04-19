@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { createClient } from '@/app/lib/supabase/client'
 import Link from 'next/link'
+import { Trash2 } from 'lucide-react'
 
 interface CalEvent {
     id: string
@@ -11,6 +12,7 @@ interface CalEvent {
     venue?: string
     description?: string
     department?: string
+    year?: string
 }
 
 const CARD_PALETTES = [
@@ -61,9 +63,10 @@ function formatDate(dateStr: string) {
 interface Props {
     canAddEvent?: boolean
     userDept?: string
+    userYear?: string
 }
 
-export function EventBanner({ canAddEvent = false, userDept }: Props) {
+export function EventBanner({ canAddEvent = false, userDept, userYear }: Props) {
     const [events, setEvents] = useState<CalEvent[]>([])
     const [activeIndex, setActiveIndex] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
@@ -73,23 +76,35 @@ export function EventBanner({ canAddEvent = false, userDept }: Props) {
     const [newVenue, setNewVenue] = useState('')
     const [newDesc, setNewDesc] = useState('')
     const [newDept, setNewDept] = useState('General')
+    const [newYear, setNewYear] = useState('General')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [addError, setAddError] = useState('')
+    const [deletingId, setDeletingId] = useState<string | null>(null)
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
     const supabase = createClient()
 
     const fetchEvents = useCallback(async () => {
         const today = new Date().toISOString().split('T')[0]
+
+        // Build compound OR filters for dept and year
+        const deptFilter = userDept && userDept !== 'Other'
+            ? `department.eq.General,department.eq.${userDept}`
+            : 'department.eq.General'
+        const yearFilter = userYear && userYear !== 'General'
+            ? `year.eq.General,year.eq.${userYear}`
+            : 'year.eq.General'
+
         const { data } = await supabase
             .from('event_cal')
-            .select('id, event_name, event_date, venue, description, department')
+            .select('id, event_name, event_date, venue, description, department, year')
             .gte('event_date', today)
-            .or(`department.eq.General,department.eq.${userDept}`)
+            .or(deptFilter)
+            .or(yearFilter)
             .order('event_date', { ascending: true })
             .limit(12)
         setEvents(data ?? [])
         setIsLoading(false)
-    }, [supabase, userDept])
+    }, [supabase, userDept, userYear])
 
     useEffect(() => { fetchEvents() }, [fetchEvents])
 
@@ -126,11 +141,12 @@ export function EventBanner({ canAddEvent = false, userDept }: Props) {
                 event_date: eventDate.toISOString(),
                 venue: newVenue.trim() || 'TBA',
                 description: newDesc.trim() || null,
-                department: newDept
+                department: newDept,
+                year: newYear
             })
             if (error) throw error
             setNewName(''); setNewDate(new Date().toISOString().split('T')[0])
-            setNewVenue(''); setNewDesc('')
+            setNewVenue(''); setNewDesc(''); setNewDept('General'); setNewYear('General')
             setShowAddModal(false)
             fetchEvents()
         } catch (e: any) {
@@ -138,6 +154,15 @@ export function EventBanner({ canAddEvent = false, userDept }: Props) {
         } finally {
             setIsSubmitting(false)
         }
+    }
+
+    const handleDeleteEvent = async (id: string) => {
+        setDeletingId(id)
+        await supabase.from('event_cal').delete().eq('id', id)
+        setDeletingId(null)
+        // If deleted event was active, move to previous
+        setActiveIndex(prev => Math.max(0, prev >= events.length - 1 ? events.length - 2 : prev))
+        fetchEvents()
     }
 
     if (isLoading) {
@@ -232,6 +257,21 @@ export function EventBanner({ canAddEvent = false, userDept }: Props) {
                                         <div className="absolute top-5 left-5 w-6 h-6 border-t-2 border-l-2 border-white/20 rounded-tl-lg" />
                                         <div className="absolute top-5 right-5 w-6 h-6 border-t-2 border-r-2 border-white/20 rounded-tr-lg" />
 
+                                        {/* Delete button on card (exec only) */}
+                                        {canAddEvent && (
+                                            <button
+                                                onClick={e => { e.stopPropagation(); handleDeleteEvent(event.id) }}
+                                                disabled={deletingId === event.id}
+                                                className="absolute bottom-5 right-5 z-20 w-8 h-8 rounded-xl bg-black/40 hover:bg-red-500/40 border border-white/10 hover:border-red-500/50 flex items-center justify-center text-white/40 hover:text-red-300 transition-all disabled:opacity-40"
+                                                title="Delete event"
+                                            >
+                                                {deletingId === event.id
+                                                    ? <span className="text-[10px]">⏳</span>
+                                                    : <Trash2 size={12} />
+                                                }
+                                            </button>
+                                        )}
+
                                         {/* Content */}
                                         <div className="relative z-10 p-8 h-full flex flex-col justify-between">
                                             {/* Top row */}
@@ -240,9 +280,24 @@ export function EventBanner({ canAddEvent = false, userDept }: Props) {
                                                     <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">
                                                         {emoji}
                                                     </div>
-                                                    <span className="px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-full border text-white/40 border-white/10 bg-white/5">
-                                                        {tag}
-                                                    </span>
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-full border text-white/40 border-white/10 bg-white/5">
+                                                            {tag}
+                                                        </span>
+                                                        {/* Year / Dept badges */}
+                                                        <div className="flex gap-1 flex-wrap">
+                                                            {event.year && event.year !== 'General' && (
+                                                                <span className="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded-full bg-amber-500/25 text-amber-300 border border-amber-500/40">
+                                                                    {event.year} Year
+                                                                </span>
+                                                            )}
+                                                            {event.department && event.department !== 'General' && (
+                                                                <span className="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded-full bg-blue-500/25 text-blue-300 border border-blue-500/40">
+                                                                    {event.department}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 {daysLabel && (
                                                     <span className={`px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest border shadow-lg ${URGENCY_STYLES[urgency]}`}>
@@ -316,24 +371,55 @@ export function EventBanner({ canAddEvent = false, userDept }: Props) {
                             const { label: daysLabel, urgency } = getDaysInfo(event.event_date)
                             const isActive = i === activeIndex
                             return (
-                                <button
+                                <div
                                     key={event.id}
-                                    onClick={() => setActiveIndex(i)}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left transition-all group ${isActive ? 'bg-white/8 border border-white/10' : 'hover:bg-white/4 border border-transparent'}`}
                                 >
-                                    <div className={`w-1.5 h-8 rounded-full flex-shrink-0`} style={{ background: CARD_PALETTES[i % CARD_PALETTES.length].line }} />
-                                    <div className="flex-1 min-w-0">
-                                        <p className={`text-xs font-black truncate transition-colors ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-200'}`}>
-                                            {event.event_name}
-                                        </p>
-                                        <p className="text-[10px] text-gray-600 font-medium">{formatDate(event.event_date)}</p>
+                                    <button
+                                        onClick={() => setActiveIndex(i)}
+                                        className="flex items-center gap-3 flex-1 min-w-0"
+                                    >
+                                        <div className="w-1.5 h-8 rounded-full flex-shrink-0" style={{ background: CARD_PALETTES[i % CARD_PALETTES.length].line }} />
+                                        <div className="flex-1 min-w-0">
+                                            <p className={`text-xs font-black truncate transition-colors ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-200'}`}>
+                                                {event.event_name}
+                                            </p>
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <p className="text-[10px] text-gray-600 font-medium">{formatDate(event.event_date)}</p>
+                                                {event.year && event.year !== 'General' && (
+                                                    <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                                                        {event.year} Yr
+                                                    </span>
+                                                )}
+                                                {event.department && event.department !== 'General' && (
+                                                    <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                                                        {event.department}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </button>
+                                    <div className="flex items-center gap-2 shrink-0">
+                                        {daysLabel && (
+                                            <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded-full border ${URGENCY_STYLES[urgency]}`}>
+                                                {daysLabel}
+                                            </span>
+                                        )}
+                                        {canAddEvent && (
+                                            <button
+                                                onClick={() => handleDeleteEvent(event.id)}
+                                                disabled={deletingId === event.id}
+                                                className="w-6 h-6 rounded-lg bg-red-500/10 hover:bg-red-500/25 border border-red-500/20 flex items-center justify-center text-red-400 hover:text-red-300 transition-all disabled:opacity-40"
+                                                title="Delete event"
+                                            >
+                                                {deletingId === event.id
+                                                    ? <span className="text-[8px]">⏳</span>
+                                                    : <Trash2 size={10} />
+                                                }
+                                            </button>
+                                        )}
                                     </div>
-                                    {daysLabel && (
-                                        <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded-full border flex-shrink-0 ${URGENCY_STYLES[urgency]}`}>
-                                            {daysLabel}
-                                        </span>
-                                    )}
-                                </button>
+                                </div>
                             )
                         })}
                     </div>
@@ -345,7 +431,7 @@ export function EventBanner({ canAddEvent = false, userDept }: Props) {
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" onClick={() => setShowAddModal(false)}>
                     <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
                     <div
-                        className="relative z-10 w-full max-w-md glass rounded-3xl p-8 border border-white/10 shadow-2xl"
+                        className="relative z-10 w-full max-w-md glass rounded-3xl p-8 border border-white/10 shadow-2xl overflow-y-auto max-h-[90vh]"
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="mb-6">
@@ -360,6 +446,7 @@ export function EventBanner({ canAddEvent = false, userDept }: Props) {
                         )}
 
                         <div className="space-y-4">
+                            {/* Event Name */}
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black tracking-widest text-gray-500 uppercase block">Event Name *</label>
                                 <input
@@ -371,6 +458,7 @@ export function EventBanner({ canAddEvent = false, userDept }: Props) {
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
                                 />
                             </div>
+                            {/* Date */}
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black tracking-widest text-gray-500 uppercase block">Date *</label>
                                 <input
@@ -380,6 +468,7 @@ export function EventBanner({ canAddEvent = false, userDept }: Props) {
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all [color-scheme:dark]"
                                 />
                             </div>
+                            {/* Venue */}
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black tracking-widest text-gray-500 uppercase block">Venue</label>
                                 <input
@@ -390,6 +479,7 @@ export function EventBanner({ canAddEvent = false, userDept }: Props) {
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
                                 />
                             </div>
+                            {/* Target Department */}
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black tracking-widest text-gray-500 uppercase block">Target Department</label>
                                 <select
@@ -397,7 +487,7 @@ export function EventBanner({ canAddEvent = false, userDept }: Props) {
                                     onChange={e => setNewDept(e.target.value)}
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all [color-scheme:dark]"
                                 >
-                                    <option value="General" className="bg-[#0a0a15] text-white">General (Everyone)</option>
+                                    <option value="General" className="bg-[#0a0a15] text-white">General (All Departments)</option>
                                     <option value="CSE" className="bg-[#0a0a15] text-white">CSE</option>
                                     <option value="ECE" className="bg-[#0a0a15] text-white">ECE</option>
                                     <option value="BT" className="bg-[#0a0a15] text-white">BT</option>
@@ -405,6 +495,32 @@ export function EventBanner({ canAddEvent = false, userDept }: Props) {
                                     <option value="MEA" className="bg-[#0a0a15] text-white">MEA</option>
                                 </select>
                             </div>
+                            {/* Target Year */}
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black tracking-widest text-amber-500/60 uppercase block">Target Year</label>
+                                <select
+                                    value={newYear}
+                                    onChange={e => setNewYear(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all [color-scheme:dark]"
+                                >
+                                    <option value="General" className="bg-[#0a0a15] text-white">General (All Years)</option>
+                                    <option value="1st" className="bg-[#0a0a15] text-white">1st Year</option>
+                                    <option value="2nd" className="bg-[#0a0a15] text-white">2nd Year</option>
+                                    <option value="3rd" className="bg-[#0a0a15] text-white">3rd Year</option>
+                                    <option value="4th" className="bg-[#0a0a15] text-white">4th Year</option>
+                                </select>
+                                <p className="text-[9px] text-gray-600 font-medium ml-1">
+                                    {newDept === 'General' && newYear !== 'General'
+                                        ? `⚡ All ${newYear} year students will see this regardless of dept`
+                                        : newYear === 'General' && newDept !== 'General'
+                                        ? `⚡ All ${newDept} students will see this regardless of year`
+                                        : newYear === 'General' && newDept === 'General'
+                                        ? '⚡ Visible to everyone'
+                                        : `⚡ Visible to ${newYear} year ${newDept} students only`
+                                    }
+                                </p>
+                            </div>
+                            {/* Description */}
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black tracking-widest text-gray-500 uppercase block">Description</label>
                                 <textarea

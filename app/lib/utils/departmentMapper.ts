@@ -28,3 +28,13 @@ export function getGroupFromDepartment(dept: string): string {
     }
 }
 
+/** Converts a numeric profile year (1–4) to the year string stored in event_cal. */
+export function getYearString(year: number | null | undefined): string {
+    switch (year) {
+        case 1: return '1st';
+        case 2: return '2nd';
+        case 3: return '3rd';
+        case 4: return '4th';
+        default: return 'General';
+    }
+}
