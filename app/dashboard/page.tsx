@@ -2,7 +2,6 @@ import { createClient } from '@/app/lib/supabase/server'
 import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
 import { isCoreMember } from '@/app/lib/utils/coreAuth'
 import { CommandCenterClient } from '@/app/components/CommandCenterClient'
-import { AboutSection } from '@/app/components/AboutSection'
 import { Footer } from '@/app/components/Footer'
 
 export const dynamic = 'force-dynamic'
@@ -147,9 +146,7 @@ export default async function DashboardPage() {
                     analyticsData={analyticsData} 
                 />
 
-                <div className="mt-20">
-                    <AboutSection />
-                </div>
+
                 <Footer />
             </div>
         </div>
