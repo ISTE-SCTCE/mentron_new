@@ -294,7 +294,6 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
                             )}
                         </div>
                     </div>
-                </div>
             )}
 
             {/* ════════════════════════════════════════════════
@@ -354,6 +353,6 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
 
                 </div>
             )}
-        </>
+        </div>
     )
 }
