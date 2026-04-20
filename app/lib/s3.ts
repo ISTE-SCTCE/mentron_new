@@ -7,11 +7,7 @@ export const BUCKET_NAME = process.env.R2_BUCKET_NAME || 'mentron-files'
 
 // Validation to prevent cryptic DNS errors
 if (!endpoint || !accessKeyId || !secretAccessKey) {
-    if (process.env.NODE_ENV === 'production') {
-        throw new Error('Missing R2 Storage configuration.')
-    } else {
-        console.warn('⚠️ R2 Storage configuration is incomplete. Uploads and file serving will fail.')
-    }
+    console.warn('⚠️ R2 Storage configuration is incomplete. Uploads and file serving will fail until variables are added to Vercel/Env.')
 }
 
 export const s3Client = new S3Client({
