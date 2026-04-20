@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { DashboardCalendar } from '@/app/components/DashboardCalendar'
-import { EventBanner } from '@/app/components/EventBanner'
 import { AnalyticsDashboard } from '@/app/components/AnalyticsDashboard'
 import { ProfileCard } from '@/app/components/ProfileCard'
 import { getDepartmentFromRollNumber, getYearString } from '@/app/lib/utils/departmentMapper'
@@ -187,7 +186,7 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
     const canViewAnalytics = isExecOrCore && analyticsData !== null
 
     return (
-        <>
+        <div className="w-full">
             {/* ── GREETING HEADER (top, above everything) ── */}
             <div className="mb-8 md:mb-10">
                 <div className="flex items-center gap-2 mb-2">
@@ -270,18 +269,9 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
                         </Link>
                     </div>
 
-                    {/* Row 3: Event Banner + Admin controls */}
-                    <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-                        <div className="xl:col-span-3">
-                            <EventBanner
-                                canAddEvent={true}
-                                userDept={getDepartmentFromRollNumber(profile?.roll_number)}
-                                userYear={getYearString(profile?.year)}
-                            />
-                        </div>
 
-                        {/* Admin controls */}
-                        <div className="xl:col-span-1 flex flex-col gap-4">
+                        {/* Admin controls and Position Details */}
+                        <div className="xl:col-span-4 flex flex-col md:flex-row gap-6">
                             <div className="glass-card flex-1 bg-blue-500/5 group">
                                 <div className="flex justify-between items-center mb-4">
                                     <h3 className="text-[10px] font-black tracking-widest text-blue-500 uppercase">Project Manager</h3>
@@ -294,7 +284,7 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
                             </div>
 
                             {coreMember && (
-                                <Link href="/core/members" className="glass-card bg-purple-500/5 hover:bg-purple-500/10 transition-all group">
+                                <Link href="/core/members" className="glass-card flex-1 bg-purple-500/5 hover:bg-purple-500/10 transition-all group">
                                     <div className="flex justify-between items-center">
                                         <p className="text-sm font-black text-white group-hover:text-glow transition-all">Manage Members</p>
                                         <span className="text-xl">🔐</span>
@@ -362,14 +352,6 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
                         </div>
                     </Link>
 
-                    {/* Event Banner */}
-                    <div className="xl:col-span-4">
-                        <EventBanner
-                            canAddEvent={false}
-                            userDept={getDepartmentFromRollNumber(profile?.roll_number)}
-                            userYear={getYearString(profile?.year)}
-                        />
-                    </div>
                 </div>
             )}
         </>
