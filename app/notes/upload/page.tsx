@@ -107,28 +107,6 @@ export default function NotesUploadPage() {
     const inputBase = 'w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none'
     const labelBase = 'text-[10px] font-black tracking-widest text-gray-500 uppercase px-2 mb-2 block'
 
-    // Pre-fill from URL search params
-    useEffect(() => {
-        const urlYear = searchParams.get('year')
-        const urlSem = searchParams.get('sem')
-        const urlDept = searchParams.get('dept')
-        const urlGroup = searchParams.get('group')
-        const urlSubject = searchParams.get('subject')
-        const urlFolderId = searchParams.get('folder_id')
-
-        if (urlYear) setYear(urlYear)
-        if (urlSem) setSem(urlSem)
-        if (urlDept) setDept(urlDept)
-        if (urlGroup) setGroup(urlGroup as GroupKey)
-        if (urlSubject) setSubject(urlSubject)
-        if (urlFolderId) setFolderId(urlFolderId)
-        
-        // If we have everything needed for folders, try loading them
-        if (urlSubject && (urlDept || urlGroup) && urlYear && urlSem) {
-            loadFolders(urlSubject, urlDept || urlGroup!, urlYear, urlSem)
-        }
-    }, [searchParams, loadFolders])
-
     // Load folders whenever subject + dept/group + sem + year are set
     const loadFolders = useCallback(async (subj: string, deptOrGroup: string, y: string, s: string) => {
         if (!subj || subj.startsWith('PYQ - ') || subj.startsWith('Video - ')) {
@@ -151,6 +129,28 @@ export default function NotesUploadPage() {
         } catch {}
         setLoadingFolders(false)
     }, [])
+
+    // Pre-fill from URL search params
+    useEffect(() => {
+        const urlYear = searchParams.get('year')
+        const urlSem = searchParams.get('sem')
+        const urlDept = searchParams.get('dept')
+        const urlGroup = searchParams.get('group')
+        const urlSubject = searchParams.get('subject')
+        const urlFolderId = searchParams.get('folder_id')
+
+        if (urlYear) setYear(urlYear)
+        if (urlSem) setSem(urlSem)
+        if (urlDept) setDept(urlDept as DeptKey)
+        if (urlGroup) setGroup(urlGroup as GroupKey)
+        if (urlSubject) setSubject(urlSubject)
+        if (urlFolderId) setFolderId(urlFolderId)
+        
+        // If we have everything needed for folders, try loading them
+        if (urlSubject && (urlDept || urlGroup) && urlYear && urlSem) {
+            loadFolders(urlSubject, urlDept || urlGroup!, urlYear, urlSem)
+        }
+    }, [searchParams, loadFolders])
 
     if (isAuthorized === null) {
         return (
