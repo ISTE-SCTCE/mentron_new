@@ -32,15 +32,20 @@ export default function LoginPage() {
                     return
                 }
 
+                // Generate a unique session identifier for this device/login
+                const sessionId = typeof crypto.randomUUID === 'function' 
+                    ? crypto.randomUUID() 
+                    : Math.random().toString(36).substring(2) + Date.now().toString(36)
+
                 // Call update-session API to record this as the active session
                 await fetch('/api/auth/update-session', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ sessionId: data.session.id })
+                    body: JSON.stringify({ sessionId })
                 })
 
                 // Set a client-side marker for session tracking
-                document.cookie = `mentron_sid=${data.session.id}; path=/; max-age=2592000; SameSite=Lax`
+                document.cookie = `mentron_sid=${sessionId}; path=/; max-age=2592000; SameSite=Lax`
 
                 // Successful login — redirect to dashboard
                 window.location.href = '/dashboard'
