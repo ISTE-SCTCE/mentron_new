@@ -40,6 +40,7 @@ export function Footer() {
                     <div className="hidden md:block md:col-span-2"></div>
 
                     {/* Right Section - Links */}
+                    <div className="md:col-span-5 grid grid-cols-2 gap-8">
                         {/* Column 1 */}
                         <div className="space-y-6">
                             <h3 className="text-base font-black text-white tracking-wide">Menu</h3>
