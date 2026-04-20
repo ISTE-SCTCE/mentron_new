@@ -21,7 +21,10 @@ export async function POST(request: NextRequest) {
 
         // Default folder to notes_bucket if not specified
         const folder = bucketFolder || 'notes_bucket'
-        const key = `${folder}/${Date.now()}-${fileName}`
+        
+        // Clean filename: remove non-alphanumeric chars (except . and -) and replace spaces with underscores
+        const cleanName = fileName.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9.\-_]/g, '')
+        const key = `${folder}/${Date.now()}-${cleanName}`
 
         const command = new PutObjectCommand({
             Bucket: BUCKET_NAME,

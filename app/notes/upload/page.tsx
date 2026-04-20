@@ -205,12 +205,17 @@ export default function NotesUploadPage() {
 
                 // ── STEP 3: Save Metadata to DB ──
                 setUploadStage('saving')
-                // Add the file key to the form data
+                
+                // Set metadata from state/R2
                 formData.set('fileKey', key)
                 formData.set('semester', sem)
                 formData.set('subject', subject)
                 formData.set('group', group)
                 if (folderId) formData.set('folder_id', folderId)
+
+                // CRITICAL: Remove the large binary file from formData before sending to Vercel/metadata API
+                // This prevents the "Request Entity Too Large" error 413
+                formData.delete('file')
 
                 const res = await fetch('/api/notes/upload', { 
                     method: 'POST', 
