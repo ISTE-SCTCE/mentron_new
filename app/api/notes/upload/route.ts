@@ -45,10 +45,6 @@ export async function POST(request: NextRequest) {
         file_url: fileUrl,
         profile_id: user.id,
     }
-    if (folderId && folderId.trim() !== '') {
-        insertPayload.folder_id = folderId.trim()
-    }
-
     const { error: insertError } = await supabase.from('notes').insert(insertPayload)
 
     if (insertError) {

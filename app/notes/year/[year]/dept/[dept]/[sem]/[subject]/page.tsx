@@ -68,7 +68,6 @@ export default async function SubjectNotesPage({
         .eq('year', yearNum)
         .eq('semester', semKey)
         .eq('subject', subjectName)
-        .is('folder_id', null)
         .order('created_at', { ascending: false })
 
     // Fetch custom folders for this subject (skip for PYQ/Video sub-folders)
