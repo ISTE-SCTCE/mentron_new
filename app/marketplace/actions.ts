@@ -24,9 +24,8 @@ export async function createMarketplaceItem(formData: FormData) {
     const buffer = Buffer.from(await image.arrayBuffer())
     const { compressImage, compressFile } = await import('@/app/lib/utils/compression')
 
-    // Convert to WebP and then Gzip
+    // Convert to WebP (Keep this for image optimization, it's fast)
     const webpBuffer = await compressImage(buffer)
-    const compressedBuffer = await compressFile(webpBuffer)
 
     const fileName = `${Date.now()}-${image.name.split('.')[0]}.webp`
     const { s3Client, BUCKET_NAME } = await import('@/app/lib/s3')
@@ -36,7 +35,7 @@ export async function createMarketplaceItem(formData: FormData) {
         await s3Client.send(new PutObjectCommand({
             Bucket: BUCKET_NAME,
             Key: `marketplace_bucket/${fileName}`,
-            Body: compressedBuffer,
+            Body: webpBuffer,
             ContentType: 'image/webp',
             CacheControl: 'max-age=31536000',
         }))

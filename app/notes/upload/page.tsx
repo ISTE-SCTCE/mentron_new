@@ -141,45 +141,93 @@ export default function NotesUploadPage() {
         )
     }
 
+    const [uploadProgress, setUploadProgress] = useState(0)
+    const [uploadStage, setUploadStage] = useState<'idle' | 'preparing' | 'uploading' | 'saving'>('idle')
+    const [submitError, setSubmitError] = useState<string | null>(null)
+
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
-        const formData = new FormData(e.currentTarget)
-        // inject derived values
-        formData.set('semester', sem)
-        formData.set('subject', subject)
-        formData.set('group', group)
-        if (folderId) formData.set('folder_id', folderId)
+        const form = e.currentTarget
+        const formData = new FormData(form)
+        const file = formData.get('file') as File
 
+        if (!file || file.size === 0) {
+            setSubmitError('Please select a file to upload.')
+            return
+        }
+
+        setSubmitError(null)
+        setUploadProgress(0)
+        
         startTransition(async () => {
             try {
-                const res = await fetch('/api/notes/upload', { method: 'POST', body: formData })
+                // ── STEP 1: Get Presigned URL ──
+                setUploadStage('preparing')
+                const presignedRes = await fetch('/api/upload/presigned', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        fileName: file.name,
+                        fileType: file.type,
+                        bucketFolder: 'notes_bucket'
+                    })
+                })
                 
-                // Handle non-OK responses gracefully
-                if (!res.ok) {
-                    const contentType = res.headers.get('content-type')
-                    if (contentType && contentType.includes('application/json')) {
-                        const json = await res.json()
-                        router.push(`/notes/upload?error=${encodeURIComponent(json.error || 'Upload failed')}`)
-                    } else {
-                        const text = await res.text()
-                        // Specific check for Vercel's 413 error
-                        const errorMessage = text.includes('Request Entity Too Large') 
-                            ? 'File is too large for the server. Please try a smaller file (< 4.5MB).' 
-                            : text || 'An unexpected server error occurred.'
-                        router.push(`/notes/upload?error=${encodeURIComponent(errorMessage)}`)
+                if (!presignedRes.ok) {
+                    const error = await presignedRes.json()
+                    throw new Error(error.error || 'Failed to prepare upload.')
+                }
+                
+                const { url, key } = await presignedRes.json()
+
+                // ── STEP 2: Upload Direct to R2 with Progress ──
+                setUploadStage('uploading')
+                await new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest()
+                    xhr.open('PUT', url)
+                    xhr.setRequestHeader('Content-Type', file.type)
+                    
+                    xhr.upload.onprogress = (event) => {
+                        if (event.lengthComputable) {
+                            const percentComplete = (event.loaded / event.total) * 100
+                            setUploadProgress(percentComplete)
+                        }
                     }
-                    return
+                    
+                    xhr.onload = () => {
+                        if (xhr.status >= 200 && xhr.status < 300) resolve(true)
+                        else reject(new Error('Failed to upload file to storage.'))
+                    }
+                    
+                    xhr.onerror = () => reject(new Error('Network error during storage upload.'))
+                    xhr.send(file)
+                })
+
+                // ── STEP 3: Save Metadata to DB ──
+                setUploadStage('saving')
+                // Add the file key to the form data
+                formData.set('fileKey', key)
+                formData.set('semester', sem)
+                formData.set('subject', subject)
+                formData.set('group', group)
+                if (folderId) formData.set('folder_id', folderId)
+
+                const res = await fetch('/api/notes/upload', { 
+                    method: 'POST', 
+                    body: formData 
+                })
+                
+                if (!res.ok) {
+                    const errorData = await res.json()
+                    throw new Error(errorData.error || 'Server failed to save note metadata.')
                 }
 
                 const json = await res.json()
-                if (json.error) {
-                    router.push(`/notes/upload?error=${encodeURIComponent(json.error)}`)
-                } else {
-                    router.push(json.redirect ?? '/notes')
-                }
+                router.push(json.redirect ?? '/notes')
+
             } catch (err: any) {
-                console.error('Upload catch error:', err)
-                router.push(`/notes/upload?error=${encodeURIComponent(err.message || 'Network error occurred during upload.')}`)
+                console.error('Final Upload Error:', err)
+                setSubmitError(err.message || 'An unexpected error occurred during upload.')
+                setUploadStage('idle')
             }
         })
     }
@@ -204,9 +252,9 @@ export default function NotesUploadPage() {
                         <span className="text-8xl">📚</span>
                     </div>
 
-                    {error && (
+                    {(error || submitError) && (
                         <div className="mb-8 p-4 text-xs font-bold text-red-400 glass border-red-500/20 rounded-2xl text-center bg-red-500/5">
-                            {error}
+                            {error || submitError}
                         </div>
                     )}
 
@@ -365,12 +413,40 @@ export default function NotesUploadPage() {
                             </div>
                         </div>
 
+                        {uploadStage !== 'idle' && (
+                            <div className="space-y-3 pt-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                <div className="flex justify-between items-center text-[10px] font-black tracking-widest uppercase text-gray-500">
+                                    <span>
+                                        {uploadStage === 'preparing' ? 'Preparing Secure Bridge...' :
+                                         uploadStage === 'uploading' ? 'Streaming to Cloudflare R2...' :
+                                         uploadStage === 'saving' ? 'Publishing Metadata...' : 'Ready'}
+                                    </span>
+                                    {uploadStage === 'uploading' && (
+                                        <span className="text-blue-500">{Math.round(uploadProgress)}%</span>
+                                    )}
+                                </div>
+                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                                    <div 
+                                        className="h-full bg-gradient-to-r from-blue-600 to-cyan-400 transition-all duration-300 ease-out"
+                                        style={{ width: `${uploadStage === 'uploading' ? uploadProgress : uploadStage === 'saving' ? 100 : 5}%` }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
                         <button
                             type="submit"
                             disabled={isPending || !subject}
-                            className="w-full mt-4 bg-white text-black hover:bg-gray-200 disabled:opacity-40 font-black py-5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:scale-[1.02] active:scale-[0.98] transition-all text-lg uppercase tracking-widest"
+                            className="w-full mt-4 bg-white text-black hover:bg-gray-200 disabled:opacity-40 font-black py-5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:scale-[1.02] active:scale-[0.98] transition-all text-lg uppercase tracking-widest overflow-hidden relative group"
                         >
-                            {isPending ? 'Uploading...' : 'Publish Notes'}
+                            <span className="relative z-10">
+                                {uploadStage === 'preparing' ? 'Initializing...' :
+                                 uploadStage === 'uploading' ? `Uploading ${Math.round(uploadProgress)}%` :
+                                 uploadStage === 'saving' ? 'Saving Record...' : 'Publish Notes'}
+                            </span>
+                            {isPending && (
+                                <div className="absolute inset-0 bg-black/10 animate-pulse" />
+                            )}
                         </button>
                     </form>
                 </div>

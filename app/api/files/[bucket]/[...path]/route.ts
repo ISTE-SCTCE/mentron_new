@@ -36,21 +36,32 @@ export async function GET(
     const ext = filePath.split('.').pop()?.toLowerCase()
     let contentType = 'application/octet-stream'
 
-    // Convert WebP images (we compress everything to WebP)
-    if (ext === 'webp' || filePath.includes('marketplace')) {
-        contentType = 'image/webp'
-    } else if (ext === 'pdf') {
-        contentType = 'application/pdf'
-    } else if (ext === 'zip') {
-        contentType = 'application/zip'
+    // Map common extensions to content types
+    const mimeMap: Record<string, string> = {
+        'webp': 'image/webp',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'pdf': 'application/pdf',
+        'zip': 'application/zip',
+        'mp4': 'video/mp4',
+        'mov': 'video/quicktime',
+        'mp3': 'audio/mpeg',
+        'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     }
 
-    // 4. Return the file with Gzip encoding header
-    // The browser will automatically decompress if it sees Content-Encoding: gzip
+    if (ext && mimeMap[ext]) {
+        contentType = mimeMap[ext]
+    } else if (filePath.includes('marketplace')) {
+        contentType = 'image/webp'
+    }
+
+    // 4. Return the file
+    // Removed 'Content-Encoding': 'gzip' as we now skip compression for speed
     return new NextResponse(buffer, {
         headers: {
             'Content-Type': contentType,
-            'Content-Encoding': 'gzip',
             'Cache-Control': 'public, max-age=31536000, immutable',
         },
     })

@@ -28,32 +28,15 @@ export async function POST(request: NextRequest) {
     if (!file || file.size === 0) {
         return NextResponse.json({ error: 'Please select a file to upload.' }, { status: 400 })
     }
-    if (!semester || !subject) {
-        return NextResponse.json({ error: 'Please select a semester and subject.' }, { status: 400 })
+    const subject     = formData.get('subject') as string     // exact subject name
+    const folderId    = formData.get('folder_id') as string | null  // optional custom folder
+    const fileKey     = formData.get('fileKey') as string     // The R2 key provided by the client
+
+    if (!semester || !subject || !fileKey) {
+        return NextResponse.json({ error: 'Missing required metadata or file reference.' }, { status: 400 })
     }
 
-    // Compress and upload the file
-    const buffer = Buffer.from(await file.arrayBuffer())
-    const { compressFile } = await import('@/app/lib/utils/compression')
-    const compressedBuffer = await compressFile(buffer)
-    const fileName = `${Date.now()}-${file.name}.gz`
-
-    const { s3Client, BUCKET_NAME } = await import('@/app/lib/s3')
-    const { PutObjectCommand, DeleteObjectCommand } = await import('@aws-sdk/client-s3')
-
-    try {
-        await s3Client.send(new PutObjectCommand({
-            Bucket: BUCKET_NAME,
-            Key: `notes_bucket/${fileName}`,
-            Body: compressedBuffer,
-            ContentType: file.type,
-            CacheControl: 'max-age=31536000',
-        }))
-    } catch (e: any) {
-        return NextResponse.json({ error: e.message || 'Error uploading file to storage.' }, { status: 500 })
-    }
-
-    const fileUrl = `/api/files/notes_bucket/${fileName}`
+    const fileUrl = `/api/files/${fileKey}`
 
     const insertPayload: Record<string, any> = {
         title,
@@ -72,10 +55,6 @@ export async function POST(request: NextRequest) {
     const { error: insertError } = await supabase.from('notes').insert(insertPayload)
 
     if (insertError) {
-        await s3Client.send(new DeleteObjectCommand({
-            Bucket: BUCKET_NAME,
-            Key: `notes_bucket/${fileName}`,
-        }))
         return NextResponse.json({ error: insertError.message }, { status: 500 })
     }
 
