@@ -22,16 +22,15 @@ export async function POST(request: NextRequest) {
     const year        = formData.get('year') as string
     const semester    = formData.get('semester') as string    // e.g. 'S3'
     const subject     = formData.get('subject') as string     // exact subject name
-    const file        = formData.get('file') as File
+    const fileKey     = formData.get('fileKey') as string     // The R2 key provided by the client
     const folderId    = formData.get('folder_id') as string | null  // optional custom folder
 
-    if (!file || file.size === 0) {
-        return NextResponse.json({ error: 'Please select a file to upload.' }, { status: 400 })
+    if (!fileKey) {
+        return NextResponse.json({ error: 'Missing file reference (Direct-to-R2).' }, { status: 400 })
     }
-    const fileKey     = formData.get('fileKey') as string     // The R2 key provided by the client
 
-    if (!semester || !subject || !fileKey) {
-        return NextResponse.json({ error: 'Missing required metadata or file reference.' }, { status: 400 })
+    if (!semester || !subject) {
+        return NextResponse.json({ error: 'Missing required metadata.' }, { status: 400 })
     }
 
     const fileUrl = `/api/files/${fileKey}`
