@@ -51,6 +51,7 @@ export default function NotesUploadPage() {
     const [uploadProgress, setUploadProgress] = useState(0)
     const [uploadStage, setUploadStage] = useState<'idle' | 'preparing' | 'uploading' | 'saving'>('idle')
     const [submitError, setSubmitError] = useState<string | null>(null)
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
     // Auth check
     useEffect(() => {
@@ -164,18 +165,16 @@ export default function NotesUploadPage() {
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
-        const form = e.currentTarget
         
-        // Get file from the input directly for maximum reliability
-        const fileInput = form.querySelector('input[name="file"]') as HTMLInputElement
-        const file = fileInput?.files?.[0]
+        // Use the file from state for maximum reliability
+        const file = selectedFile
 
         if (!file || file.size === 0) {
             setSubmitError('Please select a file to upload.')
             return
         }
 
-        const formData = new FormData(form)
+        const formData = new FormData(e.currentTarget)
 
         setSubmitError(null)
         setUploadProgress(0)
@@ -428,14 +427,42 @@ export default function NotesUploadPage() {
                             )}
 
                             {/* File */}
-                            <div className="space-y-2">
-                                <label className={labelBase}>Note File (PDF/Docs)</label>
-                                <input
-                                    name="file"
-                                    type="file"
-                                    required
-                                    className={`${inputBase} file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-blue-500 file:text-white file:uppercase file:tracking-widest`}
-                                />
+                            <div className="space-y-4">
+                                <label className={labelBase}>Note File (PDF/Docs/Medias)</label>
+                                <div className="relative group">
+                                    <input
+                                        name="file"
+                                        type="file"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0] || null
+                                            setSelectedFile(file)
+                                            if (file) setSubmitError(null)
+                                        }}
+                                        className={`${inputBase} file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-blue-500 file:text-white file:uppercase file:tracking-widest cursor-pointer hover:border-blue-500/30 transition-colors`}
+                                    />
+                                    {selectedFile && (
+                                        <div className="mt-3 p-3 bg-white/5 border border-white/5 rounded-xl flex items-center gap-3 animate-in fade-in zoom-in-95 duration-200">
+                                            <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs font-bold text-white truncate">{selectedFile.name}</p>
+                                                <p className="text-[10px] text-gray-500 font-medium">{(selectedFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                                            </div>
+                                            <button 
+                                                type="button"
+                                                onClick={() => setSelectedFile(null)}
+                                                className="p-2 hover:bg-white/5 rounded-lg text-gray-500 hover:text-red-400 transition-colors"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
