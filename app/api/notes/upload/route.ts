@@ -28,8 +28,6 @@ export async function POST(request: NextRequest) {
     if (!file || file.size === 0) {
         return NextResponse.json({ error: 'Please select a file to upload.' }, { status: 400 })
     }
-    const subject     = formData.get('subject') as string     // exact subject name
-    const folderId    = formData.get('folder_id') as string | null  // optional custom folder
     const fileKey     = formData.get('fileKey') as string     // The R2 key provided by the client
 
     if (!semester || !subject || !fileKey) {

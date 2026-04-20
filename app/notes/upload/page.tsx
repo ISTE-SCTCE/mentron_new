@@ -47,6 +47,11 @@ export default function NotesUploadPage() {
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null)
     const formRef = useRef<HTMLFormElement>(null)
 
+    // Upload state
+    const [uploadProgress, setUploadProgress] = useState(0)
+    const [uploadStage, setUploadStage] = useState<'idle' | 'preparing' | 'uploading' | 'saving'>('idle')
+    const [submitError, setSubmitError] = useState<string | null>(null)
+
     // Auth check
     useEffect(() => {
         async function checkAuth() {
@@ -140,10 +145,6 @@ export default function NotesUploadPage() {
             </div>
         )
     }
-
-    const [uploadProgress, setUploadProgress] = useState(0)
-    const [uploadStage, setUploadStage] = useState<'idle' | 'preparing' | 'uploading' | 'saving'>('idle')
-    const [submitError, setSubmitError] = useState<string | null>(null)
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
