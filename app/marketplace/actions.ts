@@ -28,19 +28,21 @@ export async function createMarketplaceItem(formData: FormData) {
     const webpBuffer = await compressImage(buffer)
     const compressedBuffer = await compressFile(webpBuffer)
 
-    const fileName = `${user.id}/${Date.now()}-${image.name.split('.')[0]}.webp`
+    const fileName = `${Date.now()}-${image.name.split('.')[0]}.webp`
+    const { s3Client, BUCKET_NAME } = await import('@/app/lib/s3')
+    const { PutObjectCommand, DeleteObjectCommand } = await import('@aws-sdk/client-s3')
 
-    const { error: uploadError } = await supabase.storage
-        .from('marketplace_bucket')
-        .upload(fileName, compressedBuffer, {
-            contentType: 'image/webp',
-            cacheControl: '3600',
-            upsert: false
-        })
-
-    if (uploadError) {
-        console.error('Image Upload error:', uploadError)
-        redirect(`/marketplace/new?error=${encodeURIComponent(uploadError.message)}`)
+    try {
+        await s3Client.send(new PutObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: `marketplace_bucket/${fileName}`,
+            Body: compressedBuffer,
+            ContentType: 'image/webp',
+            CacheControl: 'max-age=31536000',
+        }))
+    } catch (e: any) {
+        console.error('Image Upload error:', e)
+        redirect(`/marketplace/new?error=${encodeURIComponent('Storage Error: ' + e.message)}`)
     }
 
     // 2. Point to our decompression API route

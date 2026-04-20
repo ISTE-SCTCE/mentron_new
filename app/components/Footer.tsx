@@ -40,15 +40,13 @@ export function Footer() {
                     <div className="hidden md:block md:col-span-2"></div>
 
                     {/* Right Section - Links */}
-                    <div className="md:col-span-5 grid grid-cols-2 gap-8">
                         {/* Column 1 */}
                         <div className="space-y-6">
                             <h3 className="text-base font-black text-white tracking-wide">Menu</h3>
                             <ul className="space-y-4">
-                                <li><Link href="/" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Home</Link></li>
-                                <li><Link href="/events" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Events</Link></li>
-                                <li><Link href="/team" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Execom</Link></li>
-                                <li><Link href="/gallery" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Gallery</Link></li>
+                                <li><a href="https://istesctce.in/" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Home</a></li>
+                                <li><a href="https://istesctce.in/events" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Events</a></li>
+                                <li><a href="https://istesctce.in/team" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Execom</a></li>
                             </ul>
                         </div>
 
@@ -56,9 +54,9 @@ export function Footer() {
                         <div className="space-y-6">
                             <h3 className="text-base font-black text-white tracking-wide">More</h3>
                             <ul className="space-y-4">
-                                <li><Link href="/dashboard" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Forums</Link></li>
+                                <li><Link href="/dashboard" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Mentron Forums</Link></li>
                                 <li><a href="mailto:istesctce@gmail.com" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Contact</a></li>
-                                <li><Link href="/signup" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Join ISTE</Link></li>
+                                <li><a href="https://istesctce.in/membership" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Join ISTE</a></li>
                             </ul>
                         </div>
                     </div>

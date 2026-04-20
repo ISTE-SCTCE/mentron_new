@@ -151,12 +151,35 @@ export default function NotesUploadPage() {
         if (folderId) formData.set('folder_id', folderId)
 
         startTransition(async () => {
-            const res = await fetch('/api/notes/upload', { method: 'POST', body: formData })
-            const json = await res.json()
-            if (json.error) {
-                router.push(`/notes/upload?error=${encodeURIComponent(json.error)}`)
-            } else {
-                router.push(json.redirect ?? '/notes')
+            try {
+                const res = await fetch('/api/notes/upload', { method: 'POST', body: formData })
+                
+                // Handle non-OK responses gracefully
+                if (!res.ok) {
+                    const contentType = res.headers.get('content-type')
+                    if (contentType && contentType.includes('application/json')) {
+                        const json = await res.json()
+                        router.push(`/notes/upload?error=${encodeURIComponent(json.error || 'Upload failed')}`)
+                    } else {
+                        const text = await res.text()
+                        // Specific check for Vercel's 413 error
+                        const errorMessage = text.includes('Request Entity Too Large') 
+                            ? 'File is too large for the server. Please try a smaller file (< 4.5MB).' 
+                            : text || 'An unexpected server error occurred.'
+                        router.push(`/notes/upload?error=${encodeURIComponent(errorMessage)}`)
+                    }
+                    return
+                }
+
+                const json = await res.json()
+                if (json.error) {
+                    router.push(`/notes/upload?error=${encodeURIComponent(json.error)}`)
+                } else {
+                    router.push(json.redirect ?? '/notes')
+                }
+            } catch (err: any) {
+                console.error('Upload catch error:', err)
+                router.push(`/notes/upload?error=${encodeURIComponent(err.message || 'Network error occurred during upload.')}`)
             }
         })
     }
