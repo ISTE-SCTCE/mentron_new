@@ -4,6 +4,8 @@ import { createClient } from '@/app/lib/supabase/server'
 import { DEPARTMENTS, DeptKey, SemKey, getSubjects } from '@/app/lib/data/subjects'
 import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
 
+export const dynamic = 'force-dynamic'
+
 const DEPT_COLORS: Record<DeptKey, { color: string; border: string; accent: string }> = {
     CSE: { color: 'from-blue-500/20 to-cyan-500/10', border: 'border-blue-500/20', accent: 'text-blue-400' },
     ECE: { color: 'from-cyan-500/20 to-sky-500/10', border: 'border-cyan-500/20', accent: 'text-cyan-400' },

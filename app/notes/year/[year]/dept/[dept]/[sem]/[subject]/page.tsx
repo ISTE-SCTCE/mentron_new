@@ -9,6 +9,8 @@ import { SubjectFoldersClient } from '@/app/notes/SubjectFoldersClient'
 import { getPermissions } from '@/app/lib/utils/coreAuth'
 import { NoteAccessGate } from '@/app/components/NoteAccessGate'
 
+export const dynamic = 'force-dynamic'
+
 const DEPT_COLORS: Record<DeptKey, { color: string; border: string; accent: string }> = {
     CSE: { color: 'from-blue-500/20 to-cyan-500/10', border: 'border-blue-500/20', accent: 'text-blue-400' },
     ECE: { color: 'from-cyan-500/20 to-sky-500/10', border: 'border-cyan-500/20', accent: 'text-cyan-400' },
@@ -96,7 +98,7 @@ export default async function SubjectNotesPage({
                     <span className="text-gray-700">/</span>
                     <Link href={`/notes/year/${yearNum}`} className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">{yearMeta.label}</Link>
                     <span className="text-gray-700">/</span>
-                    <Link href={`/notes/year/${yearNum}/dept/${semKey}`} className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">{semKey}</Link>
+                    <Link href={`/notes/year/${yearNum}/semester/${semKey}`} className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">{semKey}</Link>
                     <span className="text-gray-700">/</span>
                     <Link href={`/notes/year/${yearNum}/dept/${deptKey}/${semKey}`} className={`${style.accent} uppercase tracking-widest hover:text-white transition-all`}>{deptKey}</Link>
                     <span className="text-gray-700">/</span>
