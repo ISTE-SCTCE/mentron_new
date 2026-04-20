@@ -43,7 +43,7 @@ export default function NotesUploadPage() {
     const [folderId, setFolderId] = useState('')
     const [folders, setFolders] = useState<{ id: string; name: string }[]>([])
     const [loadingFolders, setLoadingFolders] = useState(false)
-    const [isPending, startTransition] = useTransition()
+    const [loading, setLoading] = useState(false)
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null)
     const formRef = useRef<HTMLFormElement>(null)
 
@@ -165,12 +165,15 @@ export default function NotesUploadPage() {
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
+        console.log('--- HANDLE SUBMIT START ---')
+        console.log('Selected File State:', selectedFile)
         
         // Use the file from state for maximum reliability
         const file = selectedFile
 
         if (!file || file.size === 0) {
-            setSubmitError('Please select a file to upload.')
+            console.error('Validation Failed: selectedFile is null or empty')
+            setSubmitError('DEBUG: File state is empty. Please re-select your note.')
             return
         }
 
@@ -178,9 +181,9 @@ export default function NotesUploadPage() {
 
         setSubmitError(null)
         setUploadProgress(0)
+        setLoading(true)
         
-        startTransition(async () => {
-            try {
+        try {
                 // ── STEP 1: Get Presigned URL ──
                 setUploadStage('preparing')
                 const presignedRes = await fetch('/api/upload/presigned', {
@@ -253,8 +256,9 @@ export default function NotesUploadPage() {
                 console.error('Final Upload Error:', err)
                 setSubmitError(err.message || 'An unexpected error occurred during upload.')
                 setUploadStage('idle')
+            } finally {
+                setLoading(false)
             }
-        })
     }
 
     return (
@@ -435,10 +439,11 @@ export default function NotesUploadPage() {
                                         type="file"
                                         onChange={(e) => {
                                             const file = e.target.files?.[0] || null
+                                            console.log('File Input Change Detected:', file?.name)
                                             setSelectedFile(file)
                                             if (file) setSubmitError(null)
                                         }}
-                                        className={`${inputBase} file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-blue-500 file:text-white file:uppercase file:tracking-widest cursor-pointer hover:border-blue-500/30 transition-colors`}
+                                        className={`${inputBase} file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-orange-500 file:text-white file:uppercase file:tracking-widest cursor-pointer hover:border-orange-500/30 transition-colors`}
                                     />
                                     {selectedFile && (
                                         <div className="mt-3 p-3 bg-white/5 border border-white/5 rounded-xl flex items-center gap-3 animate-in fade-in zoom-in-95 duration-200">
@@ -480,7 +485,7 @@ export default function NotesUploadPage() {
                                 </div>
                                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
                                     <div 
-                                        className="h-full bg-gradient-to-r from-blue-600 to-cyan-400 transition-all duration-300 ease-out"
+                                        className="h-full bg-gradient-to-r from-orange-600 to-amber-400 transition-all duration-300 ease-out"
                                         style={{ width: `${uploadStage === 'uploading' ? uploadProgress : uploadStage === 'saving' ? 100 : 5}%` }}
                                     />
                                 </div>
@@ -489,7 +494,7 @@ export default function NotesUploadPage() {
 
                         <button
                             type="submit"
-                            disabled={isPending || !subject}
+                            disabled={loading || !subject}
                             className="w-full mt-4 bg-white text-black hover:bg-gray-200 disabled:opacity-40 font-black py-5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:scale-[1.02] active:scale-[0.98] transition-all text-lg uppercase tracking-widest overflow-hidden relative group"
                         >
                             <span className="relative z-10">
@@ -497,7 +502,7 @@ export default function NotesUploadPage() {
                                  uploadStage === 'uploading' ? `Uploading ${Math.round(uploadProgress)}%` :
                                  uploadStage === 'saving' ? 'Saving Record...' : 'Publish Notes'}
                             </span>
-                            {isPending && (
+                            {loading && (
                                 <div className="absolute inset-0 bg-black/10 animate-pulse" />
                             )}
                         </button>
