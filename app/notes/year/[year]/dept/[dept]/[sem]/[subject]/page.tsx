@@ -70,6 +70,20 @@ export default async function SubjectNotesPage({
         .eq('subject', subjectName)
         .order('created_at', { ascending: false })
 
+    let finalNotes = notes ?? []
+
+    // ── FALLBACK: If folder is empty, search by semester + Year broad match ──
+    if (finalNotes.length === 0) {
+        const { data: fallbackNotes } = await supabase
+            .from('notes')
+            .select('*, profiles!notes_profile_id_fkey(full_name)')
+            .eq('year', yearNum)
+            .eq('semester', semKey)
+            .order('created_at', { ascending: false })
+            .limit(20)
+        finalNotes = fallbackNotes ?? []
+    }
+
     // Fetch custom folders for this subject (skip for PYQ/Video sub-folders)
     let folders: { id: string; name: string }[] = []
     if (!isSubfolder) {

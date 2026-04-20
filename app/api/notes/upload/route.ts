@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/app/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
 
 export async function POST(request: NextRequest) {
     const supabase = await createClient()
@@ -60,6 +61,10 @@ export async function POST(request: NextRequest) {
     } else {
         redirectUrl = `/notes/year/${yearNum}/dept/${department}/${semester}`
     }
+
+    // Purge cache for all notes pages
+    revalidatePath('/notes', 'layout')
+    revalidatePath('/dashboard', 'page')
 
     return NextResponse.json({ redirect: redirectUrl })
 }
