@@ -12,7 +12,6 @@ import {
     FlaskConical,
     Trophy,
     LogOut,
-    BarChart3,
     Menu,
     X,
     Zap,
@@ -23,8 +22,6 @@ export function GlassNav() {
     const pathname = usePathname()
     const supabase = createClient()
     const [mobileOpen, setMobileOpen] = useState(false)
-
-
 
     // Close mobile menu on route change
     useEffect(() => {
@@ -41,7 +38,32 @@ export function GlassNav() {
         return () => { document.body.style.overflow = '' }
     }, [mobileOpen])
 
+    // Back-button intercept on dashboard
+    useEffect(() => {
+        if (!pathname.startsWith('/dashboard')) return
+
+        const onPopState = (e: PopStateEvent) => {
+            e.preventDefault()
+            const confirmed = window.confirm('Going back will log you out. Are you sure?')
+            if (confirmed) {
+                supabase.auth.signOut().then(() => {
+                    window.location.href = '/'
+                })
+            } else {
+                // Push state back so the browser doesn't navigate away
+                window.history.pushState(null, '', pathname)
+            }
+        }
+
+        // Push a state so there IS a back step to intercept
+        window.history.pushState(null, '', pathname)
+        window.addEventListener('popstate', onPopState)
+        return () => window.removeEventListener('popstate', onPopState)
+    }, [pathname, supabase])
+
     const handleLogout = async () => {
+        const confirmed = window.confirm('Are you sure you want to logout?')
+        if (!confirmed) return
         await supabase.auth.signOut()
         window.location.href = '/'
     }
@@ -94,11 +116,30 @@ export function GlassNav() {
                         )
                     })}
 
+                    {/* Divider */}
+                    <div className="w-[1px] h-5 bg-white/10 mx-1" />
+
+                    {/* Settings Button */}
+                    <Link
+                        href="/settings"
+                        title="Settings"
+                        className={`
+                            group relative flex items-center gap-0 p-2 rounded-full overflow-hidden whitespace-nowrap
+                            transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
+                            ${pathname === '/settings' ? 'bg-white/10 backdrop-blur-md border border-white/20 text-white pr-4 gap-2' : 'text-[#8b9bb4] hover:bg-white/10 hover:backdrop-blur-md hover:border-white/20 hover:text-white hover:pr-4 hover:gap-2'}
+                        `}
+                    >
+                        <Settings size={20} className="shrink-0 opacity-80 group-hover:opacity-100 group-hover:rotate-90 transition-all duration-500" />
+                        <span className="text-[0px] opacity-0 max-w-0 font-medium transition-all duration-300 group-hover:text-[0.85rem] group-hover:opacity-100 group-hover:max-w-[100px]">
+                            Settings
+                        </span>
+                    </Link>
+
                     {/* Logout Button */}
                     <button
                         onClick={handleLogout}
                         title="Logout"
-                        className="group relative flex items-center gap-0 p-2 ml-4 rounded-full overflow-hidden whitespace-nowrap text-[#8b9bb4] hover:bg-[#ff0055]/20 hover:border-[#ff0055]/40 hover:text-[#ff0055] hover:pr-4 hover:gap-2 transition-all duration-300"
+                        className="group relative flex items-center gap-0 p-2 rounded-full overflow-hidden whitespace-nowrap text-[#8b9bb4] hover:bg-[#ff0055]/20 hover:border-[#ff0055]/40 hover:text-[#ff0055] hover:pr-4 hover:gap-2 transition-all duration-300"
                     >
                         <LogOut size={20} className="shrink-0 opacity-80 group-hover:opacity-100" />
                         <span className="text-[0px] opacity-0 max-w-0 font-medium transition-all duration-300 group-hover:text-[0.85rem] group-hover:opacity-100 group-hover:max-w-[100px] block">
@@ -108,7 +149,7 @@ export function GlassNav() {
                 </nav>
             </header>
 
-            {/* ─── MOBILE: Bubble Navigation (Top-left Logo + Top-right Hamburger/Settings) ─── */}
+            {/* ─── MOBILE: Bubble Navigation ─── */}
             <div className="fixed top-4 left-0 right-0 z-[1000] md:hidden flex items-center justify-between px-4 pointer-events-none">
                 
                 {/* Mobile Logo Pill */}
@@ -124,7 +165,6 @@ export function GlassNav() {
 
                 {/* Mobile Action Bubbles */}
                 <div className="flex items-center gap-2 pointer-events-auto">
-                    {/* Hamburger Toggle Bubble */}
                     <button
                         onClick={() => setMobileOpen(!mobileOpen)}
                         aria-label="Toggle menu"
@@ -155,7 +195,6 @@ export function GlassNav() {
                 <div className="absolute bottom-0 right-0 w-72 h-72 rounded-full pointer-events-none"
                     style={{ background: 'radial-gradient(circle, rgba(0,198,255,0.12) 0%, transparent 70%)', filter: 'blur(40px)' }} />
 
-                {/* Menu content — starts below the mobile header bar */}
                 <div className="flex-1 overflow-y-auto pt-20 pb-8 px-6 flex flex-col">
                     
                     {/* Nav Links */}
@@ -189,6 +228,28 @@ export function GlassNav() {
                                 </Link>
                             )
                         })}
+
+                        {/* Settings link (mobile) */}
+                        <Link
+                            href="/settings"
+                            className={`
+                                flex items-center gap-4 px-5 py-4 rounded-2xl font-semibold text-base transition-all duration-200
+                                ${pathname === '/settings'
+                                    ? 'bg-[#7000df]/20 border border-[#7000df]/40 text-white'
+                                    : 'text-[#8b9bb4] border border-white/5 hover:bg-white/5 hover:text-white hover:border-white/10'
+                                }
+                            `}
+                            style={{
+                                transform: mobileOpen ? 'translateX(0)' : 'translateX(-20px)',
+                                opacity: mobileOpen ? 1 : 0,
+                                transition: `transform 0.3s ease ${navItems.length * 40}ms, opacity 0.3s ease ${navItems.length * 40}ms`
+                            }}
+                        >
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${pathname === '/settings' ? 'bg-[#7000df]/30' : 'bg-white/5'}`}>
+                                <Settings size={20} className={pathname === '/settings' ? 'text-[#a855f7]' : 'text-[#8b9bb4]'} />
+                            </div>
+                            <span>Settings</span>
+                        </Link>
                     </nav>
 
                     {/* Logout at bottom */}

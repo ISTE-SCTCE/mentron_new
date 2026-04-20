@@ -5,8 +5,11 @@ import { Instagram, Linkedin, Mail } from 'lucide-react'
 
 export function Footer() {
     return (
-        <footer className="border-t border-white/5 bg-[#030305] relative z-20 pt-16 pb-8 px-8 md:px-16 w-full rounded-t-[3rem] shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
+        <footer className="relative z-20 pt-16 pb-8 px-8 md:px-16 w-full">
             <div className="max-w-7xl mx-auto">
+                {/* Subtle top divider */}
+                <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-white/10 to-transparent mb-16" />
+
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
                     {/* Left Section - Logo & Description */}
                     <div className="md:col-span-5 space-y-6">
@@ -16,7 +19,7 @@ export function Footer() {
                             </div>
                             <span className="text-xl font-black text-white tracking-widest uppercase">ISTE SCTCE</span>
                         </div>
-                        <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
+                        <p className="text-gray-500 text-sm leading-relaxed max-w-sm">
                             The leading student chapter dedicated to fostering technical excellence and professional growth.
                         </p>
 
@@ -42,10 +45,10 @@ export function Footer() {
                         <div className="space-y-6">
                             <h3 className="text-base font-black text-white tracking-wide">Menu</h3>
                             <ul className="space-y-4">
-                                <li><Link href="/" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Home</Link></li>
-                                <li><Link href="/events" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Events</Link></li>
-                                <li><Link href="/team" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Execom</Link></li>
-                                <li><Link href="/gallery" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Gallery</Link></li>
+                                <li><Link href="/" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Home</Link></li>
+                                <li><Link href="/events" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Events</Link></li>
+                                <li><Link href="/team" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Execom</Link></li>
+                                <li><Link href="/gallery" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Gallery</Link></li>
                             </ul>
                         </div>
 
@@ -53,16 +56,16 @@ export function Footer() {
                         <div className="space-y-6">
                             <h3 className="text-base font-black text-white tracking-wide">More</h3>
                             <ul className="space-y-4">
-                                <li><Link href="/dashboard" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Forums</Link></li>
-                                <li><a href="mailto:istesctce@gmail.com" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Contact</a></li>
-                                <li><Link href="/signup" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Join ISTE</Link></li>
+                                <li><Link href="/dashboard" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Forums</Link></li>
+                                <li><a href="mailto:istesctce@gmail.com" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Contact</a></li>
+                                <li><Link href="/signup" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Join ISTE</Link></li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-bold text-gray-500">
+                <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-bold text-gray-600">
                     <p>© 2025 ISTE SCTCE. All rights reserved.</p>
                     <p>Designed & Developed with <span className="text-purple-500 text-sm">💜</span> by ISTE Tech Team</p>
                 </div>

@@ -46,20 +46,28 @@ export async function getPermissions(): Promise<Record<string, boolean>> {
     
     const { data: profile } = await supabase
         .from('profiles')
-        .select('permissions, iste_position')
+        .select('permissions, iste_position, role')
         .eq('id', user.id)
         .single()
     
-    // Leadership roles get all permissions by default
+    // Leadership roles (Chairman/Vice Chairman) get all permissions by default
     if (profile?.iste_position === 'Chairman' || profile?.iste_position === 'Vice Chairman') {
         return {
             "can_see_member_info": true,
             "can_delete_account": true,
-            "can_upload_notes": true
+            "can_upload_notes": true,
+            "can_promote_demote": true
         }
     }
 
-    return profile?.permissions || {}
+    const perms = profile?.permissions || {}
+    const isExecOrCore = profile?.role === 'core' || profile?.role === 'exec'
+
+    return {
+        ...perms,
+        // Force can_upload_notes to false for normal members, true for core/exec by default
+        can_upload_notes: isExecOrCore ? (perms.can_upload_notes ?? true) : false
+    }
 }
 
 /**

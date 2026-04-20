@@ -113,12 +113,14 @@ export default async function SubjectNotesPage({
                                 <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white mt-1">{subjectName}</h1>
                             </div>
                         </div>
-                        <Link
-                            href={uploadUrl}
-                            className={`glass glass-hover px-6 py-3 rounded-full text-xs font-black tracking-widest uppercase ${style.accent} border ${style.border} hover:scale-105 transition-all self-center`}
-                        >
-                            + Upload for this Subject
-                        </Link>
+                        {permissions.can_upload_notes && (
+                            <Link
+                                href={uploadUrl}
+                                className={`glass glass-hover px-6 py-3 rounded-full text-xs font-black tracking-widest uppercase ${style.accent} border ${style.border} hover:scale-105 transition-all self-center`}
+                            >
+                                + Upload for this Subject
+                            </Link>
+                        )}
                     </div>
                 </div>
 

@@ -20,6 +20,18 @@ export default async function DashboardPage() {
         .eq('id', user?.id)
         .single()
 
+    // ── TWO-DEVICE PREVENTION CHECK ──
+    const { cookies } = await import('next/headers')
+    const cookieStore = await cookies()
+    const clientSid = cookieStore.get('mentron_sid')?.value
+
+    if (profile?.current_session_id && clientSid && profile.current_session_id !== clientSid) {
+        // Mismatch — log out and redirect
+        await supabase.auth.signOut()
+        const { redirect } = await import('next/navigation')
+        redirect('/login?error=Logged+in+from+another+device')
+    }
+
     // Dashboard Data
     const displayName = profile?.full_name || user?.user_metadata?.full_name || 'Member'
     const displayRole = profile?.role || user?.user_metadata?.role || 'member'
