@@ -107,11 +107,27 @@ export default function NotesUploadPage() {
     const inputBase = 'w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none'
     const labelBase = 'text-[10px] font-black tracking-widest text-gray-500 uppercase px-2 mb-2 block'
 
-    // Pre-fill folder_id from URL if coming from a folder page
+    // Pre-fill from URL search params
     useEffect(() => {
+        const urlYear = searchParams.get('year')
+        const urlSem = searchParams.get('sem')
+        const urlDept = searchParams.get('dept')
+        const urlGroup = searchParams.get('group')
+        const urlSubject = searchParams.get('subject')
         const urlFolderId = searchParams.get('folder_id')
+
+        if (urlYear) setYear(urlYear)
+        if (urlSem) setSem(urlSem)
+        if (urlDept) setDept(urlDept)
+        if (urlGroup) setGroup(urlGroup as GroupKey)
+        if (urlSubject) setSubject(urlSubject)
         if (urlFolderId) setFolderId(urlFolderId)
-    }, [searchParams])
+        
+        // If we have everything needed for folders, try loading them
+        if (urlSubject && (urlDept || urlGroup) && urlYear && urlSem) {
+            loadFolders(urlSubject, urlDept || urlGroup!, urlYear, urlSem)
+        }
+    }, [searchParams, loadFolders])
 
     // Load folders whenever subject + dept/group + sem + year are set
     const loadFolders = useCallback(async (subj: string, deptOrGroup: string, y: string, s: string) => {
@@ -149,13 +165,17 @@ export default function NotesUploadPage() {
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
         const form = e.currentTarget
-        const formData = new FormData(form)
-        const file = formData.get('file') as File
+        
+        // Get file from the input directly for maximum reliability
+        const fileInput = form.querySelector('input[name="file"]') as HTMLInputElement
+        const file = fileInput?.files?.[0]
 
         if (!file || file.size === 0) {
             setSubmitError('Please select a file to upload.')
             return
         }
+
+        const formData = new FormData(form)
 
         setSubmitError(null)
         setUploadProgress(0)
