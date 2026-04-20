@@ -66,7 +66,6 @@ export default async function SubjectNotesPage({
         .from('notes')
         .select('*, profiles!notes_profile_id_fkey(full_name)')
         .eq('year', yearNum)
-        .ilike('department', `%${deptKey}%`)
         .eq('semester', semKey)
         .eq('subject', subjectName)
         .is('folder_id', null)
