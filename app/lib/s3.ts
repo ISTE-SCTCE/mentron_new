@@ -1,15 +1,24 @@
 import { S3Client } from '@aws-sdk/client-s3'
 
-// Ensure we have the required environment variables
-const accountId = process.env.R2_ENDPOINT?.replace('https://', '').split('.')[0]
+const endpoint = process.env.R2_ENDPOINT
+const accessKeyId = process.env.R2_ACCESS_KEY_ID
+const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY
+export const BUCKET_NAME = process.env.R2_BUCKET_NAME || 'mentron-files'
+
+// Validation to prevent cryptic DNS errors
+if (!endpoint || !accessKeyId || !secretAccessKey) {
+    if (process.env.NODE_ENV === 'production') {
+        throw new Error('Missing R2 Storage configuration.')
+    } else {
+        console.warn('⚠️ R2 Storage configuration is incomplete. Uploads and file serving will fail.')
+    }
+}
 
 export const s3Client = new S3Client({
     region: 'auto',
-    endpoint: process.env.R2_ENDPOINT || '',
+    endpoint: endpoint || 'https://missing-endpoint.invalid', // Prevent SDK from using default AWS hostname
     credentials: {
-        accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
-        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+        accessKeyId: accessKeyId || 'missing',
+        secretAccessKey: secretAccessKey || 'missing',
     },
 })
-
-export const BUCKET_NAME = process.env.R2_BUCKET_NAME || 'mentron-files'
