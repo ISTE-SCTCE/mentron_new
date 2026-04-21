@@ -23,11 +23,15 @@ export default async function DashboardPage() {
     // ── TWO-DEVICE PREVENTION CHECK ──
     const { cookies } = await import('next/headers')
     const cookieStore = await cookies()
-    const clientSid = cookieStore.get('mentron_sid')?.value
+    const clientSid = (await cookieStore).get('mentron_sid')?.value
 
-    if (profile?.current_session_id && clientSid && profile.current_session_id !== clientSid) {
-        // Mismatch — log out and redirect
+    // Trigger if DB has an active session ID but the current client either:
+    // 1. Has NO session cookie
+    // 2. Has a session cookie that doesn't match the DB
+    if (profile?.current_session_id && profile.current_session_id !== clientSid) {
+        // Terminate the local Supabase session to prevent auth loops
         await supabase.auth.signOut()
+        
         const { redirect } = await import('next/navigation')
         redirect('/login?error=Logged+in+from+another+device')
     }
