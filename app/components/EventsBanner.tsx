@@ -12,6 +12,7 @@ interface Event {
     description?: string
     external_url?: string
     image_url?: string
+    registration_required?: boolean
 }
 
 interface Props {
@@ -25,7 +26,6 @@ const OFFICIAL_EVENTS: Event[] = [
         venue: 'Main Campus',
         date: '20 April Onwards',
         description: 'Back with power, purpose, and a whole new level. Join the ultimate guided learning experience.',
-        external_url: 'https://istesctce.in/mentron.html',
         image_url: '/images/mentron_reloaded.jpg'
     },
     {
@@ -175,17 +175,19 @@ export function EventsBanner({ events }: Props) {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.6 }}
-                                className="pt-4 flex justify-center lg:justify-start"
+                                className="pt-4 flex justify-center lg:justify-start min-h-[64px]"
                             >
-                                <a 
-                                    href={currentEvent.external_url || '/events'}
-                                    target={currentEvent.external_url ? "_blank" : "_self"}
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-4 bg-white text-black px-8 py-4 md:px-10 md:py-5 rounded-3xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all group relative z-40"
-                                >
-                                    {currentEvent.external_url ? 'Register Online' : 'Mark Interest'}
-                                    <ArrowRight className="group-hover:translate-x-2 transition-transform" />
-                                </a>
+                                {(currentEvent.external_url || currentEvent.registration_required) && (
+                                    <a 
+                                        href={currentEvent.external_url || 'https://istesctce.in/events.html'}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-4 bg-white text-black px-8 py-4 md:px-10 md:py-5 rounded-3xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all group relative z-40"
+                                    >
+                                        Register Online
+                                        <ArrowRight className="group-hover:translate-x-2 transition-transform" />
+                                    </a>
+                                )}
                             </motion.div>
                         </div>
 

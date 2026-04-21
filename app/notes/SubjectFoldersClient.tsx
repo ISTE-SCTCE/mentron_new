@@ -17,10 +17,10 @@ interface Props {
     initialFolders: Folder[]
     canCreateFolder: boolean
     styleAccent: string
-    styleBorder: string
     yearNum: number
     deptKey: string
     semKey: string
+    isPrivileged: boolean
 }
 
 export function SubjectFoldersClient({
@@ -35,6 +35,7 @@ export function SubjectFoldersClient({
     yearNum,
     deptKey,
     semKey,
+    isPrivileged,
 }: Props) {
     const [folders, setFolders] = useState<Folder[]>(initialFolders)
     const [showCreateModal, setShowCreateModal] = useState(false)
@@ -128,6 +129,7 @@ export function SubjectFoldersClient({
                         setFolders(prev => [...prev, folder])
                         setShowCreateModal(false)
                     }}
+                    isPrivileged={isPrivileged}
                 />
             )}
         </>

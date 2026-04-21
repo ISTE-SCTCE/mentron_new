@@ -11,6 +11,7 @@ interface Props {
     year: string
     semester: string
     onCreated: (folder: { id: string; name: string }) => void
+    isPrivileged: boolean
 }
 
 export function CreateNoteFolderModal({
@@ -21,8 +22,10 @@ export function CreateNoteFolderModal({
     year,
     semester,
     onCreated,
+    isPrivileged,
 }: Props) {
     const [name, setName] = useState('')
+    const [requiresAuth, setRequiresAuth] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
 
@@ -66,6 +69,7 @@ export function CreateNoteFolderModal({
                     year,
                     semester,
                     created_by: user.id,
+                    requires_auth: requiresAuth,
                 })
                 .select('id, name')
                 .single()
@@ -73,6 +77,7 @@ export function CreateNoteFolderModal({
             if (insertErr) throw insertErr
             onCreated(data as { id: string; name: string })
             setName('')
+            setRequiresAuth(false)
             onClose()
         } catch (err: any) {
             setError(err.message || 'Something went wrong.')
@@ -124,6 +129,25 @@ export function CreateNoteFolderModal({
                             Notes placed in this folder will only appear inside it.
                         </p>
                     </div>
+
+                    {isPrivileged && (
+                        <div className="space-y-1.5 flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
+                            <div>
+                                <label className="text-xs font-black tracking-widest text-gray-300 uppercase cursor-pointer select-none block">
+                                    Requires ISTE ID
+                                </label>
+                                <p className="text-[10px] text-pink-500/70 font-bold uppercase tracking-widest mt-0.5">
+                                    Enforce authorization for this folder
+                                </p>
+                            </div>
+                            <div 
+                                onClick={() => setRequiresAuth(!requiresAuth)}
+                                className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${requiresAuth ? 'bg-pink-600' : 'bg-gray-700'}`}
+                            >
+                                <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${requiresAuth ? 'translate-x-6' : 'translate-x-0'}`} />
+                            </div>
+                        </div>
+                    )}
 
                     <div className="flex gap-3 pt-2">
                         <button

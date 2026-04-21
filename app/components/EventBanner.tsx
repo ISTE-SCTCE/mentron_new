@@ -13,6 +13,7 @@ interface CalEvent {
     description?: string
     department?: string
     year?: string
+    registration_required?: boolean
 }
 
 const CARD_PALETTES = [
@@ -96,7 +97,7 @@ export function EventBanner({ canAddEvent = false, userDept, userYear }: Props) 
 
         const { data } = await supabase
             .from('event_cal')
-            .select('id, event_name, event_date, venue, description, department, year')
+            .select('id, event_name, event_date, venue, description, department, year, registration_required')
             .gte('event_date', today)
             .or(deptFilter)
             .or(yearFilter)
@@ -238,7 +239,10 @@ export function EventBanner({ canAddEvent = false, userDept, userYear }: Props) 
                                     <div
                                         className={`relative h-full min-h-[240px] bg-gradient-to-br ${palette.bg} rounded-[2rem] overflow-hidden group cursor-pointer`}
                                         style={{ boxShadow: `0 20px 60px ${palette.glow}` }}
-                                        onClick={() => window.location.href = '/events'}
+                                        onClick={() => {
+                                            if (event.registration_required) window.open('https://istesctce.in/events.html', '_blank')
+                                            else window.location.href = '/events'
+                                        }}
                                     >
                                         {/* Ambient blob */}
                                         <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full" style={{ background: `radial-gradient(circle, ${palette.glow} 0%, transparent 70%)`, filter: 'blur(30px)' }} />
@@ -294,6 +298,11 @@ export function EventBanner({ canAddEvent = false, userDept, userYear }: Props) 
                                                             {event.department && event.department !== 'General' && (
                                                                 <span className="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded-full bg-blue-500/25 text-blue-300 border border-blue-500/40">
                                                                     {event.department}
+                                                                </span>
+                                                            )}
+                                                            {event.registration_required && (
+                                                                <span className="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded-full bg-pink-500/25 text-pink-300 border border-pink-500/40">
+                                                                    Reg Req
                                                                 </span>
                                                             )}
                                                         </div>

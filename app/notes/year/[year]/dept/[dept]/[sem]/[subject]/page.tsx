@@ -8,6 +8,7 @@ import { deleteNote } from '@/app/lib/actions/deleteActions'
 import { SubjectFoldersClient } from '@/app/notes/SubjectFoldersClient'
 import { getPermissions } from '@/app/lib/utils/coreAuth'
 import { NoteAccessGate } from '@/app/components/NoteAccessGate'
+import { VirtualFolderAuthToggle } from '@/app/components/VirtualFolderAuthToggle'
 
 export const dynamic = 'force-dynamic'
 
@@ -99,6 +100,20 @@ export default async function SubjectNotesPage({
         folders = foldersData ?? []
     }
 
+    let virtualSettings = null
+    if (isSubfolder) {
+        const { data } = await supabase
+            .from('note_folders')
+            .select('requires_auth')
+            .eq('subject', subjectName)
+            .eq('department', deptKey)
+            .eq('year', yearNum.toString())
+            .eq('semester', semKey)
+            .eq('name', 'Virtual Settings')
+            .maybeSingle()
+        virtualSettings = data
+    }
+
     const uploadUrl = `/notes/upload?year=${yearNum}&dept=${deptKey}&sem=${semKey}&subject=${encodeURIComponent(subjectName)}`
 
     return (
@@ -125,6 +140,15 @@ export default async function SubjectNotesPage({
                             <div>
                                 <p className={`text-[10px] font-black tracking-[0.3em] uppercase ${style.accent}`}>{yearMeta.label} · {semKey} · {deptKey}</p>
                                 <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white mt-1">{subjectName}</h1>
+                                {isSubfolder && isPrivileged && (
+                                    <VirtualFolderAuthToggle
+                                        subjectName={subjectName}
+                                        department={deptKey}
+                                        year={yearNum.toString()}
+                                        semester={semKey}
+                                        initialRequiresAuth={virtualSettings?.requires_auth ?? false}
+                                    />
+                                )}
                             </div>
                         </div>
                         {permissions.can_upload_notes && (
@@ -178,6 +202,7 @@ export default async function SubjectNotesPage({
                         yearNum={yearNum}
                         deptKey={deptKey}
                         semKey={semKey}
+                        isPrivileged={isPrivileged}
                     />
                 )}
 
@@ -205,6 +230,7 @@ export default async function SubjectNotesPage({
                                                 userIsteId={profile?.iste_id} 
                                                 userRole={profile?.role}
                                                 title={note.title}
+                                                requiresAuth={isSubfolder ? (virtualSettings?.requires_auth ?? false) : false}
                                             >
                                                 <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">
                                                     <button className="glass glass-hover px-4 py-2 rounded-xl text-blue-400 text-xs font-black uppercase tracking-widest transition-all">

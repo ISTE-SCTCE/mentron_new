@@ -51,10 +51,9 @@ export default async function FolderNotesPage({
         .eq('id', user?.id ?? '')
         .single()
 
-    // Fetch the folder info
     const { data: folder } = await supabase
         .from('note_folders')
-        .select('id, name')
+        .select('id, name, requires_auth')
         .eq('id', folderId)
         .maybeSingle()
 
@@ -131,6 +130,7 @@ export default async function FolderNotesPage({
                                             userIsteId={profile?.iste_id} 
                                             userRole={profile?.role}
                                             title={note.title}
+                                            requiresAuth={folder.requires_auth ?? false}
                                         >
                                             <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">
                                                 <button className="glass glass-hover px-4 py-2 rounded-xl text-blue-400 text-xs font-black uppercase tracking-widest transition-all">

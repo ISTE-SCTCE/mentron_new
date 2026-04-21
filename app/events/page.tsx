@@ -29,7 +29,8 @@ export default async function EventsListPage() {
         event_name: e.event_name || e.title || 'Untitled Event',
         venue: e.venue || 'TBA',
         date: e.date || e.event_date || 'Upcoming',
-        description: e.description || ''
+        description: e.description || '',
+        registration_required: e.registration_required || false
     }))
 
     // Fetch Event Concepts and Votes

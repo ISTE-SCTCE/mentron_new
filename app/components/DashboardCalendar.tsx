@@ -25,6 +25,7 @@ interface Event {
     venue?: string
     department?: string
     year?: string
+    registration_required?: boolean
 }
 
 interface CalendarProps {
@@ -44,6 +45,7 @@ export function DashboardCalendar({ isExec, userDept, userYear }: CalendarProps)
     const [newEventVenue, setNewEventVenue] = useState('')
     const [newEventDept, setNewEventDept] = useState('General')
     const [newEventYear, setNewEventYear] = useState('General')
+    const [registrationRequired, setRegistrationRequired] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [deletingId, setDeletingId] = useState<string | null>(null)
 
@@ -59,7 +61,7 @@ export function DashboardCalendar({ isExec, userDept, userYear }: CalendarProps)
 
         const { data } = await supabase
             .from('event_cal')
-            .select('id, event_name, event_date, venue, department, year')
+            .select('id, event_name, event_date, venue, department, year, registration_required')
             .or(deptFilter)
             .or(yearFilter)
         if (data) setEvents(data)
@@ -89,7 +91,8 @@ export function DashboardCalendar({ isExec, userDept, userYear }: CalendarProps)
             event_date: eventDateString,
             venue: newEventVenue || 'TBA',
             department: newEventDept,
-            year: newEventYear
+            year: newEventYear,
+            registration_required: registrationRequired
         })
 
         if (!error) {
@@ -97,6 +100,7 @@ export function DashboardCalendar({ isExec, userDept, userYear }: CalendarProps)
             setNewEventVenue('')
             setNewEventDept('General')
             setNewEventYear('General')
+            setRegistrationRequired(false)
             setIsAddingMode(false)
             fetchEvents()
         }
@@ -279,6 +283,11 @@ export function DashboardCalendar({ isExec, userDept, userYear }: CalendarProps)
                                     {evt.department && evt.department !== 'General' && (
                                         <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30">
                                             {evt.department}
+                                        </span>
+                                    )}
+                                    {evt.registration_required && (
+                                        <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-pink-500/15 text-pink-400 border border-pink-500/30">
+                                            Reg Req
                                         </span>
                                     )}
                                 </div>

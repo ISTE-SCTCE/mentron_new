@@ -12,12 +12,12 @@ interface NoteAccessGateProps {
     noteUrl: string
     userId: string
     userIsteId: string | null
-    userRole: string
     title: string
+    requiresAuth: boolean
     children: React.ReactNode
 }
 
-export function NoteAccessGate({ noteUrl, userId, userIsteId, userRole, title, children }: NoteAccessGateProps) {
+export function NoteAccessGate({ noteUrl, userId, userIsteId, userRole, title, requiresAuth, children }: NoteAccessGateProps) {
     const [isOpen, setIsOpen] = useState(false)
     const [showViewer, setShowViewer] = useState(false)
     const [isteId, setIsteId] = useState('')
@@ -29,7 +29,7 @@ export function NoteAccessGate({ noteUrl, userId, userIsteId, userRole, title, c
         setMounted(true)
     }, [])
 
-    const isAuthorized = userRole === 'exec' || userRole === 'core' || userRole === 'admin' || !!localIsteId
+    const isAuthorized = !requiresAuth || userRole === 'exec' || userRole === 'core' || userRole === 'admin' || !!localIsteId
 
     const supabase = createClient()
 
