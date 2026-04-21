@@ -59,6 +59,8 @@ export default async function Year1SubjectNotesPage({
         .eq('subject', subjectName)
         .order('created_at', { ascending: false })
 
+    const uploadUrl = `/notes/upload?year=1&dept=${groupKey}&sem=${sem}&subject=${encodeURIComponent(subjectName)}`
+
     // Fetch custom folders for this subject (skip for PYQ/Video sub-folders)
     let folders: { id: string; name: string }[] = []
     if (!isSubfolder) {
