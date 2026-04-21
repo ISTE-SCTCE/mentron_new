@@ -67,29 +67,37 @@ export async function GET() {
         }
     }
 
-    // Process in batches
+    // 3. Batch Process for Speed
+    // Fetch all existing ROOT records to prevent duplicates locally
+    const { data: existingFolders } = await supabase
+        .from('note_folders')
+        .select('name, department, year, semester')
+        .eq('subject', 'ROOT')
+
+    // Create a set for lightning-fast lookup
+    const existingSet = new Set(
+        (existingFolders ?? []).map(f => `${f.department}-${f.year}-${f.semester}-${f.name.toLowerCase()}`)
+    )
+
+    // Filter out duplicates
+    const recordsToInsert = inserts.filter(record => {
+        const key = `${record.department}-${record.year}-${record.semester}-${record.name.toLowerCase()}`
+        return !existingSet.has(key)
+    })
+
     let successCount = 0
     let errors: any[] = []
 
-    for (const record of inserts) {
-        // Prevent dupes
-        const { data: existing } = await supabase
+    if (recordsToInsert.length > 0) {
+        // Supabase supports bulk insert
+        const { error: insertErr } = await supabase
             .from('note_folders')
-            .select('id')
-            .eq('subject', 'ROOT')
-            .eq('department', record.department)
-            .eq('year', record.year)
-            .eq('semester', record.semester)
-            .ilike('name', record.name)
-            .maybeSingle()
-
-        if (!existing) {
-            const { error } = await supabase.from('note_folders').insert(record)
-            if (error) {
-                errors.push({ record, error })
-            } else {
-                successCount++
-            }
+            .insert(recordsToInsert)
+        
+        if (insertErr) {
+            errors.push({ error: insertErr })
+        } else {
+            successCount = recordsToInsert.length
         }
     }
 
