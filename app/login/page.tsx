@@ -2,60 +2,16 @@
 
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useState, useTransition } from 'react'
+import { useState, useRef } from 'react'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { login } from './actions'
 
 export default function LoginPage() {
     const searchParams = useSearchParams()
     const error = searchParams.get('error')
     const [showPassword, setShowPassword] = useState(false)
-    const [isPending, startTransition] = useTransition()
-    const [localError, setLocalError] = useState<string | null>(null)
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        setLocalError(null)
-
-        const formData = new FormData(e.currentTarget)
-        const email = formData.get('email') as string
-        const password = formData.get('password') as string
-
-        startTransition(async () => {
-            try {
-                const { createClient } = await import('@/app/lib/supabase/client')
-                const supabase = createClient()
-
-                const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
-
-                if (authError || !data.session) {
-                    setLocalError(authError?.message || 'Login failed')
-                    return
-                }
-
-                // Generate a unique session identifier for this device/login
-                const sessionId = typeof crypto.randomUUID === 'function' 
-                    ? crypto.randomUUID() 
-                    : Math.random().toString(36).substring(2) + Date.now().toString(36)
-
-                // Call update-session API to record this as the active session
-                await fetch('/api/auth/update-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ sessionId })
-                })
-
-                // Set a client-side marker for session tracking
-                document.cookie = `mentron_sid=${sessionId}; path=/; max-age=2592000; SameSite=Lax`
-
-                // Successful login — redirect to dashboard
-                window.location.href = '/dashboard'
-            } catch {
-                setLocalError('An unexpected error occurred. Please try again.')
-            }
-        })
-    }
-
-    const displayError = localError || error
+    const [isPending, setIsPending] = useState(false)
+    const formRef = useRef<HTMLFormElement>(null)
 
     return (
         <div className="flex justify-center p-4 pt-16">
@@ -65,13 +21,18 @@ export default function LoginPage() {
                     <h1 className="text-5xl font-black tracking-tighter text-white">Welcome</h1>
                 </div>
 
-                {displayError && (
+                {error && (
                     <div className="p-4 text-xs font-bold text-red-400 glass border-red-500/20 rounded-2xl text-center bg-red-500/5">
-                        {displayError}
+                        {error}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form
+                    ref={formRef}
+                    action={login}
+                    onSubmit={() => setIsPending(true)}
+                    className="space-y-6"
+                >
                     <div className="space-y-4">
                         <input
                             name="email"
