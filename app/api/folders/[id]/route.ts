@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/app/lib/supabase/server'
-import { getPermissionsServer } from '@/app/lib/utils/coreAuthServer'
+import { isCoreMember } from '@/app/lib/utils/coreAuth'
 import { revalidatePath } from 'next/cache'
 
 export async function PUT(
@@ -11,8 +11,8 @@ export async function PUT(
     const supabase = await createClient()
 
     // Auth check
-    const perms = await getPermissionsServer()
-    if (!perms.can_create_folder) {
+    const isAuthorized = await isCoreMember()
+    if (!isAuthorized) {
         return NextResponse.json({ error: 'Unauthorized to edit folders.' }, { status: 403 })
     }
 
@@ -47,8 +47,8 @@ export async function DELETE(
     const supabase = await createClient()
 
     // Auth check
-    const perms = await getPermissionsServer()
-    if (!perms.can_create_folder) {
+    const isAuthorized = await isCoreMember()
+    if (!isAuthorized) {
         return NextResponse.json({ error: 'Unauthorized to delete folders.' }, { status: 403 })
     }
 
