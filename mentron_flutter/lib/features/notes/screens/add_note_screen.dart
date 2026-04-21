@@ -187,9 +187,17 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       final user = supabase.currentUser;
       if (user == null) throw Exception('Not logged in');
 
-      const String apiBaseUrl = 'http://10.0.2.2:3000';
-      final uri = Uri.parse('$apiBaseUrl/api/notes/upload');
+      // Get the current session access token for auth
+      final session = supabase.client.auth.currentSession;
+      if (session == null) throw Exception('No active session');
+
+      const String apiBaseUrl = 'https://mentron.istesctce.in';
+      final uri = Uri.parse('$apiBaseUrl/api/notes/flutter-upload');
       final request = http.MultipartRequest('POST', uri);
+
+      // Pass auth token so the API can verify the user
+      request.headers['Authorization'] = 'Bearer ${session.accessToken}';
+      request.headers['x-supabase-auth'] = session.accessToken;
 
       request.fields['title'] = _titleController.text.trim();
       request.fields['description'] = _descController.text.trim();
