@@ -146,7 +146,9 @@ export default async function Year1SubjectsPage({
                     {rootFolders && rootFolders.length > 0 ? rootFolders.map((folder, idx) => {
                         const subject = folder.name
                         const subjectNotes = notesBySubject[subject] ?? []
-                        const noteCount = subjectNotes.length
+                        const pyqNotes = notesBySubject[`PYQ - ${subject}`] ?? []
+                        const videoNotes = notesBySubject[`Video - ${subject}`] ?? []
+                        const noteCount = subjectNotes.length + pyqNotes.length + videoNotes.length
                         return (
                             <SubjectRowClient
                                 key={idx}

@@ -200,7 +200,9 @@ export default async function DeptSubjectsPage({
                         }
 
                         const subjectNotes = notesBySubject[subject] ?? []
-                        const noteCount = subjectNotes.length
+                        const pyqNotes = notesBySubject[`PYQ - ${subject}`] ?? []
+                        const videoNotes = notesBySubject[`Video - ${subject}`] ?? []
+                        const noteCount = subjectNotes.length + pyqNotes.length + videoNotes.length
 
                         return (
                             <SubjectRowClient
