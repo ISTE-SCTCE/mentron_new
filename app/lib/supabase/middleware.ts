@@ -68,21 +68,20 @@ export async function updateSession(request: NextRequest) {
         }
     }
 
-    // ── TWO-DEVICE SESSION HEALING ──
-    // If the user is logged in but missing the session cookie, sync it from the DB
-    if (user) {
-        const clientSid = request.cookies.get('mentron_sid')?.value
-        
-        // We only fetch IT if missing, to avoid extra DB load on every request
-        if (!clientSid) {
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('current_session_id')
-                .eq('id', user.id)
-                .single()
+    // ── TWO-DEVICE SECURITY GATE ──
+    if (user && isProtectedPath) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('current_session_id')
+            .eq('id', user.id)
+            .single()
 
-            if (profile?.current_session_id) {
-                // Heal the session cookie in the response
+        if (profile?.current_session_id) {
+            const clientSid = request.cookies.get('mentron_sid')?.value
+
+            if (!clientSid) {
+                // HEAL: User is valid but cookie is missing (e.g. following a redirect)
+                // We sync it now so the Dashboard/Page doesn't see a mismatch
                 response.cookies.set('mentron_sid', profile.current_session_id, {
                     path: '/',
                     httpOnly: true,
@@ -90,6 +89,24 @@ export async function updateSession(request: NextRequest) {
                     sameSite: 'lax',
                     maxAge: 60 * 60 * 24 * 7 // 1 week
                 })
+            } else if (clientSid !== profile.current_session_id) {
+                // KICK: Cookie exists but doesn't match DB (Device B kicked Device A)
+                
+                // 1. Log out the user by clearing their Supabase session
+                // We do this by creating a redirect response that clears the cookies
+                const url = request.nextUrl.clone()
+                url.pathname = '/login'
+                url.searchParams.set('error', 'Logged in from another device')
+                
+                const redirectResponse = NextResponse.redirect(url)
+                
+                // Clear the mismatching side cookie
+                redirectResponse.cookies.delete('mentron_sid')
+                
+                // NOTE: Supabase session is handled by the redirect to /login 
+                // but we can also manually clear the cookie patterns if needed.
+                // Redirecting to /login is the safest way to reset the state.
+                return redirectResponse
             }
         }
     }
