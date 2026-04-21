@@ -117,6 +117,7 @@ export default async function NotesPage({
                                                 userIsteId={profile?.iste_id} 
                                                 userRole={profile?.role}
                                                 title={note.title}
+                                                requiresAuth={false}
                                             >
                                                 <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">
                                                     <button className="glass glass-hover p-3 rounded-xl text-blue-400 text-sm hover:scale-110 transition-all font-bold" title="View Document">

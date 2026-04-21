@@ -17,6 +17,7 @@ interface Props {
     initialFolders: Folder[]
     canCreateFolder: boolean
     styleAccent: string
+    styleBorder: string
     yearNum: number
     deptKey: string
     semKey: string

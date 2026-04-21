@@ -133,6 +133,7 @@ export default async function Year1SubjectNotesPage({
                                             userIsteId={profile?.iste_id} 
                                             userRole={profile?.role}
                                             title={note.title}
+                                            requiresAuth={false}
                                         >
                                             <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">
                                                 <button className="glass glass-hover px-4 py-2 rounded-xl text-blue-400 text-xs font-black uppercase tracking-widest transition-all">
