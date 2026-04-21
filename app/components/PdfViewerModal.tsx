@@ -34,7 +34,9 @@ export function PdfViewerModal({ url, title, onClose }: PdfViewerModalProps) {
     }
 
     const handleSecurityViolation = (e: any) => {
-        e.preventDefault()
+        if (e && typeof e.preventDefault === 'function') {
+            e.preventDefault()
+        }
         setShowShield(true)
         // Auto-hide shield after a moment
         setTimeout(() => setShowShield(false), 2000)
