@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
 
     const title       = formData.get('title') as string
     const description = formData.get('description') as string
-    const department  = formData.get('department') as string  // dept code or group code (Y1)
+    const department  = formData.get('department') as string  // dept code (Y2-4)
+    const groups      = formData.getAll('groups') as string[] // group codes (Y1)
     const year        = formData.get('year') as string
     const semester    = formData.get('semester') as string    // e.g. 'S3'
     const subject     = formData.get('subject') as string     // exact subject name
@@ -36,42 +37,57 @@ export async function POST(request: NextRequest) {
 
     const fileUrl = `/api/files/${fileKey}`
 
-    const insertPayload: Record<string, any> = {
+    const yearNum = parseInt(year)
+    const isFirstYear = yearNum === 1
+
+    const basePayload: Record<string, any> = {
         title,
         description,
-        department,
-        year: parseInt(year),
+        year: yearNum,
         semester,
         subject,
         file_url: fileUrl,
         profile_id: user.id,
     }
 
-    // Include folder_id only when provided and non-empty
     if (folderId && folderId.trim() !== '') {
-        insertPayload.folder_id = folderId.trim()
+        basePayload.folder_id = folderId.trim()
     }
 
-    const { error: insertError } = await supabase.from('notes').insert(insertPayload)
+    let insertError
+    let redirectUrl: string
+
+    if (isFirstYear && groups.length > 0) {
+        // Insert for multiple groups
+        const payloads = groups.map(g => ({
+            ...basePayload,
+            department: g
+        }))
+        const { error } = await supabase.from('notes').insert(payloads)
+        insertError = error
+        redirectUrl = `/notes/year/1/group/${groups[0]}/${semester}`
+    } else {
+        // Insert for single department
+        basePayload.department = department
+        const { error } = await supabase.from('notes').insert(basePayload)
+        insertError = error
+        redirectUrl = `/notes/year/${yearNum}/dept/${department}/${semester}`
+    }
 
     if (insertError) {
         return NextResponse.json({ error: insertError.message }, { status: 500 })
     }
 
-    // Build redirect URL to the exact subject page
-    const yearNum = parseInt(year)
-    let redirectUrl: string
-    if (yearNum === 1) {
-        // group = department field for year 1 (A/B/C/D)
-        redirectUrl = `/notes/year/1/group/${department}/${semester}`
-    } else {
-        redirectUrl = `/notes/year/${yearNum}/dept/${department}/${semester}`
-    }
-
     // Purge cache for all affected pages
     revalidatePath('/notes', 'layout')
     revalidatePath('/dashboard', 'page')
-    revalidatePath(redirectUrl, 'page')
+    if (isFirstYear && groups.length > 0) {
+        groups.forEach(g => {
+            revalidatePath(`/notes/year/1/group/${g}/${semester}`, 'page')
+        })
+    } else {
+        revalidatePath(redirectUrl, 'page')
+    }
 
     return NextResponse.json({ redirect: redirectUrl })
 }

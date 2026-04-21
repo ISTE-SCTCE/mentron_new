@@ -43,6 +43,41 @@ export function SubjectFoldersClient({
 
     const encodedSubject = encodeURIComponent(subjectName)
 
+    const handleDelete = async (e: React.MouseEvent, folderId: string) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (!confirm('Are you sure you want to delete this folder?')) return
+
+        try {
+            const res = await fetch(`/api/folders/${folderId}`, { method: 'DELETE' })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Failed to delete')
+            setFolders(prev => prev.filter(f => f.id !== folderId))
+        } catch (err: any) {
+            alert(err.message)
+        }
+    }
+
+    const handleEdit = async (e: React.MouseEvent, folder: Folder) => {
+        e.preventDefault()
+        e.stopPropagation()
+        const newName = prompt('Enter new folder name:', folder.name)
+        if (!newName || newName.trim() === '' || newName === folder.name) return
+
+        try {
+            const res = await fetch(`/api/folders/${folder.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newName.trim() })
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Failed to rename')
+            setFolders(prev => prev.map(f => f.id === folder.id ? { ...f, name: newName.trim() } : f))
+        } catch (err: any) {
+            alert(err.message)
+        }
+    }
+
     return (
         <>
             {/* Custom Folders Section */}
@@ -100,6 +135,12 @@ export function SubjectFoldersClient({
                                         Custom Folder
                                     </p>
                                 </div>
+                                {canCreateFolder && (
+                                    <div className="flex items-center gap-1 mr-2 opacity-50 group-hover:opacity-100 transition-opacity">
+                                        <button onClick={(e) => handleEdit(e, folder)} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all text-xs" title="Edit Name">✏️</button>
+                                        <button onClick={(e) => handleDelete(e, folder.id)} className="p-2 hover:bg-red-500/20 rounded-lg text-gray-400 hover:text-red-400 transition-all text-xs" title="Delete Folder">🗑️</button>
+                                    </div>
+                                )}
                                 <span className="text-gray-600 group-hover:text-white transition-colors">›</span>
                             </Link>
                         ))}

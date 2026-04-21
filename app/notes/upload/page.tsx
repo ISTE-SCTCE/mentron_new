@@ -37,7 +37,7 @@ export default function NotesUploadPage() {
     // Form state
     const [year, setYear] = useState('')
     const [sem, setSem] = useState('')
-    const [group, setGroup] = useState<GroupKey | ''>('')   // Year 1 only
+    const [groups, setGroups] = useState<GroupKey[]>([])   // Year 1 only
     const [dept, setDept] = useState<DeptKey | ''>('')      // Year 2-4
     const [subject, setSubject] = useState('')
     const [folderId, setFolderId] = useState('')
@@ -88,8 +88,8 @@ export default function NotesUploadPage() {
     const subjectList: string[] = (() => {
         if (!sem) return []
         let rawSubjects: string[] = []
-        if (isFirstYear && group) {
-            const s = FIRST_YEAR_SUBJECTS[group as GroupKey]?.[sem as 'S1' | 'S2'] ?? []
+        if (isFirstYear && groups.length > 0) {
+            const s = FIRST_YEAR_SUBJECTS[groups[0] as GroupKey]?.[sem as 'S1' | 'S2'] ?? []
             rawSubjects = s.filter(sub => !sub.startsWith('— Electives:'))
         }
         else if (!isFirstYear && dept) {
@@ -143,7 +143,7 @@ export default function NotesUploadPage() {
         if (urlYear) setYear(urlYear)
         if (urlSem) setSem(urlSem)
         if (urlDept) setDept(urlDept as DeptKey)
-        if (urlGroup) setGroup(urlGroup as GroupKey)
+        if (urlGroup) setGroups([urlGroup as GroupKey])
         if (urlSubject) setSubject(urlSubject)
         if (urlFolderId) setFolderId(urlFolderId)
         
@@ -232,7 +232,12 @@ export default function NotesUploadPage() {
                 formData.set('fileKey', key)
                 formData.set('semester', sem)
                 formData.set('subject', subject)
-                formData.set('group', group)
+                if (isFirstYear) {
+                    formData.delete('groups')
+                    groups.forEach(g => formData.append('groups', g))
+                } else {
+                    formData.set('department', dept)
+                }
                 if (folderId) formData.set('folder_id', folderId)
 
                 // CRITICAL: Remove the large binary file from formData before sending to Vercel/metadata API
@@ -321,7 +326,7 @@ export default function NotesUploadPage() {
                                         name="year"
                                         required
                                         value={year}
-                                        onChange={e => { setYear(e.target.value); setSem(''); setDept(''); setGroup(''); setSubject('') }}
+                                        onChange={e => { setYear(e.target.value); setSem(''); setDept(''); setGroups([]); setSubject('') }}
                                         className={inputBase}
                                     >
                                         <option value="" disabled className="text-gray-900 bg-[#111]">Select Year</option>
@@ -350,17 +355,24 @@ export default function NotesUploadPage() {
                                 <div className="space-y-2">
                                     {isFirstYear ? (
                                         <>
-                                            <label className={labelBase}>Stream Group</label>
-                                            <select
-                                                name="department"
-                                                required
-                                                value={group}
-                                                onChange={e => { setGroup(e.target.value as GroupKey); setSubject('') }}
-                                                className={inputBase}
-                                            >
-                                                <option value="" disabled className="bg-[#111]">Select Group</option>
-                                                {GROUPS.map(g => <option key={g.code} value={g.code} className="bg-[#111] text-white">{g.label}</option>)}
-                                            </select>
+                                            <label className={labelBase}>Stream Groups (Select Multiple)</label>
+                                            <div className="grid grid-cols-2 gap-3 mt-2">
+                                                {GROUPS.map(g => (
+                                                    <label key={g.code} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${groups.includes(g.code) ? 'bg-blue-500/10 border-blue-500/50' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={groups.includes(g.code)}
+                                                            onChange={(e) => {
+                                                                if (e.target.checked) setGroups(prev => [...prev, g.code])
+                                                                else setGroups(prev => prev.filter(x => x !== g.code))
+                                                                setSubject('')
+                                                            }}
+                                                            className="w-4 h-4 rounded-md border-white/20 bg-black/50 checked:bg-blue-500 checked:border-blue-500 focus:ring-blue-500/50 focus:ring-offset-0 text-blue-500 transition-all cursor-pointer"
+                                                        />
+                                                        <span className="text-xs font-bold text-white uppercase tracking-wider">{g.label.split('—')[0].trim()}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
                                         </>
                                     ) : (
                                         <>
@@ -392,7 +404,7 @@ export default function NotesUploadPage() {
                                             const newSubject = e.target.value
                                             setSubject(newSubject)
                                             setFolderId('')
-                                            loadFolders(newSubject, dept || group, year, sem)
+                                            loadFolders(newSubject, dept || (groups.length > 0 ? groups[0] : ''), year, sem)
                                         }}
                                         className={inputBase}
                                     >

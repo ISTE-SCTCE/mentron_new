@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/app/lib/supabase/server'
 import { FIRST_YEAR_GROUPS, getFirstYearSubjects, GroupKey } from '@/app/lib/data/subjects'
 import { getDepartmentFromRollNumber, getGroupFromDepartment } from '@/app/lib/utils/departmentMapper'
+import { SubjectFoldersClient } from '@/app/notes/SubjectFoldersClient'
 
 const VALID_GROUPS: GroupKey[] = ['A', 'B', 'C', 'D']
 const VALID_SEMS = ['S1', 'S2']
@@ -77,6 +78,16 @@ export default async function Year1SubjectsPage({
         notesBySubject[note.subject].push(note)
     }
 
+    // Fetch custom "root" folders created directly on this subjects tab
+    const { data: rootFolders } = await supabase
+        .from('note_folders')
+        .select('id, name')
+        .eq('department', groupKey)
+        .eq('year', 1)
+        .eq('semester', sem)
+        .eq('subject', 'ROOT')
+        .order('created_at', { ascending: true })
+
     const basePath = `/notes/year/1/group/${groupKey}/${sem}`
 
     return (
@@ -108,6 +119,23 @@ export default async function Year1SubjectsPage({
                             + Contribute Notes
                         </Link>
                     </div>
+                </div>
+
+                <div className="mb-12">
+                    <SubjectFoldersClient
+                        subjectName="ROOT"
+                        department={groupKey}
+                        year="1"
+                        semester={sem}
+                        initialFolders={rootFolders ?? []}
+                        canCreateFolder={isPrivileged}
+                        styleAccent={style.accent}
+                        styleBorder={style.border}
+                        yearNum={1}
+                        deptKey={groupKey}
+                        semKey={sem}
+                        isPrivileged={isPrivileged}
+                    />
                 </div>
 
                 {/* Subject list — each clickable with note count */}

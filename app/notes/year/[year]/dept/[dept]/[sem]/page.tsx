@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/app/lib/supabase/server'
 import { DEPARTMENTS, DeptKey, SemKey, getSubjects } from '@/app/lib/data/subjects'
 import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
+import { SubjectFoldersClient } from '@/app/notes/SubjectFoldersClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -92,6 +93,16 @@ export default async function DeptSubjectsPage({
         notesBySubject[note.subject].push(note)
     }
 
+    // Fetch custom "root" folders created directly on this subjects tab
+    const { data: rootFolders } = await supabase
+        .from('note_folders')
+        .select('id, name')
+        .eq('department', deptKey)
+        .eq('year', yearNum)
+        .eq('semester', semKey)
+        .eq('subject', 'ROOT')
+        .order('created_at', { ascending: true })
+
     const basePath = `/notes/year/${yearNum}/dept/${deptKey}/${semKey}`
     const uploadUrl = `/notes/upload`
 
@@ -124,6 +135,23 @@ export default async function DeptSubjectsPage({
                             + Contribute Notes
                         </Link>
                     </div>
+                </div>
+
+                <div className="mb-12">
+                    <SubjectFoldersClient
+                        subjectName="ROOT"
+                        department={deptKey}
+                        year={yearNum.toString()}
+                        semester={semKey}
+                        initialFolders={rootFolders ?? []}
+                        canCreateFolder={isPrivileged}
+                        styleAccent={style.accent}
+                        styleBorder={style.border}
+                        yearNum={yearNum}
+                        deptKey={deptKey}
+                        semKey={semKey}
+                        isPrivileged={isPrivileged}
+                    />
                 </div>
 
                 {/* Subject list — each subject is a card showing note count and links to subject page */}
