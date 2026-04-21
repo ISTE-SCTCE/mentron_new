@@ -7,6 +7,7 @@ import { DeleteButton } from '@/app/components/DeleteButton'
 import { deleteNote } from '@/app/lib/actions/deleteActions'
 import { NoteAccessGate } from '@/app/components/NoteAccessGate'
 import { getPermissions } from '@/app/lib/utils/coreAuth'
+import { MigrateSubjectsButton } from './MigrateSubjectsButton'
 
 const YEARS = [
     { year: 1, label: '1st Year', sems: 'S1 & S2', emoji: '🌱', color: 'from-green-500/20 to-emerald-500/10', border: 'border-green-500/20', accent: 'text-green-400' },
@@ -79,7 +80,16 @@ export default async function NotesPage({
 
                 {/* Search bar */}
                 <div className="mb-10">
-                    <NotesSearch initialQuery={query} initialFilter={filter} />
+                    <div className="flex flex-col md:flex-row justify-between items-end gap-4 mb-4">
+                        <div className="w-full">
+                            <NotesSearch initialQuery={query} initialFilter={filter} />
+                        </div>
+                        {(profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin') && (
+                            <div className="shrink-0">
+                                <MigrateSubjectsButton />
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Search results OR Year cards */}
