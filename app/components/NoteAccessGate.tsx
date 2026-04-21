@@ -12,6 +12,7 @@ interface NoteAccessGateProps {
     noteUrl: string
     userId: string
     userIsteId: string | null
+    userRole: string
     title: string
     requiresAuth: boolean
     children: React.ReactNode
