@@ -33,7 +33,7 @@ export function PdfViewerModal({ url, title, onClose }: PdfViewerModalProps) {
         }
     }
 
-    const handleSecurityViolation = (e: React.MouseEvent | React.KeyboardEvent | MouseEvent) => {
+    const handleSecurityViolation = (e: any) => {
         e.preventDefault()
         setShowShield(true)
         // Auto-hide shield after a moment
