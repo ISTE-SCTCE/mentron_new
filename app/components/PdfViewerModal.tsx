@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { X, Maximize2, Minimize2, ShieldAlert, Lock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'react-hot-toast'
+import { PdfCanvasViewer } from './PdfCanvasViewer'
 
 interface PdfViewerModalProps {
     url: string
@@ -16,9 +17,6 @@ export function PdfViewerModal({ url, title, onClose }: PdfViewerModalProps) {
     const [isLoading, setIsLoading] = useState(true)
     const [showShield, setShowShield] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
-
-    // Construct URL with parameters to hide toolbar in supporting browsers
-    const viewerUrl = `${url}#toolbar=0&navpanes=0&scrollbar=0`
 
     const toggleFullScreen = async () => {
         if (!containerRef.current) return
@@ -172,21 +170,14 @@ export function PdfViewerModal({ url, title, onClose }: PdfViewerModalProps) {
                     </div>
 
                     {/* Viewer Body */}
-                    <div className="flex-1 relative bg-[#0a0a0a]">
-                        {isLoading && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-[#0a0a0a]">
-                                <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4" />
-                                <p className="text-xs font-black text-gray-500 uppercase tracking-widest animate-pulse">Initializing Secure View...</p>
-                            </div>
-                        )}
-                        
-                        {/* The PDF Embed */}
-                        <motion.iframe 
-                            layout
-                            src={viewerUrl}
-                            className="w-full h-full border-0 select-none animate-in zoom-in-95 duration-500"
-                            onLoad={() => setIsLoading(false)}
-                            title={title}
+                    <div className="flex-1 relative bg-[#0a0a0a] overflow-hidden">
+                        <PdfCanvasViewer 
+                            url={url} 
+                            onLoadSuccess={() => setIsLoading(false)}
+                            onLoadError={(err) => {
+                                console.error(err)
+                                toast.error("Failed to load secure document.")
+                            }}
                         />
 
                         {/* Interactive Shield Layer */}
