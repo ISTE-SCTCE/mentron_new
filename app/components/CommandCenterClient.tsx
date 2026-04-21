@@ -162,7 +162,13 @@ function RecentActivityFeed() {
                             key={item.id} 
                             onClick={() => {
                                 if (item.type === 'note') {
-                                    router.push(`/notes/year/${item.year}/dept/${item.department}/${item.semester}/${encodeURIComponent(item.subject || '')}`)
+                                    const yearNum = item.year ?? 1
+                                    const subSegment = item.subject ? `/${encodeURIComponent(item.subject)}` : ''
+                                    if (yearNum === 1) {
+                                        router.push(`/notes/year/1/group/${item.department}/${item.semester}${subSegment}`)
+                                    } else {
+                                        router.push(`/notes/year/${yearNum}/dept/${item.department}/${item.semester}${subSegment}`)
+                                    }
                                 } else {
                                     router.push(`/projects/${item.id}`)
                                 }

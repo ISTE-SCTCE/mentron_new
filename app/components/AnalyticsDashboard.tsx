@@ -394,11 +394,12 @@ export function AnalyticsDashboard({ initialStats }: Props) {
                                 onClick={() => {
                                     if (item.type === 'note') {
                                         const yearNum = item.year ?? 1
+                                        const subSegment = item.subject ? `/${encodeURIComponent(item.subject)}` : ''
                                         if (yearNum === 1) {
                                             // Year 1 uses group codes (A/B/C/D), not dept
-                                            router.push(`/notes/year/1/group/${item.department}/${item.semester}`)
+                                            router.push(`/notes/year/1/group/${item.department}/${item.semester}${subSegment}`)
                                         } else {
-                                            router.push(`/notes/year/${yearNum}/dept/${item.department}/${item.semester}`)
+                                            router.push(`/notes/year/${yearNum}/dept/${item.department}/${item.semester}${subSegment}`)
                                         }
                                     } else {
                                         router.push(`/projects/${item.id}`)
