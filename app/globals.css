@@ -179,6 +179,12 @@ body {
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.1);
   }
+
+  /* Global Select Option Fix */
+  select option {
+    background-color: var(--bg-surface);
+    color: white;
+  }
 }
 
 @keyframes drift {

@@ -338,12 +338,12 @@ export function DashboardCalendar({ isExec, userDept, userYear }: CalendarProps)
                                     onChange={e => setNewEventDept(e.target.value)}
                                     className="w-full bg-black/50 border border-white/10 rounded-xl px-2 py-2 text-[10px] text-white focus:outline-none [color-scheme:dark]"
                                 >
-                                    <option value="General">All Depts</option>
-                                    <option value="CSE">CSE</option>
-                                    <option value="ECE">ECE</option>
-                                    <option value="BT">BT</option>
-                                    <option value="ME">ME</option>
-                                    <option value="MEA">MEA</option>
+                                    <option value="General" className="bg-[#0a0a0a] text-white">All Depts</option>
+                                    <option value="CSE" className="bg-[#0a0a0a] text-white">CSE</option>
+                                    <option value="ECE" className="bg-[#0a0a0a] text-white">ECE</option>
+                                    <option value="BT" className="bg-[#0a0a0a] text-white">BT</option>
+                                    <option value="ME" className="bg-[#0a0a0a] text-white">ME</option>
+                                    <option value="MEA" className="bg-[#0a0a0a] text-white">MEA</option>
                                 </select>
                             </div>
                             <div className="space-y-1">
@@ -353,11 +353,11 @@ export function DashboardCalendar({ isExec, userDept, userYear }: CalendarProps)
                                     onChange={e => setNewEventYear(e.target.value)}
                                     className="w-full bg-black/50 border border-white/10 rounded-xl px-2 py-2 text-[10px] text-white focus:outline-none [color-scheme:dark]"
                                 >
-                                    <option value="General">All Years</option>
-                                    <option value="1st">1st Year</option>
-                                    <option value="2nd">2nd Year</option>
-                                    <option value="3rd">3rd Year</option>
-                                    <option value="4th">4th Year</option>
+                                    <option value="General" className="bg-[#0a0a0a] text-white">All Years</option>
+                                    <option value="1st" className="bg-[#0a0a0a] text-white">1st Year</option>
+                                    <option value="2nd" className="bg-[#0a0a0a] text-white">2nd Year</option>
+                                    <option value="3rd" className="bg-[#0a0a0a] text-white">3rd Year</option>
+                                    <option value="4th" className="bg-[#0a0a0a] text-white">4th Year</option>
                                 </select>
                             </div>
                         </div>
