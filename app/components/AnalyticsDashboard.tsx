@@ -4,6 +4,7 @@ import { createClient } from '@/app/lib/supabase/client'
 import { useEffect, useState, useCallback } from 'react'
 import { Users, FileText, Zap, Activity, Clock, Upload, GitBranch } from 'lucide-react'
 import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
+import { useRouter } from 'next/navigation'
 
 interface Stats {
     studentCount: number
@@ -20,6 +21,11 @@ interface ActivityItem {
     type: 'note' | 'project'
     uploader: string
     created_at: string
+    // Routing metadata
+    year?: number
+    semester?: string
+    department?: string
+    subject?: string
 }
 
 interface Props {
@@ -28,6 +34,7 @@ interface Props {
 }
 
 export function AnalyticsDashboard({ initialStats }: Props) {
+    const router = useRouter()
     const [supabase] = useState(() => createClient())
     const [stats, setStats] = useState<Stats>({
         ...initialStats,
@@ -98,7 +105,7 @@ export function AnalyticsDashboard({ initialStats }: Props) {
         // Fetch recent note uploads
         const { data: recentNotes } = await supabase
             .from('notes')
-            .select('id, title, created_at, profiles!notes_profile_id_fkey(full_name)')
+            .select('id, title, created_at, year, semester, department, subject, profiles!notes_profile_id_fkey(full_name)')
             .order('created_at', { ascending: false })
             .limit(5)
 
@@ -110,15 +117,19 @@ export function AnalyticsDashboard({ initialStats }: Props) {
             .limit(5)
 
         const noteItems: ActivityItem[] = (recentNotes || []).map((n: any) => ({
-            id: `note-${n.id}`,
+            id: n.id,
             title: n.title,
             type: 'note',
             uploader: n.profiles?.full_name || 'Unknown',
-            created_at: n.created_at
+            created_at: n.created_at,
+            year: n.year,
+            semester: n.semester,
+            department: n.department,
+            subject: n.subject
         }))
 
         const projectItems: ActivityItem[] = (recentProjects || []).map((p: any) => ({
-            id: `proj-${p.id}`,
+            id: p.id,
             title: p.title,
             type: 'project',
             uploader: p.profiles?.full_name || 'Unknown',
@@ -142,14 +153,14 @@ export function AnalyticsDashboard({ initialStats }: Props) {
             .subscribe()
 
         const notesSub = supabase.channel('analytics-notes')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notes' }, () => {
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'notes' }, () => {
                 fetchStats()
                 fetchRecentActivity()
             })
             .subscribe()
 
         const projectsSub = supabase.channel('analytics-projects')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'projects' }, () => {
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => {
                 fetchRecentActivity()
             })
             .subscribe()
@@ -352,7 +363,17 @@ export function AnalyticsDashboard({ initialStats }: Props) {
                         )}
 
                         {recentActivity.map((item) => (
-                            <div key={item.id} className="flex gap-4 relative group">
+                            <div 
+                                key={item.id} 
+                                onClick={() => {
+                                    if (item.type === 'note') {
+                                        router.push(`/notes/year/${item.year}/dept/${item.department}/${item.semester}/${encodeURIComponent(item.subject || '')}`)
+                                    } else {
+                                        router.push(`/projects/${item.id}`)
+                                    }
+                                }}
+                                className="flex gap-4 relative group cursor-pointer"
+                            >
                                 <div className={`mt-1 w-5 h-5 rounded-full flex-shrink-0 z-10 flex items-center justify-center ${item.type === 'note' ? 'bg-blue-500/20 border-2 border-blue-500' : 'bg-purple-500/20 border-2 border-purple-500'}`}>
                                     {item.type === 'note'
                                         ? <Upload size={8} className="text-blue-400" />
@@ -360,10 +381,10 @@ export function AnalyticsDashboard({ initialStats }: Props) {
                                     }
                                 </div>
                                 <div className="space-y-0.5 group-hover:translate-x-1 transition-transform min-w-0 flex-1">
-                                    <p className="text-[10px] font-bold text-white leading-tight line-clamp-1">
+                                    <p className="text-[10px] font-bold text-white leading-tight line-clamp-1 group-hover:text-blue-400 transition-colors">
                                         {item.type === 'note' ? '📂' : '🚀'} {item.title}
                                     </p>
-                                    <div className="flex items-center gap-1.5 text-[9px] text-gray-500 font-bold uppercase tracking-widest">
+                                    <div className="flex items-center gap-1.5 text-[9px] text-gray-500 font-bold uppercase tracking-widest text-glow-hover">
                                         <span className={`px-1.5 py-0.5 rounded-full text-[7px] font-black ${item.type === 'note' ? 'bg-blue-500/15 text-blue-400' : 'bg-purple-500/15 text-purple-400'}`}>
                                             {item.type}
                                         </span>

@@ -5,6 +5,7 @@ import { createClient } from '@/app/lib/supabase/client'
 import { toast } from 'react-hot-toast'
 import { Lock, Check } from 'lucide-react'
 import { PdfViewerModal } from './PdfViewerModal'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface NoteAccessGateProps {
     noteUrl: string
