@@ -85,7 +85,10 @@ export function SubjectFoldersClient({
                         {folders.map(folder => (
                             <Link
                                 key={folder.id}
-                                href={`/notes/year/${yearNum}/dept/${deptKey}/${semKey}/${encodedSubject}/folder/${folder.id}`}
+                                href={yearNum === 1 
+                                    ? `/notes/year/1/group/${deptKey}/${semKey}/${encodedSubject}/folder/${folder.id}`
+                                    : `/notes/year/${yearNum}/dept/${deptKey}/${semKey}/${encodedSubject}/folder/${folder.id}`
+                                }
                                 className={`glass-card flex items-center gap-4 group hover:bg-white/5 transition-all border ${styleBorder}`}
                             >
                                 <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-xl group-hover:scale-110 transition-transform shrink-0`}>

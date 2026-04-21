@@ -7,6 +7,8 @@ import { DeleteButton } from '@/app/components/DeleteButton'
 import { deleteNote } from '@/app/lib/actions/deleteActions'
 import { NoteAccessGate } from '@/app/components/NoteAccessGate'
 import { VirtualFolderAuthToggle } from '@/app/components/VirtualFolderAuthToggle'
+import { SubjectFoldersClient } from '@/app/notes/SubjectFoldersClient'
+import { getPermissions } from '@/app/lib/utils/coreAuth'
 
 const VALID_GROUPS: GroupKey[] = ['A', 'B', 'C', 'D']
 const VALID_SEMS = ['S1', 'S2']
@@ -42,6 +44,11 @@ export default async function Year1SubjectNotesPage({
 
     const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
 
+    const isSubfolder = subjectName.startsWith('PYQ - ') || subjectName.startsWith('Video - ')
+
+    const permissions = await getPermissions()
+    const canCreateFolder = isPrivileged || permissions.can_upload_notes === true
+
     // Fetch notes for this specific group + sem + subject
     const { data: notes } = await supabase
         .from('notes')
@@ -52,9 +59,20 @@ export default async function Year1SubjectNotesPage({
         .eq('subject', subjectName)
         .order('created_at', { ascending: false })
 
-    const uploadUrl = `/notes/upload?year=1&dept=${groupKey}&sem=${sem}&subject=${encodeURIComponent(subjectName)}`
+    // Fetch custom folders for this subject (skip for PYQ/Video sub-folders)
+    let folders: { id: string; name: string }[] = []
+    if (!isSubfolder) {
+        const { data: foldersData } = await supabase
+            .from('note_folders')
+            .select('id, name')
+            .eq('subject', subjectName)
+            .eq('department', groupKey)
+            .eq('year', '1')
+            .eq('semester', sem)
+            .order('created_at', { ascending: true })
 
-    const isSubfolder = subjectName.startsWith('PYQ - ') || subjectName.startsWith('Video - ')
+        folders = foldersData ?? []
+    }
 
     let virtualSettings = null
     if (isSubfolder) {
@@ -138,6 +156,24 @@ export default async function Year1SubjectNotesPage({
                             </div>
                         </Link>
                     </div>
+                )}
+
+                {/* Custom Folders (client component for interactivity) */}
+                {!isSubfolder && (
+                    <SubjectFoldersClient
+                        subjectName={subjectName}
+                        department={groupKey}
+                        year="1"
+                        semester={sem}
+                        initialFolders={folders}
+                        canCreateFolder={canCreateFolder}
+                        styleAccent={style.accent}
+                        styleBorder={style.border}
+                        yearNum={1}
+                        deptKey={groupKey}
+                        semKey={sem}
+                        isPrivileged={isPrivileged}
+                    />
                 )}
 
                 {/* Notes */}
