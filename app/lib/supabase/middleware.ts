@@ -68,5 +68,31 @@ export async function updateSession(request: NextRequest) {
         }
     }
 
+    // ── TWO-DEVICE SESSION HEALING ──
+    // If the user is logged in but missing the session cookie, sync it from the DB
+    if (user) {
+        const clientSid = request.cookies.get('mentron_sid')?.value
+        
+        // We only fetch IT if missing, to avoid extra DB load on every request
+        if (!clientSid) {
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('current_session_id')
+                .eq('id', user.id)
+                .single()
+
+            if (profile?.current_session_id) {
+                // Heal the session cookie in the response
+                response.cookies.set('mentron_sid', profile.current_session_id, {
+                    path: '/',
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'lax',
+                    maxAge: 60 * 60 * 24 * 7 // 1 week
+                })
+            }
+        }
+    }
+
     return response
 }

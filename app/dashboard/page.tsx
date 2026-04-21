@@ -23,7 +23,7 @@ export default async function DashboardPage() {
     // ── TWO-DEVICE PREVENTION CHECK ──
     const { cookies } = await import('next/headers')
     const cookieStore = await cookies()
-    const clientSid = (await cookieStore).get('mentron_sid')?.value
+    const clientSid = cookieStore.get('mentron_sid')?.value
 
     // Trigger if DB has an active session ID but the current client either:
     // 1. Has NO session cookie
