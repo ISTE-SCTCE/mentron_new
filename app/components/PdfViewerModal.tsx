@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { X, Maximize2, Minimize2, ShieldAlert } from 'lucide-react'
+import { X, Maximize2, Minimize2, ShieldAlert, Lock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from 'react-hot-toast'
 
 interface PdfViewerModalProps {
     url: string
@@ -13,6 +14,7 @@ interface PdfViewerModalProps {
 export function PdfViewerModal({ url, title, onClose }: PdfViewerModalProps) {
     const [isFullScreen, setIsFullScreen] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
+    const [showShield, setShowShield] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
 
     // Construct URL with parameters to hide toolbar in supporting browsers
@@ -29,9 +31,15 @@ export function PdfViewerModal({ url, title, onClose }: PdfViewerModalProps) {
             }
         } catch (err) {
             console.error(`Error attempting to toggle full-screen mode: ${err}`)
-            // Fallback to "fake" fullscreen if native fails
             setIsFullScreen(!isFullScreen)
         }
+    }
+
+    const handleSecurityViolation = (e: React.MouseEvent | React.KeyboardEvent | MouseEvent) => {
+        e.preventDefault()
+        setShowShield(true)
+        // Auto-hide shield after a moment
+        setTimeout(() => setShowShield(false), 2000)
     }
 
     useEffect(() => {
@@ -39,7 +47,15 @@ export function PdfViewerModal({ url, title, onClose }: PdfViewerModalProps) {
             setIsFullScreen(!!document.fullscreenElement)
         }
 
+        const handleGlobalContextMenu = (e: MouseEvent) => {
+            // Only block if the event target is within our modal
+            if (containerRef.current?.contains(e.target as Node)) {
+                handleSecurityViolation(e)
+            }
+        }
+
         document.addEventListener('fullscreenchange', handleFullScreenChange)
+        window.addEventListener('contextmenu', handleGlobalContextMenu)
         
         // Prevent accidental back navigation while viewing
         const handlePopState = (e: PopStateEvent) => {
@@ -50,15 +66,15 @@ export function PdfViewerModal({ url, title, onClose }: PdfViewerModalProps) {
         
         // Disable keyboard shortcuts for print/save
         const handleKeyDown = (e: KeyboardEvent) => {
-            if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 's')) {
-                e.preventDefault()
-                alert("Printing and Saving are disabled to protect the content.")
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 's' || e.key === 'c' || e.key === 'u')) {
+                handleSecurityViolation(e)
             }
         }
         window.addEventListener('keydown', handleKeyDown)
 
         return () => {
             document.removeEventListener('fullscreenchange', handleFullScreenChange)
+            window.removeEventListener('contextmenu', handleGlobalContextMenu)
             window.removeEventListener('popstate', handlePopState)
             window.removeEventListener('keydown', handleKeyDown)
             if (document.fullscreenElement) {
@@ -70,8 +86,32 @@ export function PdfViewerModal({ url, title, onClose }: PdfViewerModalProps) {
     return (
         <div 
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-xl animate-in fade-in duration-300"
-            onContextMenu={(e) => e.preventDefault()}
+            onContextMenu={handleSecurityViolation}
         >
+            {/* Security Shield Overlay (Flash) */}
+            <AnimatePresence>
+                {showShield && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 z-[10000] bg-red-600/10 backdrop-blur-[2px] flex items-center justify-center pointer-events-none"
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.8, y: 10 }}
+                            animate={{ scale: 1, y: 0 }}
+                            className="bg-red-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/20"
+                        >
+                            <Lock className="animate-bounce" />
+                            <div>
+                                <h4 className="font-black uppercase tracking-widest text-sm">Action Blocked</h4>
+                                <p className="text-[10px] font-bold opacity-80 uppercase tracking-tighter">Downloads & Right-Click are disabled for security</p>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Main Container */}
             <motion.div 
                 ref={containerRef}
@@ -80,7 +120,7 @@ export function PdfViewerModal({ url, title, onClose }: PdfViewerModalProps) {
                 animate={{ 
                     scale: 1, 
                     opacity: 1,
-                    padding: isFullScreen ? 0 : 48, // 48 is roughly p-12 equivalent
+                    padding: isFullScreen ? 0 : 48,
                     width: '100%',
                     height: '100%',
                 }}
@@ -99,7 +139,7 @@ export function PdfViewerModal({ url, title, onClose }: PdfViewerModalProps) {
                             </div>
                             <div>
                                 <h3 className="text-sm font-black text-white uppercase tracking-widest truncate max-w-[200px] md:max-w-md">{title}</h3>
-                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Secure Viewer Mode • Copying Disabled</p>
+                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Secure Viewer Mode • Protected Content</p>
                             </div>
                         </div>
 
@@ -149,10 +189,10 @@ export function PdfViewerModal({ url, title, onClose }: PdfViewerModalProps) {
                             title={title}
                         />
 
-                        {/* Security Overlay */}
+                        {/* Interactive Shield Layer */}
                         <div 
                             className="absolute inset-0 pointer-events-none" 
-                            onContextMenu={(e) => e.preventDefault()}
+                            onContextMenu={handleSecurityViolation}
                         />
                     </div>
 
