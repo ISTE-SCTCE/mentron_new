@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { createClient } from '@/app/lib/supabase/client'
 import { toast } from 'react-hot-toast'
 import { Lock, Check } from 'lucide-react'
@@ -22,6 +23,11 @@ export function NoteAccessGate({ noteUrl, userId, userIsteId, userRole, title, c
     const [isteId, setIsteId] = useState('')
     const [isVerifying, setIsVerifying] = useState(false)
     const [localIsteId, setLocalIsteId] = useState(userIsteId)
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     const isAuthorized = userRole === 'exec' || userRole === 'core' || userRole === 'admin' || !!localIsteId
 
@@ -82,9 +88,9 @@ export function NoteAccessGate({ noteUrl, userId, userIsteId, userRole, title, c
             </div>
 
             {/* Verification Modal */}
-            <AnimatePresence>
-                {isOpen && (
-                    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            {mounted && isOpen && createPortal(
+                <AnimatePresence mode="wait">
+                    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
                         <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -144,19 +150,21 @@ export function NoteAccessGate({ noteUrl, userId, userIsteId, userRole, title, c
                             </div>
                         </motion.div>
                     </div>
-                )}
-            </AnimatePresence>
+                </AnimatePresence>,
+                document.body
+            )}
 
             {/* Document Viewer */}
-            <AnimatePresence>
-                {showViewer && (
+            {mounted && showViewer && createPortal(
+                <AnimatePresence mode="wait">
                     <PdfViewerModal 
                         url={noteUrl} 
                         title={title} 
                         onClose={() => setShowViewer(false)} 
                     />
-                )}
-            </AnimatePresence>
+                </AnimatePresence>,
+                document.body
+            )}
         </>
     )
 }
