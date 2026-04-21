@@ -10,10 +10,6 @@ import { HeadObjectCommand } from '@aws-sdk/client-s3'
  */
 export async function POST(request: NextRequest) {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-        return NextResponse.json({ validIds: [] }, { status: 401 })
-    }
 
     const body = await request.json()
     const noteIds: string[] = body.noteIds ?? []

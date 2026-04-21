@@ -130,9 +130,12 @@ export function AnalyticsDashboard({ initialStats }: Props) {
                 if (res.ok) {
                     const json = await res.json()
                     validNoteIds = json.validIds ?? validNoteIds
+                } else {
+                    validNoteIds = [] // Fail closed
                 }
             } catch {
-                // On error, keep all notes (fail open) 
+                // On error, fail closed
+                validNoteIds = []
             }
         }
 

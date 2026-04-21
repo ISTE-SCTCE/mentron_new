@@ -6,6 +6,7 @@ import { InteractionTracker } from '@/app/components/InteractionTracker'
 import { DeleteButton } from '@/app/components/DeleteButton'
 import { deleteNote } from '@/app/lib/actions/deleteActions'
 import { NoteAccessGate } from '@/app/components/NoteAccessGate'
+import { VirtualFolderAuthToggle } from '@/app/components/VirtualFolderAuthToggle'
 
 const VALID_GROUPS: GroupKey[] = ['A', 'B', 'C', 'D']
 const VALID_SEMS = ['S1', 'S2']
@@ -39,6 +40,8 @@ export default async function Year1SubjectNotesPage({
         .eq('id', user?.id ?? '')
         .single()
 
+    const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+
     // Fetch notes for this specific group + sem + subject
     const { data: notes } = await supabase
         .from('notes')
@@ -52,6 +55,20 @@ export default async function Year1SubjectNotesPage({
     const uploadUrl = `/notes/upload?year=1&dept=${groupKey}&sem=${sem}&subject=${encodeURIComponent(subjectName)}`
 
     const isSubfolder = subjectName.startsWith('PYQ - ') || subjectName.startsWith('Video - ')
+
+    let virtualSettings = null
+    if (isSubfolder) {
+        const { data } = await supabase
+            .from('note_folders')
+            .select('requires_auth')
+            .eq('subject', subjectName)
+            .eq('department', groupKey)
+            .eq('year', '1')
+            .eq('semester', sem)
+            .eq('name', 'Virtual Settings')
+            .maybeSingle()
+        virtualSettings = data
+    }
 
     return (
         <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
@@ -77,6 +94,15 @@ export default async function Year1SubjectNotesPage({
                             <div>
                                 <p className={`text-[10px] font-black tracking-[0.3em] uppercase ${style.accent}`}>1st Year · {sem} · {groupMeta.label}</p>
                                 <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white mt-1">{subjectName}</h1>
+                                {isSubfolder && isPrivileged && (
+                                    <VirtualFolderAuthToggle
+                                        subjectName={subjectName}
+                                        department={groupKey}
+                                        year="1"
+                                        semester={sem}
+                                        initialRequiresAuth={virtualSettings?.requires_auth ?? false}
+                                    />
+                                )}
                             </div>
                         </div>
                         <Link
@@ -133,7 +159,7 @@ export default async function Year1SubjectNotesPage({
                                             userIsteId={profile?.iste_id} 
                                             userRole={profile?.role}
                                             title={note.title}
-                                            requiresAuth={false}
+                                            requiresAuth={isSubfolder ? (virtualSettings?.requires_auth ?? false) : false}
                                         >
                                             <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">
                                                 <button className="glass glass-hover px-4 py-2 rounded-xl text-blue-400 text-xs font-black uppercase tracking-widest transition-all">
