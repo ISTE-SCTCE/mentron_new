@@ -62,7 +62,7 @@ export const FIRST_YEAR_SUBJECTS: Record<GroupKey, Record<'S1' | 'S2', string[]>
             'Engineering Mechanics',
             'Programming in C',
             'Engineering Entrepreneurship & IPR',
-            'Health and Wellness',
+            'Network Theory',
             'Life Skills & Professional Communication',
         ],
     },
