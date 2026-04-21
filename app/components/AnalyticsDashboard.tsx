@@ -105,9 +105,9 @@ export function AnalyticsDashboard({ initialStats }: Props) {
         // Fetch recent note uploads
         const { data: recentNotes } = await supabase
             .from('notes')
-            .select('id, title, created_at, year, semester, department, subject, profiles!notes_profile_id_fkey(full_name)')
+            .select('id, title, created_at, year, semester, department, subject, file_url, profiles!notes_profile_id_fkey(full_name)')
             .order('created_at', { ascending: false })
-            .limit(5)
+            .limit(15) // fetch more so we can filter invalid ones
 
         // Fetch recent project submissions
         const { data: recentProjects } = await supabase
@@ -116,22 +116,45 @@ export function AnalyticsDashboard({ initialStats }: Props) {
             .order('created_at', { ascending: false })
             .limit(5)
 
-        const noteItems: ActivityItem[] = (recentNotes || []).map((n: any) => ({
-            id: n.id,
-            title: n.title,
-            type: 'note',
-            uploader: n.profiles?.full_name || 'Unknown',
-            created_at: n.created_at,
-            year: n.year,
-            semester: n.semester,
-            department: n.department,
-            subject: n.subject
-        }))
+        const rawNotes = recentNotes || []
+
+        // ── Verify each note's file exists in Cloudflare R2 ──
+        let validNoteIds: string[] = rawNotes.map((n: any) => n.id)
+        if (rawNotes.length > 0) {
+            try {
+                const res = await fetch('/api/notes/verify-activity', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ noteIds: rawNotes.map((n: any) => n.id) })
+                })
+                if (res.ok) {
+                    const json = await res.json()
+                    validNoteIds = json.validIds ?? validNoteIds
+                }
+            } catch {
+                // On error, keep all notes (fail open) 
+            }
+        }
+
+        const noteItems: ActivityItem[] = rawNotes
+            .filter((n: any) => validNoteIds.includes(n.id))
+            .slice(0, 8)
+            .map((n: any) => ({
+                id: n.id,
+                title: n.title,
+                type: 'note' as const,
+                uploader: n.profiles?.full_name || 'Unknown',
+                created_at: n.created_at,
+                year: n.year,
+                semester: n.semester,
+                department: n.department,
+                subject: n.subject
+            }))
 
         const projectItems: ActivityItem[] = (recentProjects || []).map((p: any) => ({
             id: p.id,
             title: p.title,
-            type: 'project',
+            type: 'project' as const,
             uploader: p.profiles?.full_name || 'Unknown',
             created_at: p.created_at
         }))
@@ -367,7 +390,13 @@ export function AnalyticsDashboard({ initialStats }: Props) {
                                 key={item.id} 
                                 onClick={() => {
                                     if (item.type === 'note') {
-                                        router.push(`/notes/year/${item.year}/dept/${item.department}/${item.semester}/${encodeURIComponent(item.subject || '')}`)
+                                        const yearNum = item.year ?? 1
+                                        if (yearNum === 1) {
+                                            // Year 1 uses group codes (A/B/C/D), not dept
+                                            router.push(`/notes/year/1/group/${item.department}/${item.semester}`)
+                                        } else {
+                                            router.push(`/notes/year/${yearNum}/dept/${item.department}/${item.semester}`)
+                                        }
                                     } else {
                                         router.push(`/projects/${item.id}`)
                                     }
