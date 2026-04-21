@@ -7,8 +7,6 @@ import { createClient } from '@/app/lib/supabase/client'
 import { getPermissionsClient } from '@/app/lib/utils/coreAuthClient'
 import {
     YEAR_SEMS,
-    FIRST_YEAR_SUBJECTS,
-    getSubjects,
     type GroupKey,
     type DeptKey,
     type SemKey,
@@ -42,6 +40,8 @@ export default function NotesUploadPage() {
     const [subject, setSubject] = useState('')
     const [folderId, setFolderId] = useState('')
     const [folders, setFolders] = useState<{ id: string; name: string }[]>([])
+    const [fetchedSubjects, setFetchedSubjects] = useState<string[]>([])
+    const [loadingSubjects, setLoadingSubjects] = useState(false)
     const [loadingFolders, setLoadingFolders] = useState(false)
     const [loading, setLoading] = useState(false)
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null)
@@ -84,26 +84,54 @@ export default function NotesUploadPage() {
     const isFirstYear = yearNum === 1
     const semOptions: SemKey[] = year ? (YEAR_SEMS[yearNum] ?? []) : []
 
-    // Build subject list depending on year
-    const subjectList: string[] = (() => {
-        if (!sem) return []
-        let rawSubjects: string[] = []
-        if (isFirstYear && groups.length > 0) {
-            const s = FIRST_YEAR_SUBJECTS[groups[0] as GroupKey]?.[sem as 'S1' | 'S2'] ?? []
-            rawSubjects = s.filter(sub => !sub.startsWith('— Electives:'))
-        }
-        else if (!isFirstYear && dept) {
-            rawSubjects = (getSubjects(dept as DeptKey, sem as SemKey) ?? []).filter(s => !s.startsWith('— Electives:'))
-        }
+    // Fetch subjects dynamically based on selected Dept/Group/Year/Sem
+    useEffect(() => {
+        if (!year || !sem) { setFetchedSubjects([]); return; }
+        
+        const isFirst = parseInt(year) === 1
+        const deptOrGroup = isFirst ? (groups.length > 0 ? groups[0] : '') : dept
+        if (!deptOrGroup) { setFetchedSubjects([]); return; }
 
-        const expandedSubjects: string[] = []
-        for (const s of rawSubjects) {
-            expandedSubjects.push(s)
-            expandedSubjects.push(`PYQ - ${s}`)
-            expandedSubjects.push(`Video - ${s}`)
+        async function fetchSubjects() {
+            setLoadingSubjects(true)
+            const { createClient } = await import('@/app/lib/supabase/client')
+            const supabase = createClient()
+            const { data } = await supabase
+                .from('note_folders')
+                .select('name')
+                .eq('subject', 'ROOT')
+                .eq('department', deptOrGroup)
+                .eq('year', year)
+                .eq('semester', sem)
+                .order('created_at', { ascending: true })
+            
+            const rawSubs = (data ?? []).map((d: any) => d.name)
+            
+            const expanded: string[] = []
+            for (const s of rawSubs) {
+                if (s.startsWith('— Electives:')) {
+                    const electives = s.replace('— Electives: ', '').split(',')
+                    for (const e of electives) expanded.push(e.trim())
+                } else {
+                    expanded.push(s)
+                }
+            }
+
+            const finalExpanded: string[] = []
+            for (const s of expanded) {
+                finalExpanded.push(s)
+                finalExpanded.push(`PYQ - ${s}`)
+                finalExpanded.push(`Video - ${s}`)
+            }
+
+            setFetchedSubjects(finalExpanded)
+            setLoadingSubjects(false)
         }
-        return expandedSubjects
-    })()
+        
+        fetchSubjects()
+    }, [year, sem, dept, groups])
+
+    const subjectList = fetchedSubjects
 
     const inputBase = 'w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none'
     const labelBase = 'text-[10px] font-black tracking-widest text-gray-500 uppercase px-2 mb-2 block'
@@ -393,13 +421,14 @@ export default function NotesUploadPage() {
                             )}
 
                             {/* Subject */}
-                            {subjectList.length > 0 && (
+                            {(loadingSubjects || subjectList.length > 0) && (
                                 <div className="space-y-2">
                                     <label className={labelBase}>Subject</label>
                                     <select
                                         name="subject_display"
                                         required
                                         value={subject}
+                                        disabled={loadingSubjects}
                                         onChange={e => {
                                             const newSubject = e.target.value
                                             setSubject(newSubject)
@@ -408,7 +437,9 @@ export default function NotesUploadPage() {
                                         }}
                                         className={inputBase}
                                     >
-                                        <option value="" disabled className="bg-[#111]">Select Subject</option>
+                                        <option value="" disabled className="bg-[#111]">
+                                            {loadingSubjects ? 'Loading subjects...' : 'Select Subject'}
+                                        </option>
                                         {subjectList.map((s, i) => <option key={i} value={s} className="bg-[#111] text-white">{s}</option>)}
                                     </select>
                                 </div>

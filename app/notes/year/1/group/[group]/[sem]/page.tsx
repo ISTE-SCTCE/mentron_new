@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/app/lib/supabase/server'
-import { FIRST_YEAR_GROUPS, getFirstYearSubjects, GroupKey } from '@/app/lib/data/subjects'
+import { FIRST_YEAR_GROUPS, GroupKey } from '@/app/lib/data/subjects'
 import { getDepartmentFromRollNumber, getGroupFromDepartment } from '@/app/lib/utils/departmentMapper'
 import { SubjectFoldersClient } from '@/app/notes/SubjectFoldersClient'
+import { SubjectRowClient } from '@/app/notes/SubjectRowClient'
 
 const VALID_GROUPS: GroupKey[] = ['A', 'B', 'C', 'D']
 const VALID_SEMS = ['S1', 'S2']
@@ -26,7 +27,6 @@ export default async function Year1SubjectsPage({
 
     const groupMeta = FIRST_YEAR_GROUPS[groupKey]
     const style = GROUP_COLORS[groupKey]
-    const subjects = getFirstYearSubjects(groupKey, sem as 'S1' | 'S2')
 
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -127,7 +127,7 @@ export default async function Year1SubjectsPage({
                         department={groupKey}
                         year="1"
                         semester={sem}
-                        initialFolders={rootFolders ?? []}
+                        initialFolders={[]}
                         canCreateFolder={isPrivileged}
                         styleAccent={style.accent}
                         styleBorder={style.border}
@@ -135,40 +135,37 @@ export default async function Year1SubjectsPage({
                         deptKey={groupKey}
                         semKey={sem}
                         isPrivileged={isPrivileged}
+                        title="Create Additional Custom Subjects"
+                        hideFolderList={true}
                     />
                 </div>
 
                 {/* Subject list — each clickable with note count */}
                 <h2 className="text-xs font-black tracking-[0.2em] text-blue-500 uppercase mb-6">Subjects — {sem}</h2>
                 <div className="space-y-4">
-                    {subjects.map((subject, idx) => {
+                    {rootFolders && rootFolders.length > 0 ? rootFolders.map((folder, idx) => {
+                        const subject = folder.name
                         const subjectNotes = notesBySubject[subject] ?? []
                         const noteCount = subjectNotes.length
                         return (
-                            <Link
+                            <SubjectRowClient
                                 key={idx}
-                                href={`${basePath}/${encodeURIComponent(subject)}`}
-                                className={`glass p-5 rounded-2xl flex items-center gap-4 border border-white/5 hover:border-white/15 group transition-all hover:bg-white/3`}
-                            >
-                                <span className={`w-8 h-8 shrink-0 rounded-xl ${style.color} border ${style.border} flex items-center justify-center text-[11px] font-black ${style.accent}`}>
-                                    {idx + 1}
-                                </span>
-                                <span className="text-sm text-white font-medium leading-snug flex-1 group-hover:text-glow transition-all">{subject}</span>
-                                <div className="flex items-center gap-3 shrink-0">
-                                    {noteCount > 0 ? (
-                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${style.color} border ${style.border} ${style.accent}`}>
-                                            {noteCount} note{noteCount !== 1 ? 's' : ''}
-                                        </span>
-                                    ) : (
-                                        <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-white/5 border border-white/5 text-gray-600">
-                                            No notes
-                                        </span>
-                                    )}
-                                    <span className={`${style.accent} group-hover:translate-x-1 transition-transform`}>→</span>
-                                </div>
-                            </Link>
+                                id={folder.id}
+                                name={folder.name}
+                                basePath={basePath}
+                                noteCount={noteCount}
+                                style={style}
+                                idx={idx}
+                                isPrivileged={isPrivileged}
+                            />
                         )
-                    })}
+                    }) : (
+                        <div className="text-center p-8 glass rounded-3xl border border-white/5">
+                            <h3 className="text-2xl mb-2">📚</h3>
+                            <p className="text-gray-400 font-medium">No subjects found.</p>
+                            {isPrivileged && <p className="text-xs text-blue-400 mt-2">Run the migration API or create one.</p>}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
