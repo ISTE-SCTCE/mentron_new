@@ -189,12 +189,7 @@ export function PdfViewerModal({ url, title, onClose }: PdfViewerModalProps) {
                         />
                     </div>
 
-                    {/* Secure Footer Notification */}
-                    <div className="px-6 py-3 bg-red-500/5 text-center shrink-0">
-                        <p className="text-[9px] font-black text-red-500/80 uppercase tracking-[0.3em]">
-                            ⚠️ This document is protected by ISTE Anti-Piracy Policy. Unauthorized redistribution is strictly prohibited.
-                        </p>
-                    </div>
+
                 </motion.div>
             </motion.div>
         </div>
