@@ -8,6 +8,7 @@ import { ProfileCard } from '@/app/components/ProfileCard'
 import { getDepartmentFromRollNumber, getYearString } from '@/app/lib/utils/departmentMapper'
 import { createClient } from '@/app/lib/supabase/client'
 import { Upload, GitBranch, Clock, ArrowUpRight } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface Profile {
     id: string
@@ -51,10 +52,16 @@ interface ActivityItem {
     type: 'note' | 'project'
     uploader: string
     created_at: string
+    // Routing metadata
+    year?: number
+    semester?: string
+    department?: string
+    subject?: string
 }
 
 // Recent Activity Feed (for normal members replacing Live Projects)
 function RecentActivityFeed() {
+    const router = useRouter()
     const [supabase] = useState(() => createClient())
     const [activity, setActivity] = useState<ActivityItem[]>([])
     const [loading, setLoading] = useState(true)
@@ -62,7 +69,7 @@ function RecentActivityFeed() {
     const fetchActivity = useCallback(async () => {
         const { data: recentNotes } = await supabase
             .from('notes')
-            .select('id, title, created_at, profiles!notes_profile_id_fkey(full_name)')
+            .select('id, title, created_at, year, semester, department, subject, profiles!notes_profile_id_fkey(full_name)')
             .order('created_at', { ascending: false })
             .limit(5)
 
@@ -73,15 +80,19 @@ function RecentActivityFeed() {
             .limit(5)
 
         const noteItems: ActivityItem[] = (recentNotes || []).map((n: any) => ({
-            id: `note-${n.id}`,
+            id: n.id,
             title: n.title,
             type: 'note',
             uploader: n.profiles?.full_name || 'Unknown',
-            created_at: n.created_at
+            created_at: n.created_at,
+            year: n.year,
+            semester: n.semester,
+            department: n.department,
+            subject: n.subject
         }))
 
         const projectItems: ActivityItem[] = (recentProjects || []).map((p: any) => ({
-            id: `proj-${p.id}`,
+            id: p.id,
             title: p.title,
             type: 'project',
             uploader: p.profiles?.full_name || 'Unknown',
@@ -100,11 +111,11 @@ function RecentActivityFeed() {
         fetchActivity()
 
         const notesSub = supabase.channel('member-notes-activity')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notes' }, fetchActivity)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'notes' }, fetchActivity)
             .subscribe()
 
         const projectsSub = supabase.channel('member-projects-activity')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'projects' }, fetchActivity)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, fetchActivity)
             .subscribe()
 
         const poll = setInterval(fetchActivity, 30000)
@@ -147,7 +158,17 @@ function RecentActivityFeed() {
                         <p className="text-xs text-gray-500 italic pl-6">No recent uploads.</p>
                     )}
                     {activity.map((item) => (
-                        <div key={item.id} className="flex gap-4 relative group">
+                        <div 
+                            key={item.id} 
+                            onClick={() => {
+                                if (item.type === 'note') {
+                                    router.push(`/notes/year/${item.year}/dept/${item.department}/${item.semester}/${encodeURIComponent(item.subject || '')}`)
+                                } else {
+                                    router.push(`/projects/${item.id}`)
+                                }
+                            }}
+                            className="flex gap-4 relative group cursor-pointer"
+                        >
                             <div className={`mt-0.5 w-5 h-5 rounded-full flex-shrink-0 z-10 flex items-center justify-center ${item.type === 'note' ? 'bg-blue-500/20 border-2 border-blue-500' : 'bg-purple-500/20 border-2 border-purple-500'}`}>
                                 {item.type === 'note'
                                     ? <Upload size={8} className="text-blue-400" />
@@ -155,7 +176,7 @@ function RecentActivityFeed() {
                                 }
                             </div>
                             <div className="space-y-0.5 group-hover:translate-x-1 transition-transform min-w-0 flex-1">
-                                <p className="text-[10px] font-bold text-white leading-tight line-clamp-2">
+                                <p className="text-[10px] font-bold text-white leading-tight line-clamp-2 group-hover:text-blue-400 transition-colors">
                                     {item.type === 'note' ? '📂' : '🚀'} {item.title}
                                 </p>
                                 <div className="flex items-center gap-1.5 text-[9px] text-gray-500 font-bold uppercase tracking-widest flex-wrap">
