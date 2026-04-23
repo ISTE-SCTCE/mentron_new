@@ -60,6 +60,17 @@ export default function LoginPage() {
                                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                             </button>
                         </div>
+
+                        {/* Forgot Password link */}
+                        <div className="flex justify-end">
+                            <Link
+                                href="/forgot-password"
+                                className="text-xs font-semibold text-gray-500 hover:text-blue-400 transition-colors duration-200 relative group"
+                            >
+                                Forgot Password?
+                                <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-blue-400 transition-all duration-300 group-hover:w-full" />
+                            </Link>
+                        </div>
                     </div>
 
                     <button
