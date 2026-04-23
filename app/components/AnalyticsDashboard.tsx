@@ -2,8 +2,7 @@
 
 import { createClient } from '@/app/lib/supabase/client'
 import { useEffect, useState, useCallback } from 'react'
-import { Users, FileText, Zap, Activity, Clock, Upload, GitBranch } from 'lucide-react'
-import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
+import { Users, FileText, Zap, Clock, Upload, GitBranch } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 interface Stats {
@@ -43,63 +42,26 @@ export function AnalyticsDashboard({ initialStats }: Props) {
     const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([])
 
     const fetchStats = useCallback(async () => {
-        const { data: profiles } = await supabase
-            .from('profiles')
-            .select('role, department, roll_number, year')
-            .eq('role', 'member')
-
-        if (profiles) {
-            const studentCount = profiles.length
-            const deptStats: Record<string, number> = {}
-            const yearStats: Record<string, number> = { '1': 0, '2': 0, '3': 0, '4': 0 }
-
-            profiles.forEach(p => {
-                const fromRoll = getDepartmentFromRollNumber(p.roll_number)
-                let dept = fromRoll !== 'Other' ? fromRoll : (p.department || 'Other')
-                const check = dept.toLowerCase().trim()
-                if (['other', 'none', 'n/a', '', 'not assigned', 'undefined'].includes(check)) {
-                    dept = 'Other'
-                }
-                deptStats[dept] = (deptStats[dept] || 0) + 1
-
-                if (p.year && p.year >= 1 && p.year <= 4) {
-                    yearStats[p.year.toString()] = (yearStats[p.year.toString()] || 0) + 1
-                }
-            })
-
-            setStats(prev => ({ ...prev, studentCount, deptStats, yearStats }))
+        // Use the API route which runs under service-role key, bypassing RLS.
+        // This ensures both exec AND core members see real values.
+        try {
+            const res = await fetch('/api/analytics/stats')
+            if (res.ok) {
+                const data = await res.json()
+                setStats(prev => ({
+                    ...prev,
+                    studentCount: data.studentCount ?? prev.studentCount,
+                    materialCount: data.materialCount ?? prev.materialCount,
+                    viewCount: data.viewCount ?? prev.viewCount,
+                    deptStats: data.deptStats ?? prev.deptStats,
+                    yearStats: data.yearStats ?? prev.yearStats,
+                    weeklyActivity: data.weeklyActivity ?? prev.weeklyActivity,
+                }))
+            }
+        } catch (err) {
+            console.error('Analytics fetch error:', err)
         }
-
-        const sevenDaysAgo = new Date()
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-
-        const { data: recentInteractions } = await supabase
-            .from('interaction_logs')
-            .select('created_at, profiles!inner(role)')
-            .eq('profiles.role', 'member')
-            .gte('created_at', sevenDaysAgo.toISOString())
-
-        if (recentInteractions) {
-            const activityByDay = [0, 0, 0, 0, 0, 0, 0]
-            const now = new Date()
-            recentInteractions.forEach(log => {
-                const dayDiff = Math.floor((now.getTime() - new Date(log.created_at).getTime()) / (1000 * 60 * 60 * 24))
-                if (dayDiff >= 0 && dayDiff < 7) {
-                    activityByDay[6 - dayDiff]++
-                }
-            })
-            setStats(prev => ({ ...prev, weeklyActivity: activityByDay }))
-        }
-
-        const { count: materialCount } = await supabase.from('notes').select('*', { count: 'exact', head: true })
-        setStats(prev => ({ ...prev, materialCount: materialCount || 0 }))
-
-        const { count: viewCount } = await supabase
-            .from('interaction_logs')
-            .select('*, profiles!inner(role)', { count: 'exact', head: true })
-            .eq('profiles.role', 'member')
-        setStats(prev => ({ ...prev, viewCount: viewCount || 0 }))
-    }, [supabase])
+    }, [])
 
     const fetchRecentActivity = useCallback(async () => {
         // Fetch recent note uploads

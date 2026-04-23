@@ -1,4 +1,5 @@
 import { createClient } from '@/app/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
 import { isCoreMember } from '@/app/lib/utils/coreAuth'
 import { CommandCenterClient } from '@/app/components/CommandCenterClient'
@@ -57,33 +58,42 @@ export default async function DashboardPage() {
     let analyticsData = null
 
     if (displayRole === 'exec' || displayRole === 'core') {
-        // Fetch Materials count for analytics
-        const { count: totalMaterialCount } = await supabase.from('notes').select('*', { count: 'exact', head: true })
+        // Use service-role client to bypass RLS — ensures core members see real values
+        const db = createServiceClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+        )
 
-        // Fetch View count for analytics
-        const { count: totalViews } = await supabase
+        // Fetch Materials count for analytics
+        const { count: totalMaterialCount } = await db.from('notes').select('*', { count: 'exact', head: true })
+
+        // Fetch all member profiles (service role = no RLS restriction)
+        const { data: profiles } = await db
+            .from('profiles')
+            .select('id, department, role, year, roll_number')
+            .eq('role', 'member')
+
+        const memberIds: string[] = (profiles || []).map((p: any) => p.id).filter(Boolean)
+
+        // Fetch View count for analytics (filter by member IDs, not RLS join)
+        const { count: totalViews } = await db
             .from('interaction_logs')
-            .select('*, profiles!inner(role)', { count: 'exact', head: true })
-            .eq('profiles.role', 'member')
+            .select('id', { count: 'exact', head: true })
+            .in('user_id', memberIds.length > 0 ? memberIds : ['__none__'])
 
         const sevenDaysAgo = new Date()
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-        
-        const { count: recentViews } = await supabase
-            .from('interaction_logs')
-            .select('*, profiles!inner(role)', { count: 'exact', head: true })
-            .eq('profiles.role', 'member')
-            .gte('created_at', sevenDaysAgo.toISOString())
 
-        const { data: profiles } = await supabase
-            .from('profiles')
-            .select('department, role, year, roll_number')
-            .eq('role', 'member')
+        const { count: recentViews } = await db
+            .from('interaction_logs')
+            .select('id', { count: 'exact', head: true })
+            .in('user_id', memberIds.length > 0 ? memberIds : ['__none__'])
+            .gte('created_at', sevenDaysAgo.toISOString())
 
         const deptMap: Record<string, number> = {}
         const yearMap: Record<string, number> = { '1': 0, '2': 0, '3': 0, '4': 0 }
 
-        profiles?.forEach((p) => {
+        profiles?.forEach((p: any) => {
             const dept = getDepartmentFromRollNumber(p.roll_number) || p.department || 'Other'
             deptMap[dept] = (deptMap[dept] || 0) + 1
 
@@ -92,16 +102,16 @@ export default async function DashboardPage() {
             }
         })
 
-        const { data: recentInteractions } = await supabase
+        const { data: recentInteractions } = await db
             .from('interaction_logs')
-            .select('created_at, profiles!inner(role)')
-            .eq('profiles.role', 'member')
+            .select('created_at, user_id')
+            .in('user_id', memberIds.length > 0 ? memberIds : ['__none__'])
             .gte('created_at', sevenDaysAgo.toISOString())
 
         const weeklyActivity = [0, 0, 0, 0, 0, 0, 0]
         if (recentInteractions) {
             const now = new Date()
-            recentInteractions.forEach(log => {
+            recentInteractions.forEach((log: any) => {
                 const dayDiff = Math.floor((now.getTime() - new Date(log.created_at).getTime()) / (1000 * 60 * 60 * 24))
                 if (dayDiff >= 0 && dayDiff < 7) {
                     weeklyActivity[6 - dayDiff]++
@@ -109,10 +119,10 @@ export default async function DashboardPage() {
             })
         }
 
-        const { data: recentLogs } = await supabase
+        const { data: recentLogs } = await db
             .from('interaction_logs')
-            .select(`*, profiles!inner(full_name, role)`)
-            .eq('profiles.role', 'member')
+            .select('*')
+            .in('user_id', memberIds.length > 0 ? memberIds : ['__none__'])
             .order('created_at', { ascending: false })
             .limit(10)
 
