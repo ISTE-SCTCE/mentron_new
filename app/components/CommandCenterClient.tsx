@@ -210,7 +210,7 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
     } = dashboardData
 
     const isExecOrCore = profile?.role === 'exec' || profile?.role === 'core'
-    const canViewAnalytics = isExecOrCore && analyticsData !== null
+    const canViewAnalytics = analyticsData !== null
 
     return (
         <div className="w-full">
