@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import 'signup_screen.dart';
+import 'forgot_password_screen.dart';
 import '../../../core/utils/app_transitions.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../core/main_scaffold.dart';
@@ -122,7 +123,25 @@ class _LoginScreenState extends State<LoginScreen> {
                             icon: Icons.lock_outline_rounded,
                             isPassword: true,
                           ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 12),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () => Navigator.push(
+                                context,
+                                AppTransitions.slideUp(const ForgotPasswordScreen()),
+                              ),
+                              child: Text(
+                                'Forgot Password?',
+                                style: TextStyle(
+                                  color: AppTheme.accentSecondary.withValues(alpha: 0.7),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: _isLoading ? null : _handleLogin,
                             child: _isLoading

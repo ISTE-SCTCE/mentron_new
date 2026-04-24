@@ -163,7 +163,7 @@ class _EventListScreenState extends State<EventListScreen> {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppTheme.backgroundPrimary,
+        backgroundColor: AppTheme.bgColor,
         title: const Text('Delete Concept?', style: TextStyle(color: Colors.white)),
         content: const Text('Are you sure you want to delete this event concept?', style: TextStyle(color: AppTheme.textMuted)),
         actions: [
@@ -208,7 +208,7 @@ class _EventListScreenState extends State<EventListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  justifyAxisAlignment: MainAxisAlignment.between,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('PROPOSE CONCEPT', style: TextStyle(color: AppTheme.accentPrimary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
                     IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, color: Colors.white, size: 20)),
@@ -218,14 +218,14 @@ class _EventListScreenState extends State<EventListScreen> {
                 TextField(
                   controller: titleController,
                   style: const TextStyle(color: Colors.white),
-                  decoration: AppTheme.inputDecoration('Concept Title').copyWith(hintText: 'e.g. 24hr AI Hackathon'),
+                  decoration: const InputDecoration(labelText: 'Concept Title', hintText: 'e.g. 24hr AI Hackathon'),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: descController,
                   maxLines: 4,
                   style: const TextStyle(color: Colors.white),
-                  decoration: AppTheme.inputDecoration('Description').copyWith(hintText: 'Explain your idea...'),
+                  decoration: const InputDecoration(labelText: 'Description', hintText: 'Explain your idea...'),
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
@@ -302,7 +302,7 @@ class _EventListScreenState extends State<EventListScreen> {
 
                     // --- Community Forum Section ---
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.between,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -377,7 +377,8 @@ class _EventListScreenState extends State<EventListScreen> {
     
     final supabaseService = Provider.of<SupabaseService>(context, listen: false);
     final userId = supabaseService.currentUser?.id;
-    final userVote = userId != null ? votes.where((v) => v['user_id'] == userId).firstOrNull?['vote_value'] : 0;
+    final userVoteEntry = userId != null ? votes.where((v) => v['user_id'] == userId).firstOrNull : null;
+    final userVote = userVoteEntry != null ? userVoteEntry['vote_value'] as int : 0;
     
     // Delete condition: User owns the concept OR user is leadership (exec/core)
     final isOwner = userId != null && userId == concept['user_id'];

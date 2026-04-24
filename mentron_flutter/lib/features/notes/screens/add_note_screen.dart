@@ -1,17 +1,19 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:http/http.dart' as http;
 import '../../../core/services/supabase_service.dart';
-import '../../../core/services/compression_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/department_mapper.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
+import '../../../shared/widgets/bouncing_balls_loader.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../data/models/subject_data.dart';
+import '../../../core/utils/app_transitions.dart';
 
 class AddNoteScreen extends StatefulWidget {
   const AddNoteScreen({super.key});
@@ -35,6 +37,9 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   bool _isLoading = false;
   List<Map<String, dynamic>> _availableFolders = [];
   bool _loadingFolders = false;
+  
+  double _uploadProgress = 0;
+  String _uploadStage = 'idle'; // 'idle', 'preparing', 'uploading', 'saving'
 
   bool get _isFirstYear => _selectedYear == '1';
 
@@ -126,7 +131,6 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       setState(() { _availableFolders = []; _selectedFolderId = null; _selectedFolderName = null; });
       return;
     }
-    // Only load folders for non-virtual subjects
     if (_selectedSubject.startsWith('PYQ - ') || _selectedSubject.startsWith('Video - ')) {
       setState(() { _availableFolders = []; _selectedFolderId = null; _selectedFolderName = null; });
       return;
@@ -180,42 +184,95 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       return;
     }
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _uploadStage = 'preparing';
+      _uploadProgress = 0;
+    });
+
     final supabase = Provider.of<SupabaseService>(context, listen: false);
 
     try {
       final user = supabase.currentUser;
       if (user == null) throw Exception('Not logged in');
-
-      // Get the current session access token for auth
       final session = supabase.client.auth.currentSession;
       if (session == null) throw Exception('No active session');
 
+      final fileName = _selectedFile!.path.split(Platform.pathSeparator).last;
+      final fileExtension = fileName.split('.').last.toLowerCase();
+      
+      String contentType = 'application/octet-stream';
+      if (fileExtension == 'pdf') contentType = 'application/pdf';
+      else if (fileExtension == 'doc') contentType = 'application/msword';
+      else if (fileExtension == 'docx') contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      else if (['mp4', 'mov', 'avi', 'mkv'].contains(fileExtension)) contentType = 'video/$fileExtension';
+
+      // ── STEP 1: Get Presigned URL ──
       const String apiBaseUrl = 'https://mentron.istesctce.in';
-      final uri = Uri.parse('$apiBaseUrl/api/notes/flutter-upload');
-      final request = http.MultipartRequest('POST', uri);
+      final presignedUri = Uri.parse('$apiBaseUrl/api/upload/presigned');
+      
+      final presignedResponse = await http.post(
+        presignedUri,
+        headers: {
+          'Authorization': 'Bearer ${session.accessToken}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "fileName": fileName,
+          "fileType": contentType,
+          "bucketFolder": "notes_bucket"
+        }),
+      );
 
-      // Pass auth token so the API can verify the user
-      request.headers['Authorization'] = 'Bearer ${session.accessToken}';
-      request.headers['x-supabase-auth'] = session.accessToken;
-
-      request.fields['title'] = _titleController.text.trim();
-      request.fields['description'] = _descController.text.trim();
-      request.fields['department'] = _selectedDeptOrGroup;
-      request.fields['year'] = _selectedYear;
-      request.fields['semester'] = _selectedSem;
-      request.fields['subject'] = _selectedSubject;
-      if (_selectedFolderId != null) {
-        request.fields['folder_id'] = _selectedFolderId!;
+      if (presignedResponse.statusCode != 200) {
+        throw Exception('Failed to prepare upload: ${presignedResponse.body}');
       }
 
-      request.files.add(await http.MultipartFile.fromPath('file', _selectedFile!.path));
+      final presignedData = jsonDecode(presignedResponse.body);
+      final String uploadUrl = presignedData['url'];
+      final String fileKey = presignedData['key'];
 
+      // ── STEP 2: Upload Direct to R2 ──
+      setState(() => _uploadStage = 'uploading');
+      
+      final fileBytes = await _selectedFile!.readAsBytes();
+      
+      final request = http.Request('PUT', Uri.parse(uploadUrl));
+      request.headers['Content-Type'] = contentType;
+      request.bodyBytes = fileBytes;
+      
       final response = await request.send();
-      final responseData = await response.stream.bytesToString();
 
-      if (response.statusCode >= 400) {
-        throw Exception('Server Error: $responseData');
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw Exception('Failed to upload file to R2 storage.');
+      }
+      
+      setState(() => _uploadProgress = 1.0);
+
+      // ── STEP 3: Save Metadata to DB ──
+      setState(() => _uploadStage = 'saving');
+      
+      final metadataUri = Uri.parse('$apiBaseUrl/api/notes/upload');
+      final metadataResponse = await http.post(
+        metadataUri,
+        headers: {
+          'Authorization': 'Bearer ${session.accessToken}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'title': _titleController.text.trim(),
+          'description': _descController.text.trim(),
+          'department': _selectedDeptOrGroup,
+          'year': _selectedYear,
+          'semester': _selectedSem,
+          'subject': _selectedSubject,
+          'fileKey': fileKey,
+          'folder_id': _selectedFolderId,
+        }),
+      );
+
+      if (metadataResponse.statusCode >= 400) {
+        throw Exception('Server Error: ${metadataResponse.body}');
       }
 
       if (mounted) {
@@ -234,221 +291,259 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         ));
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _uploadStage = 'idle';
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text('CONTRIBUTE NOTE',
-            style: TextStyle(fontSize: 16, letterSpacing: 2, fontWeight: FontWeight.bold)),
-      ),
-      body: LiquidBackground(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 120, 24, 40),
-          child: Column(
-            children: [
-              GlassContainer(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildLabel('TITLE'),
-                    _buildTextField(_titleController, 'e.g. Data Structures Unit 1'),
-                    const SizedBox(height: 20),
-
-                    _buildLabel('DESCRIPTION'),
-                    _buildTextField(_descController, 'Brief summary of contents...', maxLines: 3),
-                    const SizedBox(height: 20),
-
-                    // Year + Semester row
-                    Row(
+    return Stack(
+      children: [
+        Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: const Text('CONTRIBUTE NOTE',
+                style: TextStyle(fontSize: 16, letterSpacing: 2, fontWeight: FontWeight.bold)),
+          ),
+          body: LiquidBackground(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 120, 24, 40),
+              child: Column(
+                children: [
+                  GlassContainer(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            _buildLabel('YEAR'),
-                            _buildDropdown(
-                              value: _selectedYear,
-                              items: ['1', '2', '3', '4'],
-                              labelBuilder: (y) => 'Year $y',
-                              onChanged: (val) {
-                                final sems = SubjectData.semsForYear(int.parse(val));
-                                setState(() {
-                                  _selectedYear = val;
-                                  _selectedSem = sems.isNotEmpty ? sems.first : '';
+                        _buildLabel('TITLE'),
+                        _buildTextField(_titleController, 'e.g. Data Structures Unit 1'),
+                        const SizedBox(height: 20),
+
+                        _buildLabel('DESCRIPTION'),
+                        _buildTextField(_descController, 'Brief summary of contents...', maxLines: 3),
+                        const SizedBox(height: 20),
+
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                _buildLabel('YEAR'),
+                                _buildDropdown(
+                                  value: _selectedYear,
+                                  items: ['1', '2', '3', '4'],
+                                  labelBuilder: (y) => 'Year $y',
+                                  onChanged: (val) {
+                                    final sems = SubjectData.semsForYear(int.parse(val));
+                                    setState(() {
+                                      _selectedYear = val;
+                                      _selectedSem = sems.isNotEmpty ? sems.first : '';
+                                      _selectedSubject = '';
+                                      _selectedDeptOrGroup = val == '1' ? 'A' : 'CSE';
+                                      _availableFolders = [];
+                                      _selectedFolderId = null;
+                                      _selectedFolderName = null;
+                                    });
+                                  },
+                                ),
+                              ]),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                _buildLabel('SEMESTER'),
+                                _buildDropdown(
+                                  value: _selectedSem.isEmpty ? null : _selectedSem,
+                                  items: _semOptions,
+                                  labelBuilder: (s) => s,
+                                  onChanged: (val) => setState(() {
+                                    _selectedSem = val;
+                                    _selectedSubject = '';
+                                    _availableFolders = [];
+                                    _selectedFolderId = null;
+                                    _selectedFolderName = null;
+                                  }),
+                                ),
+                              ]),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+
+                        _buildLabel(_isFirstYear ? 'STREAM GROUP' : 'DEPARTMENT'),
+                        _isFirstYear
+                            ? _buildDropdown(
+                                value: _selectedDeptOrGroup,
+                                items: const ['A', 'B', 'C', 'D'],
+                                labelBuilder: (g) {
+                                  const labels = {
+                                    'A': 'Group A — CS/IT',
+                                    'B': 'Group B — EEE/ECE',
+                                    'C': 'Group C — Mech/Civil',
+                                    'D': 'Group D — Biotech',
+                                  };
+                                  return labels[g] ?? 'Group $g';
+                                },
+                                onChanged: (val) => setState(() {
+                                  _selectedDeptOrGroup = val;
                                   _selectedSubject = '';
-                                  _selectedDeptOrGroup = val == '1' ? 'A' : 'CSE';
                                   _availableFolders = [];
                                   _selectedFolderId = null;
                                   _selectedFolderName = null;
+                                }),
+                              )
+                            : _buildDropdown(
+                                value: _selectedDeptOrGroup,
+                                items: const ['CSE', 'ECE', 'ME', 'MEA', 'BT'],
+                                labelBuilder: (d) {
+                                  const labels = {
+                                    'CSE': 'Computer Science',
+                                    'ECE': 'Electronics & Comm',
+                                    'ME':  'Mechanical Engg',
+                                    'MEA': 'Automobile Engg',
+                                    'BT':  'Biotechnology',
+                                  };
+                                  return labels[d] ?? d;
+                                },
+                                onChanged: (val) => setState(() {
+                                  _selectedDeptOrGroup = val;
+                                  _selectedSubject = '';
+                                  _availableFolders = [];
+                                  _selectedFolderId = null;
+                                  _selectedFolderName = null;
+                                }),
+                              ),
+                        const SizedBox(height: 20),
+
+                        if (_subjectOptions.isNotEmpty) ...[
+                          _buildLabel('SUBJECT'),
+                          _buildDropdown(
+                            value: _selectedSubject.isEmpty ? null : _selectedSubject,
+                            items: _subjectOptions,
+                            labelBuilder: (s) => s,
+                            onChanged: (val) {
+                              setState(() => _selectedSubject = val);
+                              _loadFoldersForSubject();
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+
+                        if (_selectedSubject.isNotEmpty &&
+                            !_selectedSubject.startsWith('PYQ - ') &&
+                            !_selectedSubject.startsWith('Video - ')) ...[
+                          _buildLabel('FOLDER (OPTIONAL)'),
+                          if (_loadingFolders)
+                            Container(
+                              height: 52,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.05),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                              ),
+                              child: const Center(
+                                child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.accentSecondary)),
+                              ),
+                            )
+                          else if (_availableFolders.isEmpty)
+                            Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.03),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.folder_off_outlined, color: AppTheme.textMuted, size: 16),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'No folders created for this subject yet',
+                                    style: TextStyle(color: AppTheme.textMuted.withValues(alpha: 0.6), fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            )
+                          else
+                            _buildDropdownNullable(
+                              value: _selectedFolderId,
+                              items: [null, ..._availableFolders.map((f) => f['id'] as String)],
+                              labelBuilder: (id) {
+                                if (id == null) return 'No folder (subject root)';
+                                final folder = _availableFolders.firstWhere((f) => f['id'] == id, orElse: () => {});
+                                return '📁 ${folder['name'] ?? id}';
+                              },
+                              onChanged: (val) {
+                                setState(() {
+                                  _selectedFolderId = val;
+                                  _selectedFolderName = val == null
+                                      ? null
+                                      : (_availableFolders.firstWhere((f) => f['id'] == val, orElse: () => {})['name'] as String?);
                                 });
                               },
                             ),
-                          ]),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            _buildLabel('SEMESTER'),
-                            _buildDropdown(
-                              value: _selectedSem.isEmpty ? null : _selectedSem,
-                              items: _semOptions,
-                              labelBuilder: (s) => s,
-                              onChanged: (val) => setState(() {
-                                _selectedSem = val;
-                                _selectedSubject = '';
-                                _availableFolders = [];
-                                _selectedFolderId = null;
-                                _selectedFolderName = null;
-                              }),
-                            ),
-                          ]),
+                          const SizedBox(height: 20),
+                        ],
+
+                        _buildFilePicker(),
+                        const SizedBox(height: 32),
+
+                        ElevatedButton(
+                          onPressed: _isLoading ? null : _handleUpload,
+                          child: const Text('UPLOAD DOCUMENT'),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-
-                    // Group (Y1) or Department (Y2-4)
-                    _buildLabel(_isFirstYear ? 'STREAM GROUP' : 'DEPARTMENT'),
-                    _isFirstYear
-                        ? _buildDropdown(
-                            value: _selectedDeptOrGroup,
-                            items: const ['A', 'B', 'C', 'D'],
-                            labelBuilder: (g) {
-                              const labels = {
-                                'A': 'Group A — CS/IT',
-                                'B': 'Group B — EEE/ECE',
-                                'C': 'Group C — Mech/Civil',
-                                'D': 'Group D — Biotech',
-                              };
-                              return labels[g] ?? 'Group $g';
-                            },
-                            onChanged: (val) => setState(() {
-                              _selectedDeptOrGroup = val;
-                              _selectedSubject = '';
-                              _availableFolders = [];
-                              _selectedFolderId = null;
-                              _selectedFolderName = null;
-                            }),
-                          )
-                        : _buildDropdown(
-                            value: _selectedDeptOrGroup,
-                            items: const ['CSE', 'ECE', 'ME', 'MEA', 'BT'],
-                            labelBuilder: (d) {
-                              const labels = {
-                                'CSE': 'Computer Science',
-                                'ECE': 'Electronics & Comm',
-                                'ME':  'Mechanical Engg',
-                                'MEA': 'Automobile Engg',
-                                'BT':  'Biotechnology',
-                              };
-                              return labels[d] ?? d;
-                            },
-                            onChanged: (val) => setState(() {
-                              _selectedDeptOrGroup = val;
-                              _selectedSubject = '';
-                              _availableFolders = [];
-                              _selectedFolderId = null;
-                              _selectedFolderName = null;
-                            }),
-                          ),
-                    const SizedBox(height: 20),
-
-                    // Subject dropdown
-                    if (_subjectOptions.isNotEmpty) ...[
-                      _buildLabel('SUBJECT'),
-                      _buildDropdown(
-                        value: _selectedSubject.isEmpty ? null : _selectedSubject,
-                        items: _subjectOptions,
-                        labelBuilder: (s) => s,
-                        onChanged: (val) {
-                          setState(() => _selectedSubject = val);
-                          _loadFoldersForSubject();
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-
-                    // Folder dropdown (optional) - shown when subject is selected and has folders
-                    if (_selectedSubject.isNotEmpty &&
-                        !_selectedSubject.startsWith('PYQ - ') &&
-                        !_selectedSubject.startsWith('Video - ')) ...[
-                      _buildLabel('FOLDER (OPTIONAL)'),
-                      if (_loadingFolders)
-                        Container(
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-                          ),
-                          child: const Center(
-                            child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.accentSecondary)),
-                          ),
-                        )
-                      else if (_availableFolders.isEmpty)
-                        Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.03),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.folder_off_outlined, color: AppTheme.textMuted, size: 16),
-                              const SizedBox(width: 10),
-                              Text(
-                                'No folders created for this subject yet',
-                                style: TextStyle(color: AppTheme.textMuted.withValues(alpha: 0.6), fontSize: 12),
-                              ),
-                            ],
-                          ),
-                        )
-                      else
-                        _buildDropdownNullable(
-                          value: _selectedFolderId,
-                          items: [null, ..._availableFolders.map((f) => f['id'] as String)],
-                          labelBuilder: (id) {
-                            if (id == null) return 'No folder (subject root)';
-                            final folder = _availableFolders.firstWhere((f) => f['id'] == id, orElse: () => {});
-                            return '📁 ${folder['name'] ?? id}';
-                          },
-                          onChanged: (val) {
-                            setState(() {
-                              _selectedFolderId = val;
-                              _selectedFolderName = val == null
-                                  ? null
-                                  : (_availableFolders.firstWhere((f) => f['id'] == val, orElse: () => {})['name'] as String?);
-                            });
-                          },
-                        ),
-                      const SizedBox(height: 20),
-                    ],
-
-                    _buildFilePicker(),
-                    const SizedBox(height: 32),
-
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _handleUpload,
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 20, width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                          : const Text('UPLOAD DOCUMENT'),
-                    ),
-                  ],
-                ),
-              ).animate().fadeIn().slideY(begin: 0.1),
-            ],
+                  ).animate().fadeIn().slideY(begin: 0.1),
+                ],
+              ),
+            ),
           ),
         ),
-      ),
+        if (_isLoading)
+          Container(
+            color: Colors.black87,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const BouncingBallsLoader(),
+                  const SizedBox(height: 40),
+                  Text(
+                    _uploadStage == 'preparing' ? 'PREPARING BRIDGE...' :
+                    _uploadStage == 'uploading' ? 'STREAMING TO R2...' :
+                    'PUBLISHING METADATA...',
+                    style: const TextStyle(
+                      color: AppTheme.accentSecondary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  if (_uploadStage == 'uploading') ...[
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 60),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: const LinearProgressIndicator(
+                          backgroundColor: Colors.white10,
+                          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.accentSecondary),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ).animate().fadeIn(),
+          ),
+      ],
     );
   }
 
@@ -565,7 +660,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              _selectedFile != null ? _selectedFile!.path.split('/').last : 'Select Document (PDF/DOC)',
+              _selectedFile != null ? _selectedFile!.path.split(Platform.pathSeparator).last : 'Select Document (PDF/DOC)',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: _selectedFile != null ? Colors.white : AppTheme.textMuted,

@@ -27,6 +27,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
 
   // Add-event form state
   bool _showAddForm = false;
+  final _eventNameController = TextEditingController();
   final _venueController = TextEditingController();
   String _selectedDept = 'General';
   bool _isSubmitting = false;
@@ -402,6 +403,8 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
                 ),
                 const SizedBox(height: 12),
                 _buildTextField(
+                  _venueController,
+                  'Venue / Location',
                   Icons.location_on_outlined,
                 ),
                 const SizedBox(height: 12),

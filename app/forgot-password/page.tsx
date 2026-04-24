@@ -23,14 +23,18 @@ export default function ForgotPasswordPage() {
 
         try {
             const supabase = createClient()
-            // We always call resetPasswordForEmail — never reveal whether email exists
-            await supabase.auth.resetPasswordForEmail(email.trim(), {
+            const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
                 redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://mentron.istesctce.in'}/reset-password`,
             })
-            // Always show generic success regardless of outcome (security)
+            
+            if (error) {
+                console.error('Supabase Reset Error:', error.message, error.status)
+                // We still setSubmitted(true) for security, but now we can see the error in dev tools
+            }
+            
             setSubmitted(true)
-        } catch {
-            // Still show success — never expose email existence
+        } catch (err) {
+            console.error('Unexpected Reset Error:', err)
             setSubmitted(true)
         } finally {
             setIsPending(false)

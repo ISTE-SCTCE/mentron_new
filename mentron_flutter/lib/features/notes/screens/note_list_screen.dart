@@ -11,6 +11,7 @@ import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
+import '../../../shared/widgets/bouncing_balls_loader.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../data/models/note_model.dart';
 
@@ -269,82 +270,64 @@ class _NoteListScreenState extends State<NoteListScreen> {
     ).animate().fadeIn(delay: (index * 80).ms).slideY(begin: 0.05);
   }
 
-  /// Downloads the gzipped note, decompresses it, saves as .pdf and opens it.
   Future<void> _downloadAndOpenNote(Note note) async {
-    // Show loading dialog
     if (!mounted) return;
+    
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(
+      builder: (_) => Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(color: AppTheme.accentSecondary),
-            SizedBox(height: 16),
-            Text('Downloading...', style: TextStyle(color: Colors.white, decoration: TextDecoration.none, fontSize: 14)),
+            BouncingBallsLoader(),
+            SizedBox(height: 32),
+            Text(
+              'SECURING BRIDGE...',
+              style: TextStyle(
+                color: AppTheme.accentSecondary,
+                decoration: TextDecoration.none,
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
+              ),
+            ),
           ],
         ),
       ),
     );
 
     try {
-      final supabase = Provider.of<SupabaseService>(context, listen: false).client;
-
-      // ── Step 1: Extract bucket + file path from any URL format ──
-      String bucket = 'notes_bucket';
-      String filePath = '';
-      final urlPath = note.fileUrl;
-
-      if (urlPath.startsWith('/api/files/')) {
-        final rest = urlPath.replaceFirst('/api/files/', '');
-        final idx = rest.indexOf('/');
-        if (idx != -1) { bucket = rest.substring(0, idx); filePath = rest.substring(idx + 1); }
-      } else if (urlPath.contains('/storage/v1/object/')) {
-        for (final pat in ['/object/public/', '/object/sign/']) {
-          if (urlPath.contains(pat)) {
-            final rest = urlPath.split(pat).last;
-            final idx = rest.indexOf('/');
-            if (idx != -1) { bucket = rest.substring(0, idx); filePath = rest.substring(idx + 1).split('?').first; }
-            break;
-          }
-        }
+      // ── Step 1: Construct the URL ──
+      const String apiBaseUrl = 'https://mentron.istesctce.in';
+      String fetchUrl = note.fileUrl;
+      
+      if (!fetchUrl.startsWith('http')) {
+        fetchUrl = '$apiBaseUrl$fetchUrl';
       }
 
-      if (filePath.isEmpty) throw Exception('Cannot determine file path from URL');
-
-      // ── Step 2: Download the gzipped bytes from API ──
-      const String apiBaseUrl = 'http://10.0.2.2:3000'; // Change to production URL when deployed
-      final fetchUrl = urlPath.startsWith('http') ? urlPath : '$apiBaseUrl/api/files/$bucket/$filePath';
-      
+      // ── Step 2: Download the raw bytes ──
       final response = await http.get(Uri.parse(fetchUrl));
       if (response.statusCode != 200) throw Exception('Download failed (${response.statusCode})');
-      final compressedBytes = response.bodyBytes;
+      final fileBytes = response.bodyBytes;
 
-      // ── Step 4: Decompress gzip → raw PDF bytes ──
-      Uint8List pdfBytes;
-      try {
-        final decoded = GZipDecoder().decodeBytes(compressedBytes);
-        pdfBytes = Uint8List.fromList(decoded);
-      } catch (_) {
-        // Not gzipped (e.g. old upload or already raw PDF)
-        pdfBytes = compressedBytes;
-      }
-
-      // ── Step 5: Build a clean .pdf filename ──
+      // ── Step 3: Determine extension and filename ──
+      final String extension = fetchUrl.split('.').last.toLowerCase().split('?').first;
+      final bool isPdf = extension == 'pdf' || !['mp4', 'mov', 'docx', 'pptx'].contains(extension);
+      
       String cleanName = note.title
           .replaceAll(RegExp(r'[^\w\s-]'), '')
           .trim()
           .replaceAll(RegExp(r'\s+'), '_');
       if (cleanName.isEmpty) cleanName = 'note';
-      final pdfFileName = '$cleanName.pdf';
+      final fileName = '$cleanName.${isPdf ? 'pdf' : extension}';
 
-      // ── Step 6: Save to temp directory ──
+      // ── Step 4: Save to temp directory ──
       final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/$pdfFileName');
-      await file.writeAsBytes(pdfBytes);
+      final file = File('${dir.path}/$fileName');
+      await file.writeAsBytes(fileBytes);
 
-      // ── Step 7: Dismiss loading, open with device PDF viewer / Drive ──
+      // ── Step 5: Open with device viewer ──
       if (mounted) {
         final nav = Navigator.of(context, rootNavigator: true);
         if (nav.canPop()) nav.pop();
@@ -353,15 +336,15 @@ class _NoteListScreenState extends State<NoteListScreen> {
       final result = await OpenFile.open(file.path);
       if (result.type != ResultType.done && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: Colors.red, content: Text('Could not open PDF: ${result.message}')),
+          SnackBar(backgroundColor: Colors.red, content: Text('Could not open file: ${result.message}')),
         );
       }
     } catch (e) {
       if (mounted) {
         final nav = Navigator.of(context, rootNavigator: true);
-        if (nav.canPop()) nav.pop(); // dismiss dialog safely
+        if (nav.canPop()) nav.pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: Colors.red, content: Text(e.toString())),
+          SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e))),
         );
       }
     }

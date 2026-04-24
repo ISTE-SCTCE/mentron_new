@@ -11,9 +11,11 @@ import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
+import '../../../shared/widgets/bouncing_balls_loader.dart';
 import '../../../data/models/note_model.dart';
 import 'add_note_screen.dart';
 import 'create_folder_screen.dart';
+import '../../../core/utils/error_handler.dart';
 import '../../../core/utils/app_transitions.dart';
 
 class NotesBySubjectScreen extends StatefulWidget {
@@ -266,54 +268,48 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CircularProgressIndicator(color: AppTheme.accentSecondary),
-          SizedBox(height: 16),
-          Text('Downloading...', style: TextStyle(color: Colors.white, decoration: TextDecoration.none, fontSize: 14)),
-        ],
-      )),
+      builder: (_) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            BouncingBallsLoader(),
+            SizedBox(height: 32),
+            Text(
+              'SECURING BRIDGE...',
+              style: TextStyle(
+                color: AppTheme.accentSecondary,
+                decoration: TextDecoration.none,
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
+
     try {
-      final supabaseClient = Provider.of<SupabaseService>(context, listen: false).client;
-      String bucket = 'notes_bucket';
-      String filePath = '';
-      final urlPath = note.fileUrl;
-      if (urlPath.startsWith('/api/files/')) {
-        final rest = urlPath.replaceFirst('/api/files/', '');
-        final idx = rest.indexOf('/');
-        if (idx != -1) { bucket = rest.substring(0, idx); filePath = rest.substring(idx + 1); }
-      } else if (urlPath.contains('/storage/v1/object/')) {
-        for (final pat in ['/object/public/', '/object/sign/']) {
-          if (urlPath.contains(pat)) {
-            final rest = urlPath.split(pat).last;
-            final idx = rest.indexOf('/');
-            if (idx != -1) { bucket = rest.substring(0, idx); filePath = rest.substring(idx + 1).split('?').first; }
-            break;
-          }
-        }
-      }
-      if (filePath.isEmpty) throw Exception('Cannot determine file path');
-
-      final ext = filePath.split('.').last.toLowerCase();
-      final hasExtension = filePath.contains('.');
-
-      final signedUrl = await supabaseClient.storage.from(bucket).createSignedUrl(filePath, 3600);
-      final response = await http.get(Uri.parse(signedUrl));
-      if (response.statusCode != 200) throw Exception('Download failed');
-
-      Uint8List fileBytes;
-      try {
-        fileBytes = Uint8List.fromList(GZipDecoder().decodeBytes(response.bodyBytes));
-      } catch (_) {
-        fileBytes = response.bodyBytes;
+      const String apiBaseUrl = 'https://mentron.istesctce.in';
+      String fetchUrl = note.fileUrl;
+      
+      if (!fetchUrl.startsWith('http')) {
+        fetchUrl = '$apiBaseUrl$fetchUrl';
       }
 
-      String cleanName = note.title.replaceAll(RegExp(r'[^\w\s-]'), '').trim().replaceAll(RegExp(r'\s+'), '_');
+      final response = await http.get(Uri.parse(fetchUrl));
+      if (response.statusCode != 200) throw Exception('Download failed (${response.statusCode})');
+      final fileBytes = response.bodyBytes;
+
+      final String extension = fetchUrl.split('.').last.toLowerCase().split('?').first;
+      final bool isPdf = extension == 'pdf' || !['mp4', 'mov', 'docx', 'pptx'].contains(extension);
+      
+      String cleanName = note.title
+          .replaceAll(RegExp(r'[^\w\s-]'), '')
+          .trim()
+          .replaceAll(RegExp(r'\s+'), '_');
       if (cleanName.isEmpty) cleanName = 'note';
-
-      final fileName = hasExtension ? '$cleanName.$ext' : '$cleanName.pdf';
+      final fileName = '$cleanName.${isPdf ? 'pdf' : extension}';
 
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/$fileName');
@@ -323,13 +319,20 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
         final nav = Navigator.of(context, rootNavigator: true);
         if (nav.canPop()) nav.pop();
       }
-      await OpenFile.open(file.path);
 
+      final result = await OpenFile.open(file.path);
+      if (result.type != ResultType.done && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(backgroundColor: Colors.red, content: Text('Could not open file: ${result.message}')),
+        );
+      }
     } catch (e) {
       if (mounted) {
         final nav = Navigator.of(context, rootNavigator: true);
         if (nav.canPop()) nav.pop();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(e.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e))),
+        );
       }
     }
   }

@@ -130,30 +130,377 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: LiquidBackground(
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(),
-                const SizedBox(height: 32),
-                // Stats only for exec/core, event banner for normal members
-                if (_userRole == 'exec' || _userRole == 'core') ...
-                  [_buildStatsGrid(), const SizedBox(height: 32)]
-                else ...
-                  [const EventBannerWidget(), const SizedBox(height: 32)],
+                const SizedBox(height: 28),
+                _buildBentoStats(),
+                const SizedBox(height: 28),
+                if (_userRole != 'exec' && _userRole != 'core') ...[
+                  const EventBannerWidget(),
+                  const SizedBox(height: 28),
+                ],
+                _buildSectionHeader('QUICK ACCESS'),
+                const SizedBox(height: 16),
+                _buildBentoActions(),
+                const SizedBox(height: 28),
                 _buildSectionHeader('ACADEMIC CALENDAR'),
                 const SizedBox(height: 16),
                 const RealTimeCalendar(),
-                const SizedBox(height: 32),
+                const SizedBox(height: 28),
                 _buildContributeCard(),
-                const SizedBox(height: 32),
-                _buildSectionHeader('QUICK ACTIONS'),
-                const SizedBox(height: 16),
-                _buildActionButtons(),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildBentoStats() {
+    return Row(
+      children: [
+        // Large XP Card
+        Expanded(
+          flex: 3,
+          child: _buildStatCard(
+            'TOTAL XP',
+            userXP >= 1000 ? '${(userXP / 1000).toStringAsFixed(1)}k' : userXP.toString(),
+            Icons.bolt_rounded,
+            Colors.yellowAccent,
+            height: 140,
+          ),
+        ),
+        const SizedBox(width: 12),
+        // Column of 2 smaller cards
+        Expanded(
+          flex: 2,
+          child: Column(
+            children: [
+              _buildStatCard(
+                'MEMBERS',
+                totalMembers.toString(),
+                Icons.people_outline,
+                AppTheme.accentPrimary,
+                height: 64,
+                compact: true,
+              ),
+              const SizedBox(height: 12),
+              _buildStatCard(
+                'NOTES',
+                totalNotes.toString(),
+                Icons.note_outlined,
+                AppTheme.accentSecondary,
+                height: 64,
+                compact: true,
+              ),
+            ],
+          ),
+        ),
+      ],
+    ).animate().fadeIn().slideY(begin: 0.1);
+  }
+
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color, {
+    double height = 100,
+    bool compact = false,
+  }) {
+    return GlassContainer(
+      height: height,
+      padding: EdgeInsets.all(compact ? 12 : 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: compact ? 12 : 16, color: color),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color.withValues(alpha: 0.7),
+                  fontSize: compact ? 8 : 10,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: compact ? 4 : 12),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                  fontSize: compact ? 18 : 26,
+                  height: 1,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBentoActions() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            // Academic Library (Large)
+            Expanded(
+              flex: 3,
+              child: _buildBentoItem(
+                'Academic Library',
+                'Browse notes & materials',
+                Icons.library_books_rounded,
+                AppTheme.accentSecondary,
+                160,
+                () => MainScaffoldState.of(context)?.setIndex(1),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Leaderboard (Square)
+            Expanded(
+              flex: 2,
+              child: _buildBentoItem(
+                'Ranks',
+                'Top XP',
+                Icons.emoji_events_rounded,
+                Colors.amberAccent,
+                160,
+                () => Navigator.push(
+                  context,
+                  AppTransitions.slideUp(const LeaderboardScreen()),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            // Incubator (Wide)
+            Expanded(
+              flex: 1,
+              child: _buildBentoItem(
+                'Incubation Center',
+                'Innovation Lab',
+                Icons.rocket_launch_rounded,
+                AppTheme.accentPrimary,
+                100,
+                () => MainScaffoldState.of(context)?.setIndex(2),
+                isWide: true,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            // Marketplace
+            Expanded(
+              child: _buildBentoItem(
+                'Market',
+                'Textbooks',
+                Icons.shopping_bag_outlined,
+                Colors.greenAccent,
+                120,
+                () => MainScaffoldState.of(context)?.setIndex(3),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Forum
+            Expanded(
+              child: _buildBentoItem(
+                'Forum',
+                'Ask Anonymously',
+                Icons.forum_rounded,
+                Colors.purpleAccent,
+                120,
+                () => Navigator.push(
+                  context,
+                  AppTransitions.slideUp(const ForumListScreen()),
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (_isExec) ...[
+          const SizedBox(height: 12),
+          _buildBentoItem(
+            'Manage Members',
+            'Leadership Controls',
+            Icons.admin_panel_settings_rounded,
+            Colors.purpleAccent,
+            80,
+            () => Navigator.push(
+              context,
+              AppTransitions.slideUp(const CoreMembersScreen()),
+            ),
+            isWide: true,
+          ),
+        ],
+      ],
+    ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1);
+  }
+
+  Widget _buildBentoItem(
+    String title,
+    String subtitle,
+    IconData icon,
+    Color color,
+    double height,
+    VoidCallback onTap, {
+    bool isWide = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: GlassContainer(
+        height: height,
+        padding: const EdgeInsets.all(20),
+        child: isWide
+            ? Row(
+                children: [
+                  _buildBentoIcon(icon, color),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          color: AppTheme.textMuted,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  const Icon(Icons.chevron_right_rounded, color: AppTheme.textMuted),
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildBentoIcon(icon, color),
+                  const Spacer(),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: AppTheme.textMuted,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _buildBentoIcon(IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(icon, color: color, size: 20),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'WELCOME BACK,',
+              style: TextStyle(
+                color: AppTheme.accentSecondary,
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
+              ),
+            ),
+            Text(
+              _profile?['full_name']?.toString().split(' ').first.toUpperCase() ?? 'STUDENT',
+              style: Theme.of(context).textTheme.displayMedium?.copyWith(fontSize: 28),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                AppTransitions.slideUp(const ForumListScreen()),
+              ),
+              child: const GlassContainer(
+                padding: EdgeInsets.all(12),
+                borderRadius: 12,
+                child: Icon(
+                  Icons.forum_rounded,
+                  color: AppTheme.accentSecondary,
+                  size: 20,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                AppTransitions.slideUp(const ProfileScreen()),
+              ),
+              child: const GlassContainer(
+                padding: EdgeInsets.all(12),
+                borderRadius: 12,
+                child: Icon(
+                  Icons.person_rounded,
+                  color: AppTheme.accentSecondary,
+                  size: 20,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ).animate().fadeIn().slideX(begin: -0.1);
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        color: AppTheme.textMuted,
+        fontSize: 11,
+        fontWeight: FontWeight.w900,
+        letterSpacing: 3,
       ),
     );
   }
@@ -274,280 +621,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildHeader() {
-    final user = Provider.of<SupabaseService>(context).currentUser;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'WELCOME BACK,',
-              style: TextStyle(
-                color: AppTheme.accentSecondary,
-                fontSize: 10,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 2,
-              ),
-            ),
-            Text(
-              _profile?['full_name']?.toString().split(' ').first.toUpperCase() ?? 'STUDENT',
-              style: Theme.of(
-                context,
-              ).textTheme.displayMedium?.copyWith(fontSize: 28),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                AppTransitions.slideUp(const ForumListScreen()),
-              ),
-              child: const GlassContainer(
-                padding: EdgeInsets.all(12),
-                borderRadius: 12,
-                child: Icon(
-                  Icons.forum_rounded,
-                  color: AppTheme.accentSecondary,
-                  size: 20,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                AppTransitions.slideUp(const ProfileScreen()),
-              ),
-              child: const GlassContainer(
-                padding: EdgeInsets.all(12),
-                borderRadius: 12,
-                child: Icon(
-                  Icons.person_rounded,
-                  color: AppTheme.accentSecondary,
-                  size: 20,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    ).animate().fadeIn().slideX(begin: -0.1);
-  }
-
-  Widget _buildStatsGrid() {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: 1.5,
-      children: [
-        RepaintBoundary(
-          child: _buildStatCard(
-            'MEMBERS',
-            totalMembers.toString(),
-            Icons.people_outline,
-            AppTheme.accentPrimary,
-          ),
-        ),
-        RepaintBoundary(
-          child: _buildStatCard(
-            'NOTES',
-            totalNotes.toString(),
-            Icons.note_outlined,
-            AppTheme.accentSecondary,
-          ),
-        ),
-        RepaintBoundary(
-          child: _buildStatCard(
-            'PROJECTS',
-            totalProjects.toString(),
-            Icons.rocket_launch_outlined,
-            Colors.orangeAccent,
-          ),
-        ),
-        RepaintBoundary(
-          child: _buildStatCard(
-            'XP',
-            userXP >= 1000 ? '${(userXP / 1000).toStringAsFixed(1)}k' : userXP.toString(),
-            Icons.bolt_rounded,
-            Colors.yellowAccent,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return GlassContainer(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 14, color: color),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: color.withValues(alpha: 0.7),
-                  fontSize: 9,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: Theme.of(
-              context,
-            ).textTheme.displayMedium?.copyWith(fontSize: 20),
-          ),
-        ],
-      ),
-    ).animate().scale(delay: 200.ms);
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        color: AppTheme.textMuted,
-        fontSize: 11,
-        fontWeight: FontWeight.w900,
-        letterSpacing: 3,
-      ),
-    );
-  }
-
-  Widget _buildActionButtons() {
-    return Column(
-      children: [
-        _buildActionButton(
-          'Academic Library',
-          'Browse notes & materials',
-          Icons.library_books_rounded,
-          AppTheme.accentSecondary,
-          () => MainScaffoldState.of(context)?.setIndex(1),
-        ),
-        const SizedBox(height: 12),
-        _buildActionButton(
-          'Incubation Center',
-          'View projects & apply',
-          Icons.rocket_launch_rounded,
-          AppTheme.accentPrimary,
-          () => MainScaffoldState.of(context)?.setIndex(2),
-        ),
-        const SizedBox(height: 12),
-        _buildActionButton(
-          'Student Market',
-          'Buy & sell textbooks',
-          Icons.shopping_bag_outlined,
-          Colors.greenAccent,
-          () => MainScaffoldState.of(context)?.setIndex(3),
-        ),
-        const SizedBox(height: 12),
-        _buildActionButton(
-          'Community Forum',
-          'Ask questions anonymously',
-          Icons.forum_rounded,
-          Colors.purpleAccent,
-          () => Navigator.push(
-            context,
-            AppTransitions.slideUp(const ForumListScreen()),
-          ),
-        ),
-        const SizedBox(height: 12),
-        _buildActionButton(
-          'Upcoming Events',
-          'Register for workshops',
-          Icons.event_rounded,
-          Colors.orangeAccent,
-          () => Navigator.push(
-            context,
-            AppTransitions.slideUp(const EventListScreen()),
-          ),
-        ),
-        const SizedBox(height: 12),
-        _buildActionButton(
-          'Leaderboard',
-          'View XP rankings',
-          Icons.emoji_events_rounded,
-          Colors.amberAccent,
-          () => Navigator.push(
-            context,
-            AppTransitions.slideUp(const LeaderboardScreen()),
-          ),
-        ),
-        const SizedBox(height: 12),
-        _buildActionButton(
-          'Executive Team',
-          'Meet the people behind Mentron',
-          Icons.verified_user_rounded,
-          AppTheme.accentSecondary,
-          () => Navigator.push(
-            context,
-            AppTransitions.slideUp(const TeamScreen()),
-          ),
-        ),
-        if (_isExec) ...[
-          const SizedBox(height: 12),
-          _buildActionButton(
-            'Manage Members',
-            'Promote, demote & view all members',
-            Icons.admin_panel_settings_rounded,
-            Colors.purpleAccent,
-            () => Navigator.push(
-              context,
-              AppTransitions.slideUp(const CoreMembersScreen()),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildSmallActionButton(
-    String label,
-    String emoji,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: GlassContainer(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        child: Column(
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 24)),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _showAddOptions() {
     showModalBottomSheet(
       context: context,
@@ -637,57 +710,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
     );
-  }
-
-  Widget _buildActionButton(
-    String title,
-    String subtitle,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
-      child: GlassContainer(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: color, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      color: AppTheme.textMuted,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right_rounded, color: AppTheme.textMuted),
-          ],
-        ),
-      ),
-    ).animate().slideY(begin: 0.1);
   }
 }
