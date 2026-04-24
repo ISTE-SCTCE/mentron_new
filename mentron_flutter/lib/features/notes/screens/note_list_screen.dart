@@ -12,6 +12,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import '../../../shared/widgets/bouncing_balls_loader.dart';
+import '../../../core/utils/department_mapper.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../data/models/note_model.dart';
 

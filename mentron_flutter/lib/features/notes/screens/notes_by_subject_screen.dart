@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
@@ -12,6 +13,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import '../../../shared/widgets/bouncing_balls_loader.dart';
+import '../../../core/utils/department_mapper.dart';
 import '../../../data/models/note_model.dart';
 import 'add_note_screen.dart';
 import 'create_folder_screen.dart';
