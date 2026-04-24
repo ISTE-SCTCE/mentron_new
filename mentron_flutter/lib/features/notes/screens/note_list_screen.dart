@@ -61,11 +61,17 @@ class _NoteListScreenState extends State<NoteListScreen> {
   Future<void> _fetchNotes() async {
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
-      // Fetch ALL notes for this department first (avoid type mismatch on year column)
+      // Determine correct department filter (Year 1 uses groups A/B/C/D)
+      String deptFilter = widget.deptCode;
+      if (widget.year == '1') {
+        deptFilter = DepartmentMapper.getGroupFromDepartment(widget.deptCode);
+      }
+
+      // Fetch ALL notes for this filter
       final response = await supabase
           .from('notes')
           .select('*, profiles!notes_created_by_fkey(full_name)')
-          .eq('department', widget.deptCode)
+          .eq('department', deptFilter)
           .order('created_at', ascending: false);
 
       final allNotes = (response as List).map((json) => Note.fromJson(json)).toList();

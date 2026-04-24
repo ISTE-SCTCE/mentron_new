@@ -54,11 +54,20 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
   Map<String, bool> _permissions = {};
 
   bool get _isInFolder => widget.folderId != null;
+  RealtimeChannel? _notesSubscription;
+  RealtimeChannel? _foldersSubscription;
 
   @override
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _notesSubscription?.unsubscribe();
+    _foldersSubscription?.unsubscribe();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -87,6 +96,18 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       _loadNotes(supabase),
       if (!_isInFolder) _loadFolders(supabase),
     ]);
+    _setupRealtime(supabase);
+  }
+
+  void _setupRealtime(SupabaseService supabase) {
+    _notesSubscription = supabase.subscribeToTable(
+      table: 'notes',
+      onUpdate: (_) => _loadNotes(supabase),
+    );
+    _foldersSubscription = supabase.subscribeToTable(
+      table: 'note_folders',
+      onUpdate: (_) => _loadFolders(supabase),
+    );
   }
 
   Future<void> _loadNotes(SupabaseService supabase) async {
@@ -97,9 +118,16 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
           .select('*, profiles!notes_created_by_fkey(full_name)')
           .eq('subject', widget.subjectName);
 
-      if (widget.dept != null && widget.dept!.isNotEmpty) {
-        query = query.eq('department', widget.dept!);
+      // Determine correct department filter (Year 1 uses groups A/B/C/D)
+      String deptFilter = widget.dept ?? '';
+      if (widget.year == '1' && deptFilter.isNotEmpty) {
+        deptFilter = DepartmentMapper.getGroupFromDepartment(deptFilter);
       }
+
+      if (deptFilter.isNotEmpty) {
+        query = query.eq('department', deptFilter);
+      }
+
       if (widget.year != null && widget.year!.isNotEmpty) {
         query = query.eq('year', int.tryParse(widget.year!) ?? 1);
       }
@@ -130,9 +158,16 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
           .select('*')
           .eq('subject', widget.subjectName);
 
-      if (widget.dept != null && widget.dept!.isNotEmpty) {
-        query = query.eq('department', widget.dept!);
+      // Determine correct department filter (Year 1 uses groups A/B/C/D)
+      String deptFilter = widget.dept ?? '';
+      if (widget.year == '1' && deptFilter.isNotEmpty) {
+        deptFilter = DepartmentMapper.getGroupFromDepartment(deptFilter);
       }
+
+      if (deptFilter.isNotEmpty) {
+        query = query.eq('department', deptFilter);
+      }
+
       if (widget.year != null && widget.year!.isNotEmpty) {
         query = query.eq('year', widget.year!);
       }
