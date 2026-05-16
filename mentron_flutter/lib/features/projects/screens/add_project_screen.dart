@@ -21,7 +21,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
   Future<void> _handleCreate() async {
     if (_titleController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Project title is required')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Project title is required')),
+      );
       return;
     }
 
@@ -39,15 +41,24 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          backgroundColor: Colors.amber,
-          content: Text('📋 Project submitted for review! Execom will approve it shortly.'),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.amber,
+            content: Text(
+              '📋 Project submitted for review! Execom will approve it shortly.',
+            ),
+          ),
+        );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(ErrorHandler.friendly(e)),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -61,7 +72,14 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('POST PROJECT', style: TextStyle(fontSize: 16, letterSpacing: 2, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'POST PROJECT',
+          style: TextStyle(
+            fontSize: 16,
+            letterSpacing: 2,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: LiquidBackground(
         child: SingleChildScrollView(
@@ -74,18 +92,32 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _buildLabel('PROJECT TITLE'),
-                    _buildTextField(_titleController, 'e.g. AI Research Dashboard'),
+                    _buildTextField(
+                      _titleController,
+                      'e.g. AI Research Dashboard',
+                    ),
                     const SizedBox(height: 20),
 
                     _buildLabel('DESCRIPTION'),
-                    _buildTextField(_descController, 'Describe the project, skills needed, duration...', maxLines: 6),
+                    _buildTextField(
+                      _descController,
+                      'Describe the project, skills needed, duration...',
+                      maxLines: 6,
+                    ),
                     const SizedBox(height: 32),
 
                     ElevatedButton(
                       onPressed: _isLoading ? null : _handleCreate,
                       child: _isLoading
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                        : const Text('POST PROJECT'),
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.black,
+                              ),
+                            )
+                          : const Text('POST PROJECT'),
                     ),
                   ],
                 ),
@@ -100,29 +132,51 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   Widget _buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, left: 4),
-      child: Text(text, style: const TextStyle(color: AppTheme.accentPrimary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
-    );
-  }
-
-  Widget _buildTextField(TextEditingController controller, String hint, {int maxLines = 1}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-      ),
-      child: TextField(
-        controller: controller,
-        maxLines: maxLines,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2)),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: AppTheme.accentPrimary,
+          fontSize: 10,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 2,
         ),
       ),
     );
   }
 
+  Widget _buildTextField(
+    TextEditingController controller,
+    String hint, {
+    int maxLines = 1,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFFBF9FF),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+        ),
+      ),
+      child: TextField(
+        controller: controller,
+        maxLines: maxLines,
+        cursorColor: AppTheme.accentPrimary,
+        style: const TextStyle(
+          color: AppTheme.textMain,
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+        ),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(
+            color: AppTheme.textMuted.withValues(alpha: 0.70),
+          ),
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          contentPadding: const EdgeInsets.all(16),
+        ),
+      ),
+    );
+  }
 }

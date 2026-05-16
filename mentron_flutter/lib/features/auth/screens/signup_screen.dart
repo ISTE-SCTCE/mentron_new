@@ -31,9 +31,9 @@ class _SignupScreenState extends State<SignupScreen> {
         _passwordController.text.isEmpty ||
         _selectedYear == null ||
         _selectedDept == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
       return;
     }
 
@@ -63,7 +63,9 @@ class _SignupScreenState extends State<SignupScreen> {
           'year': int.tryParse(_selectedYear!) ?? 1,
           'role': 'member',
           'department': _selectedDept,
-          'iste_id': _isteIdController.text.trim().isEmpty ? null : _isteIdController.text.trim(),
+          'iste_id': _isteIdController.text.trim().isEmpty
+              ? null
+              : _isteIdController.text.trim(),
         },
       );
 
@@ -74,7 +76,7 @@ class _SignupScreenState extends State<SignupScreen> {
             .select('role')
             .eq('id', response.user!.id)
             .maybeSingle();
-        
+
         String newRole = 'member';
         if (existing != null) {
           final oldRole = existing['role'] as String?;
@@ -91,14 +93,18 @@ class _SignupScreenState extends State<SignupScreen> {
           'role': newRole,
           'department': _selectedDept,
           'xp': 0,
-          'iste_id': _isteIdController.text.trim().isEmpty ? null : _isteIdController.text.trim(),
+          'iste_id': _isteIdController.text.trim().isEmpty
+              ? null
+              : _isteIdController.text.trim(),
         });
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               backgroundColor: Colors.green,
-              content: Text('Account created! Please check your email to verify.'),
+              content: Text(
+                'Account created! Please check your email to verify.',
+              ),
             ),
           );
           Navigator.pop(context);
@@ -110,7 +116,9 @@ class _SignupScreenState extends State<SignupScreen> {
           SnackBar(
             backgroundColor: Colors.red.withValues(alpha: 0.9),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             content: Text(ErrorHandler.friendly(e)),
           ),
         );
@@ -128,7 +136,11 @@ class _SignupScreenState extends State<SignupScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: AppTheme.textMain,
+            size: 18,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -140,13 +152,22 @@ class _SignupScreenState extends State<SignupScreen> {
               child: Column(
                 children: [
                   const Text(
-                    'STEP INTO INNOVATION',
-                    style: TextStyle(color: AppTheme.accentSecondary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 3),
+                    'STEP INTO LEARNING',
+                    style: TextStyle(
+                      color: AppTheme.accentSecondary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 3,
+                    ),
                   ).animate().fadeIn(),
                   const SizedBox(height: 8),
                   const Text(
                     'Join Mentron',
-                    style: TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900),
+                    style: TextStyle(
+                      color: AppTheme.textMain,
+                      fontSize: 36,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ).animate().fadeIn(delay: 100.ms),
                   const SizedBox(height: 40),
 
@@ -156,7 +177,11 @@ class _SignupScreenState extends State<SignupScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _buildLabel('FULL NAME'),
-                        _buildTextField(_fullNameController, 'e.g. Rahul Sharma', Icons.person_outline_rounded),
+                        _buildTextField(
+                          _fullNameController,
+                          'e.g. Rahul Sharma',
+                          Icons.person_outline_rounded,
+                        ),
                         const SizedBox(height: 16),
                         _buildLabel('ROLL NUMBER'),
                         _buildTextField(
@@ -166,13 +191,27 @@ class _SignupScreenState extends State<SignupScreen> {
                         ),
                         const SizedBox(height: 16),
                         _buildLabel('EMAIL ADDRESS'),
-                        _buildTextField(_emailController, 'your@email.com', Icons.alternate_email_rounded, keyboardType: TextInputType.emailAddress),
+                        _buildTextField(
+                          _emailController,
+                          'your@email.com',
+                          Icons.alternate_email_rounded,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
                         const SizedBox(height: 16),
                         _buildLabel('PASSWORD'),
-                        _buildTextField(_passwordController, 'Create a strong password', Icons.lock_outline_rounded, isPassword: true),
+                        _buildTextField(
+                          _passwordController,
+                          'Create a strong password',
+                          Icons.lock_outline_rounded,
+                          isPassword: true,
+                        ),
                         const SizedBox(height: 16),
                         _buildLabel('ISTE ID (OPTIONAL)'),
-                        _buildTextField(_isteIdController, 'For PYQ & Video access', Icons.card_membership_rounded),
+                        _buildTextField(
+                          _isteIdController,
+                          'For PYQ & Video access',
+                          Icons.card_membership_rounded,
+                        ),
                         const SizedBox(height: 16),
                         // Year + Department row
                         Row(
@@ -187,8 +226,14 @@ class _SignupScreenState extends State<SignupScreen> {
                                     hint: 'Year',
                                     icon: Icons.school_outlined,
                                     items: const ['1', '2', '3', '4'],
-                                    labels: const ['1st Year', '2nd Year', '3rd Year', '4th Year'],
-                                    onChanged: (val) => setState(() => _selectedYear = val),
+                                    labels: const [
+                                      '1st Year',
+                                      '2nd Year',
+                                      '3rd Year',
+                                      '4th Year',
+                                    ],
+                                    onChanged: (val) =>
+                                        setState(() => _selectedYear = val),
                                   ),
                                 ],
                               ),
@@ -203,9 +248,22 @@ class _SignupScreenState extends State<SignupScreen> {
                                     value: _selectedDept,
                                     hint: 'Dept',
                                     icon: Icons.business_outlined,
-                                    items: const ['CSE', 'ECE', 'ME', 'MEA', 'BT'],
-                                    labels: const ['CSE', 'ECE', 'Mechanical', 'Automobile', 'Biotech'],
-                                    onChanged: (val) => setState(() => _selectedDept = val),
+                                    items: const [
+                                      'CSE',
+                                      'ECE',
+                                      'ME',
+                                      'MEA',
+                                      'BT',
+                                    ],
+                                    labels: const [
+                                      'CSE',
+                                      'ECE',
+                                      'Mechanical',
+                                      'Automobile',
+                                      'Biotech',
+                                    ],
+                                    onChanged: (val) =>
+                                        setState(() => _selectedDept = val),
                                   ),
                                 ],
                               ),
@@ -216,7 +274,14 @@ class _SignupScreenState extends State<SignupScreen> {
                         ElevatedButton(
                           onPressed: _isLoading ? null : _handleSignup,
                           child: _isLoading
-                              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.black,
+                                  ),
+                                )
                               : const Text('CREATE ACCOUNT'),
                         ),
                         const SizedBox(height: 20),
@@ -224,7 +289,10 @@ class _SignupScreenState extends State<SignupScreen> {
                           onPressed: () => Navigator.pop(context),
                           child: const Text(
                             'Already in the tribe? Login Now',
-                            style: TextStyle(color: AppTheme.accentSecondary, fontSize: 12),
+                            style: TextStyle(
+                              color: AppTheme.accentSecondary,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ],
@@ -244,7 +312,12 @@ class _SignupScreenState extends State<SignupScreen> {
       padding: const EdgeInsets.only(bottom: 8, left: 4),
       child: Text(
         text,
-        style: const TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 2),
+        style: const TextStyle(
+          color: AppTheme.accentSecondary,
+          fontSize: 9,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 2,
+        ),
       ),
     );
   }
@@ -258,31 +331,49 @@ class _SignupScreenState extends State<SignupScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+        ),
       ),
       child: TextField(
         controller: controller,
         obscureText: isPassword ? _obscurePassword : false,
         keyboardType: keyboardType,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        cursorColor: AppTheme.accentPrimary,
+        style: const TextStyle(
+          color: AppTheme.textMain,
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+        ),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 13),
-          prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.4), size: 18),
+          hintStyle: TextStyle(
+            color: AppTheme.textMuted.withValues(alpha: 0.70),
+            fontSize: 13,
+          ),
+          prefixIcon: Icon(icon, color: AppTheme.textMuted, size: 18),
           suffixIcon: isPassword
               ? IconButton(
                   icon: Icon(
-                    _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                    color: Colors.white.withValues(alpha: 0.4),
+                    _obscurePassword
+                        ? Icons.visibility_off_rounded
+                        : Icons.visibility_rounded,
+                    color: AppTheme.textMuted,
                     size: 18,
                   ),
-                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  onPressed: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
         ),
       ),
     );
@@ -299,26 +390,41 @@ class _SignupScreenState extends State<SignupScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+        ),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
-          dropdownColor: AppTheme.surfaceColor,
-          style: const TextStyle(color: Colors.white, fontSize: 13),
-          hint: Row(children: [
-            Icon(icon, color: Colors.white.withValues(alpha: 0.3), size: 16),
-            const SizedBox(width: 8),
-            Text(hint, style: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 13)),
-          ]),
+          dropdownColor: Colors.white,
+          iconEnabledColor: AppTheme.textMuted,
+          style: const TextStyle(
+            color: AppTheme.textMain,
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
+          hint: Row(
+            children: [
+              Icon(icon, color: AppTheme.textMuted, size: 16),
+              const SizedBox(width: 8),
+              Text(
+                hint,
+                style: TextStyle(
+                  color: AppTheme.textMuted.withValues(alpha: 0.70),
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
           onChanged: onChanged,
-          items: List.generate(items.length, (i) => DropdownMenuItem(
-            value: items[i],
-            child: Text(labels[i]),
-          )),
+          items: List.generate(
+            items.length,
+            (i) => DropdownMenuItem(value: items[i], child: Text(labels[i])),
+          ),
         ),
       ),
     );
