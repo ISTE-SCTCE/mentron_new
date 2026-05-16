@@ -14,11 +14,11 @@ export default function LoginPage() {
     const formRef = useRef<HTMLFormElement>(null)
 
     return (
-        <div className="flex justify-center p-4 pt-16">
-            <div className="w-full max-w-md space-y-10 glass p-10 rounded-[3rem] shadow-2xl relative z-10">
+        <div className="flex min-h-screen items-center justify-center p-4 pt-16 text-[#241653]">
+            <div className="w-full max-w-md space-y-8 rounded-[32px] bg-white p-8 shadow-[0_30px_80px_rgba(58,31,122,0.16)] relative z-10">
                 <div className="text-center space-y-2">
-                    <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Secure Access</p>
-                    <h1 className="text-5xl font-black tracking-tighter text-white">Welcome</h1>
+                    <p className="text-[10px] font-black tracking-[0.3em] text-[#ff8a24] uppercase">Secure Access</p>
+                    <h1 className="text-5xl font-black tracking-tighter text-[#241653]">Welcome</h1>
                 </div>
 
                 {error && (
@@ -40,7 +40,7 @@ export default function LoginPage() {
                             placeholder="Email address"
                             required
                             disabled={isPending}
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium disabled:opacity-60"
+                            className="w-full bg-[#fbf9ff] border border-[#5d22d7]/10 rounded-2xl px-6 py-4 text-[#241653] placeholder:text-[#8a80aa] focus:outline-none transition-all font-medium disabled:opacity-60"
                         />
                         <div className="relative">
                             <input
@@ -49,7 +49,7 @@ export default function LoginPage() {
                                 placeholder="Password"
                                 required
                                 disabled={isPending}
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium pr-14 disabled:opacity-60"
+                                className="w-full bg-[#fbf9ff] border border-[#5d22d7]/10 rounded-2xl px-6 py-4 text-[#241653] placeholder:text-[#8a80aa] focus:outline-none transition-all font-medium pr-14 disabled:opacity-60"
                             />
                             <button
                                 type="button"
@@ -65,7 +65,7 @@ export default function LoginPage() {
                         <div className="flex justify-end">
                             <Link
                                 href="/forgot-password"
-                                className="text-xs font-semibold text-gray-500 hover:text-blue-400 transition-colors duration-200 relative group"
+                                className="text-xs font-semibold text-[#8a80aa] hover:text-[#5d22d7] transition-colors duration-200 relative group"
                             >
                                 Forgot Password?
                                 <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-blue-400 transition-all duration-300 group-hover:w-full" />
@@ -76,7 +76,7 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         disabled={isPending}
-                        className="w-full mt-4 bg-white text-black hover:bg-gray-200 font-black py-5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all text-lg uppercase tracking-widest disabled:opacity-80 disabled:scale-100 flex items-center justify-center gap-3"
+                        className="w-full mt-4 bg-[#5d22d7] text-white hover:bg-[#4d18bd] font-black py-5 rounded-2xl shadow-[0_18px_34px_rgba(93,34,215,0.25)] hover:scale-[1.02] active:scale-[0.98] transition-all text-lg uppercase tracking-widest disabled:opacity-80 disabled:scale-100 flex items-center justify-center gap-3"
                     >
                         {isPending ? (
                             <>
@@ -89,9 +89,9 @@ export default function LoginPage() {
                     </button>
                 </form>
 
-                <p className="text-center text-sm font-bold text-gray-500">
+                <p className="text-center text-sm font-bold text-[#8a80aa]">
                     New to the club?{' '}
-                    <Link href="/signup" className="text-blue-500 hover:text-white transition-colors">
+                    <Link href="/signup" className="text-[#5d22d7] hover:text-[#ff8a24] transition-colors">
                         Sign up
                     </Link>
                 </p>

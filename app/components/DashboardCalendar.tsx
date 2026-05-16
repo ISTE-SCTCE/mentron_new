@@ -212,10 +212,10 @@ export function DashboardCalendar({ isExec, userDept, userYear }: CalendarProps)
     const selectedDateEvents = events.filter(e => isSameDay(parseISO(e.event_date), selectedDate))
 
     return (
-        <div className="glass p-6 md:p-8 rounded-[2.5rem] flex flex-col items-center border border-white/5 bg-[#030305]/90 backdrop-blur-3xl shadow-2xl relative overflow-visible group h-full">
+        <div className="glass-card flex h-full flex-col items-center overflow-visible rounded-[28px] p-5 md:p-6">
             {/* Header */}
             <div className="w-full flex justify-between items-center mb-6 px-2">
-                <h2 className="text-xl font-black text-white tracking-tight">Calendar</h2>
+                <h2 className="text-xl font-black text-[#241653] tracking-tight">Calendar</h2>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
                         <button onClick={prevMonth} className="text-gray-500 hover:text-cyan-400 transition-colors p-1">
