@@ -2,105 +2,123 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Core palette
-  static const Color bgColor         = Color(0xFF030305);
-  static const Color surfaceColor     = Color(0xFF0A0A0F);
-  static const Color accentPrimary    = Color(0xFF7000DF);
-  static const Color accentSecondary  = Color(0xFF00C6FF);
-  static const Color textMain         = Colors.white;
-  static const Color textMuted        = Color(0xFF8B9BB4);
+  static const Color bgColor = Color(0xFFF6F2FF);
+  static const Color surfaceColor = Colors.white;
+  static const Color accentPrimary = Color(0xFF5D22D7);
+  static const Color accentSecondary = Color(0xFFFF8A24);
+  static const Color accentTertiary = Color(0xFF10B981);
+  static const Color textMain = Color(0xFF241653);
+  static const Color textMuted = Color(0xFF7B739B);
 
-  // Glass specs
-  static const Color glassSurface = Color(0x0CFFFFFF);
-  static const Color glassBorder  = Color(0x18FFFFFF);
-  static const double glassBlur   = 14.0;
+  static const Color glassSurface = Color(0xEFFFFFFF);
+  static const Color glassBorder = Color(0x1F5D22D7);
+  static const double glassBlur = 16.0;
 
   static ThemeData get darkTheme {
-    return ThemeData(
-      brightness: Brightness.dark,
+    final base = ThemeData.light(useMaterial3: true);
+    return base.copyWith(
+      brightness: Brightness.light,
       scaffoldBackgroundColor: bgColor,
       primaryColor: accentPrimary,
       hintColor: accentSecondary,
       splashColor: accentPrimary.withValues(alpha: 0.08),
-      highlightColor: Colors.white.withValues(alpha: 0.04),
-
-      // ── Typography ──────────────────────────────────────────
+      highlightColor: accentPrimary.withValues(alpha: 0.05),
+      colorScheme: const ColorScheme.light(
+        primary: accentPrimary,
+        secondary: accentSecondary,
+        tertiary: accentTertiary,
+        surface: surfaceColor,
+        onSurface: textMain,
+      ),
       textTheme: GoogleFonts.interTextTheme(
-        ThemeData.dark().textTheme.copyWith(
-          displayLarge:  GoogleFonts.spaceGrotesk(color: textMain, fontWeight: FontWeight.w900, letterSpacing: -1.5),
-          displayMedium: GoogleFonts.spaceGrotesk(color: textMain, fontWeight: FontWeight.w800, letterSpacing: -1.0),
-          displaySmall:  GoogleFonts.spaceGrotesk(color: textMain, fontWeight: FontWeight.w700),
-          titleLarge:    GoogleFonts.spaceGrotesk(color: textMain, fontWeight: FontWeight.bold),
-          bodyLarge:     GoogleFonts.inter(color: textMain,  fontWeight: FontWeight.w500),
-          bodyMedium:    GoogleFonts.inter(color: textMuted, fontWeight: FontWeight.w400),
-          bodySmall:     GoogleFonts.inter(color: textMuted, fontWeight: FontWeight.w400, fontSize: 11),
+        base.textTheme.copyWith(
+          displayLarge: GoogleFonts.spaceGrotesk(
+            color: textMain,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -1.0,
+          ),
+          displayMedium: GoogleFonts.spaceGrotesk(
+            color: textMain,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.6,
+          ),
+          displaySmall: GoogleFonts.spaceGrotesk(
+            color: textMain,
+            fontWeight: FontWeight.w800,
+          ),
+          titleLarge: GoogleFonts.spaceGrotesk(
+            color: textMain,
+            fontWeight: FontWeight.w800,
+          ),
+          bodyLarge: GoogleFonts.inter(color: textMain, fontWeight: FontWeight.w600),
+          bodyMedium: GoogleFonts.inter(color: textMuted, fontWeight: FontWeight.w500),
+          bodySmall: GoogleFonts.inter(color: textMuted, fontWeight: FontWeight.w500, fontSize: 11),
         ),
       ),
-
-      // ── ElevatedButton ───────────────────────────────────────
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          textStyle: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.2),
+          backgroundColor: accentPrimary,
+          foregroundColor: Colors.white,
+          textStyle: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.4),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           elevation: 0,
         ),
       ),
-
-      // ── TextButton ───────────────────────────────────────────
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: accentSecondary),
+        style: TextButton.styleFrom(foregroundColor: accentPrimary),
       ),
-
-      // ── Input / TextField ────────────────────────────────────
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: glassSurface,
-        hintStyle: TextStyle(color: textMuted.withValues(alpha: 0.6), fontSize: 13),
-        labelStyle: const TextStyle(color: accentSecondary, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1),
+        fillColor: const Color(0xFFFBF9FF),
+        hintStyle: TextStyle(color: textMuted.withValues(alpha: 0.72), fontSize: 13),
+        labelStyle: const TextStyle(
+          color: accentPrimary,
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.6,
+        ),
         prefixIconColor: textMuted,
         suffixIconColor: textMuted,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: glassBorder, width: 1),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: const BorderSide(color: glassBorder, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: glassBorder, width: 1),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: const BorderSide(color: glassBorder, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: accentSecondary, width: 1.5),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: const BorderSide(color: accentPrimary, width: 1.4),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Colors.redAccent, width: 1),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: const BorderSide(color: Color(0xFFE11D48), width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: const BorderSide(color: Color(0xFFE11D48), width: 1.4),
         ),
       ),
-
-      // ── AlertDialog ──────────────────────────────────────────
       dialogTheme: DialogThemeData(
-        backgroundColor: const Color(0xFF0E0E16),
+        backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: glassBorder, width: 1),
+          side: const BorderSide(color: glassBorder, width: 1),
         ),
-        titleTextStyle: GoogleFonts.spaceGrotesk(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        titleTextStyle: GoogleFonts.spaceGrotesk(
+          color: textMain,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
         contentTextStyle: GoogleFonts.inter(color: textMuted, fontSize: 13, height: 1.6),
       ),
-
-      // ── BottomSheet ──────────────────────────────────────────
       bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: Color(0xFF0E0E16),
+        backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         modalElevation: 0,
         elevation: 0,
@@ -108,73 +126,58 @@ class AppTheme {
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
       ),
-
-      // ── SnackBar ─────────────────────────────────────────────
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: const Color(0xFF16161F),
+        backgroundColor: textMain,
         behavior: SnackBarBehavior.floating,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: glassBorder, width: 1),
-        ),
-        contentTextStyle: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        contentTextStyle: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
         actionTextColor: accentSecondary,
         insetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       ),
-
-      // ── Divider ──────────────────────────────────────────────
       dividerTheme: DividerThemeData(
-        color: Colors.white.withValues(alpha: 0.06),
+        color: accentPrimary.withValues(alpha: 0.08),
         thickness: 1,
         space: 1,
       ),
-
-      // ── Card ─────────────────────────────────────────────────
       cardTheme: CardThemeData(
-        color: glassSurface,
+        color: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: glassBorder, width: 1),
+          borderRadius: BorderRadius.circular(22),
+          side: const BorderSide(color: glassBorder, width: 1),
         ),
         margin: const EdgeInsets.symmetric(vertical: 6),
       ),
-
-      // ── PopupMenu ─────────────────────────────────────────────
       popupMenuTheme: PopupMenuThemeData(
-        color: const Color(0xFF0E0E16),
+        color: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: glassBorder, width: 1),
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: glassBorder, width: 1),
         ),
-        textStyle: GoogleFonts.inter(color: Colors.white, fontSize: 13),
+        textStyle: GoogleFonts.inter(color: textMain, fontSize: 13),
       ),
-
-      // ── AppBar ───────────────────────────────────────────────
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        titleTextStyle: GoogleFonts.spaceGrotesk(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: GoogleFonts.spaceGrotesk(
+          color: textMain,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
+        iconTheme: const IconThemeData(color: textMain),
       ),
-
-      // ── Progress indicator ────────────────────────────────────
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: accentSecondary,
-      ),
-
-      // ── Chip ────────────────────────────────────────────────
+      progressIndicatorTheme: const ProgressIndicatorThemeData(color: accentPrimary),
       chipTheme: ChipThemeData(
-        backgroundColor: glassSurface,
-        side: BorderSide(color: glassBorder),
+        backgroundColor: const Color(0xFFFBF9FF),
+        side: const BorderSide(color: glassBorder),
         labelStyle: GoogleFonts.inter(color: textMuted, fontSize: 11, fontWeight: FontWeight.bold),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

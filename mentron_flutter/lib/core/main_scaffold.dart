@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -12,6 +11,7 @@ import '../core/services/supabase_service.dart';
 import 'theme/app_theme.dart';
 import 'utils/app_transitions.dart';
 import '../features/auth/screens/login_screen.dart';
+import '../shared/widgets/glass_container.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
@@ -32,7 +32,6 @@ class MainScaffoldState extends State<MainScaffold>
   }
   int _currentIndex = 0;
   bool _isNavbarVisible = true;
-  double _lastScrollOffset = 0;
   bool _isExec = false;
   int _pendingCount = 0;
   RealtimeChannel? _roleChannel;
@@ -213,7 +212,6 @@ class MainScaffoldState extends State<MainScaffold>
         _showNavbar();
       }
 
-      _lastScrollOffset = offset;
     }
     // Show on scroll end / idle
     if (notification is ScrollEndNotification && !_isNavbarVisible) {
@@ -265,78 +263,21 @@ class MainScaffoldState extends State<MainScaffold>
   }
 
   Widget _buildNavbar() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-      height: 72,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.4),
-            blurRadius: 30,
-            offset: const Offset(0, 8),
-          ),
-          BoxShadow(
-            color: const Color(0xFF7B2FFF).withValues(alpha: 0.08),
-            blurRadius: 24,
-            spreadRadius: 1,
-          ),
+    return GlassContainer(
+      margin: const EdgeInsets.fromLTRB(14, 0, 14, 18),
+      height: 74,
+      borderRadius: 28,
+      isNavElement: true,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildNavItem(0, Icons.home_rounded, 'Home'),
+          _buildNavItem(1, Icons.menu_book_rounded, 'Learn'),
+          _buildNavItem(2, Icons.assignment_rounded, 'Practice'),
+          _buildNavItem(3, Icons.shopping_bag_rounded, 'Store'),
+          if (_isExec) _buildBellItem(),
         ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: 0.14),
-                  Colors.white.withValues(alpha: 0.06),
-                ],
-              ),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.15),
-                width: 0.8,
-              ),
-            ),
-            child: Stack(
-              children: [
-                // Glass sheen highlight
-                Positioned(
-                  top: 0, left: 0, right: 0,
-                  child: Container(
-                    height: 18,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.centerRight,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.22),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildNavItem(0, Icons.grid_view_rounded, 'Home'),
-                    _buildNavItem(1, Icons.library_books_rounded, 'Library'),
-                    _buildNavItem(2, Icons.rocket_launch_rounded, 'Projects'),
-                    _buildNavItem(3, Icons.shopping_bag_rounded, 'Market'),
-                    if (_isExec) _buildBellItem(),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -346,32 +287,43 @@ class MainScaffoldState extends State<MainScaffold>
     return GestureDetector(
       onTap: () => setState(() => _currentIndex = index),
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: isSelected ? AppTheme.accentPrimary.withValues(alpha: 0.15) : Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 240),
+        curve: Curves.easeOut,
+        width: 66,
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.accentPrimary : Colors.transparent,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.accentPrimary.withValues(alpha: 0.24),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
               icon,
-              color: isSelected ? AppTheme.accentPrimary : AppTheme.textMuted,
-              size: 22,
+              color: isSelected ? Colors.white : AppTheme.textMuted,
+              size: 21,
             ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? AppTheme.accentPrimary : AppTheme.textMuted,
-              fontSize: 9,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            const SizedBox(height: 4),
+            Text(
+              label,
+              maxLines: 1,
+              style: TextStyle(
+                color: isSelected ? Colors.white : AppTheme.textMuted,
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -384,61 +336,64 @@ class MainScaffoldState extends State<MainScaffold>
           context,
           AppTransitions.slideUp(const RequestsScreen()),
         );
-        // Refresh count when returning
         _fetchPendingCount();
       },
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: _pendingCount > 0
-                      ? Colors.orangeAccent.withValues(alpha: 0.15)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(
+      child: Container(
+        width: 66,
+        decoration: BoxDecoration(
+          color: _pendingCount > 0
+              ? AppTheme.accentSecondary.withValues(alpha: 0.16)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
                   Icons.notifications_rounded,
-                  color: _pendingCount > 0 ? Colors.orangeAccent : AppTheme.textMuted,
-                  size: 22,
+                  color: _pendingCount > 0 ? AppTheme.accentSecondary : AppTheme.textMuted,
+                  size: 21,
                 ),
-              ),
-              if (_pendingCount > 0)
-                Positioned(
-                  top: 4,
-                  right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(3),
-                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                    decoration: const BoxDecoration(
-                      color: Colors.redAccent,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      _pendingCount > 99 ? '99+' : '$_pendingCount',
-                      style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w900),
-                      textAlign: TextAlign.center,
+                if (_pendingCount > 0)
+                  Positioned(
+                    top: -7,
+                    right: -8,
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE11D48),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        _pendingCount > 99 ? '99+' : '$_pendingCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w900,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'Requests',
-            style: TextStyle(
-              color: _pendingCount > 0 ? Colors.orangeAccent : AppTheme.textMuted,
-              fontSize: 9,
-              fontWeight: _pendingCount > 0 ? FontWeight.bold : FontWeight.normal,
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              'Requests',
+              maxLines: 1,
+              style: TextStyle(
+                color: _pendingCount > 0 ? AppTheme.accentSecondary : AppTheme.textMuted,
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

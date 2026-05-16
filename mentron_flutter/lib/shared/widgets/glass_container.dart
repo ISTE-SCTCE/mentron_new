@@ -1,18 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:flutter/material.dart';
+import '../../core/theme/app_theme.dart';
 
-/// Apple Liquid Glass — correct implementation per official guidelines.
-///
-/// KEY PRINCIPLE from Apple docs:
-///   "Liquid Glass applies to the TOPMOST LAYER — nav/tab bars.
-///    Avoid overusing — don't apply to every card.
-///    Let CONTENT peek through from beneath the glass layer."
-///
-/// This widget provides the CONTENT-LAYER card treatment:
-///   • Vibrancy tint (not a full blur — that's only for nav bars)
-///   • Subtle specular highlight at top edge ("glass sheen")
-///   • Concentric corner radii matching device hardware curves
-///   • Legibility preserved — content is always readable
 class GlassContainer extends StatelessWidget {
   final Widget child;
   final double? width;
@@ -20,13 +9,10 @@ class GlassContainer extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
   final double borderRadius;
-  final double blur; // only used when isNavElement: true
+  final double blur;
   final Color? color;
   final Gradient? gradient;
   final BoxBorder? border;
-
-  /// Set true ONLY for nav-layer elements (bottom bar, app bar, sheet headers).
-  /// Per Apple: "Apply Liquid Glass sparingly — limit to most important functional elements."
   final bool isNavElement;
 
   const GlassContainer({
@@ -36,8 +22,8 @@ class GlassContainer extends StatelessWidget {
     this.height,
     this.padding,
     this.margin,
-    this.borderRadius = 24.0,
-    this.blur = 20,
+    this.borderRadius = 22.0,
+    this.blur = AppTheme.glassBlur,
     this.color,
     this.gradient,
     this.border,
@@ -46,134 +32,46 @@ class GlassContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = color ?? Colors.white;
+    final radius = BorderRadius.circular(borderRadius);
+    final shadowColor = AppTheme.accentPrimary.withValues(alpha: isNavElement ? 0.18 : 0.10);
 
-    if (isNavElement) {
-      // FULL LIQUID GLASS — only for nav/tab bars per Apple guidelines
-      return Container(
-        width: width,
-        height: height,
-        margin: margin,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(borderRadius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.35),
-              blurRadius: 24,
-              offset: const Offset(0, 4),
-            ),
-          ],
+    final decoration = BoxDecoration(
+      color: color ?? Colors.white.withValues(alpha: isNavElement ? 0.90 : 0.86),
+      gradient: gradient,
+      borderRadius: radius,
+      border: border ?? Border.all(color: AppTheme.glassBorder, width: 1),
+      boxShadow: [
+        BoxShadow(
+          color: shadowColor,
+          blurRadius: isNavElement ? 32 : 26,
+          offset: Offset(0, isNavElement ? 12 : 10),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(borderRadius),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              padding: padding,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(borderRadius),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.14),
-                    Colors.white.withValues(alpha: 0.06),
-                  ],
-                ),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.18),
-                  width: 0.8,
-                ),
-              ),
-              child: Stack(
-                children: [
-                  // Apple-style specular — top highlight streak
-                  Positioned(
-                    top: 0, left: 0, right: 0,
-                    child: Container(
-                      height: borderRadius * 0.6,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(borderRadius),
-                          topRight: Radius.circular(borderRadius),
-                        ),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.centerRight,
-                          colors: [
-                            Colors.white.withValues(alpha: 0.22),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  child,
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }
+      ],
+    );
 
-    // CONTENT-LAYER CARD — vibrancy tint, NO BackdropFilter
-    // Per Apple: cards are in the content layer, not the Liquid Glass layer
-    return Container(
+    final content = Container(
       width: width,
       height: height,
       margin: margin,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
-        gradient: gradient ??
-            LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                baseColor.withValues(alpha: 0.11),
-                baseColor.withValues(alpha: 0.05),
-                baseColor.withValues(alpha: 0.02),
-              ],
-              stops: const [0.0, 0.5, 1.0],
-            ),
-        border: border ??
-            Border.all(
-              color: Colors.white.withValues(alpha: 0.10),
-              width: 0.8,
-            ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF7B2FFF).withValues(alpha: 0.06),
-            blurRadius: 20,
-            spreadRadius: 0.5,
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.45),
-            blurRadius: 18,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
+      decoration: decoration,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: radius,
         child: Stack(
           children: [
-            // Specular highlight — glass sheen
             Positioned(
-              top: 0, left: 0, right: 0,
+              top: 0,
+              left: 0,
+              right: 0,
               child: Container(
-                height: borderRadius * 0.7,
+                height: borderRadius * 0.55,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(borderRadius),
-                    topRight: Radius.circular(borderRadius),
-                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(borderRadius)),
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.white.withValues(alpha: 0.10),
-                      Colors.transparent,
+                      Colors.white.withValues(alpha: 0.70),
+                      Colors.white.withValues(alpha: 0.0),
                     ],
                   ),
                 ),
@@ -182,6 +80,16 @@ class GlassContainer extends StatelessWidget {
             Padding(padding: padding ?? EdgeInsets.zero, child: child),
           ],
         ),
+      ),
+    );
+
+    if (!isNavElement) return content;
+
+    return ClipRRect(
+      borderRadius: radius,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+        child: content,
       ),
     );
   }
