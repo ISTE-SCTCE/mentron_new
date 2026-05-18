@@ -11,41 +11,38 @@ interface ProfileCardProps {
     className?: string
 }
 
-export function ProfileCard({ 
-    displayName, 
-    displayRole, 
-    displayDept, 
-    displayRoll, 
+export function ProfileCard({
+    displayName,
+    displayRole,
+    displayDept,
+    displayRoll,
     displayYear,
-    className = ""
+    className = "",
 }: ProfileCardProps) {
     return (
-        <div className={`glass-card flex flex-col items-center justify-center text-center space-y-6 ${className}`}>
-            <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 p-[2px]">
-                    <div className="w-full h-full rounded-full bg-[#030303] flex items-center justify-center text-4xl font-black uppercase">
-                        {displayName[0]}
-                    </div>
+        <div className={`glass-card flex h-full flex-col justify-between ${className}`}>
+            <div className="flex items-center gap-4">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[24px] bg-[#5d22d7] text-3xl font-black uppercase text-white shadow-[0_16px_32px_rgba(93,34,215,0.24)]">
+                    {displayName?.[0] || 'M'}
                 </div>
-                <div>
-                    <h1 className="text-3xl font-black text-white">{displayName}</h1>
-                    <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">{displayRole}</p>
+                <div className="min-w-0">
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#ff8a24]">Learner profile</p>
+                    <h2 className="mt-1 truncate text-2xl font-black text-[#241653]">{displayName}</h2>
+                    <p className="text-sm font-bold uppercase tracking-widest text-[#8a80aa]">{displayRole}</p>
                 </div>
             </div>
 
-            <div className="space-y-4 pt-6 border-t border-white/5 w-full">
-                <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 font-medium">Dept</span>
-                    <span className="text-white font-black">{displayDept}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 font-medium">Roll</span>
-                    <span className="text-white font-black uppercase">{displayRoll}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 font-medium">Year</span>
-                    <span className="text-white font-black">{displayYear}</span>
-                </div>
+            <div className="mt-7 grid grid-cols-3 gap-3">
+                {[
+                    ['Dept', displayDept],
+                    ['Roll', displayRoll],
+                    ['Year', displayYear],
+                ].map(([label, value]) => (
+                    <div key={label} className="rounded-2xl bg-[#f7f3ff] p-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[#8a80aa]">{label}</p>
+                        <p className="mt-1 truncate text-sm font-black text-[#241653]">{value}</p>
+                    </div>
+                ))}
             </div>
         </div>
     )

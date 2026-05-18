@@ -26,7 +26,7 @@ export function SettingsClient({ profile, userEmail }: SettingsClientProps) {
 
     // Profile Edit State
     const [fullName, setFullName] = useState(profile?.full_name || '')
-    const [departmentCode, setDepartmentCode] = useState(profile?.department_code || '')
+    const [departmentName, setDepartmentName] = useState(profile?.department || '')
     const [rollNumber, setRollNumber] = useState(profile?.roll_number || '')
     const [year, setYear] = useState(profile?.year?.toString() || '')
     const [isteId, setIsteId] = useState(profile?.iste_id || '')
@@ -54,7 +54,7 @@ export function SettingsClient({ profile, userEmail }: SettingsClientProps) {
                 .from('profiles')
                 .update({
                     full_name: fullName,
-                    department_code: departmentCode,
+                    department: departmentName,
                     roll_number: rollNumber,
                     year: year ? parseInt(year) : null,
                     iste_id: isteId || null
@@ -131,8 +131,8 @@ export function SettingsClient({ profile, userEmail }: SettingsClientProps) {
                             className="w-full glass bg-white/5 border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 transition-colors" />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-blue-400/80">Department Code</label>
-                        <input type="text" value={departmentCode} onChange={e => setDepartmentCode(e.target.value)}
+                        <label className="text-sm font-medium text-blue-400/80">Department Name</label>
+                        <input type="text" value={departmentName} onChange={e => setDepartmentName(e.target.value)}
                             className="w-full glass bg-white/5 border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 transition-colors" />
                     </div>
                     <div className="space-y-2">

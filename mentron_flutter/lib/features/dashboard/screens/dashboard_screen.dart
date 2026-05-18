@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../data/models/subject_data.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
@@ -80,7 +81,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           .eq('role', 'member');
 
       final notesCount = await supabase.from('notes').count(CountOption.exact);
-      final projectsCount = await supabase.from('projects').count(CountOption.exact);
+      final projectsCount = await supabase
+          .from('projects')
+          .count(CountOption.exact);
 
       if (mounted) {
         setState(() {
@@ -131,6 +134,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 18),
                 _buildLearningStats(),
                 const SizedBox(height: 22),
+                if (!_isExec) ...[
+                  _buildSectionHeader('Top subjects'),
+                  const SizedBox(height: 12),
+                  _buildTopSubjects(),
+                  const SizedBox(height: 22),
+                ],
                 _buildSectionHeader('Learning paths'),
                 const SizedBox(height: 12),
                 _buildLearningGrid(),
@@ -173,10 +182,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 firstName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                      fontSize: 30,
-                      height: 1,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.displayMedium?.copyWith(fontSize: 30, height: 1),
               ),
             ],
           ),
@@ -200,7 +208,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ).animate().fadeIn().slideY(begin: -0.08);
   }
 
-  Widget _buildRoundAction({required IconData icon, required VoidCallback onTap}) {
+  Widget _buildRoundAction({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: GlassContainer(
@@ -235,18 +246,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Positioned(
             right: -32,
             top: -42,
-            child: _HeroBubble(color: AppTheme.accentSecondary.withValues(alpha: 0.38)),
+            child: _HeroBubble(
+              color: AppTheme.accentSecondary.withValues(alpha: 0.38),
+            ),
           ),
           Positioned(
             left: 20,
             bottom: -52,
-            child: _HeroBubble(color: AppTheme.accentTertiary.withValues(alpha: 0.24)),
+            child: _HeroBubble(
+              color: AppTheme.accentTertiary.withValues(alpha: 0.24),
+            ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 7,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.16),
                   borderRadius: BorderRadius.circular(999),
@@ -254,7 +272,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 15),
+                    Icon(
+                      Icons.auto_awesome_rounded,
+                      color: Colors.white,
+                      size: 15,
+                    ),
                     SizedBox(width: 6),
                     Text(
                       'Study plan',
@@ -290,9 +312,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 20),
               Row(
                 children: [
-                  Expanded(child: _HeroMeta(label: 'Year', value: year)),
+                  Expanded(
+                    child: _HeroMeta(label: 'Year', value: year),
+                  ),
                   const SizedBox(width: 10),
-                  Expanded(child: _HeroMeta(label: 'Dept', value: dept)),
+                  Expanded(
+                    child: _HeroMeta(label: 'Dept', value: dept),
+                  ),
                 ],
               ),
             ],
@@ -308,7 +334,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Expanded(
           child: _buildStatCard(
             'XP',
-            userXP >= 1000 ? '${(userXP / 1000).toStringAsFixed(1)}k' : '$userXP',
+            userXP >= 1000
+                ? '${(userXP / 1000).toStringAsFixed(1)}k'
+                : '$userXP',
             Icons.bolt_rounded,
             AppTheme.accentSecondary,
           ),
@@ -335,7 +363,145 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ).animate().fadeIn(delay: 120.ms).slideY(begin: 0.08);
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  List<String> _getTopSubjects() {
+    final year = int.tryParse(_profile?['year']?.toString() ?? '') ?? 1;
+    final dept = (_profile?['department']?.toString() ?? 'CSE').toUpperCase();
+    final sems = SubjectData.semsForYear(year);
+    final sem = sems.isNotEmpty ? sems.first : 'S1';
+
+    if (year == 1) {
+      final group = SubjectData.getGroupFromDepartment(dept);
+      return SubjectData.getFirstYearSubjects(group, sem).take(4).toList();
+    }
+
+    final subjects = SubjectData.getSubjects(dept, sem);
+    if (subjects.isNotEmpty) return subjects.take(4).toList();
+
+    return const [
+      'Data Structures and Algorithms',
+      'Database Management Systems',
+      'Operating Systems',
+      'Computer Networks',
+    ];
+  }
+
+  Widget _buildTopSubjects() {
+    final subjects = _getTopSubjects();
+    final colors = [
+      AppTheme.accentPrimary,
+      AppTheme.accentSecondary,
+      AppTheme.accentTertiary,
+      const Color(0xFFE11D48),
+    ];
+    final icons = [
+      Icons.calculate_rounded,
+      Icons.science_rounded,
+      Icons.code_rounded,
+      Icons.memory_rounded,
+    ];
+
+    return SizedBox(
+      height: 166,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: subjects.length,
+        separatorBuilder: (context, index) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final color = colors[index % colors.length];
+          return _buildSubjectCard(
+            subject: subjects[index],
+            color: color,
+            icon: icons[index % icons.length],
+            onTap: () => MainScaffoldState.of(context)?.setIndex(1),
+          );
+        },
+      ),
+    ).animate().fadeIn(delay: 150.ms).slideX(begin: 0.08);
+  }
+
+  Widget _buildSubjectCard({
+    required String subject,
+    required Color color,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    final shortTitle = subject
+        .replaceAll('Mathematics for ', 'Math ')
+        .replaceAll('Engineering ', 'Engg ')
+        .replaceAll('Introduction to ', 'Intro to ');
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 142,
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: color.withValues(alpha: 0.14)),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.13),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.13),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Icon(icon, color: color, size: 23),
+            ),
+            const Spacer(),
+            Text(
+              shortTitle,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppTheme.textMain,
+                fontSize: 14,
+                fontWeight: FontWeight.w900,
+                height: 1.12,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(999),
+                    child: LinearProgressIndicator(
+                      minHeight: 6,
+                      value: 0.65 + (0.07 * (subject.length % 4)),
+                      backgroundColor: color.withValues(alpha: 0.10),
+                      valueColor: AlwaysStoppedAnimation<Color>(color),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(Icons.arrow_forward_rounded, color: color, size: 17),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return GlassContainer(
       height: 112,
       padding: const EdgeInsets.all(14),
@@ -488,7 +654,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                 ),
-                Icon(Icons.arrow_forward_rounded, color: action.color, size: 18),
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  color: action.color,
+                  size: 18,
+                ),
               ],
             ),
           ],
@@ -683,10 +853,7 @@ class _HeroBubble extends StatelessWidget {
     return Container(
       width: 142,
       height: 142,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }

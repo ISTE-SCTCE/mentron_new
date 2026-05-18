@@ -8,7 +8,6 @@ import '../../../shared/widgets/glass_container.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../core/utils/department_mapper.dart';
 
-
 class RealTimeCalendar extends StatefulWidget {
   const RealTimeCalendar({super.key});
 
@@ -151,7 +150,6 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final selectedEvents = _selectedDay != null
@@ -188,7 +186,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
                 formatButtonVisible: false,
                 titleCentered: true,
                 titleTextStyle: const TextStyle(
-                  color: Colors.white,
+                  color: AppTheme.textMain,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -216,7 +214,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
               calendarStyle: CalendarStyle(
                 outsideDaysVisible: false,
                 defaultTextStyle: const TextStyle(
-                  color: Colors.white,
+                  color: AppTheme.textMain,
                   fontSize: 12,
                 ),
                 weekendTextStyle: TextStyle(
@@ -297,7 +295,9 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
               margin: const EdgeInsets.only(bottom: 8),
               child: GlassContainer(
                 padding: const EdgeInsets.all(16),
-                border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: Colors.orangeAccent.withValues(alpha: 0.3),
+                ),
                 child: Row(
                   children: [
                     Container(
@@ -316,7 +316,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
                           Text(
                             event['event_name'] ?? '',
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: AppTheme.textMain,
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
                             ),
@@ -378,7 +378,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
                         Text(
                           '${_selectedDay!.day}/${_selectedDay!.month}/${_selectedDay!.year}',
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppTheme.textMain,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
@@ -413,18 +413,29 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                    border: Border.all(
+                      color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+                    ),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _selectedDept,
-                      dropdownColor: const Color(0xFF0E0E1A),
+                      dropdownColor: Colors.white,
                       isExpanded: true,
-                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      iconEnabledColor: AppTheme.textMuted,
+                      style: const TextStyle(
+                        color: AppTheme.textMain,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
                       items: ['General', 'CSE', 'ECE', 'BT', 'ME', 'MEA']
-                          .map((d) => DropdownMenuItem(value: d, child: Text(d)))
+                          .map(
+                            (d) => DropdownMenuItem(value: d, child: Text(d)),
+                          )
                           .toList(),
-                      onChanged: (val) { if (val != null) setState(() => _selectedDept = val); },
+                      onChanged: (val) {
+                        if (val != null) setState(() => _selectedDept = val);
+                      },
                     ),
                   ),
                 ),
@@ -498,25 +509,30 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
   ) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+        ),
       ),
       child: TextField(
         controller: controller,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        cursorColor: AppTheme.accentPrimary,
+        style: const TextStyle(
+          color: AppTheme.textMain,
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+        ),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
-            color: Colors.white.withValues(alpha: 0.2),
+            color: AppTheme.textMuted.withValues(alpha: 0.70),
             fontSize: 13,
           ),
-          prefixIcon: Icon(
-            icon,
-            color: Colors.white.withValues(alpha: 0.4),
-            size: 18,
-          ),
+          prefixIcon: Icon(icon, color: AppTheme.textMuted, size: 18),
           border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 14,

@@ -13,7 +13,6 @@ import '../../../shared/widgets/liquid_background.dart';
 import '../../../shared/widgets/bouncing_balls_loader.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../data/models/subject_data.dart';
-import '../../../core/utils/app_transitions.dart';
 
 class AddNoteScreen extends StatefulWidget {
   const AddNoteScreen({super.key});
@@ -37,23 +36,29 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   bool _isLoading = false;
   List<Map<String, dynamic>> _availableFolders = [];
   bool _loadingFolders = false;
-  
+
   double _uploadProgress = 0;
   String _uploadStage = 'idle'; // 'idle', 'preparing', 'uploading', 'saving'
 
   bool get _isFirstYear => _selectedYear == '1';
 
-  List<String> get _semOptions => SubjectData.semsForYear(int.parse(_selectedYear));
+  List<String> get _semOptions =>
+      SubjectData.semsForYear(int.parse(_selectedYear));
 
   List<String> get _subjectOptions {
     if (_selectedSem.isEmpty || _selectedDeptOrGroup.isEmpty) return [];
     List<String> rawSubjects = [];
     if (_isFirstYear) {
-      rawSubjects = SubjectData.getFirstYearSubjects(_selectedDeptOrGroup, _selectedSem)
-          .where((s) => !s.startsWith('Electives:')).toList();
+      rawSubjects = SubjectData.getFirstYearSubjects(
+        _selectedDeptOrGroup,
+        _selectedSem,
+      ).where((s) => !s.startsWith('Electives:')).toList();
     } else {
       rawSubjects = SubjectData.getSubjects(_selectedDeptOrGroup, _selectedSem)
-          .where((s) => !s.startsWith('Electives:') && !s.startsWith('— Electives:')).toList();
+          .where(
+            (s) => !s.startsWith('Electives:') && !s.startsWith('— Electives:'),
+          )
+          .toList();
     }
 
     List<String> expanded = [];
@@ -82,7 +87,9 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: Colors.red,
-            content: Text('Access Restricted: You do not have permission to upload notes.'),
+            content: Text(
+              'Access Restricted: You do not have permission to upload notes.',
+            ),
           ),
         );
         Navigator.pop(context);
@@ -103,7 +110,9 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       if (profile != null && mounted) {
         final roll = profile['roll_number'] as String?;
         final detected = DepartmentMapper.getDepartmentFromRoll(roll);
-        final dept = detected != 'Other' ? detected : (profile['department'] as String? ?? 'CSE');
+        final dept = detected != 'Other'
+            ? detected
+            : (profile['department'] as String? ?? 'CSE');
         final year = profile['year']?.toString() ?? '1';
         final validYear = ['1', '2', '3', '4'].contains(year) ? year : '1';
 
@@ -128,11 +137,20 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
   Future<void> _loadFoldersForSubject() async {
     if (_selectedSubject.isEmpty) {
-      setState(() { _availableFolders = []; _selectedFolderId = null; _selectedFolderName = null; });
+      setState(() {
+        _availableFolders = [];
+        _selectedFolderId = null;
+        _selectedFolderName = null;
+      });
       return;
     }
-    if (_selectedSubject.startsWith('PYQ - ') || _selectedSubject.startsWith('Video - ')) {
-      setState(() { _availableFolders = []; _selectedFolderId = null; _selectedFolderName = null; });
+    if (_selectedSubject.startsWith('PYQ - ') ||
+        _selectedSubject.startsWith('Video - ')) {
+      setState(() {
+        _availableFolders = [];
+        _selectedFolderId = null;
+        _selectedFolderName = null;
+      });
       return;
     }
 
@@ -166,8 +184,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: isVideoType
-        ? ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'mp4', 'mov', 'avi', 'mkv']
-        : ['pdf', 'doc', 'docx', 'ppt', 'pptx'],
+          ? ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'mp4', 'mov', 'avi', 'mkv']
+          : ['pdf', 'doc', 'docx', 'ppt', 'pptx'],
     );
     if (result != null) {
       setState(() => _selectedFile = File(result.files.single.path!));
@@ -176,11 +194,15 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
   Future<void> _handleUpload() async {
     if (_titleController.text.isEmpty || _selectedFile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Title and File are required')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Title and File are required')),
+      );
       return;
     }
     if (_selectedSem.isEmpty || _selectedSubject.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a semester and subject')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a semester and subject')),
+      );
       return;
     }
 
@@ -200,17 +222,22 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
       final fileName = _selectedFile!.path.split(Platform.pathSeparator).last;
       final fileExtension = fileName.split('.').last.toLowerCase();
-      
+
       String contentType = 'application/octet-stream';
-      if (fileExtension == 'pdf') contentType = 'application/pdf';
-      else if (fileExtension == 'doc') contentType = 'application/msword';
-      else if (fileExtension == 'docx') contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-      else if (['mp4', 'mov', 'avi', 'mkv'].contains(fileExtension)) contentType = 'video/$fileExtension';
+      if (fileExtension == 'pdf')
+        contentType = 'application/pdf';
+      else if (fileExtension == 'doc')
+        contentType = 'application/msword';
+      else if (fileExtension == 'docx')
+        contentType =
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      else if (['mp4', 'mov', 'avi', 'mkv'].contains(fileExtension))
+        contentType = 'video/$fileExtension';
 
       // ── STEP 1: Get Presigned URL ──
       const String apiBaseUrl = 'https://mentron.istesctce.in';
       final presignedUri = Uri.parse('$apiBaseUrl/api/upload/presigned');
-      
+
       final presignedResponse = await http.post(
         presignedUri,
         headers: {
@@ -220,7 +247,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         body: jsonEncode({
           "fileName": fileName,
           "fileType": contentType,
-          "bucketFolder": "notes_bucket"
+          "bucketFolder": "notes_bucket",
         }),
       );
 
@@ -234,24 +261,24 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
       // ── STEP 2: Upload Direct to R2 ──
       setState(() => _uploadStage = 'uploading');
-      
+
       final fileBytes = await _selectedFile!.readAsBytes();
-      
+
       final request = http.Request('PUT', Uri.parse(uploadUrl));
       request.headers['Content-Type'] = contentType;
       request.bodyBytes = fileBytes;
-      
+
       final response = await request.send();
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw Exception('Failed to upload file to R2 storage.');
       }
-      
+
       setState(() => _uploadProgress = 1.0);
 
       // ── STEP 3: Save Metadata to DB ──
       setState(() => _uploadStage = 'saving');
-      
+
       final metadataUri = Uri.parse('$apiBaseUrl/api/notes/upload');
       final metadataResponse = await http.post(
         metadataUri,
@@ -276,19 +303,25 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       }
 
       if (mounted) {
-        final folderMsg = _selectedFolderName != null ? ' in "$_selectedFolderName"' : '';
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: Colors.green,
-          content: Text('✅ Note successfully published$folderMsg!'),
-        ));
+        final folderMsg = _selectedFolderName != null
+            ? ' in "$_selectedFolderName"'
+            : '';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('✅ Note successfully published$folderMsg!'),
+          ),
+        );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(ErrorHandler.friendly(e)),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(ErrorHandler.friendly(e)),
+          ),
+        );
       }
     } finally {
       if (mounted) {
@@ -309,8 +342,14 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            title: const Text('CONTRIBUTE NOTE',
-                style: TextStyle(fontSize: 16, letterSpacing: 2, fontWeight: FontWeight.bold)),
+            title: const Text(
+              'CONTRIBUTE NOTE',
+              style: TextStyle(
+                fontSize: 16,
+                letterSpacing: 2,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           body: LiquidBackground(
             child: SingleChildScrollView(
@@ -323,60 +362,83 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _buildLabel('TITLE'),
-                        _buildTextField(_titleController, 'e.g. Data Structures Unit 1'),
+                        _buildTextField(
+                          _titleController,
+                          'e.g. Data Structures Unit 1',
+                        ),
                         const SizedBox(height: 20),
 
                         _buildLabel('DESCRIPTION'),
-                        _buildTextField(_descController, 'Brief summary of contents...', maxLines: 3),
+                        _buildTextField(
+                          _descController,
+                          'Brief summary of contents...',
+                          maxLines: 3,
+                        ),
                         const SizedBox(height: 20),
 
                         Row(
                           children: [
                             Expanded(
-                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                _buildLabel('YEAR'),
-                                _buildDropdown(
-                                  value: _selectedYear,
-                                  items: ['1', '2', '3', '4'],
-                                  labelBuilder: (y) => 'Year $y',
-                                  onChanged: (val) {
-                                    final sems = SubjectData.semsForYear(int.parse(val));
-                                    setState(() {
-                                      _selectedYear = val;
-                                      _selectedSem = sems.isNotEmpty ? sems.first : '';
-                                      _selectedSubject = '';
-                                      _selectedDeptOrGroup = val == '1' ? 'A' : 'CSE';
-                                      _availableFolders = [];
-                                      _selectedFolderId = null;
-                                      _selectedFolderName = null;
-                                    });
-                                  },
-                                ),
-                              ]),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildLabel('YEAR'),
+                                  _buildDropdown(
+                                    value: _selectedYear,
+                                    items: ['1', '2', '3', '4'],
+                                    labelBuilder: (y) => 'Year $y',
+                                    onChanged: (val) {
+                                      final sems = SubjectData.semsForYear(
+                                        int.parse(val),
+                                      );
+                                      setState(() {
+                                        _selectedYear = val;
+                                        _selectedSem = sems.isNotEmpty
+                                            ? sems.first
+                                            : '';
+                                        _selectedSubject = '';
+                                        _selectedDeptOrGroup = val == '1'
+                                            ? 'A'
+                                            : 'CSE';
+                                        _availableFolders = [];
+                                        _selectedFolderId = null;
+                                        _selectedFolderName = null;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
-                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                _buildLabel('SEMESTER'),
-                                _buildDropdown(
-                                  value: _selectedSem.isEmpty ? null : _selectedSem,
-                                  items: _semOptions,
-                                  labelBuilder: (s) => s,
-                                  onChanged: (val) => setState(() {
-                                    _selectedSem = val;
-                                    _selectedSubject = '';
-                                    _availableFolders = [];
-                                    _selectedFolderId = null;
-                                    _selectedFolderName = null;
-                                  }),
-                                ),
-                              ]),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildLabel('SEMESTER'),
+                                  _buildDropdown(
+                                    value: _selectedSem.isEmpty
+                                        ? null
+                                        : _selectedSem,
+                                    items: _semOptions,
+                                    labelBuilder: (s) => s,
+                                    onChanged: (val) => setState(() {
+                                      _selectedSem = val;
+                                      _selectedSubject = '';
+                                      _availableFolders = [];
+                                      _selectedFolderId = null;
+                                      _selectedFolderName = null;
+                                    }),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 20),
 
-                        _buildLabel(_isFirstYear ? 'STREAM GROUP' : 'DEPARTMENT'),
+                        _buildLabel(
+                          _isFirstYear ? 'STREAM GROUP' : 'DEPARTMENT',
+                        ),
                         _isFirstYear
                             ? _buildDropdown(
                                 value: _selectedDeptOrGroup,
@@ -405,9 +467,9 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                                   const labels = {
                                     'CSE': 'Computer Science',
                                     'ECE': 'Electronics & Comm',
-                                    'ME':  'Mechanical Engg',
+                                    'ME': 'Mechanical Engg',
                                     'MEA': 'Automobile Engg',
-                                    'BT':  'Biotechnology',
+                                    'BT': 'Biotechnology',
                                   };
                                   return labels[d] ?? d;
                                 },
@@ -424,7 +486,9 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                         if (_subjectOptions.isNotEmpty) ...[
                           _buildLabel('SUBJECT'),
                           _buildDropdown(
-                            value: _selectedSubject.isEmpty ? null : _selectedSubject,
+                            value: _selectedSubject.isEmpty
+                                ? null
+                                : _selectedSubject,
                             items: _subjectOptions,
                             labelBuilder: (s) => s,
                             onChanged: (val) {
@@ -445,10 +509,19 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.05),
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.1),
+                                ),
                               ),
                               child: const Center(
-                                child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.accentSecondary)),
+                                child: SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppTheme.accentSecondary,
+                                  ),
+                                ),
                               ),
                             )
                           else if (_availableFolders.isEmpty)
@@ -457,15 +530,26 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.03),
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.06),
+                                ),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.folder_off_outlined, color: AppTheme.textMuted, size: 16),
+                                  const Icon(
+                                    Icons.folder_off_outlined,
+                                    color: AppTheme.textMuted,
+                                    size: 16,
+                                  ),
                                   const SizedBox(width: 10),
                                   Text(
                                     'No folders created for this subject yet',
-                                    style: TextStyle(color: AppTheme.textMuted.withValues(alpha: 0.6), fontSize: 12),
+                                    style: TextStyle(
+                                      color: AppTheme.textMuted.withValues(
+                                        alpha: 0.6,
+                                      ),
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -473,10 +557,19 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                           else
                             _buildDropdownNullable(
                               value: _selectedFolderId,
-                              items: [null, ..._availableFolders.map((f) => f['id'] as String)],
+                              items: [
+                                null,
+                                ..._availableFolders.map(
+                                  (f) => f['id'] as String,
+                                ),
+                              ],
                               labelBuilder: (id) {
-                                if (id == null) return 'No folder (subject root)';
-                                final folder = _availableFolders.firstWhere((f) => f['id'] == id, orElse: () => {});
+                                if (id == null)
+                                  return 'No folder (subject root)';
+                                final folder = _availableFolders.firstWhere(
+                                  (f) => f['id'] == id,
+                                  orElse: () => {},
+                                );
                                 return '📁 ${folder['name'] ?? id}';
                               },
                               onChanged: (val) {
@@ -484,7 +577,11 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                                   _selectedFolderId = val;
                                   _selectedFolderName = val == null
                                       ? null
-                                      : (_availableFolders.firstWhere((f) => f['id'] == val, orElse: () => {})['name'] as String?);
+                                      : (_availableFolders.firstWhere(
+                                              (f) => f['id'] == val,
+                                              orElse: () => {},
+                                            )['name']
+                                            as String?);
                                 });
                               },
                             ),
@@ -516,9 +613,11 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                   const BouncingBallsLoader(),
                   const SizedBox(height: 40),
                   Text(
-                    _uploadStage == 'preparing' ? 'PREPARING BRIDGE...' :
-                    _uploadStage == 'uploading' ? 'STREAMING TO R2...' :
-                    'PUBLISHING METADATA...',
+                    _uploadStage == 'preparing'
+                        ? 'PREPARING BRIDGE...'
+                        : _uploadStage == 'uploading'
+                        ? 'STREAMING TO R2...'
+                        : 'PUBLISHING METADATA...',
                     style: const TextStyle(
                       color: AppTheme.accentSecondary,
                       fontSize: 12,
@@ -534,7 +633,9 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                         borderRadius: BorderRadius.circular(10),
                         child: const LinearProgressIndicator(
                           backgroundColor: Colors.white10,
-                          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.accentSecondary),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppTheme.accentSecondary,
+                          ),
                         ),
                       ),
                     ),
@@ -550,27 +651,48 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   Widget _buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, left: 4),
-      child: Text(text,
-          style: const TextStyle(
-              color: AppTheme.accentSecondary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: AppTheme.accentSecondary,
+          fontSize: 10,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 2,
+        ),
+      ),
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint, {int maxLines = 1}) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String hint, {
+    int maxLines = 1,
+  }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+        ),
       ),
       child: TextField(
         controller: controller,
         maxLines: maxLines,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        cursorColor: AppTheme.accentPrimary,
+        style: const TextStyle(
+          color: AppTheme.textMain,
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+        ),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2)),
+          hintStyle: TextStyle(
+            color: AppTheme.textMuted.withValues(alpha: 0.70),
+          ),
           border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
         ),
       ),
@@ -587,22 +709,44 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+        ),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
-          dropdownColor: AppTheme.surfaceColor,
-          hint: Text('Select', style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 14)),
-          style: const TextStyle(color: Colors.white, fontSize: 14),
-          onChanged: (val) { if (val != null) onChanged(val); },
-          items: items.map((item) => DropdownMenuItem(
-            value: item,
-            child: Text(labelBuilder(item), overflow: TextOverflow.ellipsis),
-          )).toList(),
+          dropdownColor: Colors.white,
+          iconEnabledColor: AppTheme.textMuted,
+          hint: Text(
+            'Select',
+            style: TextStyle(
+              color: AppTheme.textMuted.withValues(alpha: 0.70),
+              fontSize: 14,
+            ),
+          ),
+          style: const TextStyle(
+            color: AppTheme.textMain,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+          onChanged: (val) {
+            if (val != null) onChanged(val);
+          },
+          items: items
+              .map(
+                (item) => DropdownMenuItem(
+                  value: item,
+                  child: Text(
+                    labelBuilder(item),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              )
+              .toList(),
         ),
       ),
     );
@@ -618,21 +762,35 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+        ),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String?>(
           value: value,
           isExpanded: true,
-          dropdownColor: AppTheme.surfaceColor,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
+          dropdownColor: Colors.white,
+          iconEnabledColor: AppTheme.textMuted,
+          style: const TextStyle(
+            color: AppTheme.textMain,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
           onChanged: onChanged,
-          items: items.map((item) => DropdownMenuItem<String?>(
-            value: item,
-            child: Text(labelBuilder(item), overflow: TextOverflow.ellipsis),
-          )).toList(),
+          items: items
+              .map(
+                (item) => DropdownMenuItem<String?>(
+                  value: item,
+                  child: Text(
+                    labelBuilder(item),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              )
+              .toList(),
         ),
       ),
     );
@@ -648,22 +806,32 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
           color: Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: _selectedFile != null ? AppTheme.accentSecondary : Colors.white.withValues(alpha: 0.1),
+            color: _selectedFile != null
+                ? AppTheme.accentSecondary
+                : AppTheme.accentPrimary.withValues(alpha: 0.12),
           ),
         ),
         child: Column(
           children: [
             Icon(
-              _selectedFile != null ? Icons.check_circle_rounded : Icons.cloud_upload_outlined,
-              color: _selectedFile != null ? Colors.greenAccent : AppTheme.textMuted,
+              _selectedFile != null
+                  ? Icons.check_circle_rounded
+                  : Icons.cloud_upload_outlined,
+              color: _selectedFile != null
+                  ? Colors.greenAccent
+                  : AppTheme.textMuted,
               size: 32,
             ),
             const SizedBox(height: 12),
             Text(
-              _selectedFile != null ? _selectedFile!.path.split(Platform.pathSeparator).last : 'Select Document (PDF/DOC)',
+              _selectedFile != null
+                  ? _selectedFile!.path.split(Platform.pathSeparator).last
+                  : 'Select Document (PDF/DOC)',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: _selectedFile != null ? Colors.white : AppTheme.textMuted,
+                color: _selectedFile != null
+                    ? AppTheme.textMain
+                    : AppTheme.textMuted,
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
               ),

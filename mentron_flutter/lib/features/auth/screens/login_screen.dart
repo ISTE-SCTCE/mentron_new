@@ -38,10 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
     try {
       final supabase = Provider.of<SupabaseService>(context, listen: false);
-      final response = await supabase.signIn(
-        email: email,
-        password: password,
-      );
+      final response = await supabase.signIn(email: email, password: password);
 
       if (response.user != null && mounted) {
         // Claim this device as the active session — kicks out any other device.
@@ -60,7 +57,9 @@ class _LoginScreenState extends State<LoginScreen> {
           SnackBar(
             backgroundColor: Colors.red.withValues(alpha: 0.9),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             content: Text(ErrorHandler.friendly(e)),
           ),
         );
@@ -89,7 +88,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 200,
                       filterQuality: FilterQuality.high,
                       isAntiAlias: true,
-                    ).animate().scale(delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
+                    ).animate().scale(
+                      delay: 200.ms,
+                      duration: 600.ms,
+                      curve: Curves.elasticOut,
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       'Your Academic Companion',
@@ -103,11 +106,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           Text(
                             'SIGN IN',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              letterSpacing: 4,
-                              fontSize: 14,
-                              color: AppTheme.accentSecondary,
-                            ),
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(
+                                  letterSpacing: 4,
+                                  fontSize: 14,
+                                  color: AppTheme.accentSecondary,
+                                ),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 32),
@@ -129,12 +133,16 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: TextButton(
                               onPressed: () => Navigator.push(
                                 context,
-                                AppTransitions.slideUp(const ForgotPasswordScreen()),
+                                AppTransitions.slideUp(
+                                  const ForgotPasswordScreen(),
+                                ),
                               ),
                               child: Text(
                                 'Forgot Password?',
                                 style: TextStyle(
-                                  color: AppTheme.accentSecondary.withValues(alpha: 0.7),
+                                  color: AppTheme.accentSecondary.withValues(
+                                    alpha: 0.7,
+                                  ),
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -145,9 +153,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           ElevatedButton(
                             onPressed: _isLoading ? null : _handleLogin,
                             child: _isLoading
-                              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                              : const Text('ENTER SYSTEM'),
-                          ).animate().shimmer(delay: 1.seconds, duration: 2.seconds),
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.black,
+                                    ),
+                                  )
+                                : const Text('ENTER SYSTEM'),
+                          ).animate().shimmer(
+                            delay: 1.seconds,
+                            duration: 2.seconds,
+                          ),
                         ],
                       ),
                     ).animate().slideY(begin: 0.1, delay: 300.ms).fadeIn(),
@@ -159,7 +177,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: const Text(
                         'New here? Create Account →',
-                        style: TextStyle(color: AppTheme.accentSecondary, fontSize: 12),
+                        style: TextStyle(
+                          color: AppTheme.accentSecondary,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   ],
@@ -205,30 +226,47 @@ class _LoginScreenState extends State<LoginScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+        ),
       ),
       child: TextField(
         controller: controller,
         obscureText: isPassword ? _obscurePassword : false,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        cursorColor: AppTheme.accentPrimary,
+        style: const TextStyle(
+          color: AppTheme.textMain,
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+        ),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
-          prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.5), size: 20),
+          hintStyle: TextStyle(
+            color: AppTheme.textMuted.withValues(alpha: 0.72),
+          ),
+          prefixIcon: Icon(icon, color: AppTheme.textMuted, size: 20),
           suffixIcon: isPassword
               ? IconButton(
                   icon: Icon(
-                    _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                    color: Colors.white.withValues(alpha: 0.4),
+                    _obscurePassword
+                        ? Icons.visibility_off_rounded
+                        : Icons.visibility_rounded,
+                    color: AppTheme.textMuted,
                     size: 20,
                   ),
-                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  onPressed: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
         ),
       ),
     );
