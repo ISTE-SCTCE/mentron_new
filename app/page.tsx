@@ -1,89 +1,113 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+import { createClient } from './lib/supabase/client'
 import Link from 'next/link'
-import { ArrowRight, BookOpen, CalendarDays, FolderKanban, PlayCircle, Trophy } from 'lucide-react'
 import { Footer } from './components/Footer'
-
-const learningTiles = [
-  { label: 'Notes', href: '/notes', icon: BookOpen, color: 'bg-[#efe8ff] text-[#5d22d7]' },
-  { label: 'Events', href: '/events', icon: CalendarDays, color: 'bg-[#e9fbf3] text-[#059669]' },
-  { label: 'Projects', href: '/projects', icon: FolderKanban, color: 'bg-[#fff4df] text-[#d97706]' },
-  { label: 'Rankings', href: '/leaderboard', icon: Trophy, color: 'bg-[#fff0f4] text-[#e11d48]' },
-]
+import { AboutSection } from './components/AboutSection'
 
 export default function Home() {
+  const [event, setEvent] = useState<any>(null)
+  const supabase = createClient()
+  useEffect(() => {
+    const fetchEvent = async () => {
+      const { data } = await supabase
+        .from('events')
+        .select('*')
+        .single()
+
+      setEvent(data)
+    }
+
+    fetchEvent()
+  }, [supabase])
+
   return (
-    <div className="min-h-screen overflow-hidden bg-[#f6f2ff] text-[#241653]">
-      <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-5 md:px-8">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5d22d7] text-xl font-black text-white shadow-[0_14px_30px_rgba(93,34,215,0.26)]">M</div>
-          <div>
-            <p className="text-lg font-black">Mentron</p>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#8a80aa]">Learning app</p>
-          </div>
-        </Link>
-        <div className="flex items-center gap-3">
-          <Link href="/login" className="rounded-2xl px-4 py-2 text-sm font-black text-[#5d22d7]">
+    <div className="flex flex-col min-h-screen relative overflow-hidden bg-[#020204]">
+      {/* Premium Background Aesthetic */}
+      <div className="absolute inset-0 bg-[#020204] z-0" />
+      
+      {/* Dynamic Animated Mesh */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/20 via-transparent to-purple-900/20 pointer-events-none z-[1]" />
+      
+      {/* Animated Orbs - Enhanced for Vibrancy */}
+      <div className="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] rounded-full bg-blue-600/15 blur-[160px] animate-pulse pointer-events-none z-[2]" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] rounded-full bg-purple-600/15 blur-[160px] animate-pulse pointer-events-none z-[2]" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-[30%] left-[20%] w-[40%] h-[40%] rounded-full bg-blue-500/10 blur-[140px] animate-pulse pointer-events-none z-[2]" style={{ animationDelay: '4s' }} />
+
+      {/* Grid Texture */}
+      <div className="absolute inset-0 opacity-[0.05] pointer-events-none z-[3]" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+      
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020204]/40 to-[#020204]/90 pointer-events-none z-[4]" />
+
+      {/* Navigation */}
+      <nav className="py-6 px-4 md:px-8 flex justify-between items-center bg-transparent relative z-30">
+        <div className="text-xl md:text-2xl font-black tracking-tighter text-white">MENTRON</div>
+        <div className="flex gap-4 md:gap-8 items-center">
+          <Link href="/login" className="text-xs md:text-sm font-bold text-gray-400 hover:text-white transition-all">
             Login
           </Link>
-          <Link href="/signup" className="rounded-2xl bg-[#5d22d7] px-5 py-3 text-sm font-black text-white shadow-[0_14px_30px_rgba(93,34,215,0.24)]">
-            Join
+          <Link
+            href="/signup"
+            className="glass glass-hover px-4 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-sm font-bold text-white shadow-lg"
+          >
+            Join the Club
           </Link>
         </div>
       </nav>
 
-      <main className="mx-auto grid min-h-[calc(100vh-88px)] w-full max-w-7xl grid-cols-1 items-center gap-8 px-5 pb-12 pt-5 md:grid-cols-[1.08fr_0.92fr] md:px-8">
-        <section>
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-[#ff8a24] shadow-[0_12px_30px_rgba(58,31,122,0.1)]">
-            <PlayCircle size={15} />
-            Learn, build, compete
+      {/* Hero Section */}
+      <main className="flex-1 flex flex-col justify-center items-center text-center px-6 relative z-10 py-20 lg:py-0">
+        <div className="max-w-4xl mx-auto space-y-10">
+          <div className="inline-block px-4 py-2 glass rounded-full text-[9px] md:text-[10px] font-black tracking-[0.3em] text-blue-400 uppercase mb-4 animate-fade-in shadow-[0_0_20px_rgba(59,130,246,0.2)]">
+            Engineering the Future
           </div>
-          <h1 className="max-w-2xl text-5xl font-black leading-[0.98] tracking-tight md:text-7xl">
-            Your study space, redesigned like a learning app.
-          </h1>
-          <p className="mt-5 max-w-xl text-base font-semibold leading-7 text-[#746b92]">
-            Mentron now brings notes, events, projects, marketplace, and rankings into a mobile-first academic flow inspired by the BYJU'S redesign.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/signup" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#5d22d7] px-6 py-4 text-sm font-black text-white shadow-[0_18px_34px_rgba(93,34,215,0.25)] transition hover:-translate-y-0.5">
-              Get started
-              <ArrowRight size={17} />
-            </Link>
-            <Link href="/login" className="inline-flex items-center justify-center rounded-2xl bg-white px-6 py-4 text-sm font-black text-[#5d22d7] shadow-[0_14px_28px_rgba(58,31,122,0.1)]">
-              Continue learning
-            </Link>
-          </div>
-        </section>
 
-        <section className="relative">
-          <div className="absolute -left-6 top-10 h-28 w-28 rounded-full bg-[#10b981]/20 blur-2xl" />
-          <div className="absolute -right-8 bottom-10 h-36 w-36 rounded-full bg-[#ff9f1c]/24 blur-2xl" />
-          <div className="relative rounded-[36px] bg-white p-5 shadow-[0_30px_80px_rgba(58,31,122,0.18)]">
-            <div className="rounded-[28px] bg-[#5d22d7] p-5 text-white">
-              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/62">Today</p>
-              <h2 className="mt-2 text-3xl font-black">Data Structures</h2>
-              <p className="mt-2 text-sm font-semibold text-white/72">Continue your notes, complete one practice task, and check the event calendar.</p>
-              <div className="mt-5 h-2 rounded-full bg-white/20">
-                <div className="h-full w-[68%] rounded-full bg-[#ffb11f]" />
-              </div>
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              {learningTiles.map((tile) => {
-                const Icon = tile.icon
-                return (
-                  <Link key={tile.href} href={tile.href} className="rounded-3xl border border-[#5d22d7]/10 bg-[#fbf9ff] p-4 transition hover:-translate-y-0.5 hover:bg-white">
-                    <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-2xl ${tile.color}`}>
-                      <Icon size={20} />
-                    </div>
-                    <p className="text-lg font-black">{tile.label}</p>
-                  </Link>
-                )
-              })}
-            </div>
+          <h1 className="text-6xl md:text-9xl font-black tracking-tighter text-white leading-[0.95] animate-slide-up">
+            Connect. <br />
+            <span className="text-glow text-blue-600">Learn.</span> <br />
+            Innovate.
+          </h1>
+
+          <p className="text-base md:text-xl text-gray-400 max-w-2xl mx-auto font-medium leading-relaxed animate-fade-in-delayed">
+            The elite community for tech enthusiasts, developers, and pioneers.
+            Access exclusive resources, projects, and events.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center pt-8 animate-fade-in-delayed">
+            <Link
+              href="/signup"
+              className="w-full sm:w-auto bg-white text-black hover:bg-gray-200 px-8 py-4 sm:px-10 sm:py-5 rounded-3xl sm:rounded-full font-black text-base sm:text-lg shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-105 transition-all duration-300"
+            >
+              Get Started
+            </Link>
+            <Link
+              href="/events"
+              className="w-full sm:w-auto glass border border-white/10 bg-white/5 px-8 py-4 sm:px-10 sm:py-5 rounded-3xl sm:rounded-full text-white font-black text-base sm:text-lg hover:bg-white/10 transition-all"
+            >
+              Explore Events
+            </Link>
           </div>
-        </section>
+        </div>
       </main>
+
+      <AboutSection />
       <Footer />
+
+      {/* Animation Overrides */}
+      <style jsx global>{`
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slide-up {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fade-in 1s ease-out forwards; }
+        .animate-slide-up { animation: slide-up 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .animate-fade-in-delayed { animation: fade-in 1s ease-out 0.5s forwards; opacity: 0; }
+      `}</style>
     </div>
   )
 }

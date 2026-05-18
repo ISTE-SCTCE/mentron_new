@@ -55,13 +55,13 @@ export default async function NotesPage({
     }
 
     return (
-        <div className="min-h-screen p-4 md:p-8 pt-24 md:pt-32 pb-28 text-[#241653]">
+        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
             <div className="max-w-[1800px] mx-auto">
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0 mb-10 md:mb-16">
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
                         <div className="space-y-1">
-                            <p className="text-[10px] font-black tracking-[0.3em] text-[#ff8a24] uppercase">Knowledge Base</p>
-                            <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-[#241653]">Academic Notes</h1>
+                            <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Knowledge Base</p>
+                            <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white">Academic Notes</h1>
                         </div>
                     </div>
 
@@ -150,11 +150,11 @@ export default async function NotesPage({
                     /* ── Year Cards ── */
                     <div>
                         <div className="mb-8">
-                            <p className="text-[10px] font-black tracking-[0.3em] text-[#ff8a24] uppercase flex items-center gap-2">
-                                <span className="w-8 h-[1px] bg-[#ff8a24] inline-block" />
+                            <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase flex items-center gap-2">
+                                <span className="w-8 h-[1px] bg-blue-500 inline-block" />
                                 Browse by Year
                             </p>
-                            <h2 className="text-3xl font-black text-[#241653] tracking-tighter mt-2">Select Your Year</h2>
+                            <h2 className="text-3xl font-black text-white tracking-tighter mt-2">Select Your Year</h2>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
                             {YEARS.map(({ year, label, sems, emoji, color, border, accent }) => (

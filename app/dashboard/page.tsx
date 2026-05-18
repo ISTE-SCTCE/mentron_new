@@ -144,7 +144,7 @@ export default async function DashboardPage() {
     }
 
     return (
-        <div className="flex flex-col min-h-screen text-[#241653] pt-24 md:pt-32 w-full pb-20">
+        <div className="flex flex-col min-h-screen text-[#ededed] pt-16 md:pt-32 w-full pb-20">
             <div className="flex-1 w-full max-w-[1800px] mx-auto px-4 md:px-8">
                 
                 {/* 
