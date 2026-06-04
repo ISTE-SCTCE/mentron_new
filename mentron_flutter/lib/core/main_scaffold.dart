@@ -7,11 +7,11 @@ import '../features/notes/screens/group_screen.dart';
 import '../features/projects/screens/project_list_screen.dart';
 import '../features/marketplace/screens/marketplace_screen.dart';
 import '../features/requests/screens/requests_screen.dart';
+import '../features/profile/screens/profile_screen.dart';
 import '../core/services/supabase_service.dart';
 import 'theme/app_theme.dart';
 import 'utils/app_transitions.dart';
 import '../features/auth/screens/login_screen.dart';
-import '../shared/widgets/glass_container.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
@@ -30,6 +30,7 @@ class MainScaffoldState extends State<MainScaffold>
       setState(() => _currentIndex = index);
     }
   }
+
   int _currentIndex = 0;
   bool _isNavbarVisible = true;
   bool _isExec = false;
@@ -47,6 +48,7 @@ class MainScaffoldState extends State<MainScaffold>
     const GroupScreen(),
     const ProjectListScreen(),
     const MarketplaceScreen(),
+    const ProfileScreen(),
   ];
 
   @override
@@ -55,25 +57,24 @@ class MainScaffoldState extends State<MainScaffold>
     WidgetsBinding.instance.addObserver(this);
     _navbarAnimController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 280),
     );
     _navbarSlideAnim = Tween<Offset>(
       begin: Offset.zero,
       end: const Offset(0, 2.0),
-    ).animate(CurvedAnimation(parent: _navbarAnimController, curve: Curves.easeInOut));
+    ).animate(
+      CurvedAnimation(parent: _navbarAnimController, curve: Curves.easeInOut),
+    );
 
     _checkUserRole();
     _subscribeToRoleChanges();
-    // Start periodic session validation every 30 seconds
     _sessionCheckTimer = Timer.periodic(
       const Duration(seconds: 30),
       (_) => _validateSession(),
     );
-    // Also validate immediately on start (with a small delay for init)
     Future.delayed(const Duration(seconds: 5), _validateSession);
   }
 
-  /// Re-check role whenever the app comes back to the foreground.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -82,9 +83,6 @@ class MainScaffoldState extends State<MainScaffold>
     }
   }
 
-  /// Subscribe to real-time changes on the current user's profile row.
-  /// If the role column changes (e.g. core promotes/demotes them),
-  /// we immediately re-fetch and refresh _isExec.
   void _subscribeToRoleChanges() {
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     final userId = supabase.currentUser?.id;
@@ -115,8 +113,6 @@ class MainScaffoldState extends State<MainScaffold>
     super.dispose();
   }
 
-  /// Validates that this device still owns the active session.
-  /// Forces sign out if another device has taken over.
   Future<void> _validateSession() async {
     if (_isCheckingSession || !mounted) return;
     _isCheckingSession = true;
@@ -131,12 +127,11 @@ class MainScaffoldState extends State<MainScaffold>
             AppTransitions.fade(const LoginScreen()),
             (_) => false,
           );
-          // Show error after navigation
           Future.delayed(const Duration(milliseconds: 600), () {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  backgroundColor: Color(0xFFB00020),
+                  backgroundColor: Color(0xFFFF6B6B),
                   duration: Duration(seconds: 6),
                   behavior: SnackBarBehavior.floating,
                   content: Text(
@@ -171,7 +166,6 @@ class MainScaffoldState extends State<MainScaffold>
         setState(() => _isExec = true);
         _fetchPendingCount();
       } else {
-        // Demoted or member — hide bell
         setState(() {
           _isExec = false;
           _pendingCount = 0;
@@ -193,27 +187,22 @@ class MainScaffoldState extends State<MainScaffold>
     } catch (_) {}
   }
 
-  /// Called by screens via NotificationListener to hide/show navbar on scroll
   bool _onScrollNotification(ScrollNotification notification) {
     if (notification is ScrollUpdateNotification) {
       final delta = notification.scrollDelta ?? 0;
       final offset = notification.metrics.pixels;
 
-      // Show navbar at very top regardless
       if (offset <= 10) {
         if (!_isNavbarVisible) _showNavbar();
         return false;
       }
 
-      // Scrolling down → hide; scrolling up → show
       if (delta > 4 && _isNavbarVisible) {
         _hideNavbar();
       } else if (delta < -4 && !_isNavbarVisible) {
         _showNavbar();
       }
-
     }
-    // Show on scroll end / idle
     if (notification is ScrollEndNotification && !_isNavbarVisible) {
       Future.delayed(const Duration(milliseconds: 600), () {
         if (mounted && !_isNavbarVisible) _showNavbar();
@@ -237,6 +226,7 @@ class MainScaffoldState extends State<MainScaffold>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.bgColor,
       body: Stack(
         children: [
           // ── Full-screen content ──────────────────────────────────
@@ -247,7 +237,7 @@ class MainScaffoldState extends State<MainScaffold>
               children: _screens,
             ),
           ),
-          // ── Floating auto-hiding navbar ──────────────────────────
+          // ── Bottom Navigation Bar ────────────────────────────────
           Positioned(
             left: 0,
             right: 0,
@@ -263,21 +253,33 @@ class MainScaffoldState extends State<MainScaffold>
   }
 
   Widget _buildNavbar() {
-    return GlassContainer(
-      margin: const EdgeInsets.fromLTRB(14, 0, 14, 18),
-      height: 74,
-      borderRadius: 28,
-      isNavElement: true,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(0, Icons.home_rounded, 'Home'),
-          _buildNavItem(1, Icons.menu_book_rounded, 'Learn'),
-          _buildNavItem(2, Icons.assignment_rounded, 'Practice'),
-          _buildNavItem(3, Icons.shopping_bag_rounded, 'Store'),
-          if (_isExec) _buildBellItem(),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.accentPrimary.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
+          ),
         ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(0, Icons.home_rounded, 'Home'),
+              _buildNavItem(1, Icons.menu_book_rounded, 'Learn'),
+              _buildNavItem(2, Icons.assignment_rounded, 'Practice'),
+              _buildNavItem(3, Icons.shopping_bag_rounded, 'Store'),
+              _buildNavItem(4, Icons.person_rounded, 'Profile'),
+              if (_isExec) _buildBellItem(),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -288,39 +290,35 @@ class MainScaffoldState extends State<MainScaffold>
       onTap: () => setState(() => _currentIndex = index),
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 240),
+        duration: const Duration(milliseconds: 220),
         curve: Curves.easeOut,
-        width: 66,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.accentPrimary : Colors.transparent,
-          borderRadius: BorderRadius.circular(22),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppTheme.accentPrimary.withValues(alpha: 0.24),
-                    blurRadius: 18,
-                    offset: const Offset(0, 8),
-                  ),
-                ]
-              : null,
+          color: isSelected
+              ? AppTheme.accentPrimary.withValues(alpha: 0.1)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? Colors.white : AppTheme.textMuted,
-              size: 21,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              child: Icon(
+                icon,
+                color: isSelected ? AppTheme.accentPrimary : AppTheme.textLight,
+                size: 22,
+              ),
             ),
             const SizedBox(height: 4),
-            Text(
-              label,
-              maxLines: 1,
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 220),
               style: TextStyle(
-                color: isSelected ? Colors.white : AppTheme.textMuted,
+                color: isSelected ? AppTheme.accentPrimary : AppTheme.textLight,
                 fontSize: 10,
-                fontWeight: FontWeight.w900,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
               ),
+              child: Text(label),
             ),
           ],
         ),
@@ -328,7 +326,7 @@ class MainScaffoldState extends State<MainScaffold>
     );
   }
 
-  /// Execom-only bell icon with pending badge
+  /// Exec-only bell icon with pending badge
   Widget _buildBellItem() {
     return GestureDetector(
       onTap: () async {
@@ -339,24 +337,27 @@ class MainScaffoldState extends State<MainScaffold>
         _fetchPendingCount();
       },
       behavior: HitTestBehavior.opaque,
-      child: Container(
-        width: 66,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: _pendingCount > 0
-              ? AppTheme.accentSecondary.withValues(alpha: 0.16)
+              ? AppTheme.accentSecondary.withValues(alpha: 0.12)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Stack(
               clipBehavior: Clip.none,
               children: [
                 Icon(
                   Icons.notifications_rounded,
-                  color: _pendingCount > 0 ? AppTheme.accentSecondary : AppTheme.textMuted,
-                  size: 21,
+                  color: _pendingCount > 0
+                      ? AppTheme.accentSecondary
+                      : AppTheme.textLight,
+                  size: 22,
                 ),
                 if (_pendingCount > 0)
                   Positioned(
@@ -364,9 +365,10 @@ class MainScaffoldState extends State<MainScaffold>
                     right: -8,
                     child: Container(
                       padding: const EdgeInsets.all(3),
-                      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                      constraints:
+                          const BoxConstraints(minWidth: 16, minHeight: 16),
                       decoration: const BoxDecoration(
-                        color: Color(0xFFE11D48),
+                        color: Color(0xFFFF6B6B),
                         shape: BoxShape.circle,
                       ),
                       child: Text(
@@ -384,12 +386,13 @@ class MainScaffoldState extends State<MainScaffold>
             ),
             const SizedBox(height: 4),
             Text(
-              'Requests',
-              maxLines: 1,
+              'Alerts',
               style: TextStyle(
-                color: _pendingCount > 0 ? AppTheme.accentSecondary : AppTheme.textMuted,
+                color: _pendingCount > 0
+                    ? AppTheme.accentSecondary
+                    : AppTheme.textLight,
                 fontSize: 10,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],

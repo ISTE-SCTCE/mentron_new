@@ -126,26 +126,26 @@ class _SplashScreenState extends State<SplashScreen>
     return FadeTransition(
       opacity: _exitOpacity,
       child: Scaffold(
-        backgroundColor:const Color(0xFF030305),
+        backgroundColor: const Color(0xFFF8F6FF),
         body: Stack(
           alignment: Alignment.center,
           children: [
             // ── Ambient gradient blobs ─────────────────────────────────
             Positioned(
-              top: size.height * 0.15,
-              left: size.width * 0.1,
+              top: size.height * 0.10,
+              left: size.width * 0.0,
               child: _GlowBlob(
-                color: const Color(0xFF7000DF),
-                size: size.width * 0.7,
-                opacity: 0.18,
+                color: const Color(0xFF6C63FF),
+                size: size.width * 0.75,
+                opacity: 0.14,
               ),
             ),
             Positioned(
-              bottom: size.height * 0.2,
-              right: size.width * 0.05,
+              bottom: size.height * 0.15,
+              right: size.width * 0.0,
               child: _GlowBlob(
-                color: const Color(0xFF00C6FF),
-                size: size.width * 0.5,
+                color: const Color(0xFFFF8C69),
+                size: size.width * 0.55,
                 opacity: 0.12,
               ),
             ),
@@ -299,7 +299,7 @@ class _PulsingBarState extends State<_PulsingBar>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(2),
               gradient: const LinearGradient(
-                colors: [Color(0xFF7000DF), Color(0xFF00C6FF)],
+                colors: [Color(0xFF6C63FF), Color(0xFF4ECDC4)],
               ),
             ),
           ),

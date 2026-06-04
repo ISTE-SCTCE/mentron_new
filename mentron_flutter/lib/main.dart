@@ -18,9 +18,12 @@ void main() async {
   PaintingBinding.instance.imageCache.maximumSizeBytes = 50 * 1024 * 1024;
   PaintingBinding.instance.imageCache.maximumSize = 80;
 
+  // Force light status bar for new pastel design
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
+    systemNavigationBarColor: Colors.white,
+    systemNavigationBarIconBrightness: Brightness.dark,
   ));
 
   final supabaseService = SupabaseService();
@@ -94,6 +97,7 @@ class _MentronAppState extends State<MentronApp> {
     return MaterialApp(
       title: 'Mentron',
       debugShowCheckedModeBanner: false,
+      // All users get the new light pastel theme; exec uses exec theme
       theme: _isExec ? ExecTheme.darkTheme : AppTheme.darkTheme,
       scrollBehavior: const _AndroidScrollBehavior(),
       home: AppRoot(isExec: _isExec, isLoadingRole: _isLoadingRole),
@@ -150,8 +154,13 @@ class AuthWrapper extends StatelessWidget {
         if (session != null) {
           if (isLoadingRole) {
             return Scaffold(
-              backgroundColor: isExec ? ExecTheme.bgColor : AppTheme.bgColor,
-              body: const Center(child: CircularProgressIndicator()),
+              backgroundColor: AppTheme.bgColor,
+              body: const Center(
+                child: CircularProgressIndicator(
+                  color: AppTheme.accentPrimary,
+                  strokeWidth: 3,
+                ),
+              ),
             );
           }
           return isExec ? const ExecMainScaffold() : const MainScaffold();

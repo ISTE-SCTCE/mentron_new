@@ -5,15 +5,15 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/models/subject_data.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../shared/widgets/glass_container.dart';
-import '../../../shared/widgets/liquid_background.dart';
+import '../../../shared/widgets/subject_chip.dart';
+import '../../../shared/widgets/byju_stat_card.dart';
+import '../../../shared/widgets/illustration_card.dart';
 import '../widgets/real_time_calendar.dart';
 import '../widgets/event_banner_widget.dart';
 import '../../notes/screens/add_note_screen.dart';
 import '../../projects/screens/add_project_screen.dart';
 import '../../events/screens/event_list_screen.dart';
 import '../../leaderboard/screens/leaderboard_screen.dart';
-import '../../profile/screens/profile_screen.dart';
 import '../../forum/screens/forum_list_screen.dart';
 import 'core_members_screen.dart';
 import '../../../core/utils/app_transitions.dart';
@@ -35,6 +35,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String _userRole = 'member';
   Map<String, dynamic>? _profile;
   bool _isExec = false;
+  int _selectedChipIndex = 0;
+
+  final List<String> _subjects = [
+    'All',
+    'Science',
+    'Math',
+    'Engineering',
+    'English',
+    'Design',
+    'Coding',
+  ];
 
   @override
   void initState() {
@@ -115,254 +126,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final firstName =
-        _profile?['full_name']?.toString().split(' ').first ?? 'Student';
-
-    return Scaffold(
-      body: LiquidBackground(
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 108),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(firstName),
-                const SizedBox(height: 18),
-                _buildHero(firstName),
-                const SizedBox(height: 18),
-                _buildLearningStats(),
-                const SizedBox(height: 22),
-                if (!_isExec) ...[
-                  _buildSectionHeader('Top subjects'),
-                  const SizedBox(height: 12),
-                  _buildTopSubjects(),
-                  const SizedBox(height: 22),
-                ],
-                _buildSectionHeader('Learning paths'),
-                const SizedBox(height: 12),
-                _buildLearningGrid(),
-                const SizedBox(height: 22),
-                if (_userRole != 'exec' && _userRole != 'core') ...[
-                  const EventBannerWidget(),
-                  const SizedBox(height: 22),
-                ],
-                _buildSectionHeader('Class calendar'),
-                const SizedBox(height: 12),
-                const RealTimeCalendar(),
-                const SizedBox(height: 22),
-                _buildContributeCard(),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(String firstName) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'WELCOME BACK',
-                style: TextStyle(
-                  color: AppTheme.accentSecondary,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 2,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                firstName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.displayMedium?.copyWith(fontSize: 30, height: 1),
-              ),
-            ],
-          ),
-        ),
-        _buildRoundAction(
-          icon: Icons.forum_rounded,
-          onTap: () => Navigator.push(
-            context,
-            AppTransitions.slideUp(const ForumListScreen()),
-          ),
-        ),
-        const SizedBox(width: 10),
-        _buildRoundAction(
-          icon: Icons.person_rounded,
-          onTap: () => Navigator.push(
-            context,
-            AppTransitions.slideUp(const ProfileScreen()),
-          ),
-        ),
-      ],
-    ).animate().fadeIn().slideY(begin: -0.08);
-  }
-
-  Widget _buildRoundAction({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: GlassContainer(
-        width: 46,
-        height: 46,
-        borderRadius: 16,
-        child: Icon(icon, color: AppTheme.accentPrimary, size: 21),
-      ),
-    );
-  }
-
-  Widget _buildHero(String firstName) {
-    final year = _profile?['year']?.toString() ?? 'All';
-    final dept = _profile?['department']?.toString() ?? 'General';
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: AppTheme.accentPrimary,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.accentPrimary.withValues(alpha: 0.26),
-            blurRadius: 34,
-            offset: const Offset(0, 18),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -32,
-            top: -42,
-            child: _HeroBubble(
-              color: AppTheme.accentSecondary.withValues(alpha: 0.38),
-            ),
-          ),
-          Positioned(
-            left: 20,
-            bottom: -52,
-            child: _HeroBubble(
-              color: AppTheme.accentTertiary.withValues(alpha: 0.24),
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 7,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.auto_awesome_rounded,
-                      color: Colors.white,
-                      size: 15,
-                    ),
-                    SizedBox(width: 6),
-                    Text(
-                      'Study plan',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
-              const Text(
-                'Pick up where\nyou left off.',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 35,
-                  fontWeight: FontWeight.w900,
-                  height: 0.98,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Your notes, classes, practice projects, and rank are arranged around learning now.',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.76),
-                  fontSize: 13,
-                  height: 1.45,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: _HeroMeta(label: 'Year', value: year),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _HeroMeta(label: 'Dept', value: dept),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 80.ms).slideY(begin: 0.08);
-  }
-
-  Widget _buildLearningStats() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatCard(
-            'XP',
-            userXP >= 1000
-                ? '${(userXP / 1000).toStringAsFixed(1)}k'
-                : '$userXP',
-            Icons.bolt_rounded,
-            AppTheme.accentSecondary,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _buildStatCard(
-            'Notes',
-            '$totalNotes',
-            Icons.menu_book_rounded,
-            AppTheme.accentPrimary,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _buildStatCard(
-            'Projects',
-            '$totalProjects',
-            Icons.assignment_rounded,
-            AppTheme.accentTertiary,
-          ),
-        ),
-      ],
-    ).animate().fadeIn(delay: 120.ms).slideY(begin: 0.08);
-  }
-
   List<String> _getTopSubjects() {
     final year = int.tryParse(_profile?['year']?.toString() ?? '') ?? 1;
     final dept = (_profile?['department']?.toString() ?? 'CSE').toUpperCase();
@@ -378,20 +141,544 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (subjects.isNotEmpty) return subjects.take(4).toList();
 
     return const [
-      'Data Structures and Algorithms',
-      'Database Management Systems',
+      'Data Structures & Algorithms',
+      'Database Management',
       'Operating Systems',
       'Computer Networks',
     ];
   }
 
-  Widget _buildTopSubjects() {
+  @override
+  Widget build(BuildContext context) {
+    final firstName =
+        _profile?['full_name']?.toString().split(' ').first ?? 'Student';
+
+    return Scaffold(
+      backgroundColor: AppTheme.bgColor,
+      body: SafeArea(
+        child: CustomScrollView(
+          physics: const ClampingScrollPhysics(),
+          slivers: [
+            // ── App Bar ───────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: _buildHeader(firstName),
+            ),
+            // ── Subject Chips ─────────────────────────────────────
+            SliverToBoxAdapter(
+              child: _buildSubjectChipsRow(),
+            ),
+            // ── Greeting + Headline ───────────────────────────────
+            SliverToBoxAdapter(
+              child: _buildHeadlineSection(firstName),
+            ),
+            // ── Stats Row ─────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: _buildStatsRow(),
+            ),
+            // ── Hero Illustration Card (Learn Something New) ──────
+            SliverToBoxAdapter(
+              child: _buildHeroIllustrationCard(),
+            ),
+            // ── Course Cards ──────────────────────────────────────
+            SliverToBoxAdapter(
+              child: _buildSectionLabel('Featured Courses'),
+            ),
+            SliverToBoxAdapter(
+              child: _buildCourseCards(),
+            ),
+            // ── Subject Scrollable Cards ──────────────────────────
+            if (!_isExec) ...[
+              SliverToBoxAdapter(
+                child: _buildSectionLabel('Your Subjects'),
+              ),
+              SliverToBoxAdapter(
+                child: _buildSubjectCards(),
+              ),
+            ],
+            // ── Quick Actions Grid ────────────────────────────────
+            SliverToBoxAdapter(
+              child: _buildSectionLabel('Quick Actions'),
+            ),
+            SliverToBoxAdapter(
+              child: _buildQuickActionsGrid(),
+            ),
+            // ── Event Banner ──────────────────────────────────────
+            if (_userRole != 'exec' && _userRole != 'core')
+              const SliverToBoxAdapter(child: EventBannerWidget()),
+            // ── Calendar ─────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: _buildSectionLabel('Class Calendar'),
+            ),
+            const SliverToBoxAdapter(child: RealTimeCalendar()),
+            // ── Contribute Card ───────────────────────────────────
+            SliverToBoxAdapter(
+              child: _buildContributeCard(),
+            ),
+            // Bottom padding for navbar
+            const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Header
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildHeader(String firstName) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+      child: Row(
+        children: [
+          // Avatar
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              gradient: AppTheme.card1Gradient,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.accentPrimary.withValues(alpha: 0.25),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Text(
+                firstName.isNotEmpty ? firstName[0].toUpperCase() : 'S',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Name + plan
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Hi, $firstName 👋',
+                  style: const TextStyle(
+                    color: AppTheme.textMain,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    height: 1,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.accentSecondary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: const Text(
+                    'Member Plan',
+                    style: TextStyle(
+                      color: AppTheme.accentSecondary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Forum button
+          _buildHeaderAction(
+            icon: Icons.forum_rounded,
+            onTap: () => Navigator.push(
+              context,
+              AppTransitions.slideUp(const ForumListScreen()),
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Notification
+          _buildHeaderAction(
+            icon: Icons.notifications_none_rounded,
+            onTap: () {},
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1, curve: Curves.easeOut);
+  }
+
+  Widget _buildHeaderAction({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.accentPrimary.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(icon, color: AppTheme.textMuted, size: 20),
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Subject Chips
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildSubjectChipsRow() {
+    return SizedBox(
+      height: 48,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: _subjects.length,
+        separatorBuilder: (_, i) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          return SubjectChip(
+            label: _subjects[index],
+            isSelected: _selectedChipIndex == index,
+            colorIndex: index,
+            onTap: () => setState(() => _selectedChipIndex = index),
+          );
+        },
+      ),
+    ).animate().fadeIn(delay: 80.ms).slideX(begin: 0.06, curve: Curves.easeOut);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Headline
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildHeadlineSection(String firstName) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'What would you like\nto learn today?',
+            style: TextStyle(
+              color: AppTheme.textMain,
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+              height: 1.2,
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Pick up right where you left off.',
+            style: TextStyle(
+              color: AppTheme.textMuted,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.08, curve: Curves.easeOut);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Stats Row
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildStatsRow() {
+    final xpDisplay = userXP >= 1000
+        ? '${(userXP / 1000).toStringAsFixed(1)}k'
+        : '$userXP';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: ByjuStatCard(
+              label: 'XP Points',
+              value: xpDisplay,
+              icon: Icons.bolt_rounded,
+              color: AppTheme.accentSecondary,
+              bgColor: AppTheme.cardBg2,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: ByjuStatCard(
+              label: 'Notes',
+              value: '$totalNotes',
+              icon: Icons.menu_book_rounded,
+              color: AppTheme.accentPrimary,
+              bgColor: AppTheme.cardBg1,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: ByjuStatCard(
+              label: 'Projects',
+              value: '$totalProjects',
+              icon: Icons.assignment_rounded,
+              color: AppTheme.accentTertiary,
+              bgColor: AppTheme.cardBg3,
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 140.ms).slideY(begin: 0.08, curve: Curves.easeOut);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Hero "Learn Something New" Card
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildHeroIllustrationCard() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: AppTheme.accentPrimary,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.accentPrimary.withValues(alpha: 0.35),
+              blurRadius: 30,
+              offset: const Offset(0, 14),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            // Decorative bubbles
+            Positioned(
+              right: -18,
+              top: -18,
+              child: Container(
+                width: 110,
+                height: 110,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.10),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+            Positioned(
+              left: 30,
+              bottom: -35,
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: AppTheme.accentSecondary.withValues(alpha: 0.25),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+            Positioned(
+              right: 90,
+              top: -25,
+              child: Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: AppTheme.accentTertiary.withValues(alpha: 0.20),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Text content
+                  Expanded(
+                    flex: 5,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.18),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.auto_awesome_rounded,
+                                color: Colors.white,
+                                size: 12,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Today\'s Pick',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        const Text(
+                          'Learn Something\nNew Today',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            height: 1.15,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Grow your knowledge, creativity, and confidence every day.',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.80),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            height: 1.45,
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        GestureDetector(
+                          onTap: () =>
+                              MainScaffoldState.of(context)?.setIndex(1),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 11,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.play_arrow_rounded,
+                                  color: AppTheme.accentPrimary,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Get Started',
+                                  style: TextStyle(
+                                    color: AppTheme.accentPrimary,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Illustration
+                  Expanded(
+                    flex: 4,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.asset(
+                        'assets/images/hero_studying.png',
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, e, s) => Container(
+                          height: 140,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(
+                            Icons.school_rounded,
+                            color: Colors.white,
+                            size: 52,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ).animate().fadeIn(delay: 160.ms).slideY(begin: 0.08, curve: Curves.easeOut);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Course Cards
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildCourseCards() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      child: Column(
+        children: [
+          IllustrationCard(
+            title: 'Notes & Study\nMaterial',
+            subtitle: 'Curated notes, PYQs, and resources for your semester',
+            imagePath: 'assets/images/physics_card.png',
+            gradient: AppTheme.card1Gradient,
+            buttonLabel: 'Start Learning',
+            onTap: () => MainScaffoldState.of(context)?.setIndex(1),
+          ),
+          const SizedBox(height: 14),
+          IllustrationCard(
+            title: 'Practice\nProjects',
+            subtitle: 'Build real projects, earn XP and climb the leaderboard',
+            imagePath: 'assets/images/geometry_card.png',
+            gradient: AppTheme.card2Gradient,
+            buttonLabel: 'Start Building',
+            onTap: () => MainScaffoldState.of(context)?.setIndex(2),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.08, curve: Curves.easeOut);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Subject Cards (horizontal scroll)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildSubjectCards() {
     final subjects = _getTopSubjects();
     final colors = [
       AppTheme.accentPrimary,
       AppTheme.accentSecondary,
       AppTheme.accentTertiary,
-      const Color(0xFFE11D48),
+      const Color(0xFFFF6B9D),
+    ];
+    final bgColors = [
+      AppTheme.cardBg1,
+      AppTheme.cardBg2,
+      AppTheme.cardBg3,
+      const Color(0xFFFFF0F5),
     ];
     final icons = [
       Icons.calculate_rounded,
@@ -401,50 +688,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ];
 
     return SizedBox(
-      height: 166,
+      height: 172,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         physics: const BouncingScrollPhysics(),
         itemCount: subjects.length,
-        separatorBuilder: (context, index) => const SizedBox(width: 12),
+        separatorBuilder: (_, i) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final color = colors[index % colors.length];
+          final bg = bgColors[index % bgColors.length];
           return _buildSubjectCard(
             subject: subjects[index],
             color: color,
+            bgColor: bg,
             icon: icons[index % icons.length],
             onTap: () => MainScaffoldState.of(context)?.setIndex(1),
           );
         },
       ),
-    ).animate().fadeIn(delay: 150.ms).slideX(begin: 0.08);
+    ).animate().fadeIn(delay: 220.ms).slideX(begin: 0.08, curve: Curves.easeOut);
   }
 
   Widget _buildSubjectCard({
     required String subject,
     required Color color,
+    required Color bgColor,
     required IconData icon,
     required VoidCallback onTap,
   }) {
     final shortTitle = subject
         .replaceAll('Mathematics for ', 'Math ')
         .replaceAll('Engineering ', 'Engg ')
-        .replaceAll('Introduction to ', 'Intro to ');
+        .replaceAll('Introduction to ', 'Intro to ')
+        .replaceAll('Data Structures and', 'DSA —')
+        .replaceAll('Database Management Systems', 'DBMS');
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 142,
-        padding: const EdgeInsets.all(15),
+        width: 148,
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: color.withValues(alpha: 0.14)),
           boxShadow: [
             BoxShadow(
-              color: color.withValues(alpha: 0.13),
-              blurRadius: 24,
-              offset: const Offset(0, 12),
+              color: color.withValues(alpha: 0.12),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
@@ -452,13 +744,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 46,
+              height: 46,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.13),
-                borderRadius: BorderRadius.circular(18),
+                color: bgColor,
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(icon, color: color, size: 23),
+              child: Icon(icon, color: color, size: 22),
             ),
             const Spacer(),
             Text(
@@ -467,9 +759,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: AppTheme.textMain,
-                fontSize: 14,
-                fontWeight: FontWeight.w900,
-                height: 1.12,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                height: 1.2,
               ),
             ),
             const SizedBox(height: 10),
@@ -477,17 +769,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Expanded(
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
+                    borderRadius: BorderRadius.circular(99),
                     child: LinearProgressIndicator(
-                      minHeight: 6,
-                      value: 0.65 + (0.07 * (subject.length % 4)),
-                      backgroundColor: color.withValues(alpha: 0.10),
+                      minHeight: 5,
+                      value: 0.55 + (0.08 * (subject.length % 5)),
+                      backgroundColor: color.withValues(alpha: 0.12),
                       valueColor: AlwaysStoppedAnimation<Color>(color),
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                Icon(Icons.arrow_forward_rounded, color: color, size: 17),
+                Icon(Icons.arrow_forward_rounded, color: color, size: 16),
               ],
             ),
           ],
@@ -496,137 +788,108 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildStatCard(
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return GlassContainer(
-      height: 112,
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.13),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(icon, size: 18, color: color),
-          ),
-          const Spacer(),
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: AppTheme.textMain,
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              height: 1,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            label,
-            maxLines: 1,
-            style: const TextStyle(
-              color: AppTheme.textMuted,
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 0.8,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // ─────────────────────────────────────────────────────────────────────────
+  // Quick Actions Grid
+  // ─────────────────────────────────────────────────────────────────────────
 
-  Widget _buildLearningGrid() {
+  Widget _buildQuickActionsGrid() {
     final items = [
-      _LearningAction(
-        title: 'Learn',
-        subtitle: 'Notes and PYQs',
+      _QuickAction(
+        title: 'Study Notes',
+        subtitle: 'Notes & PYQs',
         icon: Icons.menu_book_rounded,
         color: AppTheme.accentPrimary,
+        bgColor: AppTheme.cardBg1,
         onTap: () => MainScaffoldState.of(context)?.setIndex(1),
       ),
-      _LearningAction(
+      _QuickAction(
         title: 'Classes',
         subtitle: 'Events today',
         icon: Icons.calendar_month_rounded,
         color: AppTheme.accentTertiary,
+        bgColor: AppTheme.cardBg3,
         onTap: () => Navigator.push(
           context,
           AppTransitions.slideUp(const EventListScreen()),
         ),
       ),
-      _LearningAction(
-        title: 'Practice',
-        subtitle: 'Projects',
-        icon: Icons.assignment_rounded,
+      _QuickAction(
+        title: 'Projects',
+        subtitle: 'Build & earn XP',
+        icon: Icons.rocket_launch_rounded,
         color: AppTheme.accentSecondary,
+        bgColor: AppTheme.cardBg2,
         onTap: () => MainScaffoldState.of(context)?.setIndex(2),
       ),
-      _LearningAction(
-        title: 'Rank',
-        subtitle: 'Leaderboard',
+      _QuickAction(
+        title: 'Leaderboard',
+        subtitle: 'Top students',
         icon: Icons.emoji_events_rounded,
-        color: const Color(0xFFE11D48),
+        color: const Color(0xFFFF6B9D),
+        bgColor: const Color(0xFFFFF0F5),
         onTap: () => Navigator.push(
           context,
           AppTransitions.slideUp(const LeaderboardScreen()),
         ),
       ),
+      if (_isExec)
+        _QuickAction(
+          title: 'Admin',
+          subtitle: 'Core tools',
+          icon: Icons.admin_panel_settings_rounded,
+          color: AppTheme.accentPrimary,
+          bgColor: AppTheme.cardBg1,
+          onTap: () => Navigator.push(
+            context,
+            AppTransitions.slideUp(const CoreMembersScreen()),
+          ),
+        ),
     ];
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: items.length + (_isExec ? 1 : 0),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1.08,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: items.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.12,
+        ),
+        itemBuilder: (context, index) => _buildQuickActionCard(items[index]),
       ),
-      itemBuilder: (context, index) {
-        if (index < items.length) return _buildLearningAction(items[index]);
-        return _buildLearningAction(
-          _LearningAction(
-            title: 'Members',
-            subtitle: 'Core tools',
-            icon: Icons.admin_panel_settings_rounded,
-            color: AppTheme.accentPrimary,
-            onTap: () => Navigator.push(
-              context,
-              AppTransitions.slideUp(const CoreMembersScreen()),
-            ),
-          ),
-        );
-      },
-    ).animate().fadeIn(delay: 180.ms).slideY(begin: 0.08);
+    ).animate().fadeIn(delay: 240.ms).slideY(begin: 0.08, curve: Curves.easeOut);
   }
 
-  Widget _buildLearningAction(_LearningAction action) {
+  Widget _buildQuickActionCard(_QuickAction action) {
     return GestureDetector(
       onTap: action.onTap,
-      child: GlassContainer(
-        padding: const EdgeInsets.all(16),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: action.color.withValues(alpha: 0.10),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 46,
+              height: 46,
               decoration: BoxDecoration(
-                color: action.color.withValues(alpha: 0.13),
-                borderRadius: BorderRadius.circular(18),
+                color: action.bgColor,
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(action.icon, color: action.color, size: 23),
+              child: Icon(action.icon, color: action.color, size: 22),
             ),
             const Spacer(),
             Text(
@@ -635,11 +898,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: AppTheme.textMain,
-                fontSize: 19,
-                fontWeight: FontWeight.w900,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 3),
             Row(
               children: [
                 Expanded(
@@ -650,14 +913,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     style: const TextStyle(
                       color: AppTheme.textMuted,
                       fontSize: 11,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
                 Icon(
                   Icons.arrow_forward_rounded,
                   color: action.color,
-                  size: 18,
+                  size: 16,
                 ),
               ],
             ),
@@ -667,116 +930,124 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title.toUpperCase(),
-      style: const TextStyle(
-        color: AppTheme.textMuted,
-        fontSize: 11,
-        fontWeight: FontWeight.w900,
-        letterSpacing: 2.2,
-      ),
-    );
-  }
+  // ─────────────────────────────────────────────────────────────────────────
+  // Contribute Card
+  // ─────────────────────────────────────────────────────────────────────────
 
   Widget _buildContributeCard() {
-    return GlassContainer(
-      padding: const EdgeInsets.all(18),
-      border: Border.all(color: AppTheme.accentPrimary.withValues(alpha: 0.16)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(11),
-                decoration: BoxDecoration(
-                  color: AppTheme.accentPrimary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(16),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.accentPrimary.withValues(alpha: 0.07),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppTheme.cardBg1,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.volunteer_activism_rounded,
+                    color: AppTheme.accentPrimary,
+                    size: 22,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.add_rounded,
-                  color: AppTheme.accentPrimary,
-                  size: 22,
+                const SizedBox(width: 14),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'CONTRIBUTE',
+                        style: TextStyle(
+                          color: AppTheme.accentSecondary,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.8,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Share with the community',
+                        style: TextStyle(
+                          color: AppTheme.textMain,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'CONTRIBUTE',
-                      style: TextStyle(
-                        color: AppTheme.accentSecondary,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.6,
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                if (_isExec || _isCoreMember) ...[
+                  Expanded(
+                    child: _buildContributeButton(
+                      'Add Note',
+                      Icons.note_add_rounded,
+                      AppTheme.accentPrimary,
+                      AppTheme.cardBg1,
+                      () => Navigator.push(
+                        context,
+                        AppTransitions.slideUp(const AddNoteScreen()),
                       ),
                     ),
-                    SizedBox(height: 3),
-                    Text(
-                      'Share with the community',
-                      style: TextStyle(
-                        color: AppTheme.textMain,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              if (_isExec || _isCoreMember) ...[
+                  ),
+                  const SizedBox(width: 12),
+                ],
                 Expanded(
                   child: _buildContributeButton(
-                    'Add Note',
-                    Icons.note_add_rounded,
-                    AppTheme.accentPrimary,
+                    'Post Project',
+                    Icons.rocket_launch_rounded,
+                    AppTheme.accentSecondary,
+                    AppTheme.cardBg2,
                     () => Navigator.push(
                       context,
-                      AppTransitions.slideUp(const AddNoteScreen()),
+                      AppTransitions.slideUp(const AddProjectScreen()),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
               ],
-              Expanded(
-                child: _buildContributeButton(
-                  'Post Project',
-                  Icons.rocket_launch_rounded,
-                  AppTheme.accentSecondary,
-                  () => Navigator.push(
-                    context,
-                    AppTransitions.slideUp(const AddProjectScreen()),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
-    ).animate().fadeIn(delay: 240.ms);
+    ).animate().fadeIn(delay: 280.ms);
   }
 
   Widget _buildContributeButton(
     String label,
     IconData icon,
     Color color,
+    Color bg,
     VoidCallback onTap,
   ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.11),
+          color: bg,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: color.withValues(alpha: 0.18)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -787,9 +1058,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               label,
               style: TextStyle(
                 color: color,
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.4,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ],
@@ -797,44 +1067,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-}
 
-class _HeroMeta extends StatelessWidget {
-  final String label;
-  final String value;
+  // ─────────────────────────────────────────────────────────────────────────
+  // Helpers
+  // ─────────────────────────────────────────────────────────────────────────
 
-  const _HeroMeta({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(13),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildSectionLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 26, 20, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            label.toUpperCase(),
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.62),
-              fontSize: 9,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1,
+            label,
+            style: const TextStyle(
+              color: AppTheme.textMain,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 4),
           Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            'See all',
             style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
+              color: AppTheme.accentPrimary,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -843,33 +1100,22 @@ class _HeroMeta extends StatelessWidget {
   }
 }
 
-class _HeroBubble extends StatelessWidget {
-  final Color color;
+// ─── Helper Models ─────────────────────────────────────────────────────────
 
-  const _HeroBubble({required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 142,
-      height: 142,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-    );
-  }
-}
-
-class _LearningAction {
+class _QuickAction {
   final String title;
   final String subtitle;
   final IconData icon;
   final Color color;
+  final Color bgColor;
   final VoidCallback onTap;
 
-  const _LearningAction({
+  const _QuickAction({
     required this.title,
     required this.subtitle,
     required this.icon,
     required this.color,
+    required this.bgColor,
     required this.onTap,
   });
 }

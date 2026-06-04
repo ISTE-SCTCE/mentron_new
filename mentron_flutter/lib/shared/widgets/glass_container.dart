@@ -33,18 +33,18 @@ class GlassContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(borderRadius);
-    final shadowColor = AppTheme.accentPrimary.withValues(alpha: isNavElement ? 0.18 : 0.10);
+    final shadowColor = AppTheme.accentPrimary.withValues(alpha: isNavElement ? 0.10 : 0.06);
 
     final decoration = BoxDecoration(
-      color: color ?? Colors.white.withValues(alpha: isNavElement ? 0.90 : 0.86),
+      color: color ?? Colors.white,
       gradient: gradient,
       borderRadius: radius,
       border: border ?? Border.all(color: AppTheme.glassBorder, width: 1),
       boxShadow: [
         BoxShadow(
           color: shadowColor,
-          blurRadius: isNavElement ? 32 : 26,
-          offset: Offset(0, isNavElement ? 12 : 10),
+          blurRadius: isNavElement ? 20 : 16,
+          offset: Offset(0, isNavElement ? 8 : 6),
         ),
       ],
     );
