@@ -38,7 +38,7 @@ class _TeamScreenState extends State<TeamScreen> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18), onPressed: () => Navigator.pop(context)),
         title: Column(children: [
           const Text('THE TEAM', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
           const Text('Leadership Team', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
@@ -70,10 +70,10 @@ class _TeamScreenState extends State<TeamScreen> {
                               shape: BoxShape.circle,
                               gradient: LinearGradient(colors: [AppTheme.accentPrimary, AppTheme.accentSecondary]),
                             ),
-                            child: Center(child: Text(initial, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white))),
+                            child: Center(child: Text(initial, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface))),
                           ),
                           const SizedBox(height: 12),
-                          Text(name, textAlign: TextAlign.center, maxLines: 2, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 13)),
+                          Text(name, textAlign: TextAlign.center, maxLines: 2, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, fontSize: 13)),
                           const SizedBox(height: 4),
                           Text('${member['department'] ?? 'Not Assigned'} DEPARTMENT'.toUpperCase(), style: const TextStyle(color: AppTheme.accentSecondary, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
                           const SizedBox(height: 8),

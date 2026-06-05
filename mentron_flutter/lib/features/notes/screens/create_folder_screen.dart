@@ -111,7 +111,7 @@ class _CreateFolderScreenState extends State<CreateFolderScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Column(
@@ -171,7 +171,7 @@ class _CreateFolderScreenState extends State<CreateFolderScreen> {
                       ),
                       child: TextField(
                         controller: _nameController,
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
                         decoration: InputDecoration(
                           hintText: 'e.g. Module 1, Unit 2, Lab Reports...',
                           hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2)),

@@ -75,7 +75,7 @@ class _FirstYearGroupScreenState extends State<FirstYearGroupScreen> {
           const Text('Select Group', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
         ]),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -125,7 +125,7 @@ class _FirstYearGroupScreenState extends State<FirstYearGroupScreen> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(meta['label']!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 18)),
+                          Text(meta['label']!, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 18)),
                           const SizedBox(height: 4),
                           Text(meta['streams']!, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
                         ]),

@@ -19,7 +19,7 @@ class SocietiesScreen extends StatelessWidget {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18), onPressed: () => Navigator.pop(context)),
         title: Column(children: [
           const Text('COMMUNITIES', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
           const Text('Sub-Societies', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
@@ -41,7 +41,7 @@ class SocietiesScreen extends StatelessWidget {
                   Text(soc['icon'] as String, style: const TextStyle(fontSize: 40)),
                   const SizedBox(width: 20),
                   Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(soc['name'] as String, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white)),
+                    Text(soc['name'] as String, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface)),
                     Text(soc['full'] as String, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
                     const SizedBox(height: 12),
                     Text(soc['desc'] as String, style: const TextStyle(color: AppTheme.textMuted, fontSize: 13, height: 1.6)),

@@ -332,8 +332,8 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -358,8 +358,8 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
                   const Spacer(),
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                       height: 1.2,
@@ -485,7 +485,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -500,7 +500,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
                   Text(
                     'Share with the community',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),

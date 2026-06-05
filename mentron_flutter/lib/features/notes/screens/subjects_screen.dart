@@ -38,7 +38,7 @@ class SubjectsScreen extends StatelessWidget {
           Text(subtitle, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
         ]),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -133,7 +133,7 @@ class SubjectsScreen extends StatelessWidget {
                           child: Center(child: Text('${i + 1}', style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w900))),
                         ),
                         const SizedBox(width: 12),
-                        Expanded(child: Text(subject, style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.3))),
+                        Expanded(child: Text(subject, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, height: 1.3))),
                         Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.4), size: 18),
                       ]),
                     ),

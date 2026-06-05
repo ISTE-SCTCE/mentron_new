@@ -184,9 +184,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SliverToBoxAdapter(
               child: _buildQuickActionsGrid(),
             ),
-            // ── Event Banner ──────────────────────────────────────
-            if (_userRole != 'exec' && _userRole != 'core')
-              const SliverToBoxAdapter(child: EventBannerWidget()),
             // ── Calendar ─────────────────────────────────────────
             SliverToBoxAdapter(
               child: _buildSectionLabel('Class Calendar'),
@@ -234,8 +231,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Center(
                 child: Text(
                   firstName.isNotEmpty ? firstName[0].toUpperCase() : 'S',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                   ),
@@ -342,7 +339,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         width: 42,
         height: 42,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.onSurface,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -430,6 +427,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // ─────────────────────────────────────────────────────────────────────────
 
   Widget _buildSubjectCards() {
+    final year = int.tryParse(_profile?['year']?.toString() ?? '') ?? 1;
+    final dept = (_profile?['department']?.toString() ?? 'CSE').toUpperCase();
+    final sems = SubjectData.semsForYear(year);
+    final sem = sems.isNotEmpty ? sems.first : 'S1';
     final subjects = _getTopSubjects();
     final colors = [
       AppTheme.accentPrimary,
@@ -466,7 +467,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
             color: color,
             bgColor: bg,
             icon: icons[index % icons.length],
-            onTap: () => MainScaffoldState.of(context)?.setIndex(1),
+            onTap: () {
+              Navigator.push(
+                context,
+                AppTransitions.slideRight(
+                  NotesBySubjectScreen(
+                    subjectName: subjects[index],
+                    color: color,
+                    year: year.toString(),
+                    semester: sem,
+                    dept: dept,
+                  ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -493,7 +507,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         width: 148,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -632,7 +646,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -703,7 +717,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.onSurface,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(

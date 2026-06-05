@@ -226,7 +226,7 @@ class _DashboardCarouselState extends State<DashboardCarousel> {
                             child: Opacity(
                               opacity: 0.08,
                               child: GridPaper(
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 interval: 30,
                                 subdivisions: 1,
                                 child: Container(),
@@ -247,8 +247,8 @@ class _DashboardCarouselState extends State<DashboardCarousel> {
                             ),
                             child: Text(
                               item['status'],
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 9,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: 1.5,
@@ -288,8 +288,8 @@ class _DashboardCarouselState extends State<DashboardCarousel> {
                                 item['title'],
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontSize: 20,
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: -0.5,

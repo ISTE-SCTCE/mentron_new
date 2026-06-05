@@ -87,7 +87,7 @@ class _SemesterScreenState extends State<SemesterScreen> {
           const Text('Select Semester', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
         ]),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -99,7 +99,7 @@ class _SemesterScreenState extends State<SemesterScreen> {
               Text(_yearEmojis[widget.year - 1], style: const TextStyle(fontSize: 36)),
               const SizedBox(width: 12),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(_yearLabels[widget.year - 1], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 24)),
+                Text(_yearLabels[widget.year - 1], style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 24)),
                 Text('Choose a semester', style: TextStyle(color: color.withValues(alpha: 0.7), fontSize: 12)),
               ]),
               if (_isLoadingProfile)
@@ -164,7 +164,7 @@ class _SemesterScreenState extends State<SemesterScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Semester $semNum', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 20)),
+                              Text('Semester $semNum', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 20)),
                               const SizedBox(height: 4),
                               Text(
                                 widget.year == 1 ? 'Select your stream group (A / B / C / D)' : 'Select your department',

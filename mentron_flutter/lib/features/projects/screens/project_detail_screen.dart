@@ -164,7 +164,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
           const SizedBox(height: 16),
           Text(
             widget.project.description,
-            style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.6),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 15, height: 1.6),
           ),
         ],
       ),
@@ -177,9 +177,9 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
+          Text(
             'APPLY TO PROJECT',
-            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),

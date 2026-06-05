@@ -116,9 +116,9 @@ class _ForumListScreenState extends State<ForumListScreen> {
           ],
         ),
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
             size: 18,
           ),
           onPressed: () => Navigator.pop(context),
@@ -139,18 +139,18 @@ class _ForumListScreenState extends State<ForumListScreen> {
                   vertical: 4,
                 ),
                 child: TextField(
-                  style: const TextStyle(color: Colors.white, fontSize: 13),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13),
                   onChanged: (val) {
                     _searchQuery = val;
                     if (val.isEmpty || val.length > 2) _fetchQuestions();
                   },
                   decoration: InputDecoration(
                     hintText: 'Search discussions...',
-                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+                    hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
                     border: InputBorder.none,
                     icon: Icon(
                       Icons.search,
-                      color: Colors.white.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                     ),
                   ),
                 ),
@@ -175,7 +175,7 @@ class _ForumListScreenState extends State<ForumListScreen> {
                       label: Text(
                         topic,
                         style: TextStyle(
-                          color: isSelected ? Colors.black : Colors.white70,
+                          color: isSelected ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                           fontWeight: isSelected
                               ? FontWeight.bold
                               : FontWeight.normal,
@@ -184,11 +184,11 @@ class _ForumListScreenState extends State<ForumListScreen> {
                       ),
                       selected: isSelected,
                       selectedColor: AppTheme.accentSecondary,
-                      backgroundColor: Colors.white.withValues(alpha: 0.05),
+                      backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                       side: BorderSide(
                         color: isSelected
                             ? AppTheme.accentSecondary
-                            : Colors.white.withValues(alpha: 0.1),
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                       ),
                       onSelected: (selected) {
                         if (selected) {
@@ -331,8 +331,8 @@ class _ForumListScreenState extends State<ForumListScreen> {
               // Title
               Text(
                 question.title,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),

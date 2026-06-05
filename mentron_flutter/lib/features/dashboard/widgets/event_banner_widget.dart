@@ -185,7 +185,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                 ),
                 const SizedBox(height: 20),
                 const Text('SCHEDULE EVENT', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
-                const Text('Add New Event', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
+                Text('Add New Event', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.w900)),
                 const SizedBox(height: 20),
 
                 if (error != null)
@@ -227,7 +227,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                         const SizedBox(width: 12),
                         Text(
                           DateFormat('EEE, d MMMM yyyy').format(selectedDate),
-                          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -252,7 +252,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                       value: selectedDept,
                       dropdownColor: const Color(0xFF0E0E1A),
                       isExpanded: true,
-                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14, fontWeight: FontWeight.bold),
                       items: ['General', 'CSE', 'ECE', 'BT', 'ME', 'MEA']
                           .map((d) => DropdownMenuItem(value: d, child: Text(d)))
                           .toList(),
@@ -319,7 +319,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
       child: TextField(
         controller: ctrl,
         maxLines: maxLines,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 13),
@@ -492,7 +492,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                             Text(
                               event['event_name'] ?? 'Event',
                               maxLines: 2, overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w900, letterSpacing: -0.2, height: 1.25),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 17, fontWeight: FontWeight.w900, letterSpacing: -0.2, height: 1.25),
                             ),
                             const SizedBox(height: 6),
                             // Date + venue row

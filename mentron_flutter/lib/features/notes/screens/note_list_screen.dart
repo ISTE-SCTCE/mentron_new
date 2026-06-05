@@ -1,20 +1,14 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:http/http.dart' as http;
-import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:archive/archive.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
-import '../../../shared/widgets/bouncing_balls_loader.dart';
 import '../../../core/utils/department_mapper.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../data/models/note_model.dart';
+import 'note_viewer_screen.dart';
 
 class NoteListScreen extends StatefulWidget {
   final String deptCode;
@@ -109,7 +103,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Delete Note?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text('Delete Note?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
         content: Text(
           'Are you sure you want to delete "${note.title}"? This cannot be undone.',
           style: const TextStyle(color: AppTheme.textMuted, fontSize: 14),
@@ -280,76 +274,28 @@ class _NoteListScreenState extends State<NoteListScreen> {
   Future<void> _downloadAndOpenNote(Note note) async {
     if (!mounted) return;
     
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            BouncingBallsLoader(),
-            SizedBox(height: 32),
-            Text(
-              'SECURING BRIDGE...',
-              style: TextStyle(
-                color: AppTheme.accentSecondary,
-                decoration: TextDecoration.none,
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 2,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-
     try {
-      // ── Step 1: Construct the URL ──
-      const String apiBaseUrl = 'https://mentron.istesctce.in';
       String fetchUrl = note.fileUrl;
+      final supabase = Provider.of<SupabaseService>(context, listen: false);
       
-      if (!fetchUrl.startsWith('http')) {
+      if (fetchUrl.contains('notes_bucket')) {
+        final filePath = fetchUrl.split('notes_bucket/').last;
+        fetchUrl = supabase.client.storage.from('notes_bucket').getPublicUrl(filePath);
+      } else if (!fetchUrl.startsWith('http')) {
+        const String apiBaseUrl = 'https://mentron.istesctce.in';
         fetchUrl = '$apiBaseUrl$fetchUrl';
       }
 
-      // ── Step 2: Download the raw bytes ──
-      final response = await http.get(Uri.parse(fetchUrl));
-      if (response.statusCode != 200) throw Exception('Download failed (${response.statusCode})');
-      final fileBytes = response.bodyBytes;
-
-      // ── Step 3: Determine extension and filename ──
-      final String extension = fetchUrl.split('.').last.toLowerCase().split('?').first;
-      final bool isPdf = extension == 'pdf' || !['mp4', 'mov', 'docx', 'pptx'].contains(extension);
-      
-      String cleanName = note.title
-          .replaceAll(RegExp(r'[^\w\s-]'), '')
-          .trim()
-          .replaceAll(RegExp(r'\s+'), '_');
-      if (cleanName.isEmpty) cleanName = 'note';
-      final fileName = '$cleanName.${isPdf ? 'pdf' : extension}';
-
-      // ── Step 4: Save to temp directory ──
-      final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/$fileName');
-      await file.writeAsBytes(fileBytes);
-
-      // ── Step 5: Open with device viewer ──
       if (mounted) {
-        final nav = Navigator.of(context, rootNavigator: true);
-        if (nav.canPop()) nav.pop();
-      }
-
-      final result = await OpenFile.open(file.path);
-      if (result.type != ResultType.done && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: Colors.red, content: Text('Could not open file: ${result.message}')),
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NoteViewerScreen(url: fetchUrl, title: note.title),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
-        final nav = Navigator.of(context, rootNavigator: true);
-        if (nav.canPop()) nav.pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e))),
         );

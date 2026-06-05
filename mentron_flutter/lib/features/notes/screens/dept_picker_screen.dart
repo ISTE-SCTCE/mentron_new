@@ -62,10 +62,10 @@ class _DeptPickerScreenState extends State<DeptPickerScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(children: [
-          Icon(Icons.lock_rounded, color: Colors.amber, size: 20),
-          SizedBox(width: 10),
-          Text('Access Restricted', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+        title: Row(children: [
+          const Icon(Icons.lock_rounded, color: Colors.amber, size: 20),
+          const SizedBox(width: 10),
+          Text('Access Restricted', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
         ]),
         content: const Text(
           'You can only view notes from your own department with your current subscription.',
@@ -100,7 +100,7 @@ class _DeptPickerScreenState extends State<DeptPickerScreen> {
           const Text('Select Department', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
         ]),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
       ),

@@ -126,10 +126,10 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
         elevation: 0,
         title: Column(children: [
           const Text('STUDENT', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
-          const Text('Directory', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white)),
+          Text('Directory', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface)),
         ]),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -161,7 +161,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
                     ),
                     child: TextField(
                       onChanged: (val) => setState(() => _search = val),
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
                       decoration: InputDecoration(
                         hintText: 'Search roll no, name...',
                         hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 13),
@@ -235,7 +235,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
           isExpanded: true,
           icon: Icon(Icons.filter_list_rounded, color: Colors.white.withValues(alpha: 0.3), size: 16),
           dropdownColor: AppTheme.surfaceColor,
-          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.bold),
           onChanged: onChanged,
           items: items.map((item) {
             String labelText = item;
@@ -296,7 +296,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
                     children: [
                       Text(
                         member['full_name'] ?? 'Unknown',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 16),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -344,7 +344,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
                         children: [
                           const Text('DEPARTMENT', style: TextStyle(color: AppTheme.textMuted, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
                           const SizedBox(height: 4),
-                          Text(member['department'] ?? '—', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                          Text(member['department'] ?? '—', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -356,7 +356,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
                         children: [
                           const Text('CLASS YEAR', style: TextStyle(color: AppTheme.textMuted, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
                           const SizedBox(height: 4),
-                          Text(member['year'] != null ? 'Year ${member['year']}' : '—', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                          Text(member['year'] != null ? 'Year ${member['year']}' : '—', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -462,7 +462,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(isExec ? 'Demote Member?' : 'Promote to Exec?', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text(isExec ? 'Demote Member?' : 'Promote to Exec?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
         content: Text(
           isExec
               ? '${member['full_name']} will become a normal member.'
@@ -486,7 +486,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Delete Account?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text('Delete Account?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
         content: Text(
           'Are you sure you want to permanently delete ${member['full_name']}? This action cannot be undone and will revoke their access to Mentron.',
           style: const TextStyle(color: AppTheme.textMuted, fontSize: 13, height: 1.5),

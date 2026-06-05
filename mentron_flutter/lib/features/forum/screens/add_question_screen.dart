@@ -124,7 +124,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
           ],
         ),
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+          icon: Icon(Icons.close_rounded, color: Theme.of(context).colorScheme.onSurface, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -230,8 +230,8 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                 ),
                 child: TextField(
                   controller: _titleController,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -271,7 +271,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                       Icons.arrow_drop_down_rounded,
                       color: Colors.white54,
                     ),
-                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13),
                     items: _topics.map((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -298,8 +298,8 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                 child: TextField(
                   controller: _contentController,
                   maxLines: 12,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 13,
                     height: 1.5,
                   ),

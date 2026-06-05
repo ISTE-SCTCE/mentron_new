@@ -480,10 +480,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           (_profile?['full_name'] ?? 'U')
                               .substring(0, 1)
                               .toUpperCase(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 40,
                             fontWeight: FontWeight.w900,
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ),

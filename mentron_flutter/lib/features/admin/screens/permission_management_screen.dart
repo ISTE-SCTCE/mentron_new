@@ -69,7 +69,7 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
-        title: Text(value ? 'Grant Permission' : 'Revoke Permission', style: const TextStyle(color: Colors.white)),
+        title: Text(value ? 'Grant Permission' : 'Revoke Permission', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
         content: Text('Are you sure you want to ${value ? 'grant' : 'revoke'} "$permLabel" for $name?', style: const TextStyle(color: AppTheme.textMuted)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted))),
@@ -131,9 +131,9 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Permission Board', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text('Permission Board', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -166,7 +166,7 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
       ),
       child: TextField(
         onChanged: _filterMembers,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
         decoration: InputDecoration(
           icon: Icon(Icons.search, color: Colors.white.withValues(alpha: 0.3), size: 20),
           hintText: 'Search Execom / Core...',
@@ -202,14 +202,14 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
                       CircleAvatar(
                         backgroundColor: AppTheme.accentPrimary,
                         radius: 20,
-                        child: Text(member['full_name']?[0] ?? '?', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        child: Text(member['full_name']?[0] ?? '?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(member['full_name'] ?? 'Unknown', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            Text(member['full_name'] ?? 'Unknown', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
                             Text('${member['role']} • ${member['iste_position'] ?? 'Member'}', style: const TextStyle(color: AppTheme.textMuted, fontSize: 10)),
                           ],
                         ),
@@ -259,7 +259,7 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
       children: [
         Icon(icon, color: AppTheme.accentSecondary, size: 18),
         const SizedBox(width: 12),
-        Expanded(child: Text(_getPermissionLabel(key), style: const TextStyle(color: Colors.white, fontSize: 13))),
+        Expanded(child: Text(_getPermissionLabel(key), style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13))),
         Switch(
           value: val,
           onChanged: (newVal) => _updatePermission(key, newVal),

@@ -2,21 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:io';
-import 'dart:typed_data';
-import 'package:http/http.dart' as http;
-import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:archive/archive.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
-import '../../../shared/widgets/liquid_background.dart';
-import '../../../shared/widgets/bouncing_balls_loader.dart';
 import '../../../core/utils/department_mapper.dart';
 import '../../../data/models/note_model.dart';
-import 'add_note_screen.dart';
 import 'create_folder_screen.dart';
+import 'note_viewer_screen.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../core/utils/app_transitions.dart';
 
@@ -308,77 +300,31 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       if (enteredId == null) return;
     }
 
-    if (!mounted) return;
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            BouncingBallsLoader(),
-            SizedBox(height: 32),
-            Text(
-              'SECURING BRIDGE...',
-              style: TextStyle(
-                color: AppTheme.accentSecondary,
-                decoration: TextDecoration.none,
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 2,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-
     try {
+      final supabase = Provider.of<SupabaseService>(context, listen: false);
       try {
-        final supabase = Provider.of<SupabaseService>(context, listen: false);
         await supabase.client.rpc('increment_note_views', params: {'target_note_id': note.id});
       } catch (_) {}
 
-      const String apiBaseUrl = 'https://mentron.istesctce.in';
       String fetchUrl = note.fileUrl;
-      
-      if (!fetchUrl.startsWith('http')) {
+      if (fetchUrl.contains('notes_bucket')) {
+        final filePath = fetchUrl.split('notes_bucket/').last;
+        fetchUrl = supabase.client.storage.from('notes_bucket').getPublicUrl(filePath);
+      } else if (!fetchUrl.startsWith('http')) {
+        const String apiBaseUrl = 'https://mentron.istesctce.in';
         fetchUrl = '$apiBaseUrl$fetchUrl';
       }
 
-      final response = await http.get(Uri.parse(fetchUrl));
-      if (response.statusCode != 200) throw Exception('Download failed (${response.statusCode})');
-      final fileBytes = response.bodyBytes;
-
-      final String extension = fetchUrl.split('.').last.toLowerCase().split('?').first;
-      final bool isPdf = extension == 'pdf' || !['mp4', 'mov', 'docx', 'pptx'].contains(extension);
-      
-      String cleanName = note.title
-          .replaceAll(RegExp(r'[^\w\s-]'), '')
-          .trim()
-          .replaceAll(RegExp(r'\s+'), '_');
-      if (cleanName.isEmpty) cleanName = 'note';
-      final fileName = '$cleanName.${isPdf ? 'pdf' : extension}';
-
-      final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/$fileName');
-      await file.writeAsBytes(fileBytes);
-
       if (mounted) {
-        final nav = Navigator.of(context, rootNavigator: true);
-        if (nav.canPop()) nav.pop();
-      }
-
-      final result = await OpenFile.open(file.path);
-      if (result.type != ResultType.done && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: Colors.red, content: Text('Could not open file: ${result.message}')),
+        Navigator.push(
+          context,
+          AppTransitions.slideUp(
+            NoteViewerScreen(url: fetchUrl, title: note.title),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
-        final nav = Navigator.of(context, rootNavigator: true);
-        if (nav.canPop()) nav.pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e))),
         );

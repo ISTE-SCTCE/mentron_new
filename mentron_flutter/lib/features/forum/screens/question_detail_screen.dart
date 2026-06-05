@@ -225,9 +225,9 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
+        title: Text(
           'Mark as Best Answer?',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
         ),
         content: const Text(
           'This will pin the answer to the top and mark your question as resolved. You can change this later.',
@@ -320,11 +320,11 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
       return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
-        body: const LiquidBackground(
+        body: LiquidBackground(
           child: Center(
             child: Text(
               'Question not found',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
         ),
@@ -344,9 +344,9 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
             size: 18,
           ),
           onPressed: () => Navigator.pop(context),
@@ -367,10 +367,10 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    title: const Text(
+                    title: Text(
                       'Delete Question?',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -503,8 +503,8 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                           const SizedBox(height: 16),
                           Text(
                             q.title,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 24,
                               fontWeight: FontWeight.w900,
                               height: 1.2,
@@ -891,8 +891,8 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                               controller: _answerController,
                               maxLines: 4,
                               minLines: 1,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 14,
                               ),
                               decoration: const InputDecoration(

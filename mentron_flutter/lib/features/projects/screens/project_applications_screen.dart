@@ -122,11 +122,11 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
                   ),
                 ),
                 child: Center(
-                  child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900)),
+                  child: Text(initials, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 32, fontWeight: FontWeight.w900)),
                 ),
               ),
               const SizedBox(height: 16),
-              Text(name, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
+              Text(name, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 22, fontWeight: FontWeight.w900)),
               const SizedBox(height: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -173,7 +173,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
             children: [
               Text(label, style: const TextStyle(color: AppTheme.textMuted, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
               const SizedBox(height: 2),
-              Text(value, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+              Text(value, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14, fontWeight: FontWeight.bold)),
             ],
           ),
         ),
@@ -221,7 +221,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
           Text('Applications (${_applications.length})', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
         ]),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -272,7 +272,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(name, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(name, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
                   Text(dept, style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 11)),
                 ]),
               ),

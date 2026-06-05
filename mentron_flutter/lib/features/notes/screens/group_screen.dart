@@ -117,12 +117,12 @@ class _GroupScreenState extends State<GroupScreen> {
               gradient: LinearGradient(colors: [AppTheme.accentPrimary, AppTheme.accentSecondary]),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.folder_special_rounded, color: Colors.white, size: 24),
+            child: Icon(Icons.folder_special_rounded, color: Theme.of(context).colorScheme.onSurface, size: 24),
           ),
           const SizedBox(width: 14),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Text('YOUR DEPARTMENT', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 2)),
-            Text(deptName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+            Text(deptName, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 15)),
             if (_userRoll != null)
               Text(_userRoll!, style: const TextStyle(color: AppTheme.textMuted, fontSize: 10, letterSpacing: 1)),
           ])),
@@ -183,7 +183,7 @@ class _GroupScreenState extends State<GroupScreen> {
           ),
           const SizedBox(width: 14),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(y.label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+            Text(y.label, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 15)),
             Text(y.sems, style: TextStyle(color: y.color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
           ])),
           Icon(Icons.chevron_right_rounded, color: y.color.withValues(alpha: 0.5)),

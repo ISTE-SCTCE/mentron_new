@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
@@ -271,6 +272,11 @@ class AppTheme {
           fontWeight: FontWeight.w700,
         ),
         iconTheme: const IconThemeData(color: textMain),
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: accentPrimary,

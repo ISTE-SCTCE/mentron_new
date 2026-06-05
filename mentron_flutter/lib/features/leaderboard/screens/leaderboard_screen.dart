@@ -42,7 +42,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18), onPressed: () => Navigator.pop(context)),
         title: Column(children: [
           const Text('COMMUNITY INFLUENCE', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
           const Text('Leaderboard', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
@@ -100,7 +100,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
               child: Column(children: [
                 Text(medals[i], style: const TextStyle(fontSize: 28)),
                 const SizedBox(height: 8),
-                Text(student['full_name'] ?? '', textAlign: TextAlign.center, maxLines: 2, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.white)),
+                Text(student['full_name'] ?? '', textAlign: TextAlign.center, maxLines: 2, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface)),
                 const SizedBox(height: 4),
                 Text('${student['xp'] ?? 0} Votes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: colors[i])),
                 if (student['department'] != null)
@@ -136,11 +136,11 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           ),
         ),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(student['full_name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14)),
+          Text(student['full_name'] ?? '', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, fontSize: 14)),
           if (student['roll_number'] != null)
             Text(student['roll_number'], style: const TextStyle(color: AppTheme.textMuted, fontSize: 10, letterSpacing: 1)),
         ])),
-        Text('${student['xp'] ?? 0}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white)),
+        Text('${student['xp'] ?? 0}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface)),
       ]),
     );
   }

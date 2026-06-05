@@ -67,7 +67,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18), onPressed: () => Navigator.pop(context)),
       ),
       body: LiquidBackground(
         child: _isLoading
@@ -79,7 +79,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       const Text('EVENT', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)).animate().fadeIn(),
                       const SizedBox(height: 8),
-                      Text(_event!['event_name'] ?? '', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.white, height: 1.1)).animate().fadeIn(delay: 100.ms),
+                      Text(_event!['event_name'] ?? '', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface, height: 1.1)).animate().fadeIn(delay: 100.ms),
                       const SizedBox(height: 16),
                       if (_event!['venue'] != null)
                         Row(children: [
@@ -105,7 +105,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                             ? Column(children: [
                                 const Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 48),
                                 const SizedBox(height: 16),
-                                const Text("You're In!", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white)),
+                                Text("You're In!", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface)),
                                 const SizedBox(height: 8),
                                 const Text('You have successfully registered.\nWe look forward to seeing you there!', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.textMuted, height: 1.6)),
                                 const SizedBox(height: 16),
@@ -113,14 +113,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                   child: const Text('STATUS: CONFIRMED', style: TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2))),
                               ])
                             : Column(children: [
-                                const Text('Join the Event', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white)),
+                                Text('Join the Event', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface)),
                                 const SizedBox(height: 8),
                                 const Text('Secure your spot today.\nRegistration is free for all members.', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.textMuted, height: 1.6)),
                                 const SizedBox(height: 24),
                                 SizedBox(width: double.infinity, child: ElevatedButton(
                                   onPressed: _isRegistering ? null : _register,
                                   style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentPrimary, foregroundColor: Colors.white),
-                                  child: _isRegistering ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('REGISTER NOW'),
+                                  child: _isRegistering ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(context).colorScheme.onSurface)) : const Text('REGISTER NOW'),
                                 )),
                               ]),
                       ).animate().fadeIn(delay: 300.ms),

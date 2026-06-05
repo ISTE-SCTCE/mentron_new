@@ -164,7 +164,7 @@ class _EventListScreenState extends State<EventListScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppTheme.bgColor,
-        title: const Text('Delete Concept?', style: TextStyle(color: Colors.white)),
+        title: Text('Delete Concept?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
         content: const Text('Are you sure you want to delete this event concept?', style: TextStyle(color: AppTheme.textMuted)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted))),
@@ -211,20 +211,20 @@ class _EventListScreenState extends State<EventListScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('PROPOSE CONCEPT', style: TextStyle(color: AppTheme.accentPrimary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
-                    IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, color: Colors.white, size: 20)),
+                    IconButton(onPressed: () => Navigator.pop(context), icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface, size: 20)),
                   ],
                 ),
                 const SizedBox(height: 24),
                 TextField(
                   controller: titleController,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                   decoration: const InputDecoration(labelText: 'Concept Title', hintText: 'e.g. 24hr AI Hackathon'),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: descController,
                   maxLines: 4,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                   decoration: const InputDecoration(labelText: 'Description', hintText: 'Explain your idea...'),
                 ),
                 const SizedBox(height: 24),
@@ -274,7 +274,7 @@ class _EventListScreenState extends State<EventListScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(children: [
@@ -304,11 +304,11 @@ class _EventListScreenState extends State<EventListScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('COMMUNITY FORUM', style: TextStyle(color: AppTheme.accentPrimary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
-                            Text('Event Concepts', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white)),
+                            Text('Event Concepts', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface)),
                           ],
                         ),
                         IconButton(
@@ -350,7 +350,7 @@ class _EventListScreenState extends State<EventListScreen> {
                 child: const Icon(Icons.event_rounded, color: AppTheme.accentPrimary, size: 24),
               ),
               const SizedBox(width: 16),
-              Expanded(child: Text(event['event_name'] ?? 'Event', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white))),
+              Expanded(child: Text(event['event_name'] ?? 'Event', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface))),
               const Icon(Icons.arrow_forward_ios_rounded, color: AppTheme.textMuted, size: 14),
             ]),
             if (event['venue'] != null) ...[
@@ -417,7 +417,7 @@ class _EventListScreenState extends State<EventListScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            Text(concept['title'] ?? '', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white)),
+            Text(concept['title'] ?? '', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface)),
             const SizedBox(height: 8),
             Text(concept['description'] ?? '', style: const TextStyle(color: AppTheme.textMuted, fontSize: 13, height: 1.4)),
             const SizedBox(height: 20),

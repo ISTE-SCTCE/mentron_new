@@ -258,7 +258,7 @@ class _AddMarketplaceItemScreenState extends State<AddMarketplaceItemScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.onSurface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: AppTheme.accentPrimary.withValues(alpha: 0.12),
