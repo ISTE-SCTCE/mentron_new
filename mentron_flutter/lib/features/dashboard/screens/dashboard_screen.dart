@@ -5,8 +5,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/models/subject_data.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../shared/widgets/subject_chip.dart';
-import '../../../shared/widgets/byju_stat_card.dart';
 import '../../../shared/widgets/illustration_card.dart';
 import '../widgets/real_time_calendar.dart';
 import '../widgets/dashboard_carousel.dart';
@@ -37,17 +35,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String _userRole = 'member';
   Map<String, dynamic>? _profile;
   bool _isExec = false;
-  int _selectedChipIndex = 0;
-
-  final List<String> _subjects = [
-    'All',
-    'Science',
-    'Math',
-    'Engineering',
-    'English',
-    'Design',
-    'Coding',
-  ];
 
   @override
   void initState() {
@@ -165,17 +152,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SliverToBoxAdapter(
               child: _buildHeader(firstName),
             ),
-            // ── Subject Chips ─────────────────────────────────────
-            SliverToBoxAdapter(
-              child: _buildSubjectChipsRow(),
-            ),
             // ── Greeting + Headline ───────────────────────────────
             SliverToBoxAdapter(
               child: _buildHeadlineSection(firstName),
-            ),
-            // ── Stats Row ─────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: _buildStatsRow(),
             ),
             // ── Dashboard Event & Trending Subject Carousel ──────
             const SliverToBoxAdapter(
@@ -315,55 +294,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1, curve: Curves.easeOut);
   }
 
-  Widget _buildHeaderAction({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.accentPrimary.withValues(alpha: 0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(icon, color: AppTheme.textMuted, size: 20),
-      ),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Subject Chips
-  // ─────────────────────────────────────────────────────────────────────────
-
-  Widget _buildSubjectChipsRow() {
-    return SizedBox(
-      height: 48,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: _subjects.length,
-        separatorBuilder: (_, i) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          return SubjectChip(
-            label: _subjects[index],
-            isSelected: _selectedChipIndex == index,
-            colorIndex: index,
-            onTap: () => setState(() => _selectedChipIndex = index),
-          );
-        },
-      ),
-    ).animate().fadeIn(delay: 80.ms).slideX(begin: 0.06, curve: Curves.easeOut);
-  }
-
   // ─────────────────────────────────────────────────────────────────────────
   // Headline
   // ─────────────────────────────────────────────────────────────────────────
@@ -397,52 +327,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.08, curve: Curves.easeOut);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Stats Row
-  // ─────────────────────────────────────────────────────────────────────────
-
-  Widget _buildStatsRow() {
-    final xpDisplay = userXP >= 1000
-        ? '${(userXP / 1000).toStringAsFixed(1)}k'
-        : '$userXP';
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: Row(
-        children: [
-          Expanded(
-            child: ByjuStatCard(
-              label: 'XP Points',
-              value: xpDisplay,
-              icon: Icons.bolt_rounded,
-              color: AppTheme.accentSecondary,
-              bgColor: AppTheme.cardBg2,
+  Widget _buildHeaderAction({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.accentPrimary.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: ByjuStatCard(
-              label: 'Notes',
-              value: '$totalNotes',
-              icon: Icons.menu_book_rounded,
-              color: AppTheme.accentPrimary,
-              bgColor: AppTheme.cardBg1,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: ByjuStatCard(
-              label: 'Projects',
-              value: '$totalProjects',
-              icon: Icons.assignment_rounded,
-              color: AppTheme.accentTertiary,
-              bgColor: AppTheme.cardBg3,
-            ),
-          ),
-        ],
+          ],
+        ),
+        child: Icon(icon, color: AppTheme.textMuted, size: 20),
       ),
-    ).animate().fadeIn(delay: 140.ms).slideY(begin: 0.08, curve: Curves.easeOut);
+    );
   }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Subject Chips
+  // ─────────────────────────────────────────────────────────────────────────
+
+
 
 
 
