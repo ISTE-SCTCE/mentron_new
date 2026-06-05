@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -254,37 +255,48 @@ class MainScaffoldState extends State<MainScaffold>
 
   Widget _buildNavbar() {
     return Container(
+      margin: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        bottom: MediaQuery.of(context).padding.bottom > 0 ? 12 : 24,
+      ),
+      height: 72,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withOpacity(0.85),
+        borderRadius: BorderRadius.circular(36),
+        border: Border.all(color: Colors.white.withOpacity(0.5), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.accentPrimary.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(0, Icons.home_rounded, 'Home'),
-              _buildNavItem(1, Icons.menu_book_rounded, 'Learn'),
-              _buildNavItem(2, Icons.assignment_rounded, 'Practice'),
-              _buildNavItem(3, Icons.shopping_bag_rounded, 'Store'),
-              _buildNavItem(4, Icons.person_rounded, 'Profile'),
-              if (_isExec) _buildBellItem(),
-            ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(36),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItem(0, Icons.home_rounded, Icons.home_outlined),
+                _buildNavItem(1, Icons.menu_book_rounded, Icons.menu_book_outlined),
+                _buildNavItem(2, Icons.assignment_rounded, Icons.assignment_outlined),
+                _buildNavItem(3, Icons.shopping_bag_rounded, Icons.shopping_bag_outlined),
+                _buildNavItem(4, Icons.person_rounded, Icons.person_outlined),
+                if (_isExec) _buildBellItem(),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
+  Widget _buildNavItem(int index, IconData selectedIcon, IconData unselectedIcon) {
     final bool isSelected = _currentIndex == index;
     return GestureDetector(
       onTap: () => setState(() => _currentIndex = index),
@@ -292,35 +304,18 @@ class MainScaffoldState extends State<MainScaffold>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOut,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        width: 48,
+        height: 48,
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.accentPrimary.withValues(alpha: 0.1)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected ? const Color(0xFF1E2238) : Colors.transparent,
+          shape: BoxShape.circle,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              child: Icon(
-                icon,
-                color: isSelected ? AppTheme.accentPrimary : AppTheme.textLight,
-                size: 22,
-              ),
-            ),
-            const SizedBox(height: 4),
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 220),
-              style: TextStyle(
-                color: isSelected ? AppTheme.accentPrimary : AppTheme.textLight,
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-              ),
-              child: Text(label),
-            ),
-          ],
+        child: Center(
+          child: Icon(
+            isSelected ? selectedIcon : unselectedIcon,
+            color: isSelected ? Colors.white : const Color(0xFF8E90A6),
+            size: 22,
+          ),
         ),
       ),
     );
@@ -337,66 +332,46 @@ class MainScaffoldState extends State<MainScaffold>
         _fetchPendingCount();
       },
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: _pendingCount > 0
-              ? AppTheme.accentSecondary.withValues(alpha: 0.12)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(
-                  Icons.notifications_rounded,
-                  color: _pendingCount > 0
-                      ? AppTheme.accentSecondary
-                      : AppTheme.textLight,
-                  size: 22,
-                ),
-                if (_pendingCount > 0)
-                  Positioned(
-                    top: -7,
-                    right: -8,
-                    child: Container(
-                      padding: const EdgeInsets.all(3),
-                      constraints:
-                          const BoxConstraints(minWidth: 16, minHeight: 16),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFF6B6B),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        _pendingCount > 99 ? '99+' : '$_pendingCount',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 8,
-                          fontWeight: FontWeight.w900,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-              ],
+      child: Stack(
+        alignment: Alignment.center,
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: const BoxDecoration(
+              color: Colors.transparent,
+              shape: BoxShape.circle,
             ),
-            const SizedBox(height: 4),
-            Text(
-              'Alerts',
-              style: TextStyle(
-                color: _pendingCount > 0
-                    ? AppTheme.accentSecondary
-                    : AppTheme.textLight,
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
+            child: const Icon(
+              Icons.notifications_outlined,
+              color: Color(0xFF8E90A6),
+              size: 22,
+            ),
+          ),
+          if (_pendingCount > 0)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFF6B6B),
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  _pendingCount > 99 ? '99+' : '$_pendingCount',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 8,
+                    fontWeight: FontWeight.w900,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

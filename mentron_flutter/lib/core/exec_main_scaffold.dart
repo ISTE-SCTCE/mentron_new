@@ -266,73 +266,38 @@ class ExecMainScaffoldState extends State<ExecMainScaffold>
 
   Widget _buildNavbar() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+      margin: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        bottom: MediaQuery.of(context).padding.bottom > 0 ? 12 : 24,
+      ),
       height: 72,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
+        color: Colors.white.withOpacity(0.85),
+        borderRadius: BorderRadius.circular(36),
+        border: Border.all(color: Colors.white.withOpacity(0.5), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.4),
-            blurRadius: 30,
-            offset: const Offset(0, 8),
-          ),
-          BoxShadow(
-            color: const Color(0xFF7B2FFF).withValues(alpha: 0.08),
+            color: Colors.black.withOpacity(0.06),
             blurRadius: 24,
-            spreadRadius: 1,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(36),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
           child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: 0.14),
-                  Colors.white.withValues(alpha: 0.06),
-                ],
-              ),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.15),
-                width: 0.8,
-              ),
-            ),
-            child: Stack(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                // Glass sheen highlight
-                Positioned(
-                  top: 0, left: 0, right: 0,
-                  child: Container(
-                    height: 18,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.centerRight,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.22),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildNavItem(0, Icons.grid_view_rounded, 'Home'),
-                    _buildNavItem(1, Icons.library_books_rounded, 'Library'),
-                    _buildNavItem(2, Icons.rocket_launch_rounded, 'Projects'),
-                    _buildNavItem(3, Icons.shopping_bag_rounded, 'Market'),
-                    if (_isExec) _buildBellItem(),
-                  ],
-                ),
+                _buildNavItem(0, Icons.grid_view_rounded, Icons.grid_view_outlined),
+                _buildNavItem(1, Icons.library_books_rounded, Icons.library_books_outlined),
+                _buildNavItem(2, Icons.rocket_launch_rounded, Icons.rocket_launch_outlined),
+                _buildNavItem(3, Icons.shopping_bag_rounded, Icons.shopping_bag_outlined),
+                if (_isExec) _buildBellItem(),
               ],
             ),
           ),
@@ -341,37 +306,27 @@ class ExecMainScaffoldState extends State<ExecMainScaffold>
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
+  Widget _buildNavItem(int index, IconData selectedIcon, IconData unselectedIcon) {
     final bool isSelected = _currentIndex == index;
     return GestureDetector(
       onTap: () => setState(() => _currentIndex = index),
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: isSelected ? ExecTheme.accentPrimary.withValues(alpha: 0.15) : Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(
-              icon,
-              color: isSelected ? ExecTheme.accentPrimary : ExecTheme.textMuted,
-              size: 22,
-            ),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF1E2238) : Colors.transparent,
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: Icon(
+            isSelected ? selectedIcon : unselectedIcon,
+            color: isSelected ? Colors.white : const Color(0xFF8E90A6),
+            size: 22,
           ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? ExecTheme.accentPrimary : ExecTheme.textMuted,
-              fontSize: 9,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -388,56 +343,41 @@ class ExecMainScaffoldState extends State<ExecMainScaffold>
         _fetchPendingCount();
       },
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Stack(
+        alignment: Alignment.center,
+        clipBehavior: Clip.none,
         children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: _pendingCount > 0
-                      ? Colors.orangeAccent.withValues(alpha: 0.15)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(
-                  Icons.notifications_rounded,
-                  color: _pendingCount > 0 ? Colors.orangeAccent : ExecTheme.textMuted,
-                  size: 22,
-                ),
-              ),
-              if (_pendingCount > 0)
-                Positioned(
-                  top: 4,
-                  right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(3),
-                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                    decoration: const BoxDecoration(
-                      color: Colors.redAccent,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      _pendingCount > 99 ? '99+' : '$_pendingCount',
-                      style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w900),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'Requests',
-            style: TextStyle(
-              color: _pendingCount > 0 ? Colors.orangeAccent : ExecTheme.textMuted,
-              fontSize: 9,
-              fontWeight: _pendingCount > 0 ? FontWeight.bold : FontWeight.normal,
+          Container(
+            width: 48,
+            height: 48,
+            decoration: const BoxDecoration(
+              color: Colors.transparent,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.notifications_outlined,
+              color: Color(0xFF8E90A6),
+              size: 22,
             ),
           ),
+          if (_pendingCount > 0)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                decoration: const BoxDecoration(
+                  color: Colors.redAccent,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  _pendingCount > 99 ? '99+' : '$_pendingCount',
+                  style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w900),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
         ],
       ),
     );
