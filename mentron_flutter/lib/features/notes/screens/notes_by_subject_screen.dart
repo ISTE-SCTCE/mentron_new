@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
+import '../../../shared/widgets/liquid_background.dart';
 import '../../../core/utils/department_mapper.dart';
 import '../../../data/models/note_model.dart';
 import 'create_folder_screen.dart';
@@ -306,12 +307,10 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
         await supabase.client.rpc('increment_note_views', params: {'target_note_id': note.id});
       } catch (_) {}
 
+      const String apiBaseUrl = 'https://mentron.istesctce.in';
       String fetchUrl = note.fileUrl;
-      if (fetchUrl.contains('notes_bucket')) {
-        final filePath = fetchUrl.split('notes_bucket/').last;
-        fetchUrl = supabase.client.storage.from('notes_bucket').getPublicUrl(filePath);
-      } else if (!fetchUrl.startsWith('http')) {
-        const String apiBaseUrl = 'https://mentron.istesctce.in';
+      
+      if (!fetchUrl.startsWith('http')) {
         fetchUrl = '$apiBaseUrl$fetchUrl';
       }
 

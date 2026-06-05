@@ -275,14 +275,10 @@ class _NoteListScreenState extends State<NoteListScreen> {
     if (!mounted) return;
     
     try {
+      const String apiBaseUrl = 'https://mentron.istesctce.in';
       String fetchUrl = note.fileUrl;
-      final supabase = Provider.of<SupabaseService>(context, listen: false);
       
-      if (fetchUrl.contains('notes_bucket')) {
-        final filePath = fetchUrl.split('notes_bucket/').last;
-        fetchUrl = supabase.client.storage.from('notes_bucket').getPublicUrl(filePath);
-      } else if (!fetchUrl.startsWith('http')) {
-        const String apiBaseUrl = 'https://mentron.istesctce.in';
+      if (!fetchUrl.startsWith('http')) {
         fetchUrl = '$apiBaseUrl$fetchUrl';
       }
 
