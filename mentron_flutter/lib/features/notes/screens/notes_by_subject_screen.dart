@@ -117,7 +117,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       final supabaseClient = supabase.client;
       var query = supabaseClient
           .from('notes')
-          .select('*, profiles!notes_created_by_fkey(full_name)')
+          .select('*, profiles!notes_profile_id_fkey(full_name)')
           .eq('subject', widget.subjectName);
 
       // Determine correct department filter (Year 1 uses groups A/B/C/D)
@@ -520,14 +520,6 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textMain, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          if (!_isInFolder && (_isLeadership || _permissions['can_upload_notes'] == true))
-            IconButton(
-              onPressed: _navigateToCreateFolder,
-              icon: Icon(Icons.create_new_folder_outlined, color: widget.color, size: 20),
-              tooltip: 'Create Folder',
-            ),
-        ],
       ),
       body: LiquidBackground(
         child: _isLoading
@@ -621,37 +613,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                     ),
                   ],
 
-                  // Create Folder prompt when no folders exist (leadership only)
-                  if (!_isInFolder && _folders.isEmpty && (_isLeadership || _permissions['can_upload_notes'] == true) &&
-                      !widget.subjectName.startsWith('PYQ - ') && !widget.subjectName.startsWith('Video - ')) ...[
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: InkWell(
-                        onTap: _navigateToCreateFolder,
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: widget.color.withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: widget.color.withValues(alpha: 0.15), style: BorderStyle.solid),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.create_new_folder_outlined, color: widget.color.withValues(alpha: 0.5), size: 14),
-                              const SizedBox(width: 6),
-                              Text(
-                                'Create a folder for this subject',
-                                style: TextStyle(color: widget.color.withValues(alpha: 0.5), fontSize: 11, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  // Create Folder prompt removed
 
                   const SizedBox(height: 16),
 

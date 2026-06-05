@@ -71,7 +71,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
       // Fetch ALL notes for this filter
       final response = await supabase
           .from('notes')
-          .select('*, profiles!notes_created_by_fkey(full_name)')
+          .select('*, profiles!notes_profile_id_fkey(full_name)')
           .eq('department', deptFilter)
           .order('created_at', ascending: false);
 
