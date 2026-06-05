@@ -111,19 +111,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
           const Text('INCUBATION', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
           const Text('Projects', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
         ]),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: TextButton.icon(
-              onPressed: () => Navigator.push(
-                context,
-                AppTransitions.slideUp(const AddProjectScreen()),
-              ),
-              icon: const Icon(Icons.add_rounded, color: AppTheme.accentSecondary, size: 18),
-              label: const Text('Post', style: TextStyle(color: AppTheme.accentSecondary, fontWeight: FontWeight.w900, fontSize: 11)),
-            ),
-          ),
-        ],
+        actions: const [],
       ),
       body: LiquidBackground(
         child: _isLoading

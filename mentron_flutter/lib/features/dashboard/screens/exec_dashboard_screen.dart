@@ -149,8 +149,6 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
                 _buildSectionHeader('ACADEMIC CALENDAR'),
                 const SizedBox(height: 16),
                 const RealTimeCalendar(),
-                const SizedBox(height: 28),
-                _buildContributeCard(),
               ],
             ),
           ),
@@ -160,47 +158,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
   }
 
   Widget _buildBentoStats() {
-    return Row(
-      children: [
-        // Large XP Card
-        Expanded(
-          flex: 3,
-          child: _buildStatCard(
-            'TOTAL XP',
-            userXP >= 1000 ? '${(userXP / 1000).toStringAsFixed(1)}k' : userXP.toString(),
-            Icons.bolt_rounded,
-            Colors.yellowAccent,
-            height: 140,
-          ),
-        ),
-        const SizedBox(width: 12),
-        // Column of 2 smaller cards
-        Expanded(
-          flex: 2,
-          child: Column(
-            children: [
-              _buildStatCard(
-                'MEMBERS',
-                totalMembers.toString(),
-                Icons.people_outline,
-                ExecTheme.accentPrimary,
-                height: 64,
-                compact: true,
-              ),
-              const SizedBox(height: 12),
-              _buildStatCard(
-                'NOTES',
-                totalNotes.toString(),
-                Icons.note_outlined,
-                ExecTheme.accentSecondary,
-                height: 64,
-                compact: true,
-              ),
-            ],
-          ),
-        ),
-      ],
-    ).animate().fadeIn().slideY(begin: 0.1);
+    return const SizedBox.shrink();
   }
 
   Widget _buildStatCard(

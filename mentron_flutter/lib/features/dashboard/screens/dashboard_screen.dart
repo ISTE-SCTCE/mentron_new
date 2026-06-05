@@ -15,6 +15,7 @@ import '../../projects/screens/add_project_screen.dart';
 import '../../events/screens/event_list_screen.dart';
 import '../../leaderboard/screens/leaderboard_screen.dart';
 import '../../forum/screens/forum_list_screen.dart';
+import '../../profile/screens/profile_screen.dart';
 import 'core_members_screen.dart';
 import '../../../core/utils/app_transitions.dart';
 import '../../../core/main_scaffold.dart';
@@ -191,10 +192,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: _buildSectionLabel('Class Calendar'),
             ),
             const SliverToBoxAdapter(child: RealTimeCalendar()),
-            // ── Contribute Card ───────────────────────────────────
-            SliverToBoxAdapter(
-              child: _buildContributeCard(),
-            ),
             // Bottom padding for navbar
             const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
           ],
@@ -215,10 +212,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           // Avatar
           GestureDetector(
             onTap: () {
-              final mainScaffold = MainScaffoldState.of(context);
-              if (mainScaffold != null) {
-                mainScaffold.setIndex(4); // Switch to ProfileScreen tab (index 4)
-              }
+              Navigator.push(
+                context,
+                AppTransitions.slideUp(const ProfileScreen()),
+              );
             },
             child: Container(
               width: 44,

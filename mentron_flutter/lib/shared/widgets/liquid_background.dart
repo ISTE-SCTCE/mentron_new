@@ -6,18 +6,18 @@ class LiquidBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       width: double.infinity,
       height: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFFBF8FF),
-            Color(0xFFF4EDFF),
-            Color(0xFFFFF8EE),
-          ],
+          colors: isDark
+              ? const [Color(0xFF0A0A0F), Color(0xFF12121A), Color(0xFF0A0A0F)]
+              : const [Color(0xFFFBF8FF), Color(0xFFF4EDFF), Color(0xFFFFF8EE)],
         ),
       ),
       child: RepaintBoundary(

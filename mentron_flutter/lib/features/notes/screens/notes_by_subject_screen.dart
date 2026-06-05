@@ -208,7 +208,14 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
   Future<void> _openNote(Note note) async {
     if (!mounted) return;
 
-    bool isAuthorized = (_currentUserRole == 'exec' || _currentUserRole == 'core' || _currentUserIsteId != null);
+    final bool isFolderNote = _isInFolder || 
+        widget.subjectName.startsWith('PYQ - ') || 
+        widget.subjectName.startsWith('Video - ');
+
+    bool isAuthorized = true;
+    if (isFolderNote) {
+      isAuthorized = (_currentUserRole == 'exec' || _currentUserRole == 'core' || _currentUserIsteId != null);
+    }
 
     if (!isAuthorized) {
       final String? enteredId = await showDialog<String>(
@@ -548,11 +555,6 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                         const SizedBox(width: 14),
                         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text(screenTitle, style: const TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.w900, fontSize: 14, height: 1.3)),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${_notes.length} note${_notes.length == 1 ? '' : 's'} found',
-                            style: TextStyle(color: widget.color.withValues(alpha: 0.7), fontSize: 11),
-                          ),
                         ])),
                       ]),
                     ).animate().fadeIn(),

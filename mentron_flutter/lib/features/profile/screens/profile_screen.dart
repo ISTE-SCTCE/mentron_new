@@ -510,43 +510,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         letterSpacing: 3,
                       ),
                     ).animate().fadeIn(delay: 200.ms),
-                    const SizedBox(height: 40),
-
-                    // XP Card
-                    GlassContainer(
-                      padding: const EdgeInsets.all(28),
-                      border: Border.all(
-                        color: AppTheme.accentPrimary.withValues(alpha: 0.3),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Column(
-                            children: [
-                              const Text('⚡', style: TextStyle(fontSize: 32)),
-                              const SizedBox(height: 8),
-                              Text(
-                                '${_profile?['xp'] ?? 0}',
-                                style: const TextStyle(
-                                  fontSize: 40,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppTheme.textMain,
-                                ),
-                              ),
-                              const Text(
-                                'EXPERIENCE POINTS',
-                                style: TextStyle(
-                                  color: AppTheme.textMuted,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 2,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ).animate().fadeIn(delay: 250.ms),
                     const SizedBox(height: 16),
 
                     // Info Cards
