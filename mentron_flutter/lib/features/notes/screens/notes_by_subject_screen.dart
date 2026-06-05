@@ -327,6 +327,11 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
     );
 
     try {
+      try {
+        final supabase = Provider.of<SupabaseService>(context, listen: false);
+        await supabase.client.rpc('increment_note_views', params: {'target_note_id': note.id});
+      } catch (_) {}
+
       const String apiBaseUrl = 'https://mentron.istesctce.in';
       String fetchUrl = note.fileUrl;
       

@@ -1,31 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/app/lib/supabase/server'
+import { getAuthUser } from '@/app/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function POST(request: NextRequest) {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { user, supabase } = await getAuthUser(request)
 
-    if (!user) {
+    if (!user || !supabase) {
         return NextResponse.json({ error: 'You must be logged in to upload notes.' }, { status: 401 })
     }
 
-    let formData: FormData
-    try {
-        formData = await request.formData()
-    } catch {
-        return NextResponse.json({ error: 'Invalid form data.' }, { status: 400 })
-    }
+    const contentType = request.headers.get('content-type') || ''
+    let title: string
+    let description: string
+    let department: string
+    let groups: string[] = []
+    let year: string
+    let semester: string
+    let subject: string
+    let fileKey: string
+    let folderId: string | null = null
 
-    const title       = formData.get('title') as string
-    const description = formData.get('description') as string
-    const department  = formData.get('department') as string  // dept code (Y2-4)
-    const groups      = formData.getAll('groups') as string[] // group codes (Y1)
-    const year        = formData.get('year') as string
-    const semester    = formData.get('semester') as string    // e.g. 'S3'
-    const subject     = formData.get('subject') as string     // exact subject name
-    const fileKey     = formData.get('fileKey') as string     // The R2 key provided by the client
-    const folderId    = formData.get('folder_id') as string | null  // optional custom folder
+    if (contentType.includes('application/json')) {
+        try {
+            const body = await request.json()
+            title = body.title || ''
+            description = body.description || ''
+            department = body.department || ''
+            groups = body.groups || []
+            year = body.year ? body.year.toString() : ''
+            semester = body.semester || ''
+            subject = body.subject || ''
+            fileKey = body.fileKey || ''
+            folderId = body.folder_id || null
+        } catch {
+            return NextResponse.json({ error: 'Invalid JSON body.' }, { status: 400 })
+        }
+    } else {
+        let formData: FormData
+        try {
+            formData = await request.formData()
+        } catch {
+            return NextResponse.json({ error: 'Invalid form data.' }, { status: 400 })
+        }
+        title = formData.get('title') as string || ''
+        description = formData.get('description') as string || ''
+        department = formData.get('department') as string || ''
+        groups = formData.getAll('groups') as string[] || []
+        year = formData.get('year') as string || ''
+        semester = formData.get('semester') as string || ''
+        subject = formData.get('subject') as string || ''
+        fileKey = formData.get('fileKey') as string || ''
+        folderId = formData.get('folder_id') as string | null
+    }
 
     if (!fileKey) {
         return NextResponse.json({ error: 'Missing file reference (Direct-to-R2).' }, { status: 400 })

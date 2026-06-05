@@ -9,6 +9,7 @@ import '../../../shared/widgets/subject_chip.dart';
 import '../../../shared/widgets/byju_stat_card.dart';
 import '../../../shared/widgets/illustration_card.dart';
 import '../widgets/real_time_calendar.dart';
+import '../widgets/dashboard_carousel.dart';
 import '../widgets/event_banner_widget.dart';
 import '../../notes/screens/add_note_screen.dart';
 import '../../notes/screens/notes_by_subject_screen.dart';
@@ -176,9 +177,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SliverToBoxAdapter(
               child: _buildStatsRow(),
             ),
-            // ── Hero Illustration Card (Learn Something New) ──────
-            SliverToBoxAdapter(
-              child: _buildHeroIllustrationCard(),
+            // ── Dashboard Event & Trending Subject Carousel ──────
+            const SliverToBoxAdapter(
+              child: DashboardCarousel(),
             ),
             // ── Course Cards ──────────────────────────────────────
             SliverToBoxAdapter(
@@ -443,194 +444,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ).animate().fadeIn(delay: 140.ms).slideY(begin: 0.08, curve: Curves.easeOut);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Hero "Learn Something New" Card
-  // ─────────────────────────────────────────────────────────────────────────
 
-  Widget _buildHeroIllustrationCard() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: AppTheme.accentPrimary,
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.accentPrimary.withValues(alpha: 0.35),
-              blurRadius: 30,
-              offset: const Offset(0, 14),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // Decorative bubbles
-            Positioned(
-              right: -18,
-              top: -18,
-              child: Container(
-                width: 110,
-                height: 110,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.10),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Positioned(
-              left: 30,
-              bottom: -35,
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: AppTheme.accentSecondary.withValues(alpha: 0.25),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Positioned(
-              right: 90,
-              top: -25,
-              child: Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: AppTheme.accentTertiary.withValues(alpha: 0.20),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Text content
-                  Expanded(
-                    flex: 5,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.auto_awesome_rounded,
-                                color: Colors.white,
-                                size: 12,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Today\'s Pick',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        const Text(
-                          'Learn Something\nNew Today',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            height: 1.15,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Grow your knowledge, creativity, and confidence every day.',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.80),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            height: 1.45,
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        GestureDetector(
-                          onTap: () =>
-                              MainScaffoldState.of(context)?.setIndex(1),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 11,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(50),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.play_arrow_rounded,
-                                  color: AppTheme.accentPrimary,
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Get Started',
-                                  style: TextStyle(
-                                    color: AppTheme.accentPrimary,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Illustration
-                  Expanded(
-                    flex: 4,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.asset(
-                        'assets/images/hero_studying.png',
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, e, s) => Container(
-                          height: 140,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(
-                            Icons.school_rounded,
-                            color: Colors.white,
-                            size: 52,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    ).animate().fadeIn(delay: 160.ms).slideY(begin: 0.08, curve: Curves.easeOut);
-  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // Course Cards

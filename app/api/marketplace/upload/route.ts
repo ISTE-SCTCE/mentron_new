@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/app/lib/supabase/server'
+import { getAuthUser } from '@/app/lib/supabase/server'
 import { s3Client, BUCKET_NAME } from '@/app/lib/s3'
 import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 
 export async function POST(request: NextRequest) {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { user, supabase } = await getAuthUser(request)
 
-    if (!user) {
+    if (!user || !supabase) {
         return NextResponse.json({ error: 'You must be logged in to list an item.' }, { status: 401 })
     }
 
