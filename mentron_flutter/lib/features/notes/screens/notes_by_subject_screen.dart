@@ -527,15 +527,6 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
               icon: Icon(Icons.create_new_folder_outlined, color: widget.color, size: 20),
               tooltip: 'Create Folder',
             ),
-          if (_isLeadership || _permissions['can_upload_notes'] == true)
-            Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: TextButton.icon(
-                onPressed: () => Navigator.push(context, AppTransitions.slideUp(const AddNoteScreen())),
-                icon: Icon(Icons.add_rounded, color: widget.color, size: 18),
-                label: Text('Add', style: TextStyle(color: widget.color, fontWeight: FontWeight.w900, fontSize: 11)),
-              ),
-            ),
         ],
       ),
       body: LiquidBackground(
@@ -676,11 +667,6 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                                 style: const TextStyle(color: AppTheme.textMuted, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 8),
-                              if (_isLeadership || _permissions['can_upload_notes'] == true)
-                                TextButton(
-                                  onPressed: () => Navigator.push(context, AppTransitions.slideUp(const AddNoteScreen())),
-                                  child: Text('Be the first to contribute →', style: TextStyle(color: widget.color, fontWeight: FontWeight.bold)),
-                                ),
                             ]),
                           ).animate().fadeIn()
                         : ListView.builder(

@@ -554,20 +554,6 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
           const SizedBox(height: 16),
           Row(
             children: [
-              if (_isExec || _isCoreMember) ...[
-                Expanded(
-                  child: _buildContributeButton(
-                    'Add Note',
-                    Icons.note_add_rounded,
-                    ExecTheme.accentSecondary,
-                    () => Navigator.push(
-                      context,
-                      AppTransitions.slideUp(const AddNoteScreen()),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-              ],
               Expanded(
                 child: _buildContributeButton(
                   'Post Project',
@@ -621,96 +607,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
     );
   }
 
-  void _showAddOptions() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => ExecGlassContainer(
-        padding: const EdgeInsets.all(32),
-        borderRadius: 0,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'WHAT WOULD YOU LIKE TO ADD?',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 2,
-              ),
-            ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildAddOption(
-                  'NOTE',
-                  Icons.note_add_rounded,
-                  ExecTheme.accentSecondary,
-                  () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      AppTransitions.slideUp(const AddNoteScreen()),
-                    );
-                  },
-                ),
-                _buildAddOption(
-                  'PROJECT',
-                  Icons.rocket_launch_rounded,
-                  ExecTheme.accentPrimary,
-                  () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      AppTransitions.slideUp(const AddProjectScreen()),
-                    );
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildAddOption(
-    String label,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-              border: Border.all(color: color.withValues(alpha: 0.3)),
-            ),
-            child: Icon(icon, color: color, size: 32),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 

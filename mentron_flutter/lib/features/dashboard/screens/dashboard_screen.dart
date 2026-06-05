@@ -757,21 +757,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 16),
             Row(
               children: [
-                if (_isExec || _isCoreMember) ...[
-                  Expanded(
-                    child: _buildContributeButton(
-                      'Add Note',
-                      Icons.note_add_rounded,
-                      AppTheme.accentPrimary,
-                      AppTheme.cardBg1,
-                      () => Navigator.push(
-                        context,
-                        AppTransitions.slideUp(const AddNoteScreen()),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                ],
                 Expanded(
                   child: _buildContributeButton(
                     'Post Project',
