@@ -11,6 +11,7 @@ import '../../../shared/widgets/illustration_card.dart';
 import '../widgets/real_time_calendar.dart';
 import '../widgets/event_banner_widget.dart';
 import '../../notes/screens/add_note_screen.dart';
+import '../../notes/screens/notes_by_subject_screen.dart';
 import '../../projects/screens/add_project_screen.dart';
 import '../../events/screens/event_list_screen.dart';
 import '../../leaderboard/screens/leaderboard_screen.dart';
@@ -636,26 +637,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // ─────────────────────────────────────────────────────────────────────────
 
   Widget _buildCourseCards() {
+    final year = int.tryParse(_profile?['year']?.toString() ?? '') ?? 1;
+    final dept = (_profile?['department']?.toString() ?? 'CSE').toUpperCase();
+    final sems = SubjectData.semsForYear(year);
+    final sem = sems.isNotEmpty ? sems.first : 'S1';
+    final courseSubjects = _getTopSubjects();
+    
+    // Pick the first subject from their course, or fallback to Basic Science
+    final importantSubject = courseSubjects.isNotEmpty 
+        ? courseSubjects.first 
+        : 'Basic Science';
+
+    // Format the subject name nicely with newlines if it's long
+    final displayTitle = importantSubject.length > 20 && !importantSubject.contains('\n')
+        ? importantSubject.replaceFirst(' for ', '\nfor ').replaceFirst(' and ', '\nand ').replaceFirst(' & ', '\n& ')
+        : importantSubject;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
       child: Column(
         children: [
           IllustrationCard(
-            title: 'Notes & Study\nMaterial',
-            subtitle: 'Curated notes, PYQs, and resources for your semester',
+            title: 'Video Lectures',
+            subtitle: 'Watch topic-wise video tutorials for your subjects',
             imagePath: 'assets/images/physics_card.png',
             gradient: AppTheme.card1Gradient,
-            buttonLabel: 'Start Learning',
+            buttonLabel: 'Start Watching',
             onTap: () => MainScaffoldState.of(context)?.setIndex(1),
           ),
           const SizedBox(height: 14),
           IllustrationCard(
-            title: 'Practice\nProjects',
-            subtitle: 'Build real projects, earn XP and climb the leaderboard',
+            title: displayTitle,
+            subtitle: 'Study notes, resources, and question papers for $importantSubject',
             imagePath: 'assets/images/geometry_card.png',
             gradient: AppTheme.card2Gradient,
-            buttonLabel: 'Start Building',
-            onTap: () => MainScaffoldState.of(context)?.setIndex(2),
+            buttonLabel: 'Start Learning',
+            onTap: () {
+              Navigator.push(
+                context,
+                AppTransitions.slideRight(
+                  NotesBySubjectScreen(
+                    subjectName: importantSubject,
+                    color: AppTheme.accentSecondary,
+                    year: year.toString(),
+                    semester: sem,
+                    dept: dept,
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
