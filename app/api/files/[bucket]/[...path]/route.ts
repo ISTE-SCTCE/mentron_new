@@ -20,49 +20,85 @@ export async function GET(
             Key: `${bucket}/${filePath}`,
         }))
         data = response.Body
+        
+        if (!data) {
+            throw new Error('No body returned from R2')
+        }
+
+        // Convert to ArrayBuffer -> Buffer
+        const buffer = Buffer.from(await data.transformToByteArray())
+
+        // Determine Content-Type based on extension
+        const ext = filePath.split('.').pop()?.toLowerCase()
+        let contentType = 'application/octet-stream'
+        const mimeMap: Record<string, string> = {
+            'webp': 'image/webp',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'png': 'image/png',
+            'pdf': 'application/pdf',
+            'zip': 'application/zip',
+            'mp4': 'video/mp4',
+            'mov': 'video/quicktime',
+            'mp3': 'audio/mpeg',
+            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        }
+        if (ext && mimeMap[ext]) {
+            contentType = mimeMap[ext]
+        } else if (filePath.includes('marketplace')) {
+            contentType = 'image/webp'
+        }
+
+        return new NextResponse(buffer, {
+            headers: {
+                'Content-Type': contentType,
+                'Cache-Control': 'public, max-age=31536000, immutable',
+            },
+        })
     } catch (error: any) {
-        console.error('File Fetch error:', error)
-        return new NextResponse('File not found', { status: 404 })
+        console.warn('R2 Fetch failed, attempting Supabase Storage fallback:', error.message)
+        try {
+            const { data: supabaseFile, error: supabaseError } = await supabase
+                .storage
+                .from(bucket)
+                .download(filePath)
+
+            if (supabaseError || !supabaseFile) {
+                throw new Error(supabaseError?.message || 'File not found in Supabase storage')
+            }
+            
+            const arrayBuffer = await supabaseFile.arrayBuffer()
+            const buffer = Buffer.from(arrayBuffer)
+            
+            const ext = filePath.split('.').pop()?.toLowerCase()
+            let contentType = 'application/octet-stream'
+            const mimeMap: Record<string, string> = {
+                'webp': 'image/webp',
+                'jpg': 'image/jpeg',
+                'jpeg': 'image/jpeg',
+                'png': 'image/png',
+                'pdf': 'application/pdf',
+                'zip': 'application/zip',
+                'mp4': 'video/mp4',
+                'mov': 'video/quicktime',
+                'mp3': 'audio/mpeg',
+                'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            }
+            if (ext && mimeMap[ext]) {
+                contentType = mimeMap[ext]
+            }
+
+            return new NextResponse(buffer, {
+                headers: {
+                    'Content-Type': contentType,
+                    'Cache-Control': 'public, max-age=31536000, immutable',
+                },
+            })
+        } catch (fallbackError: any) {
+            console.error('File Fetch error (both R2 and Supabase storage failed):', fallbackError.message)
+            return new NextResponse('File not found', { status: 404 })
+        }
     }
-
-    if (!data) {
-        return new NextResponse('File not found', { status: 404 })
-    }
-
-    // 2. Convert to ArrayBuffer -> Buffer (transformToByteArray available in recent AWS SDK)
-    const buffer = Buffer.from(await data.transformToByteArray())
-
-    // 3. Determine Content-Type based on extension (simple approach)
-    const ext = filePath.split('.').pop()?.toLowerCase()
-    let contentType = 'application/octet-stream'
-
-    // Map common extensions to content types
-    const mimeMap: Record<string, string> = {
-        'webp': 'image/webp',
-        'jpg': 'image/jpeg',
-        'jpeg': 'image/jpeg',
-        'png': 'image/png',
-        'pdf': 'application/pdf',
-        'zip': 'application/zip',
-        'mp4': 'video/mp4',
-        'mov': 'video/quicktime',
-        'mp3': 'audio/mpeg',
-        'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    }
-
-    if (ext && mimeMap[ext]) {
-        contentType = mimeMap[ext]
-    } else if (filePath.includes('marketplace')) {
-        contentType = 'image/webp'
-    }
-
-    // 4. Return the file
-    // Removed 'Content-Encoding': 'gzip' as we now skip compression for speed
-    return new NextResponse(buffer, {
-        headers: {
-            'Content-Type': contentType,
-            'Cache-Control': 'public, max-age=31536000, immutable',
-        },
-    })
 }
