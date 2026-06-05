@@ -74,7 +74,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Delete Project?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text('Delete Project?', style: TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.bold)),
         content: Text('Delete "${project.title}"? This will also remove all applications.', style: const TextStyle(color: AppTheme.textMuted)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted))),
@@ -174,7 +174,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             ]),
           ]),
           const SizedBox(height: 16),
-          Text(project.title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white)),
+          Text(project.title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppTheme.textMain)),
           const SizedBox(height: 8),
           Text(project.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppTheme.textMuted, fontSize: 13, height: 1.5)),
           const SizedBox(height: 20),
@@ -192,9 +192,9 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                   onPressed: () => Navigator.push(context, AppTransitions.slideLeft(ProjectDetailScreen(project: project))),
                   icon: const Icon(Icons.rocket_launch_outlined, size: 16),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white.withValues(alpha: 0.05),
-                    foregroundColor: Colors.white,
-                    side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                    backgroundColor: AppTheme.accentPrimary.withValues(alpha: 0.08),
+                    foregroundColor: AppTheme.accentPrimary,
+                    side: BorderSide(color: AppTheme.accentPrimary.withValues(alpha: 0.15)),
                     padding: const EdgeInsets.symmetric(vertical: 13),
                   ),
                   label: const Text('VIEW & APPLY'),

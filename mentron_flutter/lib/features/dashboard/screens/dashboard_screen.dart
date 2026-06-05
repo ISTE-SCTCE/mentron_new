@@ -213,27 +213,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Row(
         children: [
           // Avatar
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              gradient: AppTheme.card1Gradient,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.accentPrimary.withValues(alpha: 0.25),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Text(
-                firstName.isNotEmpty ? firstName[0].toUpperCase() : 'S',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
+          GestureDetector(
+            onTap: () {
+              final mainScaffold = MainScaffoldState.of(context);
+              if (mainScaffold != null) {
+                mainScaffold.setIndex(4); // Switch to ProfileScreen tab (index 4)
+              }
+            },
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                gradient: AppTheme.card1Gradient,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.accentPrimary.withValues(alpha: 0.25),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  firstName.isNotEmpty ? firstName[0].toUpperCase() : 'S',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
             ),

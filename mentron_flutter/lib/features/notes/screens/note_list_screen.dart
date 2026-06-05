@@ -173,7 +173,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
           ],
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textMain, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -224,7 +224,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
                 Expanded(
                   child: Text(
                     note.title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppTheme.textMain),
                   ),
                 ),
                 // Delete button — only shown if user has permission
@@ -251,7 +251,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('UPLOADED BY', style: TextStyle(color: AppTheme.textMuted, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
-                    Text(note.uploaderName ?? 'Student', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                    Text(note.uploaderName ?? 'Student', style: const TextStyle(color: AppTheme.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
                   ],
                 ),
                 // Open file button

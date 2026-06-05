@@ -191,7 +191,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Delete Note?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text('Delete Note?', style: TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.bold)),
         content: Text('Delete "${note.title}"?', style: const TextStyle(color: AppTheme.textMuted, fontSize: 14)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted))),
@@ -222,7 +222,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
               return AlertDialog(
                 backgroundColor: AppTheme.surfaceColor,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                title: const Text('ISTE Membership Required', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                title: const Text('ISTE Membership Required', style: TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.bold, fontSize: 18)),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -234,16 +234,16 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.05),
+                        color: const Color(0xFFF5F3FF),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                        border: Border.all(color: AppTheme.glassBorder),
                       ),
                       child: TextField(
                         controller: controller,
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        style: const TextStyle(color: AppTheme.textMain, fontSize: 14),
                         decoration: const InputDecoration(
                           hintText: 'Enter ISTE ID',
-                          hintStyle: TextStyle(color: Colors.white38),
+                          hintStyle: TextStyle(color: AppTheme.textMuted),
                           border: InputBorder.none,
                         ),
                       ),
@@ -411,7 +411,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
+                  Text(title, style: const TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.w900, fontSize: 13)),
                   Text(subtitle, style: const TextStyle(color: AppTheme.textMuted, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1, overflow: TextOverflow.ellipsis)),
                 ],
               ),
@@ -463,7 +463,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                 children: [
                   Text(
                     folder['name'] as String,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13),
+                    style: const TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.w900, fontSize: 13),
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
@@ -517,7 +517,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
           ),
         ]),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textMain, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -555,7 +555,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                         ),
                         const SizedBox(width: 14),
                         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(screenTitle, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, height: 1.3)),
+                          Text(screenTitle, style: const TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.w900, fontSize: 14, height: 1.3)),
                           const SizedBox(height: 4),
                           Text(
                             '${_notes.length} note${_notes.length == 1 ? '' : 's'} found',
@@ -682,7 +682,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                                     Row(children: [
                                       Icon(Icons.description_outlined, color: widget.color, size: 18),
                                       const SizedBox(width: 10),
-                                      Expanded(child: Text(note.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16))),
+                                      Expanded(child: Text(note.title, style: const TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.w900, fontSize: 16))),
                                       if (_canDelete(note))
                                         IconButton(
                                           onPressed: () => _deleteNote(note),
@@ -695,7 +695,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                                     Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                                         const Text('UPLOADED BY', style: TextStyle(color: AppTheme.textMuted, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
-                                        Text(note.uploaderName ?? 'Student', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                        Text(note.uploaderName ?? 'Student', style: const TextStyle(color: AppTheme.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
                                       ]),
                                       GestureDetector(
                                         onTap: () => _openNote(note),

@@ -81,7 +81,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: const Text(
               'Change Password',
               style: TextStyle(
-                color: Colors.white,
+                color: AppTheme.textMain,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -252,7 +252,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return AlertDialog(
             backgroundColor: AppTheme.surfaceColor,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            title: const Text('Edit Profile', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            title: const Text('Edit Profile', style: TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.bold)),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -395,18 +395,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: const Color(0xFFF5F3FF),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(color: AppTheme.glassBorder),
       ),
       child: TextField(
         controller: controller,
         obscureText: obscure,
         keyboardType: keyboardType,
-        style: const TextStyle(color: Colors.white, fontSize: 13),
+        style: const TextStyle(color: AppTheme.textMain, fontSize: 13),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+          hintStyle: const TextStyle(color: AppTheme.textMuted),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
@@ -427,7 +427,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: Colors.white,
+            color: AppTheme.textMain,
             size: 18,
           ),
           onPressed: () => Navigator.pop(context),
@@ -497,7 +497,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w900,
-                        color: Colors.white,
+                        color: AppTheme.textMain,
                       ),
                     ).animate().fadeIn(delay: 150.ms),
                     const SizedBox(height: 4),
@@ -530,7 +530,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 style: const TextStyle(
                                   fontSize: 40,
                                   fontWeight: FontWeight.w900,
-                                  color: Colors.white,
+                                  color: AppTheme.textMain,
                                 ),
                               ),
                               const Text(
@@ -619,13 +619,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withValues(alpha: 0.05),
-                          foregroundColor: Colors.white,
+                          backgroundColor: AppTheme.accentPrimary.withValues(alpha: 0.08),
+                          foregroundColor: AppTheme.accentPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                             side: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.1),
+                              color: AppTheme.accentPrimary.withValues(alpha: 0.15),
                             ),
                           ),
                           elevation: 0,
@@ -647,13 +647,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withValues(alpha: 0.05),
-                          foregroundColor: Colors.white,
+                          backgroundColor: AppTheme.accentPrimary.withValues(alpha: 0.08),
+                          foregroundColor: AppTheme.accentPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                             side: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.1),
+                              color: AppTheme.accentPrimary.withValues(alpha: 0.15),
                             ),
                           ),
                           elevation: 0,
@@ -701,7 +701,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Text(
                   value,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.textMain,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),

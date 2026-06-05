@@ -72,7 +72,7 @@ class MarketplaceScreen extends StatelessWidget {
                 const Text(
                   'Student Market',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.textMain,
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
                     letterSpacing: -1,
