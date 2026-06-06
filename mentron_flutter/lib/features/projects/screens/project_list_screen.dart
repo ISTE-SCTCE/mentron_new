@@ -114,16 +114,16 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
         ]),
         actions: [
           IconButton(
+            icon: const Icon(Icons.add_rounded, color: AppTheme.accentSecondary),
+            onPressed: () => Navigator.push(context, AppTransitions.slideLeft(const AddProjectScreen())),
+            tooltip: 'Post Project',
+          ),
+          IconButton(
             icon: const Icon(Icons.grid_view_rounded, color: AppTheme.accentPrimary),
             onPressed: () => Navigator.push(context, AppTransitions.slideLeft(const MyContributionsScreen())),
             tooltip: 'My Contributions',
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(context, AppTransitions.slideLeft(const AddProjectScreen())),
-        backgroundColor: AppTheme.accentSecondary,
-        child: const Icon(Icons.add, color: Colors.black),
       ),
       body: LiquidBackground(
         child: _isLoading
