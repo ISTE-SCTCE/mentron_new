@@ -17,7 +17,19 @@ class AddProjectScreen extends StatefulWidget {
 class _AddProjectScreenState extends State<AddProjectScreen> {
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
+  final _roleController = TextEditingController();
+  final _durationController = TextEditingController();
+  String _selectedCategory = 'Web Development';
   bool _isLoading = false;
+
+  final List<String> _categories = [
+    'Web Development',
+    'Mobile Development',
+    'AI / ML',
+    'UI/UX Design',
+    'Content & Marketing',
+    'Other',
+  ];
 
   Future<void> _handleCreate() async {
     if (_titleController.text.trim().isEmpty) {
@@ -37,6 +49,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       await supabase.client.from('pending_projects').insert({
         'title': _titleController.text.trim(),
         'description': _descController.text.trim(),
+        'role': _roleController.text.trim().isEmpty ? 'Open' : _roleController.text.trim(),
+        'duration': _durationController.text.trim().isEmpty ? 'Flexible' : _durationController.text.trim(),
+        'category': _selectedCategory,
         'posted_by': user.id,
       });
 
@@ -98,11 +113,29 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     ),
                     const SizedBox(height: 20),
 
+                    _buildLabel('CATEGORY'),
+                    _buildCategoryDropdown(),
+                    const SizedBox(height: 20),
+
+                    _buildLabel('ROLE REQUIRED'),
+                    _buildTextField(
+                      _roleController,
+                      'e.g. Frontend Developer, Researcher',
+                    ),
+                    const SizedBox(height: 20),
+
+                    _buildLabel('DURATION'),
+                    _buildTextField(
+                      _durationController,
+                      'e.g. 2 Months, Flexible',
+                    ),
+                    const SizedBox(height: 20),
+
                     _buildLabel('DESCRIPTION'),
                     _buildTextField(
                       _descController,
-                      'Describe the project, skills needed, duration...',
-                      maxLines: 6,
+                      'Describe the project mission, skills needed, deliverables...',
+                      maxLines: 5,
                     ),
                     const SizedBox(height: 32),
 
@@ -139,6 +172,46 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
           fontSize: 10,
           fontWeight: FontWeight.w900,
           letterSpacing: 2,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryDropdown() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFBF9FF),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+        ),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _selectedCategory,
+          dropdownColor: AppTheme.surfaceColor,
+          isExpanded: true,
+          icon: const Icon(
+            Icons.arrow_drop_down_rounded,
+            color: AppTheme.textMuted,
+          ),
+          style: const TextStyle(
+            color: AppTheme.textMain,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+          items: _categories.map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (newValue) {
+            if (newValue != null) {
+              setState(() => _selectedCategory = newValue);
+            }
+          },
         ),
       ),
     );

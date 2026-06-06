@@ -17,6 +17,9 @@ interface Project {
     is_approved?: boolean
     cv_required?: boolean
     profiles?: { full_name: string | null }
+    category?: string
+    role?: string
+    duration?: string
 }
 
 interface Props {
@@ -71,9 +74,16 @@ function ProjectCard({
                 )}
 
                 <div className="flex justify-between items-start mb-5 relative z-10">
-                    <span className="text-[10px] font-black tracking-widest text-gray-600 uppercase">
-                        {new Date(project.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </span>
+                    <div className="flex flex-col gap-1.5">
+                        <span className="text-[10px] font-black tracking-widest text-gray-600 uppercase">
+                            {new Date(project.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </span>
+                        {project.category && (
+                            <span className="self-start text-[8px] font-black text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded uppercase tracking-wider">
+                                {project.category}
+                            </span>
+                        )}
+                    </div>
                     {hasApplied && (
                         <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 backdrop-blur-sm">
                             ✓ Applied
@@ -90,9 +100,25 @@ function ProjectCard({
                     <h2 className="text-xl font-black leading-tight text-white group-hover:text-blue-400 transition-all mb-2">
                         {project.title}
                     </h2>
-                    <p className="text-gray-400 font-medium leading-relaxed line-clamp-3 text-sm flex-1 mb-6">
+                    <p className="text-gray-400 font-medium leading-relaxed line-clamp-3 text-sm flex-1 mb-4">
                         {project.description}
                     </p>
+
+                    {/* Role & Duration info grid */}
+                    <div className="flex items-center gap-4 mb-6 relative z-10">
+                        {project.role && (
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500">
+                                <span>💼</span>
+                                <span className="uppercase tracking-wider line-clamp-1">{project.role}</span>
+                            </div>
+                        )}
+                        {project.duration && (
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500">
+                                <span>⏱</span>
+                                <span className="uppercase tracking-wider">{project.duration}</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="flex items-center justify-between border-t border-white/5 pt-5 gap-3 flex-wrap relative z-10">
@@ -203,12 +229,20 @@ export function ProjectsList({ projects, userName, userEmail, userRole, userId, 
                         <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase mb-1">Your Listings</p>
                         <h2 className="text-2xl font-black text-white">My Projects</h2>
                     </div>
-                    <button
-                        onClick={() => setShowCreate(true)}
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-blue-600/20"
-                    >
-                        <span>＋</span> Post a Project
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <a
+                            href="/projects/contributions"
+                            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border border-white/10 active:scale-95 shadow-md"
+                        >
+                            <span>🟢</span> My Contributions
+                        </a>
+                        <button
+                            onClick={() => setShowCreate(true)}
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-blue-600/20"
+                        >
+                            <span>＋</span> Post a Project
+                        </button>
+                    </div>
                 </div>
 
                 {myProjects.length === 0 ? (

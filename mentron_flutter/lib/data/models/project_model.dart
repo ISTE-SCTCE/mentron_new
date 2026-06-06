@@ -31,7 +31,7 @@ class Project {
       category: json['category'] ?? 'General',
       status: json['status'] ?? 'open',
       createdAt: DateTime.parse(json['created_at']),
-      profileId: json['profile_id'],
+      profileId: json['posted_by'] ?? json['profile_id'],
     );
   }
 }

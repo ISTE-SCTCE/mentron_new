@@ -7,10 +7,22 @@ import { useRouter } from 'next/navigation'
 export function CreateProjectModal({ onClose }: { onClose: () => void }) {
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
+    const [category, setCategory] = useState('Web Development')
+    const [role, setRole] = useState('')
+    const [duration, setDuration] = useState('')
     const [cvRequired, setCvRequired] = useState(true)
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState('')
     const router = useRouter()
+
+    const categories = [
+        'Web Development',
+        'Mobile Development',
+        'AI / ML',
+        'UI/UX Design',
+        'Content & Marketing',
+        'Other',
+    ]
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -23,7 +35,15 @@ export function CreateProjectModal({ onClose }: { onClose: () => void }) {
 
         const { error: insertErr } = await supabase
             .from('projects')
-            .insert({ title: title.trim(), description: description.trim(), posted_by: user.id, cv_required: cvRequired })
+            .insert({
+                title: title.trim(),
+                description: description.trim(),
+                posted_by: user.id,
+                cv_required: cvRequired,
+                category,
+                role: role.trim() || 'Open',
+                duration: duration.trim() || 'Flexible'
+            })
 
         setSubmitting(false)
         if (insertErr) { setError(insertErr.message); return }
@@ -56,6 +76,43 @@ export function CreateProjectModal({ onClose }: { onClose: () => void }) {
                             className="w-full glass bg-white/5 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                         />
                     </div>
+                    
+                    <div>
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2">Category</label>
+                        <select
+                            value={category}
+                            onChange={e => setCategory(e.target.value)}
+                            className="w-full glass bg-white/5 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 [&>option]:bg-[#0d0d0d] [&>option]:text-white"
+                        >
+                            {categories.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2">Role Required</label>
+                            <input
+                                type="text"
+                                value={role}
+                                onChange={e => setRole(e.target.value)}
+                                placeholder="e.g. Frontend Dev"
+                                className="w-full glass bg-white/5 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                            />
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2">Duration</label>
+                            <input
+                                type="text"
+                                value={duration}
+                                onChange={e => setDuration(e.target.value)}
+                                placeholder="e.g. 2 Months"
+                                className="w-full glass bg-white/5 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                            />
+                        </div>
+                    </div>
+
                     <div>
                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2">Description</label>
                         <textarea

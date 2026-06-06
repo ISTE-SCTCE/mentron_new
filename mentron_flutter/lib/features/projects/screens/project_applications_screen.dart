@@ -59,8 +59,8 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: status == 'accepted' ? Colors.green : Colors.redAccent,
-            content: Text(status == 'accepted' ? '✅ Application accepted!' : '❌ Application rejected.'),
+            backgroundColor: status == 'approved' ? Colors.green : Colors.redAccent,
+            content: Text(status == 'approved' ? '✅ Application accepted!' : '❌ Application rejected.'),
           ),
         );
         _fetchApplications();
@@ -186,6 +186,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
     String label;
     IconData icon;
     switch (status.toLowerCase()) {
+      case 'approved':
       case 'accepted':
         c = Colors.greenAccent; label = 'ACCEPTED'; icon = Icons.check_circle_outline; break;
       case 'rejected':
@@ -249,7 +250,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
     final name = profile?['full_name'] ?? 'Unknown Applicant';
     final dept = profile?['department'] ?? 'N/A';
     final status = (app['status'] ?? 'pending') as String;
-    final isAccepted = status.toLowerCase() == 'accepted';
+    final isAccepted = status.toLowerCase() == 'approved' || status.toLowerCase() == 'accepted';
     final isRejected = status.toLowerCase() == 'rejected';
     final initials = name.isNotEmpty ? name[0].toUpperCase() : 'A';
 
@@ -315,7 +316,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
               Expanded(
                 child: _buildActionButton(
                   'ACCEPT', Icons.check_rounded, Colors.greenAccent,
-                  () => _updateStatus(app, 'accepted'),
+                  () => _updateStatus(app, 'approved'),
                 ),
               ),
             ],

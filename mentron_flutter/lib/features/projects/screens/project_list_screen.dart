@@ -11,6 +11,7 @@ import 'project_applications_screen.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../core/utils/app_transitions.dart';
 import 'add_project_screen.dart';
+import 'my_contributions_screen.dart';
 
 class ProjectListScreen extends StatefulWidget {
   const ProjectListScreen({super.key});
@@ -111,7 +112,18 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
           const Text('INCUBATION', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)),
           const Text('Projects', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
         ]),
-        actions: const [],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.grid_view_rounded, color: AppTheme.accentPrimary),
+            onPressed: () => Navigator.push(context, AppTransitions.slideLeft(const MyContributionsScreen())),
+            tooltip: 'My Contributions',
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.push(context, AppTransitions.slideLeft(const AddProjectScreen())),
+        backgroundColor: AppTheme.accentSecondary,
+        child: const Icon(Icons.add, color: Colors.black),
       ),
       body: LiquidBackground(
         child: _isLoading
