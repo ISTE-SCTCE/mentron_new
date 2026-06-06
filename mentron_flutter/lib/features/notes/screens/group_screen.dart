@@ -93,9 +93,14 @@ class _GroupScreenState extends State<GroupScreen> {
       body: LiquidBackground(
         child: _isLoading
             ? const Center(child: CircularProgressIndicator(color: AppTheme.accentSecondary))
-            : ListView(
-                padding: const EdgeInsets.fromLTRB(24, 120, 24, 40),
-                children: [
+            : RefreshIndicator(
+                onRefresh: _loadUserProfile,
+                color: AppTheme.accentSecondary,
+                backgroundColor: AppTheme.surfaceColor,
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(24, 120, 24, 40),
+                  children: [
                   // Toggle UI
                   Container(
                     margin: const EdgeInsets.only(bottom: 24),
@@ -164,7 +169,7 @@ class _GroupScreenState extends State<GroupScreen> {
                       child: _buildYearBrowseCard(e.value, e.key),
                     )),
                   ],
-                ],
+                ),
               ),
       ),
     );

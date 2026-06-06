@@ -295,9 +295,14 @@ class _EventListScreenState extends State<EventListScreen> {
       body: LiquidBackground(
         child: _isLoading
             ? const Center(child: CircularProgressIndicator(color: AppTheme.accentSecondary))
-            : SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 120, 24, 100),
-                child: Column(
+            : RefreshIndicator(
+                onRefresh: _fetchData,
+                color: AppTheme.accentSecondary,
+                backgroundColor: AppTheme.surfaceColor,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(24, 120, 24, 100),
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // --- Community Forum Section ---
@@ -329,6 +334,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   ],
                 ),
               ),
+            ),
       ),
     );
   }

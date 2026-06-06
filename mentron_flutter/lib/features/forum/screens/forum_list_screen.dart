@@ -209,42 +209,56 @@ class _ForumListScreenState extends State<ForumListScreen> {
 
             // List View
             Expanded(
-              child: _isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: AppTheme.accentSecondary,
-                      ),
-                    )
-                  : _questions.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
+              child: RefreshIndicator(
+                onRefresh: _fetchQuestions,
+                color: AppTheme.accentSecondary,
+                backgroundColor: AppTheme.surfaceColor,
+                child: _isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: AppTheme.accentSecondary,
+                        ),
+                      )
+                    : _questions.isEmpty
+                    ? ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
                         children: [
-                          const Text('💬', style: TextStyle(fontSize: 48)),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'No questions found.',
-                            style: TextStyle(color: AppTheme.textMuted),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            'Be the first to ask!',
-                            style: TextStyle(
-                              color: AppTheme.textMuted,
-                              fontSize: 11,
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.5,
+                            child: Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text('💬', style: TextStyle(fontSize: 48)),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'No questions found.',
+                                    style: TextStyle(color: AppTheme.textMuted),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'Be the first to ask!',
+                                    style: TextStyle(
+                                      color: AppTheme.textMuted,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
-                      ).animate().fadeIn(),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
-                      itemCount: _questions.length,
-                      itemBuilder: (context, index) {
-                        final question = _questions[index];
-                        return _buildQuestionCard(question, index);
-                      },
-                    ),
+                      ).animate().fadeIn()
+                    : ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
+                        itemCount: _questions.length,
+                        itemBuilder: (context, index) {
+                          final question = _questions[index];
+                          return _buildQuestionCard(question, index);
+                        },
+                      ),
+              ),
             ),
           ],
         ),

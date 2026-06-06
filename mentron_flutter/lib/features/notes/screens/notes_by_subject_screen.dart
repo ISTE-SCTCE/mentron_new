@@ -566,68 +566,84 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
 
                   // Notes list
                   Expanded(
-                    child: _notes.isEmpty
-                        ? Center(
-                            child: Column(mainAxisSize: MainAxisSize.min, children: [
-                              const Text('📭', style: TextStyle(fontSize: 40)),
-                              const SizedBox(height: 12),
-                              Text(
-                                _isInFolder ? 'No notes in this folder yet' : 'No notes for this subject yet',
-                                style: const TextStyle(color: AppTheme.textMuted, fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 8),
-                            ]),
-                          ).animate().fadeIn()
-                        : ListView.builder(
-                            padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
-                            itemCount: _notes.length,
-                            itemBuilder: (ctx, i) {
-                              final note = _notes[i];
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 14),
-                                child: GlassContainer(
-                                  padding: const EdgeInsets.all(20),
-                                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                    Row(children: [
-                                      Icon(Icons.description_outlined, color: widget.color, size: 18),
-                                      const SizedBox(width: 10),
-                                      Expanded(child: Text(note.title, style: const TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.w900, fontSize: 16))),
-                                      if (_canDelete(note))
-                                        IconButton(
-                                          onPressed: () => _deleteNote(note),
-                                          icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 18),
+                    child: RefreshIndicator(
+                      onRefresh: _loadData,
+                      color: AppTheme.accentSecondary,
+                      backgroundColor: AppTheme.surfaceColor,
+                      child: _notes.isEmpty
+                          ? ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: [
+                                SizedBox(
+                                  height: MediaQuery.of(context).size.height * 0.4,
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text('📭', style: TextStyle(fontSize: 40)),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          _isInFolder ? 'No notes in this folder yet' : 'No notes for this subject yet',
+                                          style: const TextStyle(color: AppTheme.textMuted, fontWeight: FontWeight.bold),
                                         ),
-                                    ]),
-                                    const SizedBox(height: 8),
-                                    Text(note.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppTheme.textMuted, fontSize: 12, height: 1.4)),
-                                    const SizedBox(height: 16),
-                                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                        const Text('UPLOADED BY', style: TextStyle(color: AppTheme.textMuted, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
-                                        Text(note.uploaderName ?? 'Student', style: const TextStyle(color: AppTheme.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
-                                      ]),
-                                      GestureDetector(
-                                        onTap: () => _openNote(note),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                          decoration: BoxDecoration(
-                                            color: widget.color.withValues(alpha: 0.1),
-                                            borderRadius: BorderRadius.circular(12),
-                                            border: Border.all(color: widget.color.withValues(alpha: 0.3)),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ).animate().fadeIn()
+                          : ListView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
+                              itemCount: _notes.length,
+                              itemBuilder: (ctx, i) {
+                                final note = _notes[i];
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 14),
+                                  child: GlassContainer(
+                                    padding: const EdgeInsets.all(20),
+                                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                      Row(children: [
+                                        Icon(Icons.description_outlined, color: widget.color, size: 18),
+                                        const SizedBox(width: 10),
+                                        Expanded(child: Text(note.title, style: const TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.w900, fontSize: 16))),
+                                        if (_canDelete(note))
+                                          IconButton(
+                                            onPressed: () => _deleteNote(note),
+                                            icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 18),
                                           ),
-                                          child: Row(children: [
-                                            Icon(Icons.open_in_new_rounded, color: widget.color, size: 14),
-                                            const SizedBox(width: 6),
-                                            Text('OPEN', style: TextStyle(color: widget.color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
-                                          ]),
+                                      ]),
+                                      const SizedBox(height: 8),
+                                      Text(note.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppTheme.textMuted, fontSize: 12, height: 1.4)),
+                                      const SizedBox(height: 16),
+                                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                                        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                          const Text('UPLOADED BY', style: TextStyle(color: AppTheme.textMuted, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                                          Text(note.uploaderName ?? 'Student', style: const TextStyle(color: AppTheme.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
+                                        ]),
+                                        GestureDetector(
+                                          onTap: () => _openNote(note),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                            decoration: BoxDecoration(
+                                              color: widget.color.withValues(alpha: 0.1),
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(color: widget.color.withValues(alpha: 0.3)),
+                                            ),
+                                            child: Row(children: [
+                                              Icon(Icons.open_in_new_rounded, color: widget.color, size: 14),
+                                              const SizedBox(width: 6),
+                                              Text('OPEN', style: TextStyle(color: widget.color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                                            ]),
+                                          ),
                                         ),
-                                      ),
+                                      ]),
                                     ]),
-                                  ]),
-                                ).animate().fadeIn(delay: (i * 60).ms).slideY(begin: 0.04),
-                              );
-                            },
-                          ),
+                                  ).animate().fadeIn(delay: (i * 60).ms).slideY(begin: 0.04),
+                                );
+                              },
+                            ),
+                    ),
                   ),
                 ],
               ),
