@@ -8,7 +8,10 @@ import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import 'note_list_screen.dart';
 import 'semester_screen.dart';
+import 'notes_by_subject_screen.dart';
 import '../../../core/utils/app_transitions.dart';
+import '../../../data/models/subject_data.dart';
+import '../../../core/providers/academic_provider.dart';
 
 class GroupScreen extends StatefulWidget {
   const GroupScreen({super.key});
@@ -72,6 +75,8 @@ class _GroupScreenState extends State<GroupScreen> {
     _YearCard(year: 4, label: '4th Year', sems: 'S7 & S8', emoji: '🎓', color: Color(0xFFF97316)),
   ];
 
+  bool _showAll = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,77 +96,169 @@ class _GroupScreenState extends State<GroupScreen> {
             : ListView(
                 padding: const EdgeInsets.fromLTRB(24, 120, 24, 40),
                 children: [
-                  // ── Browse by Year ───────────────────────────────
-                  _buildSectionHeader('BROWSE BY YEAR'),
-                  const SizedBox(height: 16),
-                  ..._yearCards.asMap().entries.map((e) => Padding(
-                    padding: const EdgeInsets.only(bottom: 14),
-                    child: _buildYearBrowseCard(e.value, e.key),
-                  )),
+                  // Toggle UI
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 24),
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => _showAll = false),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: !_showAll ? AppTheme.accentPrimary : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              alignment: Alignment.center,
+                              child: const Text('My Course', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => _showAll = true),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: _showAll ? AppTheme.accentPrimary : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              alignment: Alignment.center,
+                              child: const Text('See All', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  if (!_showAll) ...[
+                    if (_userDept != null) _buildMySubjectsList(),
+                    if (_userDept == null) const Text("Please update your profile to see your course", style: TextStyle(color: Colors.white70)),
+                  ] else ...[
+                    // ── Browse by Year ───────────────────────────────
+                    _buildSectionHeader('BROWSE BY YEAR'),
+                    const SizedBox(height: 16),
+                    ..._yearCards.asMap().entries.map((e) => Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: _buildYearBrowseCard(e.value, e.key),
+                    )),
+                  ],
                 ],
               ),
       ),
     );
   }
 
-  Widget _buildMyDeptCard() {
-    final deptName = DepartmentMapper.getName(_userDept!);
-    return GlassContainer(
-      padding: const EdgeInsets.all(20),
-      border: Border.all(color: AppTheme.accentPrimary.withValues(alpha: 0.5), width: 1.5),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [AppTheme.accentPrimary, AppTheme.accentSecondary]),
-              borderRadius: BorderRadius.circular(14),
+  Widget _buildMySubjectsList() {
+    final academic = Provider.of<AcademicProvider>(context, listen: false);
+    final year = academic.currentAcademicYear;
+    final semNum = academic.currentSemester;
+    final sem = 'S$semNum';
+    final dept = _userDept?.toUpperCase() ?? 'CSE';
+
+    List<String> subjects = [];
+    if (year == 1) {
+      final group = SubjectData.getGroupFromDepartment(dept);
+      subjects = SubjectData.getFirstYearSubjects(group, sem);
+    } else {
+      subjects = SubjectData.getSubjects(dept, sem);
+    }
+
+    if (subjects.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Text("No subjects found for your course.", style: TextStyle(color: Colors.white70)),
+        ),
+      );
+    }
+
+    final colors = [
+      AppTheme.accentPrimary,
+      AppTheme.accentSecondary,
+      AppTheme.accentTertiary,
+      const Color(0xFFFF6B9D),
+    ];
+    final icons = [
+      Icons.calculate_rounded,
+      Icons.science_rounded,
+      Icons.code_rounded,
+      Icons.memory_rounded,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(color: AppTheme.accentPrimary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+              child: Text(dept, style: const TextStyle(color: AppTheme.accentPrimary, fontSize: 10, fontWeight: FontWeight.w900)),
             ),
-            child: Icon(Icons.folder_special_rounded, color: Theme.of(context).colorScheme.onSurface, size: 24),
-          ),
-          const SizedBox(width: 14),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('YOUR DEPARTMENT', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 2)),
-            Text(deptName, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 15)),
-            if (_userRoll != null)
-              Text(_userRoll!, style: const TextStyle(color: AppTheme.textMuted, fontSize: 10, letterSpacing: 1)),
-          ])),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: AppTheme.accentPrimary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
-            child: Text(_userDept!, style: const TextStyle(color: AppTheme.accentPrimary, fontSize: 10, fontWeight: FontWeight.w900)),
-          ),
-        ]),
+            const SizedBox(width: 8),
+            Text('Semester $semNum', style: const TextStyle(color: AppTheme.textMuted, fontSize: 12, fontWeight: FontWeight.bold)),
+          ],
+        ),
         const SizedBox(height: 16),
-        const Text('SELECT YEAR', style: TextStyle(color: AppTheme.textMuted, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 2)),
-        const SizedBox(height: 10),
-        Row(children: List.generate(4, (i) {
-          final year = '${i + 1}';
-          final isMyYear = _userYear == year;
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(right: i < 3 ? 8 : 0),
-              child: GestureDetector(
-                onTap: () => Navigator.push(context, AppTransitions.slideUp(NoteListScreen(deptCode: _userDept!, year: year))),
-                child: Container(
-                  height: 52,
-                  decoration: BoxDecoration(
-                    gradient: isMyYear ? LinearGradient(colors: [AppTheme.accentPrimary, AppTheme.accentSecondary]) : null,
-                    color: isMyYear ? null : Colors.white.withValues(alpha: 0.07),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: isMyYear ? AppTheme.accentPrimary : Colors.white.withValues(alpha: 0.12), width: isMyYear ? 0 : 1),
+        ...subjects.asMap().entries.map((entry) {
+          final index = entry.key;
+          final subject = entry.value;
+          final color = colors[index % colors.length];
+          final icon = icons[index % icons.length];
+          
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  AppTransitions.slideRight(
+                    NotesBySubjectScreen(
+                      subjectName: subject,
+                      color: color,
+                      year: year.toString(),
+                      semester: sem,
+                      dept: dept,
+                    ),
                   ),
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Text(year, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: isMyYear ? Colors.black : Colors.white)),
-                    if (isMyYear) const Text('MINE', style: TextStyle(fontSize: 7, fontWeight: FontWeight.w900, color: Colors.black54, letterSpacing: 1)),
-                  ]),
+                );
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: GlassContainer(
+                padding: const EdgeInsets.all(16),
+                border: Border.all(color: color.withValues(alpha: 0.3)),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                      child: Icon(icon, color: color, size: 20),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        subject,
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                    ),
+                    Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.5)),
+                  ],
                 ),
               ),
             ),
-          );
-        })),
-      ]),
-    ).animate().fadeIn().slideY(begin: 0.05);
+          ).animate().fadeIn(delay: (index * 40).ms).slideX(begin: -0.03);
+        }),
+      ],
+    );
   }
 
   Widget _buildSectionHeader(String title) {

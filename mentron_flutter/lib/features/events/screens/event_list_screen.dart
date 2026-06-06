@@ -217,15 +217,25 @@ class _EventListScreenState extends State<EventListScreen> {
                 const SizedBox(height: 24),
                 TextField(
                   controller: titleController,
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                  decoration: const InputDecoration(labelText: 'Concept Title', hintText: 'e.g. 24hr AI Hackathon'),
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Concept Title', 
+                    hintText: 'e.g. 24hr AI Hackathon',
+                    labelStyle: TextStyle(color: Colors.white70),
+                    hintStyle: TextStyle(color: Colors.white54),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: descController,
                   maxLines: 4,
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                  decoration: const InputDecoration(labelText: 'Description', hintText: 'Explain your idea...'),
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Description', 
+                    hintText: 'Explain your idea...',
+                    labelStyle: TextStyle(color: Colors.white70),
+                    hintStyle: TextStyle(color: Colors.white54),
+                  ),
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
@@ -290,16 +300,6 @@ class _EventListScreenState extends State<EventListScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // --- Upcoming Events Section ---
-                    const Text('UPCOMING EVENTS', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
-                    const SizedBox(height: 16),
-                    if (_events.isEmpty)
-                      const Center(child: Text('No upcoming events', style: TextStyle(color: AppTheme.textMuted)))
-                    else
-                      ...List.generate(_events.length, (index) => _buildEventCard(_events[index], index)),
-                    
-                    const SizedBox(height: 48),
-
                     // --- Community Forum Section ---
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

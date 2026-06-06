@@ -9,6 +9,9 @@ import 'core/main_scaffold.dart';
 import 'core/exec_main_scaffold.dart';
 import 'core/splash_screen.dart';
 import 'features/auth/screens/login_screen.dart';
+import 'core/providers/academic_provider.dart';
+import 'core/services/version_service.dart';
+import 'features/force_update/screens/force_update_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +37,10 @@ void main() async {
 
   runApp(
     MultiProvider(
-      providers: [Provider.value(value: supabaseService)],
+      providers: [
+        Provider.value(value: supabaseService),
+        ChangeNotifierProvider(create: (_) => AcademicProvider()),
+      ],
       child: const MentronApp(),
     ),
   );
@@ -77,10 +83,18 @@ class _MentronAppState extends State<MentronApp> {
     try {
       final profile = await supabase.client
           .from('profiles')
-          .select('role')
+          .select('role, admission_year, admission_month')
           .eq('id', userId)
           .maybeSingle();
       final role = profile?['role'];
+      
+      // Initialize AcademicProvider
+      if (profile != null && mounted) {
+        final admissionYear = profile['admission_year'] as int? ?? DateTime.now().year;
+        final admissionMonth = profile['admission_month'] as int? ?? 8;
+        Provider.of<AcademicProvider>(context, listen: false).initialize(admissionYear, admissionMonth);
+      }
+
       if (mounted) {
         setState(() {
           _isExec = role == 'exec' || role == 'core';
@@ -124,16 +138,42 @@ class AppRoot extends StatefulWidget {
 
 class _AppRootState extends State<AppRoot> {
   bool _splashDone = false;
+  bool _isCheckingVersion = true;
+  bool _forceUpdate = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkVersion();
+  }
+
+  Future<void> _checkVersion() async {
+    final supabase = Provider.of<SupabaseService>(context, listen: false);
+    final versionService = VersionService(supabase);
+    final result = await versionService.checkVersion();
+    
+    if (mounted) {
+      setState(() {
+        _forceUpdate = result.isUpdateRequired;
+        _isCheckingVersion = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (!_splashDone) {
+    if (!_splashDone || _isCheckingVersion) {
       return SplashScreen(
         onComplete: () {
           if (mounted) setState(() => _splashDone = true);
         },
       );
     }
+
+    if (_forceUpdate) {
+      return const ForceUpdateScreen();
+    }
+
     return AuthWrapper(isExec: widget.isExec, isLoadingRole: widget.isLoadingRole);
   }
 }

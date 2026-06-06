@@ -189,6 +189,8 @@ class MainScaffoldState extends State<MainScaffold>
   }
 
   bool _onScrollNotification(ScrollNotification notification) {
+    if (notification.depth != 0 || notification.metrics.axis != Axis.vertical) return false;
+
     if (notification is ScrollUpdateNotification) {
       final delta = notification.scrollDelta ?? 0;
       final offset = notification.metrics.pixels;
@@ -198,16 +200,11 @@ class MainScaffoldState extends State<MainScaffold>
         return false;
       }
 
-      if (delta > 4 && _isNavbarVisible) {
+      if (delta > 8 && _isNavbarVisible) {
         _hideNavbar();
-      } else if (delta < -4 && !_isNavbarVisible) {
+      } else if (delta < -8 && !_isNavbarVisible) {
         _showNavbar();
       }
-    }
-    if (notification is ScrollEndNotification && !_isNavbarVisible) {
-      Future.delayed(const Duration(milliseconds: 600), () {
-        if (mounted && !_isNavbarVisible) _showNavbar();
-      });
     }
     return false;
   }
@@ -226,8 +223,17 @@ class MainScaffoldState extends State<MainScaffold>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.bgColor,
+    return PopScope(
+      canPop: _currentIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          setState(() {
+            _currentIndex = 0;
+          });
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppTheme.bgColor,
       body: Stack(
         children: [
           // ── Full-screen content ──────────────────────────────────
@@ -250,7 +256,7 @@ class MainScaffoldState extends State<MainScaffold>
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildNavbar() {

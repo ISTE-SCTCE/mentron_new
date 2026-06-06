@@ -19,7 +19,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _isteIdController = TextEditingController(); // New field
-  String? _selectedYear;
+  String? _selectedAdmissionYear;
   String? _selectedDept;
   bool _isLoading = false;
   bool _obscurePassword = true;
@@ -29,7 +29,7 @@ class _SignupScreenState extends State<SignupScreen> {
         _rollNumberController.text.isEmpty ||
         _emailController.text.isEmpty ||
         _passwordController.text.isEmpty ||
-        _selectedYear == null ||
+        _selectedAdmissionYear == null ||
         _selectedDept == null) {
       ScaffoldMessenger.of(
         context,
@@ -60,7 +60,8 @@ class _SignupScreenState extends State<SignupScreen> {
         data: {
           'full_name': _fullNameController.text.trim(),
           'roll_number': _rollNumberController.text.trim().toUpperCase(),
-          'year': int.tryParse(_selectedYear!) ?? 1,
+          'admission_year': int.tryParse(_selectedAdmissionYear!) ?? DateTime.now().year,
+          'admission_month': 8,
           'role': 'member',
           'department': _selectedDept,
           'iste_id': _isteIdController.text.trim().isEmpty
@@ -89,7 +90,8 @@ class _SignupScreenState extends State<SignupScreen> {
           'id': response.user!.id,
           'full_name': _fullNameController.text.trim(),
           'roll_number': _rollNumberController.text.trim().toUpperCase(),
-          'year': int.tryParse(_selectedYear!) ?? 1,
+          'admission_year': int.tryParse(_selectedAdmissionYear!) ?? DateTime.now().year,
+          'admission_month': 8,
           'role': newRole,
           'department': _selectedDept,
           'xp': 0,
@@ -220,20 +222,25 @@ class _SignupScreenState extends State<SignupScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildLabel('YEAR'),
+                                  _buildLabel('ADMISSION YEAR'),
                                   _buildDropdown(
-                                    value: _selectedYear,
+                                    value: _selectedAdmissionYear,
                                     hint: 'Year',
                                     icon: Icons.school_outlined,
-                                    items: const ['1', '2', '3', '4'],
-                                    labels: const [
-                                      '1st Year',
-                                      '2nd Year',
-                                      '3rd Year',
-                                      '4th Year',
+                                    items: [
+                                      (DateTime.now().year).toString(),
+                                      (DateTime.now().year - 1).toString(),
+                                      (DateTime.now().year - 2).toString(),
+                                      (DateTime.now().year - 3).toString(),
+                                    ],
+                                    labels: [
+                                      (DateTime.now().year).toString(),
+                                      (DateTime.now().year - 1).toString(),
+                                      (DateTime.now().year - 2).toString(),
+                                      (DateTime.now().year - 3).toString(),
                                     ],
                                     onChanged: (val) =>
-                                        setState(() => _selectedYear = val),
+                                        setState(() => _selectedAdmissionYear = val),
                                   ),
                                 ],
                               ),

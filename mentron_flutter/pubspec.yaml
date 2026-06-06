@@ -51,6 +51,8 @@ dependencies:
   flutter_cached_pdfview: ^0.4.3
   video_player: ^2.11.1
   chewie: ^1.13.1
+  package_info_plus: ^9.0.1
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

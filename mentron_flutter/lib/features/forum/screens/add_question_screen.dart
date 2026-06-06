@@ -230,15 +230,15 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                 ),
                 child: TextField(
                   controller: _titleController,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Question Title...',
                     hintStyle: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.3),
+                      color: Colors.white54,
                       fontWeight: FontWeight.normal,
                     ),
                     border: InputBorder.none,
@@ -271,7 +271,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                       Icons.arrow_drop_down_rounded,
                       color: Colors.white54,
                     ),
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13),
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
                     items: _topics.map((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -298,14 +298,14 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                 child: TextField(
                   controller: _contentController,
                   maxLines: 12,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 13,
                     height: 1.5,
                   ),
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Elaborate on your question or doubt here...',
-                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+                    hintStyle: TextStyle(color: Colors.white54),
                     border: InputBorder.none,
                   ),
                 ),

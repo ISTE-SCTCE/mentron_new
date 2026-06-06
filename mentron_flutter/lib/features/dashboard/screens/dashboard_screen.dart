@@ -19,6 +19,7 @@ import '../../profile/screens/profile_screen.dart';
 import 'core_members_screen.dart';
 import '../../../core/utils/app_transitions.dart';
 import '../../../core/main_scaffold.dart';
+import '../../../core/providers/academic_provider.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -57,7 +58,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (user != null) {
         final profileRes = await supabase
             .from('profiles')
-            .select('department, year, roll_number, xp, role, full_name')
+            .select('department, year, admission_year, admission_month, roll_number, xp, role, full_name')
             .eq('id', user.id)
             .maybeSingle();
         if (profileRes != null) {
@@ -117,10 +118,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   List<String> _getTopSubjects() {
-    final year = int.tryParse(_profile?['year']?.toString() ?? '') ?? 1;
+    final academic = Provider.of<AcademicProvider>(context, listen: false);
+    final year = academic.currentAcademicYear;
+    final semNum = academic.currentSemester;
+    final sem = 'S$semNum';
     final dept = (_profile?['department']?.toString() ?? 'CSE').toUpperCase();
-    final sems = SubjectData.semsForYear(year);
-    final sem = sems.isNotEmpty ? sems.first : 'S1';
 
     if (year == 1) {
       final group = SubjectData.getGroupFromDepartment(dept);
@@ -367,10 +369,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // ─────────────────────────────────────────────────────────────────────────
 
   Widget _buildCourseCards() {
-    final year = int.tryParse(_profile?['year']?.toString() ?? '') ?? 1;
+    final academic = Provider.of<AcademicProvider>(context, listen: false);
+    final year = academic.currentAcademicYear;
+    final semNum = academic.currentSemester;
+    final sem = 'S$semNum';
     final dept = (_profile?['department']?.toString() ?? 'CSE').toUpperCase();
-    final sems = SubjectData.semsForYear(year);
-    final sem = sems.isNotEmpty ? sems.first : 'S1';
     final courseSubjects = _getTopSubjects();
     
     // Pick the first subject from their course, or fallback to Basic Science
@@ -427,10 +430,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // ─────────────────────────────────────────────────────────────────────────
 
   Widget _buildSubjectCards() {
-    final year = int.tryParse(_profile?['year']?.toString() ?? '') ?? 1;
+    final academic = Provider.of<AcademicProvider>(context, listen: false);
+    final year = academic.currentAcademicYear;
+    final semNum = academic.currentSemester;
+    final sem = 'S$semNum';
     final dept = (_profile?['department']?.toString() ?? 'CSE').toUpperCase();
-    final sems = SubjectData.semsForYear(year);
-    final sem = sems.isNotEmpty ? sems.first : 'S1';
     final subjects = _getTopSubjects();
     final colors = [
       AppTheme.accentPrimary,
@@ -580,9 +584,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         onTap: () => MainScaffoldState.of(context)?.setIndex(1),
       ),
       _QuickAction(
-        title: 'Classes',
-        subtitle: 'Events today',
-        icon: Icons.calendar_month_rounded,
+        title: 'Idea Presentation',
+        subtitle: 'Your ideas',
+        icon: Icons.lightbulb_rounded,
         color: AppTheme.accentTertiary,
         bgColor: AppTheme.cardBg3,
         onTap: () => Navigator.push(
