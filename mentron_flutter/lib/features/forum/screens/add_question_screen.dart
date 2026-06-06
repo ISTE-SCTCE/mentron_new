@@ -231,14 +231,15 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                 child: TextField(
                   controller: _titleController,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.textMain,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                   decoration: const InputDecoration(
                     hintText: 'Question Title...',
+                    filled: false,
                     hintStyle: TextStyle(
-                      color: Colors.white54,
+                      color: AppTheme.textMuted,
                       fontWeight: FontWeight.normal,
                     ),
                     border: InputBorder.none,
@@ -269,9 +270,9 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                     isExpanded: true,
                     icon: const Icon(
                       Icons.arrow_drop_down_rounded,
-                      color: Colors.white54,
+                      color: AppTheme.textMuted,
                     ),
-                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    style: const TextStyle(color: AppTheme.textMain, fontSize: 13),
                     items: _topics.map((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -299,13 +300,14 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                   controller: _contentController,
                   maxLines: 12,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.textMain,
                     fontSize: 13,
                     height: 1.5,
                   ),
                   decoration: const InputDecoration(
                     hintText: 'Elaborate on your question or doubt here...',
-                    hintStyle: TextStyle(color: Colors.white54),
+                    filled: false,
+                    hintStyle: TextStyle(color: AppTheme.textMuted),
                     border: InputBorder.none,
                   ),
                 ),

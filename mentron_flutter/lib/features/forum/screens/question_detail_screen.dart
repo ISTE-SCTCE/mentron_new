@@ -897,7 +897,8 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                               ),
                               decoration: const InputDecoration(
                                 hintText: 'Write your answer...',
-                                hintStyle: TextStyle(color: Colors.white30),
+                                filled: false,
+                                hintStyle: TextStyle(color: AppTheme.textMuted),
                                 border: InputBorder.none,
                                 contentPadding: EdgeInsets.symmetric(
                                   horizontal: 16,

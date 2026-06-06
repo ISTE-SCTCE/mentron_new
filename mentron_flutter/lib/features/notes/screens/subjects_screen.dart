@@ -55,58 +55,30 @@ class SubjectsScreen extends StatelessWidget {
             else
               ...List.generate(subjects.length, (i) {
                 final subject = subjects[i];
-                final isElective = subject.startsWith('Electives:');
+                final isElective = subject.startsWith('Electives:') || subject.startsWith('Elective:');
 
                 if (isElective) {
-                  // Parse elective options
-                  final electives = subject.replaceFirst('Electives: ', '').split(', ');
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: GlassContainer(
-                      padding: const EdgeInsets.all(18),
-                      border: Border.all(color: color.withValues(alpha: 0.15)),
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Row(children: [
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: InkWell(
+                      onTap: () => _showElectivesSheet(context, subject, color, year.toString(), sem, dept),
+                      borderRadius: BorderRadius.circular(16),
+                      child: GlassContainer(
+                        padding: const EdgeInsets.all(16),
+                        border: Border.all(color: color.withValues(alpha: 0.15)),
+                        child: Row(children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6)),
-                            child: Text('OPEN ELECTIVES', style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                            width: 32, height: 32,
+                            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(9)),
+                            child: Center(child: Icon(Icons.book_rounded, color: color, size: 16)),
                           ),
-                          const SizedBox(width: 8),
-                          Text('choose one', style: TextStyle(color: AppTheme.textMuted.withValues(alpha: 0.6), fontSize: 9)),
+                          const SizedBox(width: 12),
+                          Expanded(child: Text('Electives', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.bold))),
+                          Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.4), size: 18),
                         ]),
-                        const SizedBox(height: 14),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: electives.map((elective) => GestureDetector(
-                            onTap: () => Navigator.push(context, AppTransitions.slideUp(
-                              NotesBySubjectScreen(
-                                subjectName: elective.trim(),
-                                color: color,
-                                year: year.toString(),
-                                semester: sem,
-                                dept: dept,
-                              ),
-                            )),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: color.withValues(alpha: 0.07),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: color.withValues(alpha: 0.25)),
-                              ),
-                              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                                Text(elective.trim(), style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600)),
-                                const SizedBox(width: 6),
-                                Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.5), size: 14),
-                              ]),
-                            ),
-                          )).toList(),
-                        ),
-                      ]),
-                    ).animate().fadeIn(delay: (i * 30).ms),
-                  );
+                      ),
+                    ),
+                  ).animate().fadeIn(delay: (i * 30).ms).slideX(begin: -0.03);
                 }
 
                 // Regular subject — tappable card
@@ -141,6 +113,79 @@ class SubjectsScreen extends StatelessWidget {
                 );
               }),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showElectivesSheet(BuildContext context, String subject, Color color, String year, String sem, String dept) {
+    final electives = subject.replaceFirst(RegExp(r'^Electives?:\s*'), '').split(', ');
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: GlassContainer(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('CHOOSE ELECTIVE', style: TextStyle(color: AppTheme.accentPrimary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+                  IconButton(onPressed: () => Navigator.pop(context), icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface, size: 20)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ...electives.asMap().entries.map((entry) {
+                final electiveName = entry.value.trim();
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        AppTransitions.slideRight(
+                          NotesBySubjectScreen(
+                            subjectName: electiveName,
+                            color: color,
+                            year: year,
+                            semester: sem,
+                            dept: dept,
+                          ),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(14),
+                    child: GlassContainer(
+                      padding: const EdgeInsets.all(16),
+                      border: Border.all(color: color.withValues(alpha: 0.15)),
+                      child: Row(
+                        children: [
+                          Icon(Icons.book_outlined, color: color, size: 18),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              electiveName,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                          ),
+                          Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.5), size: 16),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
         ),
       ),
     );

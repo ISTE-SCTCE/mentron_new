@@ -116,7 +116,14 @@ class _GroupScreenState extends State<GroupScreen> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               alignment: Alignment.center,
-                              child: const Text('My Course', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                              child: Text(
+                                'My Course',
+                                style: TextStyle(
+                                  color: !_showAll ? Colors.white : AppTheme.textMuted,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -130,7 +137,14 @@ class _GroupScreenState extends State<GroupScreen> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               alignment: Alignment.center,
-                              child: const Text('See All', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                              child: Text(
+                                'See All',
+                                style: TextStyle(
+                                  color: _showAll ? Colors.white : AppTheme.textMuted,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -213,23 +227,29 @@ class _GroupScreenState extends State<GroupScreen> {
           final subject = entry.value;
           final color = colors[index % colors.length];
           final icon = icons[index % icons.length];
+          final isElective = subject.startsWith('Electives:') || subject.startsWith('Elective:');
+          final displayTitle = isElective ? 'Electives' : subject;
           
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             child: InkWell(
               onTap: () {
-                Navigator.push(
-                  context,
-                  AppTransitions.slideRight(
-                    NotesBySubjectScreen(
-                      subjectName: subject,
-                      color: color,
-                      year: year.toString(),
-                      semester: sem,
-                      dept: dept,
+                if (isElective) {
+                  _showElectivesSheet(subject, color, year.toString(), sem, dept);
+                } else {
+                  Navigator.push(
+                    context,
+                    AppTransitions.slideRight(
+                      NotesBySubjectScreen(
+                        subjectName: subject,
+                        color: color,
+                        year: year.toString(),
+                        semester: sem,
+                        dept: dept,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                }
               },
               borderRadius: BorderRadius.circular(16),
               child: GlassContainer(
@@ -241,12 +261,12 @@ class _GroupScreenState extends State<GroupScreen> {
                       width: 42,
                       height: 42,
                       decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                      child: Icon(icon, color: color, size: 20),
+                      child: Icon(isElective ? Icons.book_rounded : icon, color: color, size: 20),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Text(
-                        subject,
+                        displayTitle,
                         style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14),
                       ),
                     ),
@@ -258,6 +278,79 @@ class _GroupScreenState extends State<GroupScreen> {
           ).animate().fadeIn(delay: (index * 40).ms).slideX(begin: -0.03);
         }),
       ],
+    );
+  }
+
+  void _showElectivesSheet(String subject, Color color, String year, String sem, String dept) {
+    final electives = subject.replaceFirst(RegExp(r'^Electives?:\s*'), '').split(', ');
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: GlassContainer(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('CHOOSE ELECTIVE', style: TextStyle(color: AppTheme.accentPrimary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+                  IconButton(onPressed: () => Navigator.pop(context), icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface, size: 20)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ...electives.asMap().entries.map((entry) {
+                final electiveName = entry.value.trim();
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        AppTransitions.slideRight(
+                          NotesBySubjectScreen(
+                            subjectName: electiveName,
+                            color: color,
+                            year: year,
+                            semester: sem,
+                            dept: dept,
+                          ),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(14),
+                    child: GlassContainer(
+                      padding: const EdgeInsets.all(16),
+                      border: Border.all(color: color.withValues(alpha: 0.15)),
+                      child: Row(
+                        children: [
+                          Icon(Icons.book_outlined, color: color, size: 18),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              electiveName,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                          ),
+                          Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.5), size: 16),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
