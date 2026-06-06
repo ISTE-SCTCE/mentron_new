@@ -169,8 +169,9 @@ class _GroupScreenState extends State<GroupScreen> {
                       child: _buildYearBrowseCard(e.value, e.key),
                     )),
                   ],
-                ),
+                ],
               ),
+            ),
       ),
     );
   }

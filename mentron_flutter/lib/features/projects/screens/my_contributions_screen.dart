@@ -393,7 +393,7 @@ class _MyContributionsScreenState extends State<MyContributionsScreen> {
                         children: [
                           CircleAvatar(
                             radius: 8,
-                            backgroundColor: Colors.emerald.withValues(alpha: 0.15),
+                            backgroundColor: Colors.green.withValues(alpha: 0.15),
                             child: Text(
                               leadName.isNotEmpty ? leadName[0].toUpperCase() : 'A',
                               style: const TextStyle(color: Colors.greenAccent, fontSize: 8, fontWeight: FontWeight.bold),
