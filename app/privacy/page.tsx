@@ -99,7 +99,7 @@ export default function PrivacyPolicy() {
             </h2>
             <p>
               If you have any questions about this Privacy Policy, please contact the ISTE SCTCE technical team at 
-              <a href="mailto:iste@sctce.ac.in" className="text-cyan-400 hover:underline ml-1">iste@sctce.ac.in</a>.
+              <a href="mailto:istesctce@gmail.com" className="text-cyan-400 hover:underline ml-1">istesctce@gmail.com</a>.
             </p>
           </section>
         </div>
