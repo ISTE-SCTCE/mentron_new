@@ -12,6 +12,8 @@ import 'features/auth/screens/login_screen.dart';
 import 'core/providers/academic_provider.dart';
 import 'core/services/version_service.dart';
 import 'features/force_update/screens/force_update_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'features/auth/screens/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -140,11 +142,22 @@ class _AppRootState extends State<AppRoot> {
   bool _splashDone = false;
   bool _isCheckingVersion = true;
   bool _forceUpdate = false;
+  bool _onboardingCompleted = false;
 
   @override
   void initState() {
     super.initState();
     _checkVersion();
+    _checkOnboardingStatus();
+  }
+
+  Future<void> _checkOnboardingStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
+      });
+    }
   }
 
   Future<void> _checkVersion() async {
@@ -174,15 +187,25 @@ class _AppRootState extends State<AppRoot> {
       return const ForceUpdateScreen();
     }
 
-    return AuthWrapper(isExec: widget.isExec, isLoadingRole: widget.isLoadingRole);
+    return AuthWrapper(
+      isExec: widget.isExec, 
+      isLoadingRole: widget.isLoadingRole,
+      onboardingCompleted: _onboardingCompleted,
+    );
   }
 }
 
 class AuthWrapper extends StatelessWidget {
   final bool isExec;
   final bool isLoadingRole;
+  final bool onboardingCompleted;
   
-  const AuthWrapper({super.key, required this.isExec, required this.isLoadingRole});
+  const AuthWrapper({
+    super.key, 
+    required this.isExec, 
+    required this.isLoadingRole,
+    required this.onboardingCompleted,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -205,7 +228,9 @@ class AuthWrapper extends StatelessWidget {
           }
           return isExec ? const ExecMainScaffold() : const MainScaffold();
         }
-        return const LoginScreen();
+        
+        // If not logged in, show Onboarding or Login based on previous usage
+        return onboardingCompleted ? const LoginScreen() : const OnboardingScreen();
       },
     );
   }
