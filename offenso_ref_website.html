@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Offenso Hackers Academy in collaboration with ISTE student chapter presents the premium Ethical Hacking Mastery 101 Course. Go from zero to hero in 7 core practical security modules.">
+  <meta name="keywords" content="Cybersecurity course, Ethical Hacking, ISTE, Offenso Hackers Academy, Web security, Linux basics, Pen testing bootcamp, OSINT, Malware, Phishing">
+  <meta name="author" content="Offenso x ISTE x Mentron">
+  
+  <!-- Open Graph / Social Media Meta -->
+  <meta property="og:title" content="Ethical Hacking Mastery 101 Course | Offenso x ISTE x Mentron">
+  <meta property="og:description" content="The ultimate, hands-on practical hacking program. Master tactical penetration testing, application auditing, and defensive perimeter response.">
+  <meta property="og:image" content="assets/og_banner.png">
+  <meta property="og:url" content="https://iste-offenso-hack.event">
+  
+  <title>Ethical Hacking Mastery 101 | Offenso Hackers Academy & ISTE Student Chapter</title>
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="index.css">
+  
+  <!-- FontAwesome CDN (for Brand Icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+
+  <!-- Background Particle Canvas & Ambient Shadows -->
+  <canvas id="particle-canvas"></canvas>
+  <div class="cyber-grid-overlay"></div>
+  <div class="ambient-glow glow-top-left"></div>
+  <div class="ambient-glow glow-bottom-right"></div>
+
+  <!-- ==========================================
+       NAVIGATION BAR
+       ========================================== -->
+  <nav class="cyber-navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-brand">
+        <div class="nav-logo-wrap" style="width: auto; padding: 4px 10px; height: auto;">
+          <img src="https://offensoacademy.com/wp-content/uploads/2023/04/Offenso-Logo-White.png" alt="Offenso Academy Logo" style="height: 24px; display: block; object-fit: contain;">
+        </div>
+        <div class="brand-text">
+          <span style="font-size: 1.15rem; color: #fff;">ISTE SCTCE</span>
+          <span class="brand-subtext">× OFFENSO ACADEMY</span>
+        </div>
+      </a>
+      
+      <ul class="nav-links" id="nav-links">
+        <li class="nav-item"><a href="#hero">Home</a></li>
+        <li class="nav-item"><a href="#about">About</a></li>
+        <li class="nav-item"><a href="#linux">Linux Lab</a></li>
+        <li class="nav-item"><a href="#benefits">Badges</a></li>
+        <li class="nav-item"><a href="#curriculum">Syllabus</a></li>
+        <li class="nav-item"><a href="#pricing">Pricing</a></li>
+        <li class="nav-item"><a href="#faq">FAQ</a></li>
+        <li class="nav-item"><a href="#register" class="cyber-btn btn-cyan" style="padding: 8px 16px; font-size: 0.8rem; border-radius: 6px;">Register Now</a></li>
+      </ul>
+      
+      <button class="mobile-nav-toggle" id="mobile-toggle" aria-label="Toggle Menu">
+        <i class="fa-solid fa-bars-staggered"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==========================================
+       1. HERO SECTION
+       ========================================== -->
+  <header class="hero-section" id="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="cyber-badge badge-cyan">
+          <i class="fa-solid fa-shield-halved"></i> Practical Certification Course
+        </div>
+        
+        <h1 class="hero-heading gradient-text-cyan">
+          Ethical Hacking Mastery 101
+        </h1>
+        
+        <div class="hero-subtitle">
+          Offenso Hackers Academy × ISTE SCTCE × Mentron
+        </div>
+        
+        <p class="hero-desc">
+          Hack-proof your future. Master the tactical mindsets, custom tooling, and defensive playbooks used by top-tier security analysts in a comprehensive, 7-module practical training program. #HACKFORGOOD
+        </p>
+        
+        <div class="hero-specs-row">
+          <div class="spec-item">
+            <div class="spec-icon"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="spec-details">
+              <div class="spec-label">Curriculum</div>
+              <div class="spec-val">7 Core Hacking Modules</div>
+            </div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-icon"><i class="fa-solid fa-award"></i></div>
+            <div class="spec-details">
+              <div class="spec-label">Credentials</div>
+              <div class="spec-val">7 Verifiable Badges</div>
+            </div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-icon"><i class="fa-solid fa-server"></i></div>
+            <div class="spec-details">
+              <div class="spec-label">Lab Access</div>
+              <div class="spec-val">Lifetime Custom Sandboxes</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Countdown Timer -->
+        <div class="countdown-container">
+          <div class="countdown-title">
+            <i class="fa-solid fa-calendar-days"></i> Course Commencement & Cohort Schedule
+          </div>
+          <div class="timer-box-row">
+            <div class="timer-card glass-panel">
+              <span class="timer-num" id="days">02</span>
+              <span class="timer-label">Days</span>
+            </div>
+            <div class="timer-card glass-panel">
+              <span class="timer-num" id="hours">14</span>
+              <span class="timer-label">Hrs</span>
+            </div>
+            <div class="timer-card glass-panel">
+              <span class="timer-num" id="minutes">45</span>
+              <span class="timer-label">Min</span>
+            </div>
+            <div class="timer-card glass-panel">
+              <span class="timer-num" id="seconds">18</span>
+              <span class="timer-label">Sec</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <a href="#register" class="cyber-btn btn-cyan">
+            Register Now <i class="fa-solid fa-terminal"></i>
+          </a>
+          <a href="#curriculum" class="cyber-btn btn-outline">
+            View Syllabus
+          </a>
+        </div>
+      </div>
+      
+      <!-- Hacker Typing Terminal Widget -->
+      <div class="hero-visual">
+        <div class="terminal-card">
+          <div class="terminal-header">
+            <div class="terminal-buttons">
+              <span class="term-btn term-btn-red"></span>
+              <span class="term-btn term-btn-yellow"></span>
+              <span class="term-btn term-btn-green"></span>
+            </div>
+            <div class="terminal-title">OFFENSO_MASTERY_101</div>
+            <div class="terminal-network"><i class="fa-solid fa-wifi" style="font-size: 0.65rem; color: var(--neon-cyan)"></i></div>
+          </div>
+          <div class="terminal-body" id="terminal-body">
+            <div class="terminal-line"><span class="terminal-prompt">guest@offenso:~$</span><span class="terminal-cmd"></span><span class="terminal-cursor"></span></div>
+          </div>
+        </div>
+        <div class="hero-bg-accent"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================
+       2. ABOUT OFFENSO HACKERS ACADEMY
+       3. ABOUT ISTE
+       ========================================== -->
+  <section class="section reveal-on-scroll" id="about">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-subtitle">Collaborating Forces</div>
+        <h2 class="section-title gradient-text-cyan-purple">Who are We</h2>
+        <p class="section-desc">Pioneering technical institutions and their student innovation ecosystem uniting to deliver the definitive cybersecurity educational experience of the semester.</p>
+      </div>
+      
+      <div class="about-grid">
+        <!-- About Offenso Card -->
+        <div class="about-card glass-panel glow-card-wrap cyber-purple-glow">
+          <div class="about-card-header">
+            <div class="about-icon" style="background: var(--neon-purple-dim); border: 1px solid var(--border-purple); color: var(--neon-purple)">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+              <div class="cyber-badge badge-purple" style="font-size: 0.6rem; padding: 2px 8px; margin-bottom: 4px;">Academy Partner</div>
+              <h3 class="about-card-title">Offenso Hackers Academy</h3>
+            </div>
+          </div>
+          <div class="about-card-body">
+            <p>
+              Offenso Hackers Academy is Kerala’s No #1 Cyber Security Training Center, dedicated to providing comprehensive and practical penetration testing and defense education. Under their motto <em>"Hack-Proof Your Future: Get Certified in Cyber Security"</em>, Offenso delivers high-fidelity lab environments rather than simple slides.
+            </p>
+            <p>
+              With a verified track record of **3000+ Students Successfully Certified** and placed in leading enterprise security positions, Offenso equips developers, administrators, and analysts with authentic defensive and tactical cyber capabilities.
+            </p>
+            <ul class="about-highlight-list">
+              <li><i class="fa-solid fa-check"></i> Kerala's Top Center</li>
+              <li><i class="fa-solid fa-check"></i> 3000+ Certified</li>
+              <li><i class="fa-solid fa-check"></i> OCSP/OCSA Pathways</li>
+              <li><i class="fa-solid fa-check"></i> Real-World Red Teaming</li>
+            </ul>
+            <a href="https://offensoacademy.com/" target="_blank" class="cyber-btn btn-outline" style="margin-top: auto; font-size: 0.8rem; padding: 10px 20px; align-self: flex-start; width: 100%;">
+              Visit Official Website <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- About ISTE Card -->
+        <div class="about-card glass-panel glow-card-wrap cyber-cyan-glow">
+          <div class="about-card-header">
+            <div class="about-icon" style="background: var(--neon-cyan-dim); border: 1px solid var(--border-cyan); color: var(--neon-cyan)">
+              <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+              <div class="cyber-badge badge-cyan" style="font-size: 0.6rem; padding: 2px 8px; margin-bottom: 4px;">Student Chapter</div>
+              <h3 class="about-card-title">ISTE SCTCE Chapter</h3>
+            </div>
+          </div>
+          <div class="about-card-body">
+            <p>
+              Established in **2004**, the ISTE Student Chapter at Sree Chitra Thirunal College of Engineering (SCTCE), Trivandrum, is dedicated to empowering the next generation of engineers with innovation, technical excellence, and leadership.
+            </p>
+            <p>
+              By hosting specialized technical summits, hackathons, and direct industrial collaborations, ISTE SCTCE provides SCTCE students with the necessary technical know-how and practical application skills required to excel in the modern engineering landscape.
+            </p>
+            <ul class="about-highlight-list">
+              <li><i class="fa-solid fa-check"></i> Est. 2004 SCTCE</li>
+              <li><i class="fa-solid fa-check"></i> Innovation First</li>
+              <li><i class="fa-solid fa-check"></i> Technical Growth</li>
+              <li><i class="fa-solid fa-check"></i> Developed by ISTE Team</li>
+            </ul>
+            <a href="https://istesctce.in/" target="_blank" class="cyber-btn btn-outline" style="margin-top: auto; font-size: 0.8rem; padding: 10px 20px; align-self: flex-start; width: 100%;">
+              Visit Official Website <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- About Mentron Card -->
+        <div class="about-card glass-panel glow-card-wrap cyber-cyan-glow" style="border-color: rgba(99, 102, 241, 0.25); box-shadow: 0 8px 32px 0 rgba(99, 102, 241, 0.05);">
+          <div class="about-card-header">
+            <div class="about-icon" style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #818cf8">
+              <i class="fa-solid fa-circle-nodes"></i>
+            </div>
+            <div>
+              <div class="cyber-badge badge-cyan" style="font-size: 0.6rem; padding: 2px 8px; margin-bottom: 4px; background: rgba(99, 102, 241, 0.15); border-color: rgba(99, 102, 241, 0.3); color: #818cf8;">Innovation Hub</div>
+              <h3 class="about-card-title" style="color: #fff;">Mentron Community</h3>
+            </div>
+          </div>
+          <div class="about-card-body">
+            <p>
+              Mentron is a student-driven innovation platform built by the **ISTE SCTCE Tech Team** that connects tech enthusiasts, builders, and creators. It acts as an elite community that simplifies project showcases and opportunity sharing.
+            </p>
+            <p>
+              Mentron empowers young innovators at Sree Chitra Thirunal College of Engineering to exhibit technical projects, join industrial internships, and turn tech ideas into real-world impact.
+            </p>
+            <ul class="about-highlight-list">
+              <li><i class="fa-solid fa-check" style="color: #818cf8;"></i> Elite Tech Club</li>
+              <li><i class="fa-solid fa-check" style="color: #818cf8;"></i> Project Showcases</li>
+              <li><i class="fa-solid fa-check" style="color: #818cf8;"></i> Internship Links</li>
+              <li><i class="fa-solid fa-check" style="color: #818cf8;"></i> Student Market</li>
+            </ul>
+            <a href="https://mentron.istesctce.in/" target="_blank" class="cyber-btn btn-outline" style="margin-top: auto; font-size: 0.8rem; padding: 10px 20px; align-self: flex-start; width: 100%; border-color: #818cf8; color: #818cf8;">
+              Explore Mentron Portal <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       4. FREE LINUX BASICS PREREQUISITE
+       ========================================== -->
+  <section class="section reveal-on-scroll" id="linux">
+    <div class="container">
+      <div class="linux-highlight-card glass-panel floating-anim">
+        <div class="linux-content">
+          <div class="linux-badge-row">
+            <span class="cyber-badge badge-pink"><i class="fa-solid fa-circle-play"></i> Prerequisite Session</span>
+            <span class="cyber-badge badge-cyan" style="background: rgba(0, 240, 255, 0.05); border-color: rgba(0,240,255,0.2)"><i class="fa-solid fa-gift"></i> 100% Free</span>
+          </div>
+          <h2 class="linux-heading gradient-text-cyan">
+            Zero-to-Hero Linux Lab Foundations
+          </h2>
+          <p class="linux-desc">
+            To ensure no aspiring hacker gets left behind, we are running a dedicated foundation session before launching the advanced curriculum. Get your operating systems configured and master fundamental command lines.
+          </p>
+          <ul class="linux-bullets">
+            <li><i class="fa-solid fa-terminal"></i> <strong>CLI Domination:</strong> Learn the core commands (cd, ls, grep, chmod, curl, ssh).</li>
+            <li><i class="fa-solid fa-network-wired"></i> <strong>OS Architecture:</strong> Navigate directories, configure file systems, and set permissions.</li>
+            <li><i class="fa-solid fa-box-open"></i> <strong>Hacking Environment Setup:</strong> Build a virtualization lab running Kali Linux or Parrot OS.</li>
+          </ul>
+        </div>
+        
+        <div class="linux-graphic-wrap">
+          <div class="code-window">
+            <div class="code-window-header">
+              <div class="code-dots">
+                <span class="code-dot"></span>
+                <span class="code-dot"></span>
+                <span class="code-dot"></span>
+              </div>
+              <div class="code-title">kernel_prerequisite_agent.sh</div>
+            </div>
+            <div class="code-body">
+              <div><span class="code-comment"># Pulling security dependencies</span></div>
+              <div><span class="code-keyword">sudo apt-get update</span> <span class="code-comment">&&</span> <span class="code-keyword">sudo apt-get install</span> -y virtualbox</div>
+              <div><span class="code-comment"># Initializing Kali kernel partition</span></div>
+              <div><span class="code-keyword">curl</span> -sSL <span class="code-string">"https://offenso.academy/lab/bootstrap.sh"</span> | <span class="code-command">bash</span></div>
+              <div><br></div>
+              <div><span class="code-comment"># Output Diagnostic status:</span></div>
+              <div><span class="code-string" style="color: #34d399;">[+] Core Linux virtualization partition READY.</span></div>
+              <div><span class="code-string" style="color: #34d399;">[+] Networking subnet interface verified: eth0</span></div>
+              <div><span class="code-string" style="color: #34d399;">[+] Setup ready. Access main syllabus.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       5. WORKSHOP BENEFITS
+       ========================================== -->
+  <section class="section reveal-on-scroll" id="benefits">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-subtitle">Excellence Criteria</div>
+        <h2 class="section-title gradient-text-cyan-purple">Workshop Benefits</h2>
+        <p class="section-desc">Acquire premium assets and structured resources designed to convert class theory into concrete professional proficiency.</p>
+      </div>
+      
+      <div class="benefits-grid">
+        <!-- Benefit 1 -->
+        <div class="benefit-card glass-panel glow-card-wrap">
+          <div class="benefit-icon-container">
+            <i class="fa-solid fa-book-bookmark"></i>
+          </div>
+          <h3 class="benefit-title">Curated Notes</h3>
+          <p class="benefit-desc">Receive cheat sheets, script blueprints, and reference summaries to retain core commands and tactics long after the event ends.</p>
+        </div>
+        
+        <!-- Benefit 2 -->
+        <div class="benefit-card glass-panel glow-card-wrap">
+          <div class="benefit-icon-container">
+            <i class="fa-solid fa-server"></i>
+          </div>
+          <h3 class="benefit-title">Lifetime Linux Access</h3>
+          <p class="benefit-desc">Unlock our secure sandbox guides and training repositories to spin up testing instances whenever you need to practice.</p>
+        </div>
+        
+        <!-- Benefit 3 -->
+        <div class="benefit-card glass-panel glow-card-wrap">
+          <div class="benefit-icon-container">
+            <i class="fa-solid fa-toolbox"></i>
+          </div>
+          <h3 class="benefit-title">Workshop Materials</h3>
+          <p class="benefit-desc">Get access to hacking script templates, web payload arrays, sample network logs, and slides to reproduce labs safely.</p>
+        </div>
+        
+        <!-- Benefit 4 -->
+        <div class="benefit-card glass-panel glow-card-wrap">
+          <div class="benefit-icon-container">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <h3 class="benefit-title">Community Support</h3>
+          <p class="benefit-desc">Gain access to the exclusive ISTE x Offenso collaborative study networks and student team rooms hosted directly on the **Mentron app**.</p>
+        </div>
+        
+        <!-- Benefit 5 -->
+        <div class="benefit-card glass-panel glow-card-wrap">
+          <div class="benefit-icon-container">
+            <i class="fa-solid fa-keyboard"></i>
+          </div>
+          <h3 class="benefit-title">Hands-on Learning</h3>
+          <p class="benefit-desc">Work in actual sandboxes, scan target servers, exploit configurations, and analyze network packets in real time.</p>
+        </div>
+        
+        <!-- Benefit 6 -->
+        <div class="benefit-card glass-panel glow-card-wrap">
+          <div class="benefit-icon-container">
+            <i class="fa-solid fa-circle-nodes"></i>
+          </div>
+          <h3 class="benefit-title">Further Updates & Support</h3>
+          <p class="benefit-desc">Stay tuned with continuous updates on upcoming national CTFs, technical workshops, and exclusive internship feeds pushed directly via your **Mentron dashboard**.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       6. 7-MODULE CURRICULUM SYLLABUS
+       ========================================== -->
+  <section class="section reveal-on-scroll" id="curriculum">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-subtitle">Tactical Syllabus</div>
+        <h2 class="section-title gradient-text-cyan-purple">Ethical Hacking Mastery 101 Curriculum</h2>
+        <p class="section-desc">Our meticulously mapped roadmap is optimized to transition beginners into active, tactical cybersecurity thinkers with practical deliverables and verifiable digital credentials.</p>
+      </div>
+      
+      <!-- Interactive Module Switcher Tabs -->
+      <div class="curriculum-tabs-header">
+        <button class="tab-btn active" data-tab="module1">M1: Mindset</button>
+        <button class="tab-btn" data-tab="module2">M2: Linux Lab</button>
+        <button class="tab-btn" data-tab="module3">M3: OSINT</button>
+        <button class="tab-btn" data-tab="module4">M4: Web Sec</button>
+        <button class="tab-btn" data-tab="module5">M5: Wireless</button>
+        <button class="tab-btn" data-tab="module6">M6: Phishing</button>
+        <button class="tab-btn" data-tab="module7">M7: Malware</button>
+      </div>
+      
+      <!-- Tab 1: Module 1 Panel -->
+      <div class="curriculum-content-panel active glass-panel curr-card-wrap" id="module1">
+        <div class="curriculum-card">
+          <div class="curr-card-header">
+            <div class="curr-card-info">
+              <span class="curr-card-day">Module 01</span>
+              <h3 class="curr-card-title">Building a Hacker Mindset</h3>
+            </div>
+            <div class="curr-badge-reward">
+              <span class="cyber-badge badge-cyan"><i class="fa-solid fa-medal"></i> Badge: Threat Aware</span>
+            </div>
+          </div>
+          
+          <div class="curr-grid">
+            <!-- Left Column: Core Focus -->
+            <div class="curr-col">
+              <div class="curr-block">
+                <h4 class="curr-section-title"><i class="fa-solid fa-crosshairs"></i> Module Goals</h4>
+                <ul class="curr-list">
+                  <li>Understand what cybersecurity is and why it matters in modern infrastructure.</li>
+                  <li>Analyze real-world security breaches and high-profile hack cases.</li>
+                  <li>Master the core concepts of the CIA Triad (Confidentiality, Integrity, Availability).</li>
+                </ul>
+              </div>
+              
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-book-open"></i> Core Content</h4>
+                <ul class="curr-list">
+                  <li>Job roles, roadmaps, and cybersecurity industry pathways.</li>
+                  <li>WhatsApp, AI, and enterprise data breach caseclips.</li>
+                  <li>CIA Triad explained with intuitive everyday analogies.</li>
+                </ul>
+              </div>
+
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-screwdriver-wrench"></i> Browser Tools</h4>
+                <div class="curr-tools-list">
+                  <span class="tech-tag">Shodan</span>
+                  <span class="tech-tag">Censys</span>
+                  <span class="tech-tag">Browser DevTools</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Column: Lab & Fun -->
+            <div class="curr-col">
+              <div class="fun-box">
+                <h4 class="curr-section-title" style="color: var(--neon-purple);"><i class="fa-solid fa-circle-play"></i> Interactive Highlights</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Explore fascinating breach stories and run a live, eye-opening personal privacy scan on your own digital footprint.</p>
+              </div>
+              
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-laptop-code"></i> Hands-on Labs</h4>
+                <ul class="curr-list">
+                  <li><strong>Scavenger Hunt:</strong> Conduct guided Shodan/Censys scans to identify interesting exposed public devices.</li>
+                  <li><strong>Exposure Check:</strong> Map out and inspect what telemetry your browser, IP address, and phone expose online.</li>
+                </ul>
+              </div>
+              
+              <div class="deliverable-box" style="margin-top: 20px;">
+                <h4 class="curr-section-title" style="color: var(--neon-cyan); margin-bottom: 6px;"><i class="fa-solid fa-file-shield"></i> Deliverable</h4>
+                <p style="font-size: 0.85rem; font-weight: 500;">1-Page "Personal Exposure Report" compiling findings and 3 quick-action privacy protections.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tab 2: Module 2 Panel -->
+      <div class="curriculum-content-panel glass-panel curr-card-wrap" id="module2">
+        <div class="curriculum-card">
+          <div class="curr-card-header">
+            <div class="curr-card-info">
+              <span class="curr-card-day">Module 02</span>
+              <h3 class="curr-card-title">Introduction to Linux & Packet Mastery</h3>
+            </div>
+            <div class="curr-badge-reward">
+              <span class="cyber-badge badge-cyan"><i class="fa-solid fa-medal"></i> Badge: Network Scout</span>
+            </div>
+          </div>
+          
+          <div class="curr-grid">
+            <!-- Left Column: Core Focus -->
+            <div class="curr-col">
+              <div class="curr-block">
+                <h4 class="curr-section-title"><i class="fa-solid fa-crosshairs"></i> Module Goals</h4>
+                <ul class="curr-list">
+                  <li>Grasp IP addresses, ports, subnets, and fundamental protocols.</li>
+                  <li>Navigate and master essential Linux command lines like a security professional.</li>
+                </ul>
+              </div>
+              
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-book-open"></i> Core Content</h4>
+                <ul class="curr-list">
+                  <li>IP addressing, ports, DNS, and fundamental routing protocols.</li>
+                  <li>Essential CLI operations: <code>cd</code>, <code>ls</code>, <code>grep</code>, <code>ssh</code>, permissions, and packages.</li>
+                </ul>
+              </div>
+
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-screwdriver-wrench"></i> Interactive Tools</h4>
+                <div class="curr-tools-list">
+                  <span class="tech-tag">TryHackMe Network Rooms</span>
+                  <span class="tech-tag">Nmap Web Emulator</span>
+                  <span class="tech-tag">Wireshark Replays</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Column: Lab & Fun -->
+            <div class="curr-col">
+              <div class="fun-box">
+                <h4 class="curr-section-title" style="color: var(--neon-purple);"><i class="fa-solid fa-circle-play"></i> Interactive Highlights</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Play "Trace the Packet" interactive storytelling games and master the terminal through competitive CLI mini-games.</p>
+              </div>
+              
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-laptop-code"></i> Hands-on Labs</h4>
+                <ul class="curr-list">
+                  <li><strong>Network Builder:</strong> Design and visualize a basic LAN network within an interactive emulator.</li>
+                  <li><strong>Active Probe:</strong> Run automated Nmap diagnostic scans in a virtual sandbox and interpret open port headers.</li>
+                </ul>
+              </div>
+              
+              <div class="deliverable-box" style="margin-top: 20px;">
+                <h4 class="curr-section-title" style="color: var(--neon-cyan); margin-bottom: 6px;"><i class="fa-solid fa-file-shield"></i> Deliverable</h4>
+                <p style="font-size: 0.85rem; font-weight: 500;">Custom CLI port scanner diagnostic script and network layout validation checklist.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tab 3: Module 3 Panel -->
+      <div class="curriculum-content-panel glass-panel curr-card-wrap" id="module3">
+        <div class="curriculum-card">
+          <div class="curr-card-header">
+            <div class="curr-card-info">
+              <span class="curr-card-day">Module 03</span>
+              <h3 class="curr-card-title">OSINT & Digital Profiling</h3>
+            </div>
+            <div class="curr-badge-reward">
+              <span class="cyber-badge badge-cyan"><i class="fa-solid fa-medal"></i> Badge: Recon Specialist</span>
+            </div>
+          </div>
+          
+          <div class="curr-grid">
+            <!-- Left Column: Core Focus -->
+            <div class="curr-col">
+              <div class="curr-block">
+                <h4 class="curr-section-title"><i class="fa-solid fa-crosshairs"></i> Module Goals</h4>
+                <ul class="curr-list">
+                  <li>Learn ethical footprinting and open-source intelligence methods.</li>
+                  <li>Map out a target entity's public-facing attack perimeter.</li>
+                </ul>
+              </div>
+              
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-book-open"></i> Core Content</h4>
+                <ul class="curr-list">
+                  <li>Passive vs Active reconnaissance strategies.</li>
+                  <li>Advanced Google Dorking commands, metadata harvesting, and identifying public leaks.</li>
+                </ul>
+              </div>
+
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-screwdriver-wrench"></i> Reconnaissance Tools</h4>
+                <div class="curr-tools-list">
+                  <span class="tech-tag">TheHarvester</span>
+                  <span class="tech-tag">Maltego Community Edition</span>
+                  <span class="tech-tag">Sublist3r / Amass</span>
+                  <span class="tech-tag">Sherlock OSINT</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Column: Lab & Fun -->
+            <div class="curr-col">
+              <div class="fun-box">
+                <h4 class="curr-section-title" style="color: var(--neon-purple);"><i class="fa-solid fa-circle-play"></i> Interactive Highlights</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Embark on detective operations to hunt for missing clues and compile a detailed dossiers on fictional targets.</p>
+              </div>
+              
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-laptop-code"></i> Hands-on Labs</h4>
+                <ul class="curr-list">
+                  <li><strong>Domain Mapping:</strong> Trace domain public assets, subdomains, and staff emails inside a sandbox.</li>
+                  <li><strong>Username Profiler:</strong> Execute Sherlock to locate hidden social accounts associated with a target persona.</li>
+                </ul>
+              </div>
+              
+              <div class="deliverable-box" style="margin-top: 20px;">
+                <h4 class="curr-section-title" style="color: var(--neon-cyan); margin-bottom: 6px;"><i class="fa-solid fa-file-shield"></i> Deliverable</h4>
+                <p style="font-size: 0.85rem; font-weight: 500;">1-Slide OSINT summary containing a visual footprint map and 5 high-risk information leakage findings.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tab 4: Module 4 Panel -->
+      <div class="curriculum-content-panel glass-panel curr-card-wrap" id="module4">
+        <div class="curriculum-card">
+          <div class="curr-card-header">
+            <div class="curr-card-info">
+              <span class="curr-card-day">Module 04</span>
+              <h3 class="curr-card-title">Exploiting & Securing Applications</h3>
+            </div>
+            <div class="curr-badge-reward">
+              <span class="cyber-badge badge-cyan"><i class="fa-solid fa-medal"></i> Badge: Web Defender</span>
+            </div>
+          </div>
+          
+          <div class="curr-grid">
+            <!-- Left Column: Core Focus -->
+            <div class="curr-col">
+              <div class="curr-block">
+                <h4 class="curr-section-title"><i class="fa-solid fa-crosshairs"></i> Module Goals</h4>
+                <ul class="curr-list">
+                  <li>Understand standard web architectures and OWASP Top 10 vulnerabilities.</li>
+                  <li>Learn how to safely identify, exploit, and patch vulnerable systems.</li>
+                </ul>
+              </div>
+              
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-book-open"></i> Core Content</h4>
+                <ul class="curr-list">
+                  <li>Web requests, headers, and database parameters.</li>
+                  <li>Detailed breakdowns of SQL Injection (SQLi), Cross-Site Scripting (XSS), File Upload flaws, and CSRF.</li>
+                </ul>
+              </div>
+
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-screwdriver-wrench"></i> Security Tools</h4>
+                <div class="curr-tools-list">
+                  <span class="tech-tag">PortSwigger Burp Suite</span>
+                  <span class="tech-tag">DVWA Testing Sandbox</span>
+                  <span class="tech-tag">SQLmap Automated Tool</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Column: Lab & Fun -->
+            <div class="curr-col">
+              <div class="fun-box">
+                <h4 class="curr-section-title" style="color: var(--neon-purple);"><i class="fa-solid fa-circle-play"></i> Interactive Highlights</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Perform a real, live penetration audit on a simulated target web environment and then write secure patches to fix it.</p>
+              </div>
+              
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-laptop-code"></i> Hands-on Labs</h4>
+                <ul class="curr-list">
+                  <li><strong>Active Injection:</strong> Leverage manual payloads to bypass login portals and extract database credentials.</li>
+                  <li><strong>Source Patching:</strong> Inspect and refactor vulnerable PHP/JS source snippets to secure them against payloads.</li>
+                </ul>
+              </div>
+              
+              <div class="deliverable-box" style="margin-top: 20px;">
+                <h4 class="curr-section-title" style="color: var(--neon-cyan); margin-bottom: 6px;"><i class="fa-solid fa-file-shield"></i> Deliverable</h4>
+                <p style="font-size: 0.85rem; font-weight: 500;">Web Security Report detailing the vulnerability, Proof of Concept (PoC) logs, and remediation code blocks.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tab 5: Module 5 Panel -->
+      <div class="curriculum-content-panel glass-panel curr-card-wrap" id="module5">
+        <div class="curriculum-card">
+          <div class="curr-card-header">
+            <div class="curr-card-info">
+              <span class="curr-card-day">Module 05</span>
+              <h3 class="curr-card-title">Wireless Hacking & Mobile Security</h3>
+            </div>
+            <div class="curr-badge-reward">
+              <span class="cyber-badge badge-cyan"><i class="fa-solid fa-medal"></i> Badge: Mobile Watcher</span>
+            </div>
+          </div>
+          
+          <div class="curr-grid">
+            <!-- Left Column: Core Focus -->
+            <div class="curr-col">
+              <div class="curr-block">
+                <h4 class="curr-section-title"><i class="fa-solid fa-crosshairs"></i> Module Goals</h4>
+                <ul class="curr-list">
+                  <li>Master standard Wi-Fi encryption methodologies (WEP to WPA3).</li>
+                  <li>Acquire basic defensive mobile application code analysis skills.</li>
+                </ul>
+              </div>
+              
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-book-open"></i> Core Content</h4>
+                <ul class="curr-list">
+                  <li>Wi-Fi handshakes, beacon frames, and packet capture mechanisms.</li>
+                  <li>Bluetooth protocol risks and Android APK structural configurations.</li>
+                </ul>
+              </div>
+
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-screwdriver-wrench"></i> Forensic Tools</h4>
+                <div class="curr-tools-list">
+                  <span class="tech-tag">Aircrack-ng Framework</span>
+                  <span class="tech-tag">MobSF Analyzer</span>
+                  <span class="tech-tag">JADX Decompiler</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Column: Lab & Fun -->
+            <div class="curr-col">
+              <div class="fun-box">
+                <h4 class="curr-section-title" style="color: var(--neon-purple);"><i class="fa-solid fa-circle-play"></i> Interactive Highlights</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Dismantle actual compiled mobile APK binaries and dig through internal structures to hunt for hidden hardcoded keys.</p>
+              </div>
+              
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-laptop-code"></i> Hands-on Labs</h4>
+                <ul class="curr-list">
+                  <li><strong>Handshake Triage:</strong> Extract and analyze cryptographic parameters from raw Wi-Fi PCAP captures.</li>
+                  <li><strong>APK Analysis:</strong> Decompile an Android APK, inspect assets, and locate static developer strings.</li>
+                </ul>
+              </div>
+              
+              <div class="deliverable-box" style="margin-top: 20px;">
+                <h4 class="curr-section-title" style="color: var(--neon-cyan); margin-bottom: 6px;"><i class="fa-solid fa-file-shield"></i> Deliverable</h4>
+                <p style="font-size: 0.85rem; font-weight: 500;">"Top 3 Mobile & Wi-Fi Security Risks" brief outlining attack scenarios and preventive configurations.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tab 6: Module 6 Panel -->
+      <div class="curriculum-content-panel glass-panel curr-card-wrap" id="module6">
+        <div class="curriculum-card">
+          <div class="curr-card-header">
+            <div class="curr-card-info">
+              <span class="curr-card-day">Module 06</span>
+              <h3 class="curr-card-title">Phishing & Social Engineering</h3>
+            </div>
+            <div class="curr-badge-reward">
+              <span class="cyber-badge badge-cyan"><i class="fa-solid fa-medal"></i> Badge: Phish Hunter</span>
+            </div>
+          </div>
+          
+          <div class="curr-grid">
+            <!-- Left Column: Core Focus -->
+            <div class="curr-col">
+              <div class="curr-block">
+                <h4 class="curr-section-title"><i class="fa-solid fa-crosshairs"></i> Module Goals</h4>
+                <ul class="curr-list">
+                  <li>Analyze modern social engineering vectors and email spoofing logic.</li>
+                  <li>Design and execute secure awareness campaigns in sandbox environments.</li>
+                </ul>
+              </div>
+              
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-book-open"></i> Core Content</h4>
+                <ul class="curr-list">
+                  <li>Psychological triggers, email headers, SPF/DKIM validation protocols.</li>
+                  <li>Anatomy of a modern phishing attack and legal, ethical security rules.</li>
+                </ul>
+              </div>
+
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-screwdriver-wrench"></i> Diagnostic Tools</h4>
+                <div class="curr-tools-list">
+                  <span class="tech-tag">GoPhish Dashboard</span>
+                  <span class="tech-tag">VirusTotal API</span>
+                  <span class="tech-tag">URLscan.io</span>
+                  <span class="tech-tag">Mail-Tester Gateway</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Column: Lab & Fun -->
+            <div class="curr-col">
+              <div class="fun-box">
+                <h4 class="curr-section-title" style="color: var(--neon-purple);"><i class="fa-solid fa-circle-play"></i> Interactive Highlights</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Construct simulated social engineering campaigns in a controlled testing environment and race to identify subtle hidden lures.</p>
+              </div>
+              
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-laptop-code"></i> Hands-on Labs</h4>
+                <ul class="curr-list">
+                  <li><strong>Email Forensics:</strong> Inspect raw email headers to identify 6 critical indicators of origin spoofing.</li>
+                  <li><strong>Phish Simulator:</strong> Launch a mock campaign targeting sandboxed developer accounts and evaluate hit rates.</li>
+                </ul>
+              </div>
+              
+              <div class="deliverable-box" style="margin-top: 20px;">
+                <h4 class="curr-section-title" style="color: var(--neon-cyan); margin-bottom: 6px;"><i class="fa-solid fa-file-shield"></i> Deliverable</h4>
+                <p style="font-size: 0.85rem; font-weight: 500;">"Phish Alert Playbook" detailing diagnostic rules, response protocols, and user reporting models.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tab 7: Module 7 Panel -->
+      <div class="curriculum-content-panel glass-panel curr-card-wrap" id="module7">
+        <div class="curriculum-card">
+          <div class="curr-card-header">
+            <div class="curr-card-info">
+              <span class="curr-card-day">Module 07</span>
+              <h3 class="curr-card-title">Malware, RATs & Countermeasures</h3>
+            </div>
+            <div class="curr-badge-reward">
+              <span class="cyber-badge badge-cyan"><i class="fa-solid fa-medal"></i> Badge: IR Responder</span>
+            </div>
+          </div>
+          
+          <div class="curr-grid">
+            <!-- Left Column: Core Focus -->
+            <div class="curr-col">
+              <div class="curr-block">
+                <h4 class="curr-section-title"><i class="fa-solid fa-crosshairs"></i> Module Goals</h4>
+                <ul class="curr-list">
+                  <li>Acquire introductory static and dynamic malware triage capabilities.</li>
+                  <li>Build indicators of compromise (IOCs) and write active detection rules.</li>
+                </ul>
+              </div>
+              
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-book-open"></i> Core Content</h4>
+                <ul class="curr-list">
+                  <li>Malware delivery lifecycle, RATs, reverse shells, and evasion logic.</li>
+                  <li>Beacon signatures, active indicators, and incident containment pipelines.</li>
+                </ul>
+              </div>
+
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-screwdriver-wrench"></i> Sandbox Tools</h4>
+                <div class="curr-tools-list">
+                  <span class="tech-tag">REMnux / FLARE Environment</span>
+                  <span class="tech-tag">Cuckoo Static Sandbox</span>
+                  <span class="tech-tag">Ghidra Reverse Tool</span>
+                  <span class="tech-tag">Yara Detection Engine</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Column: Lab & Fun -->
+            <div class="curr-col">
+              <div class="fun-box">
+                <h4 class="curr-section-title" style="color: var(--neon-purple);"><i class="fa-solid fa-circle-play"></i> Interactive Highlights</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Act as a cyber first-responder to isolate, profile, and block simulated host compromises before malware can trigger leaks.</p>
+              </div>
+              
+              <div class="curr-block" style="margin-top: 20px;">
+                <h4 class="curr-section-title"><i class="fa-solid fa-laptop-code"></i> Hands-on Labs</h4>
+                <ul class="curr-list">
+                  <li><strong>Sample Triage:</strong> Submit benign samples to a hosted static sandbox and analyze the system call report.</li>
+                  <li><strong>Signature Defenses:</strong> Write a custom Yara detection rule to spot specific malware signatures in host files.</li>
+                  <li><strong>IR Capstone:</strong> Triage a simulated breach, identify the threat vector, compile IOCs, and implement blocks.</li>
+                </ul>
+              </div>
+              
+              <div class="deliverable-box" style="margin-top: 20px;">
+                <h4 class="curr-section-title" style="color: var(--neon-cyan); margin-bottom: 6px;"><i class="fa-solid fa-file-shield"></i> Deliverable</h4>
+                <p style="font-size: 0.85rem; font-weight: 500;">Incident Response dossier featuring 3 custom Yara/Sigma rules and an incident containment roadmap.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       8. PRICING SECTION
+       ========================================== -->
+  <section class="section reveal-on-scroll" id="pricing">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-subtitle">Event Investment</div>
+        <h2 class="section-title gradient-text-cyan-purple">Choose Your Tier</h2>
+        <p class="section-desc">Unlock full access to the 7 practical modules, custom sandbox scripts, verifiable digital badges, and official credentials at student-tailored rates.</p>
+      </div>
+      
+      <div class="pricing-grid">
+        <!-- ISTE Members -->
+        <div class="pricing-card glass-panel glow-card-wrap cyber-cyan-glow featured">
+          <div class="pricing-badge-row">
+            <span class="cyber-badge badge-cyan"><i class="fa-solid fa-star"></i> Recommended</span>
+            <span class="cyber-badge badge-pink" style="font-size: 0.6rem; padding: 2px 6px;">Save 60%</span>
+          </div>
+          
+          <div class="pricing-header">
+            <h3 class="pricing-plan-name">ISTE Member</h3>
+            <div class="pricing-price-box">
+              <span class="price-currency">₹</span>
+              <span class="price-num">199</span>
+              <span class="price-strike">₹499</span>
+            </div>
+            <span class="spec-label" style="margin-top: 4px; display: inline-block;">*Requires valid ISTE ID</span>
+          </div>
+          
+          <ul class="pricing-features-list">
+            <li><i class="fa-solid fa-square-check"></i> 7 Core Hacking Modules & Labs</li>
+            <li><i class="fa-solid fa-square-check"></i> Free Zero-to-Hero Linux Lab</li>
+            <li><i class="fa-solid fa-square-check"></i> 7 Verifiable Digital Badges</li>
+            <li><i class="fa-solid fa-square-check"></i> Lifetime Custom Hacking Sandboxes</li>
+            <li><i class="fa-solid fa-square-check"></i> Digital Certificate of Achievement</li>
+          </ul>
+          
+          <a href="#register" class="cyber-btn btn-cyan pricing-action-btn" data-type="iste">
+            Claim Member Access <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+        
+        <!-- Non-ISTE Members -->
+        <div class="pricing-card glass-panel glow-card-wrap cyber-purple-glow">
+          <div class="pricing-badge-row">
+            <span class="cyber-badge badge-purple"><i class="fa-solid fa-globe"></i> Open Admission</span>
+            <span class="cyber-badge badge-pink" style="font-size: 0.6rem; padding: 2px 6px; background: rgba(255, 0, 127, 0.05);">Save 57%</span>
+          </div>
+          
+          <div class="pricing-header">
+            <h3 class="pricing-plan-name">Non-ISTE Member</h3>
+            <div class="pricing-price-box">
+              <span class="price-currency">₹</span>
+              <span class="price-num">299</span>
+              <span class="price-strike">₹699</span>
+            </div>
+            <span class="spec-label" style="margin-top: 4px; display: inline-block;">*Open to all colleges</span>
+          </div>
+          
+          <ul class="pricing-features-list">
+            <li><i class="fa-solid fa-square-check"></i> 7 Core Hacking Modules & Labs</li>
+            <li><i class="fa-solid fa-square-check"></i> Free Zero-to-Hero Linux Lab</li>
+            <li><i class="fa-solid fa-square-check"></i> 7 Verifiable Digital Badges</li>
+            <li><i class="fa-solid fa-square-check"></i> Lifetime Custom Hacking Sandboxes</li>
+            <li><i class="fa-solid fa-square-check"></i> Digital Certificate of Achievement</li>
+          </ul>
+          
+          <a href="#register" class="cyber-btn btn-outline pricing-action-btn" style="width: 100%;" data-type="non-iste">
+            Buy Standard Ticket <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       9. FAQ SECTION
+       ========================================== -->
+  <section class="section reveal-on-scroll" id="faq">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-subtitle">Knowledge Base</div>
+        <h2 class="section-title gradient-text-cyan-purple">Frequently Asked Questions</h2>
+        <p class="section-desc">Clear answers to essential technical, logistics, and credentials queries.</p>
+      </div>
+      
+      <div class="faq-container">
+        <!-- FAQ 1 -->
+        <div class="faq-item glass-panel">
+          <button class="faq-trigger" aria-expanded="false">
+            <span class="faq-question">What are the prerequisites for this course?</span>
+            <span class="faq-chevron"><i class="fa-solid fa-chevron-down"></i></span>
+          </button>
+          <div class="faq-content">
+            <div class="faq-content-inner">
+              None! The program is explicitly optimized for absolute newcomers. We run a dedicated **Linux Basics Foundation Lab** in Module 2 to ensure everyone gets operating systems configured and masters basic command line navigation from scratch.
+            </div>
+          </div>
+        </div>
+        
+        <!-- FAQ 2 -->
+        <div class="faq-item glass-panel">
+          <button class="faq-trigger" aria-expanded="false">
+            <span class="faq-question">Do I need a high-performance laptop?</span>
+            <span class="faq-chevron"><i class="fa-solid fa-chevron-down"></i></span>
+          </button>
+          <div class="faq-content">
+            <div class="faq-content-inner">
+              Any basic dual-core laptop running Windows, macOS, or Linux with 4GB/8GB of RAM is perfectly sufficient. We will show you how to leverage lightweight testing setups and access our secure browser-based hacking sandboxes.
+            </div>
+          </div>
+        </div>
+        
+        <!-- FAQ 3 -->
+        <div class="faq-item glass-panel">
+          <button class="faq-trigger" aria-expanded="false">
+            <span class="faq-question">How do the verifiable badges and credentials work?</span>
+            <span class="faq-chevron"><i class="fa-solid fa-chevron-down"></i></span>
+          </button>
+          <div class="faq-content">
+            <div class="faq-content-inner">
+              Each module of the 7-module curriculum has an associated deliverable. Submitting it unlocks a dynamic digital badge (e.g. *Threat Aware*, *Network Scout*, *Recon Specialist*). Completing all modules awards the co-signed **Digital Certificate of Achievement** from both ISTE Student Chapter and Offenso Hackers Academy, verifiable via secure digital ID.
+            </div>
+          </div>
+        </div>
+        
+        <!-- FAQ 4 -->
+        <div class="faq-item glass-panel">
+          <button class="faq-trigger" aria-expanded="false">
+            <span class="faq-question">How do I access the hacking labs and submit deliverables?</span>
+            <span class="faq-chevron"><i class="fa-solid fa-chevron-down"></i></span>
+          </button>
+          <div class="faq-content">
+            <div class="faq-content-inner">
+              All live interactive sandboxes, command cheat sheets, script templates, and PCAP file links will be provided via the dedicated **Mentron platform study networks** and the ISTE x Offenso Discord hub. You can compile your reports and submit them right through your Mentron dashboard.
+            </div>
+          </div>
+        </div>
+        
+        <!-- FAQ 5 -->
+        <div class="faq-item glass-panel">
+          <button class="faq-trigger" aria-expanded="false">
+            <span class="faq-question">How does verification work for the ISTE member pricing?</span>
+            <span class="faq-chevron"><i class="fa-solid fa-chevron-down"></i></span>
+          </button>
+          <div class="faq-content">
+            <div class="faq-content-inner">
+              When registering under the ISTE Member plan, simply input your official ISTE membership registration ID in the secure sign-up form. Our logistics team will cross-reference this against student records during onboarding.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       10. REGISTRATION & CONTACT SECTION
+       ========================================== -->
+  <section class="section reveal-on-scroll" id="register">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-subtitle">Secure Access</div>
+        <h2 class="section-title gradient-text-cyan-purple">Reserve Your Terminal</h2>
+        <p class="section-desc">Submit your verification data below to lock in your workspace and secure your access credential.</p>
+      </div>
+      
+      <div class="contact-grid">
+        <!-- Form Panel -->
+        <div class="registration-card glass-panel glow-card-wrap cyber-cyan-glow">
+          <form class="reg-form" id="workshop-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="full-name">Full Name</label>
+                <input type="text" id="full-name" class="form-input" placeholder="e.g. Alex Mercer" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="email-address">Email Address</label>
+                <input type="email" id="email-address" class="form-input" placeholder="e.g. alex@terminal.com" required>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="phone-number">Phone Number</label>
+                <input type="tel" id="phone-number" class="form-input" placeholder="e.g. +91 98765 43210" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="admission-type">Admission Type</label>
+                <select id="admission-type" class="form-select" required>
+                  <option value="" disabled selected>Select admission type</option>
+                  <option value="iste">ISTE Member - ₹199</option>
+                  <option value="non-iste">Non-ISTE Member - ₹299</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-row" id="iste-row" style="display: none;">
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label" for="iste-id">ISTE Membership ID</label>
+                <input type="text" id="iste-id" class="form-input" placeholder="e.g. ISTE-ST-2026-XXXX">
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="college-name">College / University</label>
+                <input type="text" id="college-name" class="form-input" placeholder="e.g. Sree Chitra Thirunal College of Engineering" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="transaction-id">UPI Transaction Ref ID</label>
+                <input type="text" id="transaction-id" class="form-input" placeholder="e.g. UPI: 615243..." required>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
+              <div class="cyber-badge badge-cyan" style="font-size: 0.7rem; width: 100%; justify-content: center; gap: 10px; padding: 12px; border-radius: 8px;">
+                <i class="fa-solid fa-qrcode"></i> Scan UPI ID: <strong>iste-offenso@upi</strong> or scan QR in dashboard to pay.
+              </div>
+            </div>
+            
+            <button type="submit" class="cyber-btn btn-cyan" style="width: 100%; margin-top: 10px;">
+              Initialize Registration <i class="fa-solid fa-network-wired"></i>
+            </button>
+          </form>
+        </div>
+        
+        <!-- Details Panel -->
+        <div class="contact-info-panel">
+          <!-- Venue Location & Map -->
+          <div class="cyber-map-wrap" style="height: 100%; min-height: 350px; position: relative;">
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3946.0664684949216!2d76.97931327574291!3d8.493522191547844!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b05b152d194c7ab%3A0x6b4ef84c7e8e50b!2sSree%20Chitra%20Thirunal%20College%20of%20Engineering%20(SCTCE)!5e0!3m2!1sen!2sin!4v1717424000000!5m2!1sen!2sin" 
+              width="100%" 
+              height="100%" 
+              style="border:0; filter: grayscale(1) invert(0.95) contrast(1.2); opacity: 0.8;" 
+              allowfullscreen="" 
+              loading="lazy" 
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+            <div class="glass-panel" style="position: absolute; bottom: 16px; left: 16px; right: 16px; padding: 14px; background: rgba(3, 5, 12, 0.95); border: 1px solid var(--border-cyan); border-radius: 10px; z-index: 5; display: flex; align-items: center; gap: 12px;">
+              <div class="contact-detail-icon" style="flex-shrink: 0; background: var(--neon-cyan-dim); border: 1px solid var(--border-cyan); color: var(--neon-cyan); margin: 0; width: 36px; height: 36px; font-size: 1rem; border-radius: 6px;">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <h4 style="font-family: var(--font-tech); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--neon-cyan);">Event Venue</h4>
+                <p style="font-size: 0.8rem; color: var(--text-main); font-weight: 600; line-height: 1.3;">Sree Chitra Thirunal College of Engineering</p>
+                <p style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.2;">Pappanamcode, Thiruvananthapuram, Kerala</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       FOOTER
+       ========================================== -->
+  <footer class="cyber-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand-box">
+          <a href="#" class="nav-brand">
+            <div class="nav-logo-wrap" style="width: auto; padding: 4px 10px; height: auto;">
+              <img src="https://offensoacademy.com/wp-content/uploads/2023/04/Offenso-Logo-White.png" alt="Offenso Academy Logo" style="height: 22px; display: block; object-fit: contain;">
+            </div>
+            <div class="brand-text">
+              <span style="font-size: 1.1rem; color: #fff;">ISTE SCTCE</span>
+              <span class="brand-subtext">× OFFENSO ACADEMY</span>
+            </div>
+          </a>
+          <p class="footer-brand-desc">
+            Equipping Sree Chitra Thirunal College of Engineering students with elite defensive and offensive cybersecurity abilities.
+          </p>
+          <div class="footer-social-row">
+            <a href="#" class="mentor-social-btn" aria-label="Discord"><i class="fa-brands fa-discord"></i></a>
+            <a href="#" class="mentor-social-btn" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="#" class="mentor-social-btn" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+            <a href="#" class="mentor-social-btn" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+          </div>
+        </div>
+        
+        <div class="footer-links-box">
+          <h4 class="footer-title">Navigation</h4>
+          <ul class="footer-links-list">
+            <li><a href="#hero">Terminal Home</a></li>
+            <li><a href="#about">About Collaboration</a></li>
+            <li><a href="#linux">Linux Lab basics</a></li>
+            <li><a href="#benefits">Workshop Benefits</a></li>
+            <li><a href="#curriculum">Syllabus Grid</a></li>
+            <li><a href="#register">Register Access</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-newsletter-box">
+          <h4 class="footer-title">Secure Bulletin</h4>
+          <p class="footer-newsletter-desc">Subscribe to get notifications about upcoming national CTFs and security campaigns.</p>
+          <form class="footer-newsletter-form" onsubmit="event.preventDefault(); alert('Subscribed to Cyber Bulletin.');">
+            <input type="email" class="footer-newsletter-input" placeholder="agent@security.net" required aria-label="Email for secure bulletin">
+            <button type="submit" class="footer-newsletter-btn" aria-label="Subscribe"><i class="fa-solid fa-paper-plane"></i></button>
+          </form>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <span class="footer-copyright">
+          &copy; 2026 ISTE Student Chapter SCTCE & Offenso Academy. Designed & Developed with 💜 by ISTE Tech Team.
+        </span>
+        <ul class="footer-legal-links">
+          <li><a href="#">Encryption Protocols</a></li>
+          <li><a href="#">Terms of Engagement</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="index.js"></script>
+</body>
+</html>

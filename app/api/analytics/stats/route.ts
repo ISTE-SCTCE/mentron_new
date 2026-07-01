@@ -25,8 +25,8 @@ export async function GET() {
 
     // ── Service-role client bypasses RLS for all queries ──
     const db = createSupabaseClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
+        process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ysllolnoyezfdllqocgv.supabase.co',
+        process.env.SUPABASE_SERVICE_ROLE_KEY || ''
     )
 
     const sevenDaysAgo = new Date()

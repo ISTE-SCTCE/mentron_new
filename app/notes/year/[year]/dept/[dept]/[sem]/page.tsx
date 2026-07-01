@@ -173,14 +173,11 @@ export default async function DeptSubjectsPage({
                                             {/* Note: Delete elective bundle could be added here, but maybe complex. 
                                                 Skipping edit/delete block for string-based multiple electives right now for safety. 
                                                 Actually, let's just render it. It's an advanced node. */}
-                                            <button 
+                                            <span 
                                                 className="text-xs text-red-400 font-bold glass px-3 py-1 rounded-xl"
-                                                onClick={async () => {
-                                                    'use client' // this won't work in server component, but we will accept minimal interactiveness for electives
-                                                }}
                                             >
                                                 Use Supabase dashboard to modify elective bundles.
-                                            </button>
+                                            </span>
                                         </div>
                                     )}
                                     <p className={`text-[10px] font-black tracking-widest uppercase ${style.accent} mb-3`}>Open Electives (choose one)</p>

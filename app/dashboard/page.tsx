@@ -60,8 +60,8 @@ export default async function DashboardPage() {
     if (displayRole === 'exec' || displayRole === 'core') {
         // Use service-role client to bypass RLS — ensures core members see real values
         const db = createServiceClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ysllolnoyezfdllqocgv.supabase.co',
+            process.env.SUPABASE_SERVICE_ROLE_KEY || ''
         )
 
         // Fetch Materials count for analytics

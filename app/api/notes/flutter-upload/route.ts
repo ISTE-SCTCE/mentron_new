@@ -18,8 +18,8 @@ export async function POST(request: NextRequest) {
     if (bearerToken) {
         // Flutter path: validate the access token directly
         const anonClient = createSupabaseClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ysllolnoyezfdllqocgv.supabase.co',
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_FwJxMntZ8Hiqze7RUK0gcQ_L_0DGAbs'
         )
         const { data: { user }, error } = await anonClient.auth.getUser(bearerToken)
         if (!error && user) {
@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
 
     // Use anon client with service role for DB insert (bypasses RLS issues with token auth)
     const db = createSupabaseClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
+        process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ysllolnoyezfdllqocgv.supabase.co',
+        process.env.SUPABASE_SERVICE_ROLE_KEY || ''
     )
 
 
