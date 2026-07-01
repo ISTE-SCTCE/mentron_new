@@ -98,7 +98,7 @@ export default async function DeptSubjectsPage({
         .from('note_folders')
         .select('id, name')
         .eq('department', deptKey)
-        .eq('year', yearNum)
+        .eq('year', yearNum.toString())
         .eq('semester', semKey)
         .eq('subject', 'ROOT')
         .order('created_at', { ascending: true })
