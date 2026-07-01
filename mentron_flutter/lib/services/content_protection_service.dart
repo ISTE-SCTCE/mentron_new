@@ -11,7 +11,7 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:flutter_windowmanager/flutter_windowmanager.dart';
+import 'package:flutter_windowmanager_plus/flutter_windowmanager_plus.dart';
 import 'package:logger/logger.dart';
 
 import '../utils/constants.dart';
@@ -36,7 +36,7 @@ class ContentProtectionService {
     if (_isEnabled) return;
     try {
       if (Platform.isAndroid) {
-        await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+        await FlutterWindowManagerPlus.addFlags(FlutterWindowManagerPlus.FLAG_SECURE);
       } else if (Platform.isIOS) {
         await _channel.invokeMethod('enableProtection');
       }
@@ -52,7 +52,7 @@ class ContentProtectionService {
     if (!_isEnabled) return;
     try {
       if (Platform.isAndroid) {
-        await FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
+        await FlutterWindowManagerPlus.clearFlags(FlutterWindowManagerPlus.FLAG_SECURE);
       } else if (Platform.isIOS) {
         await _channel.invokeMethod('disableProtection');
       }
