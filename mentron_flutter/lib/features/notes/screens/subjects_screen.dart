@@ -65,16 +65,16 @@ class SubjectsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       child: GlassContainer(
                         padding: const EdgeInsets.all(16),
-                        border: Border.all(color: color.withValues(alpha: 0.15)),
+                        border: Border.all(color: color.withOpacity(0.15)),
                         child: Row(children: [
                           Container(
                             width: 32, height: 32,
-                            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(9)),
+                            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(9)),
                             child: Center(child: Icon(Icons.book_rounded, color: color, size: 16)),
                           ),
                           const SizedBox(width: 12),
                           Expanded(child: Text('Electives', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.bold))),
-                          Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.4), size: 18),
+                          Icon(Icons.chevron_right_rounded, color: color.withOpacity(0.4), size: 18),
                         ]),
                       ),
                     ),
@@ -97,16 +97,16 @@ class SubjectsScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     child: GlassContainer(
                       padding: const EdgeInsets.all(16),
-                      border: Border.all(color: color.withValues(alpha: 0.15)),
+                      border: Border.all(color: color.withOpacity(0.15)),
                       child: Row(children: [
                         Container(
                           width: 32, height: 32,
-                          decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(9)),
+                          decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(9)),
                           child: Center(child: Text('${i + 1}', style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w900))),
                         ),
                         const SizedBox(width: 12),
                         Expanded(child: Text(subject, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, height: 1.3))),
-                        Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.4), size: 18),
+                        Icon(Icons.chevron_right_rounded, color: color.withOpacity(0.4), size: 18),
                       ]),
                     ),
                   ).animate().fadeIn(delay: (i * 30).ms).slideX(begin: -0.03),
@@ -166,7 +166,7 @@ class SubjectsScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                     child: GlassContainer(
                       padding: const EdgeInsets.all(16),
-                      border: Border.all(color: color.withValues(alpha: 0.15)),
+                      border: Border.all(color: color.withOpacity(0.15)),
                       child: Row(
                         children: [
                           Icon(Icons.book_outlined, color: color, size: 18),
@@ -177,7 +177,7 @@ class SubjectsScreen extends StatelessWidget {
                               style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                           ),
-                          Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.5), size: 16),
+                          Icon(Icons.chevron_right_rounded, color: color.withOpacity(0.5), size: 16),
                         ],
                       ),
                     ),
@@ -191,3 +191,4 @@ class SubjectsScreen extends StatelessWidget {
     );
   }
 }
+

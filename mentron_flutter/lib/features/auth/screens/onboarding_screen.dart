@@ -116,9 +116,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             height: 140,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: item.color.withValues(alpha: 0.1),
+                              color: item.color.withOpacity(0.1),
                               border: Border.all(
-                                color: item.color.withValues(alpha: 0.2),
+                                color: item.color.withOpacity(0.2),
                                 width: 2,
                               ),
                             ),
@@ -150,7 +150,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 Text(
                                   item.description,
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppTheme.textMain.withValues(alpha: 0.8),
+                                    color: AppTheme.textMain.withOpacity(0.8),
                                     height: 1.6,
                                   ),
                                   textAlign: TextAlign.center,
@@ -184,7 +184,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           decoration: BoxDecoration(
                             color: _currentPage == index
                                 ? _pages[index].color
-                                : AppTheme.textLight.withValues(alpha: 0.5),
+                                : AppTheme.textLight.withOpacity(0.5),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -265,3 +265,4 @@ class OnboardingData {
     required this.color,
   });
 }
+

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/services/supabase_service.dart';
@@ -14,9 +16,18 @@ import 'core/services/version_service.dart';
 import 'features/force_update/screens/force_update_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'features/auth/screens/onboarding_screen.dart';
+import 'services/auth_security_service.dart';
+import 'services/api_security_service.dart';
+import 'services/offline_storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // ── Phase 0: Load .env (falls back gracefully if file missing) ────────────
+  await dotenv.load(fileName: '.env', mergeWith: {}).catchError((_) {});
+
+  // ── Phase 0: Hive ─────────────────────────────────────────────────────────
+  await Hive.initFlutter();
 
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
@@ -31,11 +42,21 @@ void main() async {
     systemNavigationBarIconBrightness: Brightness.dark,
   ));
 
+  // ── Phase 2: API Security (Dio + cert pinning) ────────────────────────────
+  ApiSecurityService().initialize();
+
+  // ── Phase 1: Supabase + Auth Security ─────────────────────────────────────
   final supabaseService = SupabaseService();
   await supabaseService.initialize(
-    url: 'https://ysllolnoyezfdllqocgv.supabase.co',
-    anonKey: 'sb_publishable_FwJxMntZ8Hiqze7RUK0gcQ_L_0DGAbs',
+    url: dotenv.maybeGet('SUPABASE_URL') ??
+        'https://ysllolnoyezfdllqocgv.supabase.co',
+    anonKey: dotenv.maybeGet('SUPABASE_ANON_KEY') ??
+        'sb_publishable_FwJxMntZ8Hiqze7RUK0gcQ_L_0DGAbs',
   );
+  AuthSecurityService().initialize();
+
+  // ── Phase 4: Offline Storage ──────────────────────────────────────────────
+  await OfflineStorageService().initializeStorage();
 
   runApp(
     MultiProvider(

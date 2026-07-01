@@ -156,9 +156,9 @@ class _DashboardCarouselState extends State<DashboardCarousel> {
         child: Container(
           height: 180,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.03),
+            color: Colors.white.withOpacity(0.03),
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+            border: Border.all(color: Colors.white.withOpacity(0.05)),
           ),
           child: const Center(
             child: BouncingBallsLoader(),
@@ -199,8 +199,8 @@ class _DashboardCarouselState extends State<DashboardCarousel> {
                       gradient: LinearGradient(
                         colors: isEvent
                             ? [
-                                cardColor.withValues(alpha: 0.8),
-                                cardColor.darken(0.3).withValues(alpha: 0.9),
+                                cardColor.withOpacity(0.8),
+                                cardColor.darken(0.3).withOpacity(0.9),
                               ]
                             : [
                                 const Color(0xFF6C63FF),
@@ -211,7 +211,7 @@ class _DashboardCarouselState extends State<DashboardCarousel> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: cardColor.withValues(alpha: 0.25),
+                          color: cardColor.withOpacity(0.25),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
@@ -241,9 +241,9 @@ class _DashboardCarouselState extends State<DashboardCarousel> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.15),
+                              color: Colors.white.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+                              border: Border.all(color: Colors.white.withOpacity(0.25)),
                             ),
                             child: Text(
                               item['status'],
@@ -274,7 +274,7 @@ class _DashboardCarouselState extends State<DashboardCarousel> {
                                     child: Text(
                                       isEvent ? 'ISTE EVENT' : 'TRENDING SUBJECT',
                                       style: TextStyle(
-                                        color: Colors.white.withValues(alpha: 0.6),
+                                        color: Colors.white.withOpacity(0.6),
                                         fontSize: 9,
                                         fontWeight: FontWeight.w900,
                                         letterSpacing: 2,
@@ -301,7 +301,7 @@ class _DashboardCarouselState extends State<DashboardCarousel> {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.8),
+                                  color: Colors.white.withOpacity(0.8),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                   height: 1.4,
@@ -344,11 +344,12 @@ extension on Color {
   Color darken(double amount) {
     assert(amount >= 0 && amount <= 1);
     final f = 1 - amount;
-    return Color.from(
-      alpha: a,
-      red: r * f,
-      green: g * f,
-      blue: b * f,
+    return Color.fromARGB(
+      alpha,
+      (red * f).round(),
+      (green * f).round(),
+      (blue * f).round(),
     );
   }
 }
+

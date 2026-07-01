@@ -222,7 +222,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
                   fontSize: 12,
                 ),
                 todayDecoration: BoxDecoration(
-                  color: AppTheme.accentPrimary.withValues(alpha: 0.3),
+                  color: AppTheme.accentPrimary.withOpacity(0.3),
                   shape: BoxShape.circle,
                   border: Border.all(color: AppTheme.accentPrimary),
                 ),
@@ -231,7 +231,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.accentSecondary.withValues(alpha: 0.5),
+                      color: AppTheme.accentSecondary.withOpacity(0.5),
                       blurRadius: 10,
                       spreadRadius: 2,
                     ),
@@ -252,10 +252,10 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
                     return Container(
                       margin: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Colors.orangeAccent.withValues(alpha: 0.2),
+                        color: Colors.orangeAccent.withOpacity(0.2),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.orangeAccent.withValues(alpha: 0.6),
+                          color: Colors.orangeAccent.withOpacity(0.6),
                         ),
                       ),
                       child: Center(
@@ -296,7 +296,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
               child: GlassContainer(
                 padding: const EdgeInsets.all(16),
                 border: Border.all(
-                  color: Colors.orangeAccent.withValues(alpha: 0.3),
+                  color: Colors.orangeAccent.withOpacity(0.3),
                 ),
                 child: Row(
                   children: [
@@ -355,7 +355,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
           GlassContainer(
             padding: const EdgeInsets.all(20),
             border: Border.all(
-              color: AppTheme.accentSecondary.withValues(alpha: 0.3),
+              color: AppTheme.accentSecondary.withOpacity(0.3),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -411,10 +411,10 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
+                    color: Colors.white.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+                      color: AppTheme.accentPrimary.withOpacity(0.12),
                     ),
                   ),
                   child: DropdownButtonHideUnderline(
@@ -475,7 +475,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
             child: GlassContainer(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
               border: Border.all(
-                color: AppTheme.accentSecondary.withValues(alpha: 0.2),
+                color: AppTheme.accentSecondary.withOpacity(0.2),
               ),
               child: Row(
                 children: [
@@ -512,7 +512,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
         color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+          color: AppTheme.accentPrimary.withOpacity(0.12),
         ),
       ),
       child: TextField(
@@ -526,7 +526,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
-            color: AppTheme.textMuted.withValues(alpha: 0.70),
+            color: AppTheme.textMuted.withOpacity(0.70),
             fontSize: 13,
           ),
           prefixIcon: Icon(icon, color: AppTheme.textMuted, size: 18),
@@ -542,3 +542,4 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
     );
   }
 }
+

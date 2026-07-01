@@ -320,7 +320,7 @@ class _EventListScreenState extends State<EventListScreen> {
                           onPressed: _showProposeSheet,
                           icon: Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(color: AppTheme.accentPrimary.withValues(alpha: 0.1), shape: BoxShape.circle),
+                            decoration: BoxDecoration(color: AppTheme.accentPrimary.withOpacity(0.1), shape: BoxShape.circle),
                             child: const Icon(Icons.add_rounded, color: AppTheme.accentPrimary),
                           ),
                         ),
@@ -352,7 +352,7 @@ class _EventListScreenState extends State<EventListScreen> {
             Row(children: [
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: AppTheme.accentPrimary.withValues(alpha: 0.15), shape: BoxShape.circle),
+                decoration: BoxDecoration(color: AppTheme.accentPrimary.withOpacity(0.15), shape: BoxShape.circle),
                 child: const Icon(Icons.event_rounded, color: AppTheme.accentPrimary, size: 24),
               ),
               const SizedBox(width: 16),
@@ -401,7 +401,7 @@ class _EventListScreenState extends State<EventListScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), shape: BoxShape.circle),
                   child: const Icon(Icons.person_rounded, color: AppTheme.textMuted, size: 14),
                 ),
                 const SizedBox(width: 8),
@@ -431,7 +431,7 @@ class _EventListScreenState extends State<EventListScreen> {
             // --- Bottom Navigation/Voting Section ---
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(30)),
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(30)),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -467,4 +467,5 @@ class _EventListScreenState extends State<EventListScreen> {
     ).animate().fadeIn().slideY(begin: 0.05);
   }
 }
+
 

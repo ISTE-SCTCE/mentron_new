@@ -33,7 +33,7 @@ class ByjuStatCard extends StatelessWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
+              color: color.withOpacity(0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -64,3 +64,4 @@ class ByjuStatCard extends StatelessWidget {
     );
   }
 }
+

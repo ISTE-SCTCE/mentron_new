@@ -159,7 +159,7 @@ class _SplashScreenState extends State<SplashScreen>
                 // Logo image with orb animation
                 AnimatedBuilder(
                   animation: _orbController,
-                  builder: (_, _) => Opacity(
+                  builder: (context, child) => Opacity(
                     opacity: _orbOpacity.value,
                     child: Transform.scale(
                       scale: _orbScale.value,
@@ -201,7 +201,7 @@ class _GlowBlob extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: RadialGradient(
-          colors: [color.withValues(alpha: opacity), Colors.transparent],
+          colors: [color.withOpacity(opacity), Colors.transparent],
           stops: const [0.0, 1.0],
         ),
       ),
@@ -241,7 +241,7 @@ class _PulsingLogoState extends State<_PulsingLogo> with SingleTickerProviderSta
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _pulse,
-      builder: (_, _) => Transform.scale(
+      builder: (context, child) => Transform.scale(
         scale: _pulse.value,
         child: Image.asset(
           'assets/images/mentron_logo.png',
@@ -285,11 +285,11 @@ class _PulsingBarState extends State<_PulsingBar>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _progress,
-      builder: (_, _) => Container(
+      builder: (context, child) => Container(
         width: 120,
         height: 2,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.08),
+          color: Colors.white.withOpacity(0.08),
           borderRadius: BorderRadius.circular(2),
         ),
         child: FractionallySizedBox(
@@ -308,3 +308,4 @@ class _PulsingBarState extends State<_PulsingBar>
     );
   }
 }
+

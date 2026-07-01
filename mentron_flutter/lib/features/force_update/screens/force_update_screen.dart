@@ -85,7 +85,7 @@ class ForceUpdateScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         elevation: 8,
-                        shadowColor: AppTheme.accentPrimary.withValues(alpha: 0.4),
+                        shadowColor: AppTheme.accentPrimary.withOpacity(0.4),
                       ),
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
@@ -113,3 +113,4 @@ class ForceUpdateScreen extends StatelessWidget {
     );
   }
 }
+

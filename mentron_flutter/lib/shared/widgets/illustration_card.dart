@@ -33,7 +33,7 @@ class IllustrationCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: (gradient as LinearGradient).colors.last.withValues(alpha: 0.3),
+              color: (gradient as LinearGradient).colors.last.withOpacity(0.3),
               blurRadius: 24,
               offset: const Offset(0, 12),
             ),
@@ -49,7 +49,7 @@ class IllustrationCard extends StatelessWidget {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.12),
+                  color: Colors.white.withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -61,7 +61,7 @@ class IllustrationCard extends StatelessWidget {
                 width: 70,
                 height: 70,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.08),
+                  color: Colors.white.withOpacity(0.08),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -91,7 +91,7 @@ class IllustrationCard extends StatelessWidget {
                         Text(
                           subtitle,
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.82),
+                            color: Colors.white.withOpacity(0.82),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                             height: 1.4,
@@ -145,13 +145,12 @@ class IllustrationCard extends StatelessWidget {
                                   fit: BoxFit.contain,
                                   errorBuilder: (context, e, s) =>
                                       _FallbackIllustration(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.3,
+                                        color: Colors.white.withOpacity(0.3,
                                         ),
                                       ),
                                 )
                               : _FallbackIllustration(
-                                  color: Colors.white.withValues(alpha: 0.3),
+                                  color: Colors.white.withOpacity(0.3),
                                 )),
                     ),
                   ),
@@ -179,10 +178,11 @@ class _FallbackIllustration extends StatelessWidget {
       child: Center(
         child: Icon(
           Icons.school_rounded,
-          color: Colors.white.withValues(alpha: 0.6),
+          color: Colors.white.withOpacity(0.6),
           size: 48,
         ),
       ),
     );
   }
 }
+

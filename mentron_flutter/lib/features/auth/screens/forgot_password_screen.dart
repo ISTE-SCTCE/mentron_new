@@ -99,17 +99,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: Colors.white.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                  border: Border.all(color: Colors.white.withOpacity(0.1)),
                 ),
                 child: TextField(
                   controller: _emailController,
                   style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'Email Address',
-                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
-                    prefixIcon: Icon(Icons.alternate_email_rounded, color: Colors.white.withValues(alpha: 0.5), size: 20),
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+                    prefixIcon: Icon(Icons.alternate_email_rounded, color: Colors.white.withOpacity(0.5), size: 20),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.all(16),
                   ),
@@ -159,3 +159,4 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     ).animate().fadeIn().scale();
   }
 }
+

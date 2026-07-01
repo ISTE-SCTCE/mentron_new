@@ -94,7 +94,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
         decoration: BoxDecoration(
           color: AppTheme.surfaceColor,
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          border: Border.all(color: Colors.white.withOpacity(0.1)),
         ),
         child: Padding(
           padding: const EdgeInsets.all(28),
@@ -105,7 +105,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
               Container(
                 width: 40, height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -131,9 +131,9 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentPrimary.withValues(alpha: 0.1),
+                  color: AppTheme.accentPrimary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppTheme.accentPrimary.withValues(alpha: 0.3)),
+                  border: Border.all(color: AppTheme.accentPrimary.withOpacity(0.3)),
                 ),
                 child: Text(role.toUpperCase(), style: const TextStyle(color: AppTheme.accentPrimary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
               ),
@@ -161,7 +161,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
         Container(
           width: 40, height: 40,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: Colors.white.withOpacity(0.05),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, size: 18, color: AppTheme.accentSecondary),
@@ -198,9 +198,9 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
-        color: c.withValues(alpha: 0.08),
+        color: c.withOpacity(0.08),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: c.withValues(alpha: 0.3)),
+        border: Border.all(color: c.withOpacity(0.3)),
       ),
       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         Icon(icon, color: c, size: 18),
@@ -260,28 +260,28 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       child: GlassContainer(
         padding: const EdgeInsets.all(20),
-        border: Border.all(color: statusColor.withValues(alpha: 0.2)),
+        border: Border.all(color: statusColor.withOpacity(0.2)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // Applicant header - tappable to reveal full profile
           GestureDetector(
             onTap: () => _showApplicantProfile(app),
             child: Row(children: [
               CircleAvatar(
-                backgroundColor: AppTheme.accentSecondary.withValues(alpha: 0.15),
+                backgroundColor: AppTheme.accentSecondary.withOpacity(0.15),
                 child: Text(initials, style: const TextStyle(color: AppTheme.accentSecondary, fontWeight: FontWeight.bold)),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(name, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
-                  Text(dept, style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 11)),
+                  Text(dept, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 11)),
                 ]),
               ),
               // Tap hint
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: Colors.white.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(children: [
@@ -297,7 +297,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: statusColor.withValues(alpha: 0.1),
+              color: statusColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(status.toUpperCase(), style: TextStyle(color: statusColor, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
@@ -336,9 +336,9 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
+          color: color.withOpacity(0.08),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
+          border: Border.all(color: color.withOpacity(0.3)),
         ),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Icon(icon, color: color, size: 15),
@@ -361,3 +361,4 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
     );
   }
 }
+

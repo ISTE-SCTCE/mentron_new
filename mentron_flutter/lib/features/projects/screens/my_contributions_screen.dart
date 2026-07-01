@@ -94,10 +94,10 @@ class _MyContributionsScreenState extends State<MyContributionsScreen> {
   }
 
   Color _getCellColor(int count) {
-    if (count == 0) return Colors.white.withValues(alpha: 0.05);
-    if (count == 1) return AppTheme.accentPrimary.withValues(alpha: 0.25);
-    if (count == 2) return AppTheme.accentPrimary.withValues(alpha: 0.50);
-    if (count == 3) return AppTheme.accentPrimary.withValues(alpha: 0.75);
+    if (count == 0) return Colors.white.withOpacity(0.05);
+    if (count == 1) return AppTheme.accentPrimary.withOpacity(0.25);
+    if (count == 2) return AppTheme.accentPrimary.withOpacity(0.50);
+    if (count == 3) return AppTheme.accentPrimary.withOpacity(0.75);
     return AppTheme.accentPrimary;
   }
 
@@ -164,7 +164,7 @@ class _MyContributionsScreenState extends State<MyContributionsScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentPrimary.withValues(alpha: 0.1),
+                  color: AppTheme.accentPrimary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -341,9 +341,9 @@ class _MyContributionsScreenState extends State<MyContributionsScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: AppTheme.accentPrimary.withValues(alpha: 0.1),
+                              color: AppTheme.accentPrimary.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: AppTheme.accentPrimary.withValues(alpha: 0.2)),
+                              border: Border.all(color: AppTheme.accentPrimary.withOpacity(0.2)),
                             ),
                             child: Text(
                               category.toString().toUpperCase(),
@@ -393,7 +393,7 @@ class _MyContributionsScreenState extends State<MyContributionsScreen> {
                         children: [
                           CircleAvatar(
                             radius: 8,
-                            backgroundColor: Colors.green.withValues(alpha: 0.15),
+                            backgroundColor: Colors.green.withOpacity(0.15),
                             child: Text(
                               leadName.isNotEmpty ? leadName[0].toUpperCase() : 'A',
                               style: const TextStyle(color: Colors.greenAccent, fontSize: 8, fontWeight: FontWeight.bold),
@@ -421,3 +421,4 @@ class _MyContributionsScreenState extends State<MyContributionsScreen> {
     return months[month - 1];
   }
 }
+

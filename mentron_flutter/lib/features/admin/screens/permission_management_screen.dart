@@ -160,17 +160,17 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: Colors.white.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
       child: TextField(
         onChanged: _filterMembers,
         style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
         decoration: InputDecoration(
-          icon: Icon(Icons.search, color: Colors.white.withValues(alpha: 0.3), size: 20),
+          icon: Icon(Icons.search, color: Colors.white.withOpacity(0.3), size: 20),
           hintText: 'Search Execom / Core...',
-          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+          hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
           border: InputBorder.none,
         ),
       ),
@@ -196,7 +196,7 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
                 onTap: () => setState(() => _selectedMember = isSelected ? null : member),
                 child: GlassContainer(
                   padding: const EdgeInsets.all(16),
-                  border: isSelected ? Border.all(color: Colors.blue.withValues(alpha: 0.5)) : null,
+                  border: isSelected ? Border.all(color: Colors.blue.withOpacity(0.5)) : null,
                   child: Row(
                     children: [
                       CircleAvatar(
@@ -238,9 +238,9 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
       margin: const EdgeInsets.only(top: 8, left: 8, right: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.3),
+        color: Colors.black.withOpacity(0.3),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: Column(
         children: [
@@ -270,3 +270,4 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
     );
   }
 }
+

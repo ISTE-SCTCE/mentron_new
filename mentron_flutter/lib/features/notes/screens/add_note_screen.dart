@@ -181,7 +181,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
   Future<void> _pickFile() async {
     final bool isVideoType = _selectedSubject.startsWith('Video - ');
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: isVideoType
           ? ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'mp4', 'mov', 'avi', 'mkv']
@@ -507,10 +507,10 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                             Container(
                               height: 52,
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.05),
+                                color: Colors.white.withOpacity(0.05),
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.1),
+                                  color: Colors.white.withOpacity(0.1),
                                 ),
                               ),
                               child: const Center(
@@ -528,10 +528,10 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                             Container(
                               padding: const EdgeInsets.all(14),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.03),
+                                color: Colors.white.withOpacity(0.03),
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.06),
+                                  color: Colors.white.withOpacity(0.06),
                                 ),
                               ),
                               child: Row(
@@ -545,8 +545,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                                   Text(
                                     'No folders created for this subject yet',
                                     style: TextStyle(
-                                      color: AppTheme.textMuted.withValues(
-                                        alpha: 0.6,
+                                      color: AppTheme.textMuted.withOpacity(0.6,
                                       ),
                                       fontSize: 12,
                                     ),
@@ -673,7 +672,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+          color: AppTheme.accentPrimary.withOpacity(0.12),
         ),
       ),
       child: TextField(
@@ -688,7 +687,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
-            color: AppTheme.textMuted.withValues(alpha: 0.70),
+            color: AppTheme.textMuted.withOpacity(0.70),
           ),
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
@@ -712,7 +711,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+          color: AppTheme.accentPrimary.withOpacity(0.12),
         ),
       ),
       child: DropdownButtonHideUnderline(
@@ -724,7 +723,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
           hint: Text(
             'Select',
             style: TextStyle(
-              color: AppTheme.textMuted.withValues(alpha: 0.70),
+              color: AppTheme.textMuted.withOpacity(0.70),
               fontSize: 14,
             ),
           ),
@@ -765,7 +764,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+          color: AppTheme.accentPrimary.withOpacity(0.12),
         ),
       ),
       child: DropdownButtonHideUnderline(
@@ -803,12 +802,12 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: _selectedFile != null
                 ? AppTheme.accentSecondary
-                : AppTheme.accentPrimary.withValues(alpha: 0.12),
+                : AppTheme.accentPrimary.withOpacity(0.12),
           ),
         ),
         child: Column(
@@ -842,3 +841,4 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     );
   }
 }
+

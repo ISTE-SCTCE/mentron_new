@@ -34,8 +34,8 @@ class ExecLiquidBackground extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFF7B2FFF).withValues(alpha: 0.25),
-                      const Color(0xFF4A0099).withValues(alpha: 0.12),
+                      const Color(0xFF7B2FFF).withOpacity(0.25),
+                      const Color(0xFF4A0099).withOpacity(0.12),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.45, 1.0],
@@ -54,8 +54,8 @@ class ExecLiquidBackground extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFF00C6FF).withValues(alpha: 0.18),
-                      const Color(0xFF0066BB).withValues(alpha: 0.08),
+                      const Color(0xFF00C6FF).withOpacity(0.18),
+                      const Color(0xFF0066BB).withOpacity(0.08),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.4, 1.0],
@@ -74,17 +74,18 @@ class ExecLiquidBackground extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFF1A0066).withValues(alpha: 0.15),
+                      const Color(0xFF1A0066).withOpacity(0.15),
                       Colors.transparent,
                     ],
                   ),
                 ),
               ),
             ),
-            ?child,
+            if (child != null) child!,
           ],
         ),
       ),
     );
   }
 }
+

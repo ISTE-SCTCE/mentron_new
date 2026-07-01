@@ -106,7 +106,7 @@ class _GroupScreenState extends State<GroupScreen> {
                     margin: const EdgeInsets.only(bottom: 24),
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -220,7 +220,7 @@ class _GroupScreenState extends State<GroupScreen> {
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(color: AppTheme.accentPrimary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(color: AppTheme.accentPrimary.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
               child: Text(dept, style: const TextStyle(color: AppTheme.accentPrimary, fontSize: 10, fontWeight: FontWeight.w900)),
             ),
             const SizedBox(width: 8),
@@ -260,13 +260,13 @@ class _GroupScreenState extends State<GroupScreen> {
               borderRadius: BorderRadius.circular(16),
               child: GlassContainer(
                 padding: const EdgeInsets.all(16),
-                border: Border.all(color: color.withValues(alpha: 0.3)),
+                border: Border.all(color: color.withOpacity(0.3)),
                 child: Row(
                   children: [
                     Container(
                       width: 42,
                       height: 42,
-                      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
                       child: Icon(isElective ? Icons.book_rounded : icon, color: color, size: 20),
                     ),
                     const SizedBox(width: 16),
@@ -276,7 +276,7 @@ class _GroupScreenState extends State<GroupScreen> {
                         style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 14),
                       ),
                     ),
-                    Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.5)),
+                    Icon(Icons.chevron_right_rounded, color: color.withOpacity(0.5)),
                   ],
                 ),
               ),
@@ -335,7 +335,7 @@ class _GroupScreenState extends State<GroupScreen> {
                     borderRadius: BorderRadius.circular(14),
                     child: GlassContainer(
                       padding: const EdgeInsets.all(16),
-                      border: Border.all(color: color.withValues(alpha: 0.15)),
+                      border: Border.all(color: color.withOpacity(0.15)),
                       child: Row(
                         children: [
                           Icon(Icons.book_outlined, color: color, size: 18),
@@ -346,7 +346,7 @@ class _GroupScreenState extends State<GroupScreen> {
                               style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                           ),
-                          Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.5), size: 16),
+                          Icon(Icons.chevron_right_rounded, color: color.withOpacity(0.5), size: 16),
                         ],
                       ),
                     ),
@@ -370,11 +370,11 @@ class _GroupScreenState extends State<GroupScreen> {
       borderRadius: BorderRadius.circular(20),
       child: GlassContainer(
         padding: const EdgeInsets.all(18),
-        border: Border.all(color: y.color.withValues(alpha: 0.3)),
+        border: Border.all(color: y.color.withOpacity(0.3)),
         child: Row(children: [
           Container(
             width: 48, height: 48,
-            decoration: BoxDecoration(color: y.color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
+            decoration: BoxDecoration(color: y.color.withOpacity(0.1), borderRadius: BorderRadius.circular(14)),
             child: Center(child: Text(y.emoji, style: const TextStyle(fontSize: 22))),
           ),
           const SizedBox(width: 14),
@@ -382,7 +382,7 @@ class _GroupScreenState extends State<GroupScreen> {
             Text(y.label, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 15)),
             Text(y.sems, style: TextStyle(color: y.color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
           ])),
-          Icon(Icons.chevron_right_rounded, color: y.color.withValues(alpha: 0.5)),
+          Icon(Icons.chevron_right_rounded, color: y.color.withOpacity(0.5)),
         ]),
       ),
     ).animate().fadeIn(delay: (index * 60).ms).slideX(begin: -0.03);
@@ -397,3 +397,4 @@ class _YearCard {
   final Color color;
   const _YearCard({required this.year, required this.label, required this.sems, required this.emoji, required this.color});
 }
+

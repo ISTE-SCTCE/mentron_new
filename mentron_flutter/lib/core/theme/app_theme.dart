@@ -82,8 +82,8 @@ class AppTheme {
       scaffoldBackgroundColor: bgColor,
       primaryColor: accentPrimary,
       hintColor: accentSecondary,
-      splashColor: accentPrimary.withValues(alpha: 0.08),
-      highlightColor: accentPrimary.withValues(alpha: 0.05),
+      splashColor: accentPrimary.withOpacity(0.08),
+      highlightColor: accentPrimary.withOpacity(0.05),
       colorScheme: const ColorScheme.light(
         primary: accentPrimary,
         secondary: accentSecondary,
@@ -162,7 +162,7 @@ class AppTheme {
         filled: true,
         fillColor: const Color(0xFFF5F3FF),
         hintStyle: TextStyle(
-          color: textMuted.withValues(alpha: 0.72),
+          color: textMuted.withOpacity(0.72),
           fontSize: 14,
           fontFamily: GoogleFonts.inter().fontFamily,
         ),
@@ -238,7 +238,7 @@ class AppTheme {
         insetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       ),
       dividerTheme: DividerThemeData(
-        color: accentPrimary.withValues(alpha: 0.08),
+        color: accentPrimary.withOpacity(0.08),
         thickness: 1,
         space: 1,
       ),
@@ -295,3 +295,6 @@ class AppTheme {
     );
   }
 }
+
+
+

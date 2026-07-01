@@ -33,7 +33,7 @@ class GlassContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(borderRadius);
-    final shadowColor = AppTheme.accentPrimary.withValues(alpha: isNavElement ? 0.10 : 0.06);
+    final shadowColor = AppTheme.accentPrimary.withOpacity(isNavElement ? 0.10 : 0.06);
 
     final decoration = BoxDecoration(
       color: color ?? Colors.white,
@@ -70,8 +70,8 @@ class GlassContainer extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.white.withValues(alpha: 0.70),
-                      Colors.white.withValues(alpha: 0.0),
+                      Colors.white.withOpacity(0.70),
+                      Colors.white.withOpacity(0.0),
                     ],
                   ),
                 ),
@@ -94,3 +94,4 @@ class GlassContainer extends StatelessWidget {
     );
   }
 }
+

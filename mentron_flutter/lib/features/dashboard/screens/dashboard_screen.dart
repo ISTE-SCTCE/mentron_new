@@ -9,6 +9,7 @@ import '../../../shared/widgets/illustration_card.dart';
 import '../widgets/real_time_calendar.dart';
 import '../widgets/dashboard_carousel.dart';
 import '../widgets/event_banner_widget.dart';
+import '../widgets/offenso_banner_widget.dart';
 import '../../notes/screens/add_note_screen.dart';
 import '../../notes/screens/notes_by_subject_screen.dart';
 import '../../projects/screens/add_project_screen.dart';
@@ -159,6 +160,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SliverToBoxAdapter(
               child: _buildHeadlineSection(firstName),
             ),
+            // ── Offenso Academy Main Banner ───────────────────────
+            const SliverToBoxAdapter(
+              child: OffensoBannerWidget(),
+            ),
             // ── Dashboard Event & Trending Subject Carousel ──────
             const SliverToBoxAdapter(
               child: DashboardCarousel(),
@@ -224,7 +229,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.accentPrimary.withValues(alpha: 0.25),
+                    color: AppTheme.accentPrimary.withOpacity(0.25),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -264,7 +269,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.accentSecondary.withValues(alpha: 0.15),
+                    color: AppTheme.accentSecondary.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(50),
                   ),
                   child: const Text(
@@ -345,7 +350,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.accentPrimary.withValues(alpha: 0.08),
+              color: AppTheme.accentPrimary.withOpacity(0.08),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -515,7 +520,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: color.withValues(alpha: 0.12),
+              color: color.withOpacity(0.12),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -554,7 +559,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: LinearProgressIndicator(
                       minHeight: 5,
                       value: 0.55 + (0.08 * (subject.length % 5)),
-                      backgroundColor: color.withValues(alpha: 0.12),
+                      backgroundColor: color.withOpacity(0.12),
                       valueColor: AlwaysStoppedAnimation<Color>(color),
                     ),
                   ),
@@ -654,7 +659,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: action.color.withValues(alpha: 0.10),
+              color: action.color.withOpacity(0.10),
               blurRadius: 18,
               offset: const Offset(0, 6),
             ),
@@ -725,7 +730,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.accentPrimary.withValues(alpha: 0.07),
+              color: AppTheme.accentPrimary.withOpacity(0.07),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -885,3 +890,4 @@ class _QuickAction {
     required this.onTap,
   });
 }
+

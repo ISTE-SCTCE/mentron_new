@@ -183,7 +183,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
               Text(
                 label,
                 style: TextStyle(
-                  color: color.withValues(alpha: 0.7),
+                  color: color.withOpacity(0.7),
                   fontSize: compact ? 8 : 10,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1,
@@ -383,7 +383,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Icon(icon, color: color, size: 20),
@@ -466,7 +466,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
   Widget _buildContributeCard() {
     return ExecGlassContainer(
       padding: const EdgeInsets.all(20),
-      border: Border.all(color: ExecTheme.accentPrimary.withValues(alpha: 0.3)),
+      border: Border.all(color: ExecTheme.accentPrimary.withOpacity(0.3)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -475,7 +475,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: ExecTheme.accentPrimary.withValues(alpha: 0.15),
+                  color: ExecTheme.accentPrimary.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -541,9 +541,9 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
+          color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.25)),
+          border: Border.all(color: color.withOpacity(0.25)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -567,5 +567,6 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
 
 
 }
+
 
 

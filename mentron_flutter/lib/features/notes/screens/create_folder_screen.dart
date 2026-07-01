@@ -135,9 +135,9 @@ class _CreateFolderScreenState extends State<CreateFolderScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: AppTheme.accentSecondary.withValues(alpha: 0.1),
+                        color: AppTheme.accentSecondary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppTheme.accentSecondary.withValues(alpha: 0.2)),
+                        border: Border.all(color: AppTheme.accentSecondary.withOpacity(0.2)),
                       ),
                       child: Row(
                         children: [
@@ -165,16 +165,16 @@ class _CreateFolderScreenState extends State<CreateFolderScreen> {
                     ),
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.05),
+                        color: Colors.white.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                        border: Border.all(color: Colors.white.withOpacity(0.1)),
                       ),
                       child: TextField(
                         controller: _nameController,
                         style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
                         decoration: InputDecoration(
                           hintText: 'e.g. Module 1, Unit 2, Lab Reports...',
-                          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2)),
+                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.2)),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.all(16),
                           prefixIcon: const Icon(Icons.folder_open_rounded, color: AppTheme.accentSecondary, size: 20),
@@ -184,7 +184,7 @@ class _CreateFolderScreenState extends State<CreateFolderScreen> {
                     const SizedBox(height: 8),
                     Text(
                       'Notes added to this folder will only appear inside it.',
-                      style: TextStyle(color: AppTheme.textMuted.withValues(alpha: 0.6), fontSize: 11),
+                      style: TextStyle(color: AppTheme.textMuted.withOpacity(0.6), fontSize: 11),
                     ),
                     const SizedBox(height: 32),
 
@@ -220,3 +220,4 @@ class _CreateFolderScreenState extends State<CreateFolderScreen> {
     );
   }
 }
+

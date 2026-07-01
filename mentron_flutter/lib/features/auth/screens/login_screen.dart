@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.red.withValues(alpha: 0.9),
+            backgroundColor: Colors.red.withOpacity(0.9),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -140,8 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: Text(
                                 'Forgot Password?',
                                 style: TextStyle(
-                                  color: AppTheme.accentSecondary.withValues(
-                                    alpha: 0.7,
+                                  color: AppTheme.accentSecondary.withOpacity(0.7,
                                   ),
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -197,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
+                    color: Colors.black.withOpacity(0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -229,7 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
         color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+          color: AppTheme.accentPrimary.withOpacity(0.12),
         ),
       ),
       child: TextField(
@@ -244,7 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
-            color: AppTheme.textMuted.withValues(alpha: 0.72),
+            color: AppTheme.textMuted.withOpacity(0.72),
           ),
           prefixIcon: Icon(icon, color: AppTheme.textMuted, size: 20),
           suffixIcon: isPassword
@@ -272,3 +271,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+

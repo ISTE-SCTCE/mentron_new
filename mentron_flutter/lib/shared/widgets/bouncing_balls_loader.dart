@@ -39,8 +39,8 @@ class _BouncingBallsLoaderState extends State<BouncingBallsLoader>
   @override
   Widget build(BuildContext context) {
     final color = widget.ballColor ?? AppTheme.accentSecondary;
-    final shadowColor = color.withValues(alpha: 0.4);
-    final glowColor = color.withValues(alpha: 0.15);
+    final shadowColor = color.withOpacity(0.4);
+    final glowColor = color.withOpacity(0.15);
 
     return Material(
       color: Colors.transparent,
@@ -94,7 +94,7 @@ class _BouncingBallsLoaderState extends State<BouncingBallsLoader>
               Text(
                 widget.sub?.toUpperCase() ?? 'LOADING...',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: Colors.white.withOpacity(0.5),
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 3,
@@ -204,3 +204,4 @@ class _BouncingBallsLoaderState extends State<BouncingBallsLoader>
     return raw; // TODO: Implement real staggering if needed, but synced looks okay too.
   }
 }
+

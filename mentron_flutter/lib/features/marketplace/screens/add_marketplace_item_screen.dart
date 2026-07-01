@@ -138,10 +138,10 @@ class _AddMarketplaceItemScreenState extends State<AddMarketplaceItemScreen> {
                   height: 180,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
+                    color: Colors.white.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: Colors.white.withOpacity(0.1),
                       style: BorderStyle.solid,
                     ),
                   ),
@@ -170,8 +170,7 @@ class _AddMarketplaceItemScreenState extends State<AddMarketplaceItemScreen> {
                             Text(
                               '(optional — a default image will be used)',
                               style: TextStyle(
-                                color: AppTheme.textMuted.withValues(
-                                  alpha: 0.5,
+                                color: AppTheme.textMuted.withOpacity(0.5,
                                 ),
                                 fontSize: 10,
                               ),
@@ -261,7 +260,7 @@ class _AddMarketplaceItemScreenState extends State<AddMarketplaceItemScreen> {
         color: Theme.of(context).colorScheme.onSurface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+          color: AppTheme.accentPrimary.withOpacity(0.12),
         ),
       ),
       child: TextField(
@@ -278,7 +277,7 @@ class _AddMarketplaceItemScreenState extends State<AddMarketplaceItemScreen> {
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
-            color: AppTheme.textMuted.withValues(alpha: 0.70),
+            color: AppTheme.textMuted.withOpacity(0.70),
             fontSize: 13,
           ),
           prefixIcon: maxLines == 1
@@ -296,3 +295,4 @@ class _AddMarketplaceItemScreenState extends State<AddMarketplaceItemScreen> {
     );
   }
 }
+

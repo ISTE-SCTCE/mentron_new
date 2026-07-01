@@ -169,7 +169,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: _isAnonymous
-                            ? Colors.purpleAccent.withValues(alpha: 0.2)
+                            ? Colors.purpleAccent.withOpacity(0.2)
                             : Colors.white10,
                         shape: BoxShape.circle,
                       ),
@@ -213,7 +213,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                     ),
                     Switch(
                       value: _isAnonymous,
-                      activeThumbColor: Colors.purpleAccent,
+                      activeColor: Colors.purpleAccent,
                       onChanged: (val) => setState(() => _isAnonymous = val),
                     ),
                   ],
@@ -319,3 +319,5 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
     );
   }
 }
+
+

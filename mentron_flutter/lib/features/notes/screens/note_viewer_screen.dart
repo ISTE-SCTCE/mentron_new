@@ -1,26 +1,37 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../services/content_protection_service.dart';
 import '../../../shared/widgets/bouncing_balls_loader.dart';
 
 class NoteViewerScreen extends StatefulWidget {
   final String url;
   final String title;
 
+  /// Set to true when [url] is a local filesystem path (e.g. decrypted offline file).
+  /// Set to false (default) for remote URLs.
+  final bool isLocalFile;
+
   const NoteViewerScreen({
     super.key,
     required this.url,
     required this.title,
+    this.isLocalFile = false,
   });
 
   @override
   State<NoteViewerScreen> createState() => _NoteViewerScreenState();
 }
 
-class _NoteViewerScreenState extends State<NoteViewerScreen> {
+class _NoteViewerScreenState extends State<NoteViewerScreen>
+    with WidgetsBindingObserver {
+  final _protection = ContentProtectionService();
+
   late String extension;
   bool isPdf = false;
   bool isImage = false;
@@ -33,8 +44,14 @@ class _NoteViewerScreenState extends State<NoteViewerScreen> {
   @override
   void initState() {
     super.initState();
+
+    // ── Screen protection — enable on entering this screen ──────────────────
+    WidgetsBinding.instance.addObserver(this);
+    _protection.enableScreenProtection();
+
     extension = widget.url.split('.').last.toLowerCase().split('?').first;
-    isPdf = extension == 'pdf' || !['mp4', 'mov', 'jpg', 'jpeg', 'png', 'gif'].contains(extension);
+    isPdf = extension == 'pdf' ||
+        !['mp4', 'mov', 'jpg', 'jpeg', 'png', 'gif'].contains(extension);
     isImage = ['jpg', 'jpeg', 'png', 'gif'].contains(extension);
     isVideo = ['mp4', 'mov'].contains(extension);
 
@@ -45,7 +62,13 @@ class _NoteViewerScreenState extends State<NoteViewerScreen> {
 
   Future<void> _initializeVideoPlayer() async {
     try {
-      _videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(widget.url));
+      if (widget.isLocalFile) {
+        _videoPlayerController =
+            VideoPlayerController.contentUri(Uri.file(widget.url));
+      } else {
+        _videoPlayerController =
+            VideoPlayerController.networkUrl(Uri.parse(widget.url));
+      }
       await _videoPlayerController!.initialize();
       _chewieController = ChewieController(
         videoPlayerController: _videoPlayerController!,
@@ -58,7 +81,7 @@ class _NoteViewerScreenState extends State<NoteViewerScreen> {
           playedColor: AppTheme.accentSecondary,
           handleColor: AppTheme.accentSecondary,
           backgroundColor: AppTheme.glassBorder,
-          bufferedColor: AppTheme.glassBorder.withValues(alpha: 0.5),
+          bufferedColor: AppTheme.glassBorder.withOpacity(0.5),
         ),
       );
       if (mounted) setState(() {});
@@ -72,9 +95,23 @@ class _NoteViewerScreenState extends State<NoteViewerScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      // Pause video to prevent app-switcher thumbnail leaks
+      _videoPlayerController?.pause();
+      // Re-arm protection
+      _protection.enableScreenProtection();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _videoPlayerController?.dispose();
     _chewieController?.dispose();
+    // ── Screen protection — disable when leaving this screen ────────────────
+    _protection.disableScreenProtection();
     super.dispose();
   }
 
@@ -91,7 +128,8 @@ class _NoteViewerScreenState extends State<NoteViewerScreen> {
           overflow: TextOverflow.ellipsis,
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textMain, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+              color: AppTheme.textMain, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -103,6 +141,36 @@ class _NoteViewerScreenState extends State<NoteViewerScreen> {
 
   Widget _buildBody() {
     if (isPdf) {
+      if (widget.isLocalFile) {
+        // Load from local file path for offline content
+        return PDF(
+          enableSwipe: true,
+          swipeHorizontal: false,
+          autoSpacing: false,
+          pageFling: false,
+          onError: (error) {
+            // handled by errorWidget below
+          },
+          onPageError: (page, error) {},
+        ).fromPath(
+          widget.url,
+          errorWidget: (error) => Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_rounded,
+                    color: Colors.redAccent, size: 48),
+                const SizedBox(height: 16),
+                Text(
+                  'Failed to load PDF\n$error',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppTheme.textMuted),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
       return const PDF(
         enableSwipe: true,
         swipeHorizontal: false,
@@ -132,7 +200,8 @@ class _NoteViewerScreenState extends State<NoteViewerScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
+              const Icon(Icons.error_outline_rounded,
+                  color: Colors.redAccent, size: 48),
               const SizedBox(height: 16),
               Text(
                 'Failed to load PDF\n$error',
@@ -144,6 +213,15 @@ class _NoteViewerScreenState extends State<NoteViewerScreen> {
         ),
       );
     } else if (isImage) {
+      if (widget.isLocalFile) {
+        return Center(
+          child: InteractiveViewer(
+            minScale: 1.0,
+            maxScale: 5.0,
+            child: Image.file(File(widget.url)),
+          ),
+        );
+      }
       return Center(
         child: InteractiveViewer(
           minScale: 1.0,
@@ -154,9 +232,11 @@ class _NoteViewerScreenState extends State<NoteViewerScreen> {
             errorWidget: (context, url, error) => const Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.broken_image_rounded, color: Colors.redAccent, size: 48),
+                Icon(Icons.broken_image_rounded,
+                    color: Colors.redAccent, size: 48),
                 SizedBox(height: 16),
-                Text('Failed to load image', style: TextStyle(color: AppTheme.textMuted)),
+                Text('Failed to load image',
+                    style: TextStyle(color: AppTheme.textMuted)),
               ],
             ),
           ),
@@ -168,14 +248,17 @@ class _NoteViewerScreenState extends State<NoteViewerScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
+              Icon(Icons.error_outline_rounded,
+                  color: Colors.redAccent, size: 48),
               SizedBox(height: 16),
-              Text('Failed to load video', style: TextStyle(color: AppTheme.textMuted)),
+              Text('Failed to load video',
+                  style: TextStyle(color: AppTheme.textMuted)),
             ],
           ),
         );
       }
-      if (_chewieController != null && _chewieController!.videoPlayerController.value.isInitialized) {
+      if (_chewieController != null &&
+          _chewieController!.videoPlayerController.value.isInitialized) {
         return Chewie(controller: _chewieController!);
       } else {
         return const Center(
@@ -199,7 +282,8 @@ class _NoteViewerScreenState extends State<NoteViewerScreen> {
       }
     } else {
       return const Center(
-        child: Text('Unsupported file format', style: TextStyle(color: AppTheme.textMuted)),
+        child: Text('Unsupported file format',
+            style: TextStyle(color: AppTheme.textMuted)),
       );
     }
   }

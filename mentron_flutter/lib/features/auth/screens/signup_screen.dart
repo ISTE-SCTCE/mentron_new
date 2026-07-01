@@ -116,7 +116,7 @@ class _SignupScreenState extends State<SignupScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.red.withValues(alpha: 0.9),
+            backgroundColor: Colors.red.withOpacity(0.9),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -341,7 +341,7 @@ class _SignupScreenState extends State<SignupScreen> {
         color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+          color: AppTheme.accentPrimary.withOpacity(0.12),
         ),
       ),
       child: TextField(
@@ -357,7 +357,7 @@ class _SignupScreenState extends State<SignupScreen> {
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
-            color: AppTheme.textMuted.withValues(alpha: 0.70),
+            color: AppTheme.textMuted.withOpacity(0.70),
             fontSize: 13,
           ),
           prefixIcon: Icon(icon, color: AppTheme.textMuted, size: 18),
@@ -400,7 +400,7 @@ class _SignupScreenState extends State<SignupScreen> {
         color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+          color: AppTheme.accentPrimary.withOpacity(0.12),
         ),
       ),
       child: DropdownButtonHideUnderline(
@@ -421,7 +421,7 @@ class _SignupScreenState extends State<SignupScreen> {
               Text(
                 hint,
                 style: TextStyle(
-                  color: AppTheme.textMuted.withValues(alpha: 0.70),
+                  color: AppTheme.textMuted.withOpacity(0.70),
                   fontSize: 13,
                 ),
               ),
@@ -437,3 +437,4 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 }
+

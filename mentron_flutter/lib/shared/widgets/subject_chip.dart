@@ -37,7 +37,7 @@ class SubjectChip extends StatelessWidget {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppTheme.accentPrimary.withValues(alpha: 0.28),
+                    color: AppTheme.accentPrimary.withOpacity(0.28),
                     blurRadius: 14,
                     offset: const Offset(0, 6),
                   ),
@@ -57,3 +57,4 @@ class SubjectChip extends StatelessWidget {
     );
   }
 }
+

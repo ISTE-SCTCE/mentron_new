@@ -396,14 +396,14 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       },
       child: GlassContainer(
         padding: const EdgeInsets.all(16),
-        border: Border.all(color: widget.color.withValues(alpha: 0.2)),
+        border: Border.all(color: widget.color.withOpacity(0.2)),
         child: Row(
           children: [
             Container(
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: widget.color.withValues(alpha: 0.12),
+                color: widget.color.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Center(child: Text('📁', style: TextStyle(fontSize: 18))),
@@ -420,12 +420,12 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                   ),
                   Text(
                     'Custom Folder',
-                    style: TextStyle(color: widget.color.withValues(alpha: 0.7), fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1),
+                    style: TextStyle(color: widget.color.withOpacity(0.7), fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: widget.color.withValues(alpha: 0.5), size: 18),
+            Icon(Icons.chevron_right_rounded, color: widget.color.withOpacity(0.5), size: 18),
           ],
         ),
       ),
@@ -483,12 +483,12 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                     padding: const EdgeInsets.fromLTRB(24, 110, 24, 0),
                     child: GlassContainer(
                       padding: const EdgeInsets.all(20),
-                      border: Border.all(color: widget.color.withValues(alpha: 0.3)),
+                      border: Border.all(color: widget.color.withOpacity(0.3)),
                       child: Row(children: [
                         Container(
                           width: 44, height: 44,
                           decoration: BoxDecoration(
-                            color: widget.color.withValues(alpha: 0.12),
+                            color: widget.color.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
@@ -626,9 +626,9 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                                           child: Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                                             decoration: BoxDecoration(
-                                              color: widget.color.withValues(alpha: 0.1),
+                                              color: widget.color.withOpacity(0.1),
                                               borderRadius: BorderRadius.circular(12),
-                                              border: Border.all(color: widget.color.withValues(alpha: 0.3)),
+                                              border: Border.all(color: widget.color.withOpacity(0.3)),
                                             ),
                                             child: Row(children: [
                                               Icon(Icons.open_in_new_rounded, color: widget.color, size: 14),
@@ -651,3 +651,4 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
     );
   }
 }
+

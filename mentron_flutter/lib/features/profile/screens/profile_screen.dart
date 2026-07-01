@@ -582,13 +582,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.accentPrimary.withValues(alpha: 0.08),
+                          backgroundColor: AppTheme.accentPrimary.withOpacity(0.08),
                           foregroundColor: AppTheme.accentPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                             side: BorderSide(
-                              color: AppTheme.accentPrimary.withValues(alpha: 0.15),
+                              color: AppTheme.accentPrimary.withOpacity(0.15),
                             ),
                           ),
                           elevation: 0,
@@ -610,13 +610,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.accentPrimary.withValues(alpha: 0.08),
+                          backgroundColor: AppTheme.accentPrimary.withOpacity(0.08),
                           foregroundColor: AppTheme.accentPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                             side: BorderSide(
-                              color: AppTheme.accentPrimary.withValues(alpha: 0.15),
+                              color: AppTheme.accentPrimary.withOpacity(0.15),
                             ),
                           ),
                           elevation: 0,
@@ -641,7 +641,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         border: isLast
             ? null
-            : Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.05))),
+            : Border(bottom: BorderSide(color: Colors.white.withOpacity(0.05))),
       ),
       child: Row(
         children: [
@@ -677,3 +677,4 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+

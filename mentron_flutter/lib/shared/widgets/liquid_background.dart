@@ -29,7 +29,7 @@ class LiquidBackground extends StatelessWidget {
               left: -120,
               child: _GlowOrb(
                 size: 360,
-                color: const Color(0xFF7C3AED).withValues(alpha: 0.18),
+                color: const Color(0xFF7C3AED).withOpacity(0.18),
               ),
             ),
             Positioned(
@@ -37,7 +37,7 @@ class LiquidBackground extends StatelessWidget {
               right: -140,
               child: _GlowOrb(
                 size: 320,
-                color: const Color(0xFFFF9F1C).withValues(alpha: 0.17),
+                color: const Color(0xFFFF9F1C).withOpacity(0.17),
               ),
             ),
             Positioned(
@@ -45,10 +45,10 @@ class LiquidBackground extends StatelessWidget {
               left: -90,
               child: _GlowOrb(
                 size: 300,
-                color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                color: const Color(0xFF10B981).withOpacity(0.12),
               ),
             ),
-            ?child,
+            if (child != null) child!,
           ],
         ),
       ),
@@ -71,7 +71,7 @@ class _GlowOrb extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: RadialGradient(
-            colors: [color, color.withValues(alpha: 0)],
+            colors: [color, color.withOpacity(0)],
             stops: const [0.0, 1.0],
           ),
         ),
@@ -79,3 +79,4 @@ class _GlowOrb extends StatelessWidget {
     );
   }
 }
+

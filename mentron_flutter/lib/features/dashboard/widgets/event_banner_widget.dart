@@ -169,7 +169,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
             decoration: BoxDecoration(
               color: const Color(0xFF0E0E1A),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
             ),
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
             child: Column(
@@ -192,7 +192,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                   Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
                     child: Text(error!, style: const TextStyle(color: Colors.redAccent, fontSize: 12)),
                   ),
 
@@ -217,9 +217,9 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
+                      color: Colors.white.withOpacity(0.05),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                      border: Border.all(color: Colors.white.withOpacity(0.1)),
                     ),
                     child: Row(
                       children: [
@@ -243,9 +243,9 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
+                    color: Colors.white.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
@@ -312,9 +312,9 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
   Widget _sheetField(TextEditingController ctrl, String hint, IconData icon, {int maxLines = 1}) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: Colors.white.withOpacity(0.05),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
       child: TextField(
         controller: ctrl,
@@ -322,8 +322,8 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
         style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 13),
-          prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.35), size: 18),
+          hintStyle: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 13),
+          prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.35), size: 18),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
@@ -351,9 +351,9 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentSecondary.withValues(alpha: 0.15),
+                  color: AppTheme.accentSecondary.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: AppTheme.accentSecondary.withValues(alpha: 0.4)),
+                  border: Border.all(color: AppTheme.accentSecondary.withOpacity(0.4)),
                 ),
                 child: Text('${_events.length}', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900)),
               ),
@@ -403,7 +403,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(26),
                     gradient: LinearGradient(colors: gradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
-                    boxShadow: [BoxShadow(color: glow.withValues(alpha: 0.5), blurRadius: 24, offset: const Offset(0, 10))],
+                    boxShadow: [BoxShadow(color: glow.withOpacity(0.5), blurRadius: 24, offset: const Offset(0, 10))],
                   ),
                   child: Stack(
                     children: [
@@ -421,7 +421,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                           width: 130, height: 130,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: glow.withValues(alpha: 0.3),
+                            color: glow.withOpacity(0.3),
                           ),
                           child: Container(decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.transparent),),
                         ),
@@ -454,9 +454,9 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                                   Container(
                                     width: 42, height: 42,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.1),
+                                      color: Colors.white.withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(13),
-                                      border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                                      border: Border.all(color: Colors.white.withOpacity(0.2)),
                                     ),
                                     child: Center(child: Text(emoji, style: const TextStyle(fontSize: 20))),
                                   ),
@@ -464,9 +464,9 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.08),
+                                      color: Colors.white.withOpacity(0.08),
                                       borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                                      border: Border.all(color: Colors.white.withOpacity(0.12)),
                                     ),
                                     child: Text(tag, style: const TextStyle(color: Colors.white60, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
                                   ),
@@ -475,9 +475,9 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                     decoration: BoxDecoration(
-                                      color: daysColor.withValues(alpha: 0.18),
+                                      color: daysColor.withOpacity(0.18),
                                       borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: daysColor.withValues(alpha: 0.5)),
+                                      border: Border.all(color: daysColor.withOpacity(0.5)),
                                     ),
                                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                                       Container(width: 5, height: 5, decoration: BoxDecoration(color: daysColor, shape: BoxShape.circle)),
@@ -559,9 +559,9 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                   margin: const EdgeInsets.only(bottom: 6),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   decoration: BoxDecoration(
-                    color: isActive ? Colors.white.withValues(alpha: 0.06) : Colors.transparent,
+                    color: isActive ? Colors.white.withOpacity(0.06) : Colors.transparent,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: isActive ? Colors.white.withValues(alpha: 0.1) : Colors.transparent),
+                    border: Border.all(color: isActive ? Colors.white.withOpacity(0.1) : Colors.transparent),
                   ),
                   child: Row(children: [
                     Container(width: 3, height: 32, decoration: BoxDecoration(color: glow, borderRadius: BorderRadius.circular(2))),
@@ -574,9 +574,9 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: daysColor.withValues(alpha: 0.15),
+                          color: daysColor.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: daysColor.withValues(alpha: 0.4)),
+                          border: Border.all(color: daysColor.withOpacity(0.4)),
                         ),
                         child: Text(daysLabel, style: TextStyle(color: daysColor, fontSize: 7.5, fontWeight: FontWeight.w900, letterSpacing: 0.8)),
                       ),
@@ -604,7 +604,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
     return Column(
       children: [
         Container(height: 210, margin: const EdgeInsets.symmetric(horizontal: 4),
-          decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(26))),
+          decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(26))),
       ],
     );
   }
@@ -617,7 +617,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
         const SizedBox(height: 12),
         const Text('No upcoming events', style: TextStyle(color: AppTheme.textMuted, fontSize: 13, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        Text('Check back later', style: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 11)),
+        Text('Check back later', style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 11)),
         if (_canAddEvent) ...[
           const SizedBox(height: 16),
           ElevatedButton.icon(
@@ -637,7 +637,7 @@ class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.025)
+      ..color = Colors.white.withOpacity(0.025)
       ..strokeWidth = 0.5;
     const step = 32.0;
     for (double x = 0; x < size.width; x += step) {
@@ -657,7 +657,7 @@ class _CornerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.25)
+      ..color = Colors.white.withOpacity(0.25)
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
     canvas.drawLine(Offset.zero, Offset(size.width, 0), paint);
@@ -667,3 +667,4 @@ class _CornerPainter extends CustomPainter {
   @override
   bool shouldRepaint(_CornerPainter old) => false;
 }
+

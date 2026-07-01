@@ -184,7 +184,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
         color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+          color: AppTheme.accentPrimary.withOpacity(0.12),
         ),
       ),
       child: DropdownButtonHideUnderline(
@@ -227,7 +227,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
         color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.accentPrimary.withValues(alpha: 0.12),
+          color: AppTheme.accentPrimary.withOpacity(0.12),
         ),
       ),
       child: TextField(
@@ -242,7 +242,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
-            color: AppTheme.textMuted.withValues(alpha: 0.70),
+            color: AppTheme.textMuted.withOpacity(0.70),
           ),
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
@@ -253,3 +253,4 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     );
   }
 }
+

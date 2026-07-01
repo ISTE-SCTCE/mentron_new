@@ -476,7 +476,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.green.withValues(alpha: 0.2),
+                                    color: Colors.green.withOpacity(0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Row(
@@ -517,7 +517,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                                 radius: 14,
                                 backgroundColor: q.isAnonymous
                                     ? Colors.white10
-                                    : AppTheme.accentSecondary.withValues(alpha: 0.2),
+                                    : AppTheme.accentSecondary.withOpacity(0.2),
                                 child: q.isAnonymous
                                     ? const Icon(
                                         Icons.masks_rounded,
@@ -631,7 +631,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                                       width: 2,
                                     )
                                   : Border.all(
-                                      color: Colors.white.withValues(alpha: 0.1),
+                                      color: Colors.white.withOpacity(0.1),
                                     ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -763,7 +763,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                                           decoration: BoxDecoration(
                                             color: ans.hasUpvoted
                                                 ? AppTheme.accentSecondary
-                                                      .withValues(alpha: 0.2)
+                                                      .withOpacity(0.2)
                                                 : Colors.white.withOpacity(
                                                     0.05,
                                                   ),
@@ -854,7 +854,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                           scale: 0.7,
                           child: Switch(
                             value: _isAnonymous,
-                            activeThumbColor: Colors.purpleAccent,
+                            activeColor: Colors.purpleAccent,
                             onChanged: (val) =>
                                 setState(() => _isAnonymous = val),
                           ),
@@ -881,10 +881,10 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.05),
+                              color: Colors.white.withOpacity(0.05),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.1),
+                                color: Colors.white.withOpacity(0.1),
                               ),
                             ),
                             child: TextField(
@@ -945,3 +945,5 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     );
   }
 }
+
+
