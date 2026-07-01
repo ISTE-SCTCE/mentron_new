@@ -40,6 +40,8 @@ class _NoteViewerScreenState extends State<NoteViewerScreen>
   VideoPlayerController? _videoPlayerController;
   ChewieController? _chewieController;
   bool _isVideoError = false;
+  bool _isPdfError = false;
+  String? _pdfErrorMessage;
 
   @override
   void initState() {
@@ -141,6 +143,23 @@ class _NoteViewerScreenState extends State<NoteViewerScreen>
 
   Widget _buildBody() {
     if (isPdf) {
+      if (_isPdfError) {
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline_rounded,
+                  color: Colors.redAccent, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load PDF\n${_pdfErrorMessage ?? ""}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppTheme.textMuted),
+              ),
+            ],
+          ),
+        );
+      }
       if (widget.isLocalFile) {
         // Load from local file path for offline content
         return PDF(
@@ -149,26 +168,16 @@ class _NoteViewerScreenState extends State<NoteViewerScreen>
           autoSpacing: false,
           pageFling: false,
           onError: (error) {
-            // handled by errorWidget below
+            if (mounted) {
+              setState(() {
+                _isPdfError = true;
+                _pdfErrorMessage = error.toString();
+              });
+            }
           },
           onPageError: (page, error) {},
         ).fromPath(
           widget.url,
-          errorWidget: (error) => Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.error_outline_rounded,
-                    color: Colors.redAccent, size: 48),
-                const SizedBox(height: 16),
-                Text(
-                  'Failed to load PDF\n$error',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppTheme.textMuted),
-                ),
-              ],
-            ),
-          ),
         );
       }
       return const PDF(
