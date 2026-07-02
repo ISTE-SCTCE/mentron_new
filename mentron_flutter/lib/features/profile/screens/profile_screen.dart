@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/services/supabase_service.dart';
@@ -19,6 +21,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   Map<String, dynamic>? _profile;
   bool _isLoading = true;
+  bool _isUploadingPhoto = false;
 
   @override
   void initState() {
@@ -54,11 +57,88 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     await supabase.signOut();
     if (mounted) {
-      // Remove all routes and go to login — clears the whole back stack
       Navigator.of(context).pushAndRemoveUntil(
         AppTransitions.fade(const LoginScreen()),
         (route) => false,
       );
+    }
+  }
+
+  // ── Profile Photo Upload ─────────────────────────────────────────────────────
+
+  Future<void> _pickAndUploadPhoto() async {
+    final picker = ImagePicker();
+    final XFile? picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+      maxWidth: 600,
+      maxHeight: 600,
+    );
+    if (picked == null || !mounted) return;
+
+    setState(() => _isUploadingPhoto = true);
+    try {
+      final supabase = Provider.of<SupabaseService>(context, listen: false);
+      final userId = supabase.currentUser?.id;
+      if (userId == null) return;
+
+      final file = File(picked.path);
+      final bytes = await file.readAsBytes();
+      // File path inside the bucket: avatars/<userId>.jpg
+      final storagePath = 'avatars/$userId.jpg';
+
+      // Upload (upsert so re-uploads overwrite the previous file)
+      await supabase.client.storage
+          .from('profile-photos')
+          .uploadBinary(
+            storagePath,
+            bytes,
+            fileOptions: const FileOptions(
+              contentType: 'image/jpeg',
+              upsert: true,
+            ),
+          );
+
+      // Get the public URL
+      final publicUrl = supabase.client.storage
+          .from('profile-photos')
+          .getPublicUrl(storagePath);
+
+      // Cache-bust by appending a timestamp
+      final avatarUrl = '$publicUrl?t=${DateTime.now().millisecondsSinceEpoch}';
+
+      // Persist to profiles table
+      await supabase.client
+          .from('profiles')
+          .update({'avatar_url': publicUrl})
+          .eq('id', userId);
+
+      if (mounted) {
+        setState(() {
+          _profile = {...?_profile, 'avatar_url': avatarUrl};
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Profile photo updated!'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Upload failed: $e'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploadingPhoto = false);
     }
   }
 
@@ -462,30 +542,80 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.fromLTRB(24, 120, 24, 100),
                 child: Column(
                   children: [
-                    // Avatar
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [
-                            AppTheme.accentPrimary,
-                            AppTheme.accentSecondary,
-                          ],
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          (_profile?['full_name'] ?? 'U')
-                              .substring(0, 1)
-                              .toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.w900,
-                            color: Theme.of(context).colorScheme.onSurface,
+                    // ── Avatar with photo picker ──────────────────────────────────
+                    GestureDetector(
+                      onTap: _isUploadingPhoto ? null : _pickAndUploadPhoto,
+                      child: Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          // Circle photo or initials
+                          Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: [
+                                  AppTheme.accentPrimary,
+                                  AppTheme.accentSecondary,
+                                ],
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: _isUploadingPhoto
+                                  ? const Center(
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2.5,
+                                      ),
+                                    )
+                                  : _profile?['avatar_url'] != null
+                                      ? Image.network(
+                                          _profile!['avatar_url'] as String,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) => Center(
+                                            child: Text(
+                                              (_profile?['full_name'] ?? 'U')
+                                                  .substring(0, 1)
+                                                  .toUpperCase(),
+                                              style: TextStyle(
+                                                fontSize: 40,
+                                                fontWeight: FontWeight.w900,
+                                                color: Theme.of(context).colorScheme.onSurface,
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      : Center(
+                                          child: Text(
+                                            (_profile?['full_name'] ?? 'U')
+                                                .substring(0, 1)
+                                                .toUpperCase(),
+                                            style: TextStyle(
+                                              fontSize: 40,
+                                              fontWeight: FontWeight.w900,
+                                              color: Theme.of(context).colorScheme.onSurface,
+                                            ),
+                                          ),
+                                        ),
+                            ),
                           ),
-                        ),
+                          // Camera icon overlay
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: AppTheme.accentSecondary,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt_rounded,
+                              color: Colors.white,
+                              size: 14,
+                            ),
+                          ),
+                        ],
                       ),
                     ).animate().scale(
                       duration: 500.ms,

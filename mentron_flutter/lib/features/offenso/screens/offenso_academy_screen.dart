@@ -1,6 +1,13 @@
+import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/services/supabase_service.dart';
+import '../../../core/utils/app_transitions.dart';
+import '../../../screens/video_player_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OFFENSO ACADEMY — Main Screen (entry point)
@@ -24,80 +31,222 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
   static const Color _textSecondary   = Color(0xFFA0A0A0);
   static const Color _border          = Color(0xFF2A3A5A);
 
-  final List<_CourseCard> _courses = const [
-    _CourseCard(
-      title: 'Building a Hacker Mindset',
-      subtitle: 'Module 01 · CIA Triad, breach analysis',
-      icon: Icons.psychology_outlined,
-      tag: 'MINDSET',
-      lessons: 6,
-      progress: 0.0,
-      accentColor: Color(0xFF00FF41),
-    ),
-    _CourseCard(
-      title: 'Linux & Packet Mastery',
-      subtitle: 'Module 02 · CLI domination, Nmap, Wireshark',
-      icon: Icons.terminal_outlined,
-      tag: 'LINUX LAB',
-      lessons: 8,
-      progress: 0.0,
-      accentColor: Color(0xFF00D9FF),
-    ),
-    _CourseCard(
-      title: 'OSINT & Digital Profiling',
-      subtitle: 'Module 03 · Google Dorking, Maltego, Sherlock',
-      icon: Icons.manage_search_outlined,
-      tag: 'OSINT',
-      lessons: 7,
-      progress: 0.0,
-      accentColor: Color(0xFFFF006E),
-    ),
-    _CourseCard(
-      title: 'Exploiting Web Applications',
-      subtitle: 'Module 04 · SQLi, XSS, Burp Suite, DVWA',
-      icon: Icons.bug_report_outlined,
-      tag: 'WEB SEC',
-      lessons: 10,
-      progress: 0.0,
-      accentColor: Color(0xFF00FF41),
-    ),
-    _CourseCard(
-      title: 'Wireless & Mobile Security',
-      subtitle: 'Module 05 · Wi-Fi hacking, APK analysis',
-      icon: Icons.wifi_tethering_outlined,
-      tag: 'WIRELESS',
-      lessons: 6,
-      progress: 0.0,
-      accentColor: Color(0xFF00D9FF),
-    ),
-    _CourseCard(
-      title: 'Phishing & Social Engineering',
-      subtitle: 'Module 06 · GoPhish, email forensics',
-      icon: Icons.phishing_outlined,
-      tag: 'PHISHING',
-      lessons: 5,
-      progress: 0.0,
-      accentColor: Color(0xFFFF006E),
-    ),
-    _CourseCard(
-      title: 'Malware, RATs & Countermeasures',
-      subtitle: 'Module 07 · Yara, Cuckoo sandbox, IR',
-      icon: Icons.security_outlined,
-      tag: 'MALWARE',
-      lessons: 8,
-      progress: 0.0,
-      accentColor: Color(0xFF00FF41),
-    ),
-  ];
+  bool _isLoading = true;
+  bool _isExec = false;
+  Map<String, dynamic>? _profile;
+  List<Map<String, dynamic>> _folders = [];
 
   @override
   void initState() {
     super.initState();
+    _loadData();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  Future<void> _loadData() async {
+    final supabase = Provider.of<SupabaseService>(context, listen: false);
+    final user = supabase.currentUser;
+    if (user != null) {
+      try {
+        final profileRes = await supabase.client
+            .from('profiles')
+            .select('role, full_name, xp')
+            .eq('id', user.id)
+            .maybeSingle();
+        if (mounted && profileRes != null) {
+          final role = profileRes['role'] as String? ?? 'member';
+          setState(() {
+            _profile = profileRes;
+            _isExec = role == 'exec' || role == 'core' || role == 'admin';
+          });
+        }
+      } catch (_) {}
+    }
+    await _fetchFolders();
+  }
+
+  Future<void> _fetchFolders() async {
+    final supabase = Provider.of<SupabaseService>(context, listen: false).client;
+    try {
+      // Fetch folders and count of lectures
+      final response = await supabase
+          .from('academy_folders')
+          .select('*, academy_lectures(count)')
+          .order('created_at', ascending: false);
+      if (mounted) {
+        setState(() {
+          _folders = List<Map<String, dynamic>>.from(response);
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _showCreateFolderDialog() async {
+    final nameController = TextEditingController();
+    final descController = TextEditingController();
+    bool isSaving = false;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            backgroundColor: _surfaceMid,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: _border),
+            ),
+            title: const Text(
+              'Create Folder',
+              style: TextStyle(
+                color: _textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  style: const TextStyle(color: _textPrimary),
+                  decoration: const InputDecoration(
+                    labelText: 'Folder Name',
+                    labelStyle: TextStyle(color: _textSecondary),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: _border),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: _neonGreen),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: descController,
+                  style: const TextStyle(color: _textPrimary),
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                    labelStyle: TextStyle(color: _textSecondary),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: _border),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: _neonGreen),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: isSaving ? null : () => Navigator.pop(context),
+                child: const Text(
+                  'CANCEL',
+                  style: TextStyle(color: _textSecondary),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: isSaving
+                    ? null
+                    : () async {
+                        final name = nameController.text.trim();
+                        if (name.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Name is required')),
+                          );
+                          return;
+                        }
+
+                        setDialogState(() => isSaving = true);
+                        try {
+                          final supabase = Provider.of<SupabaseService>(
+                            context,
+                            listen: false,
+                          );
+                          await supabase.client.from('academy_folders').insert({
+                            'name': name,
+                            'description': descController.text.trim(),
+                            'created_by': supabase.currentUser?.id,
+                          });
+                          _fetchFolders();
+                          if (context.mounted) Navigator.pop(context);
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error: $e')),
+                          );
+                        } finally {
+                          setDialogState(() => isSaving = false);
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _neonGreen,
+                  foregroundColor: _surfaceDark,
+                ),
+                child: isSaving
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: _surfaceDark,
+                        ),
+                      )
+                    : const Text(
+                        'CREATE',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _deleteFolder(String folderId, String folderName) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: _surfaceMid,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: _border),
+        ),
+        title: const Text('Delete Folder?', style: TextStyle(color: _textPrimary)),
+        content: Text(
+          'Are you sure you want to delete "$folderName" and all its lectures?',
+          style: const TextStyle(color: _textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('CANCEL', style: TextStyle(color: _textSecondary)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('DELETE', style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final supabase = Provider.of<SupabaseService>(context, listen: false).client;
+    try {
+      await supabase.from('academy_folders').delete().eq('id', folderId);
+      _fetchFolders();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Folder deleted')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
   }
 
   @override
@@ -126,27 +275,101 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
               ).animate().fadeIn(delay: 50.ms).slideY(begin: 0.06, curve: Curves.easeOut),
             ),
 
-            // ── Section: All Courses ──────────────────────────────────────
+            // ── Section: All Folders ──────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-                child: _sectionLabel('ALL COURSES', count: _courses.length),
+                child: _sectionLabel(
+                  'ALL FOLDERS',
+                  count: _folders.length,
+                  action: _isExec
+                      ? GestureDetector(
+                          onTap: _showCreateFolderDialog,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _neonGreen.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: _neonGreen),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.add, color: _neonGreen, size: 12),
+                                SizedBox(width: 4),
+                                Text(
+                                  'ADD FOLDER',
+                                  style: TextStyle(
+                                    color: _neonGreen,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : null,
+                ),
               ).animate().fadeIn(delay: 100.ms),
             ),
 
-            // ── Course list ───────────────────────────────────────────────
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (ctx, i) => Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                  child: _buildCourseListCard(_courses[i], i),
-                )
-                    .animate()
-                    .fadeIn(delay: (100 + i * 50).ms)
-                    .slideY(begin: 0.06, curve: Curves.easeOut),
-                childCount: _courses.length,
+            // ── Folder list ───────────────────────────────────────────────
+            if (_isLoading)
+              const SliverToBoxAdapter(
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 40),
+                    child: CircularProgressIndicator(color: _neonGreen),
+                  ),
+                ),
+              )
+            else if (_folders.isEmpty)
+              SliverToBoxAdapter(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 60),
+                    child: Column(
+                      children: [
+                        const Icon(Icons.folder_open_outlined,
+                            size: 48, color: _textSecondary),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'No folders created yet',
+                          style: TextStyle(
+                            color: _textPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (_isExec) ...[
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: _showCreateFolderDialog,
+                            child: const Text('Add your first folder',
+                                style: TextStyle(color: _neonGreen)),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            else
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (ctx, i) => Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                    child: _buildFolderCard(_folders[i], i),
+                  )
+                      .animate()
+                      .fadeIn(delay: (100 + i * 50).ms)
+                      .slideY(begin: 0.06, curve: Curves.easeOut),
+                  childCount: _folders.length,
+                ),
               ),
-            ),
 
             // ── Certificates teaser ───────────────────────────────────────
             SliverToBoxAdapter(
@@ -200,21 +423,6 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
               ),
             ),
           ),
-          // Settings icon
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: _surfaceMid,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: _border),
-            ),
-            child: const Icon(
-              Icons.tune_rounded,
-              color: _textSecondary,
-              size: 18,
-            ),
-          ),
         ],
       ),
     );
@@ -223,6 +431,10 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
   // ── Status card ────────────────────────────────────────────────────────────
 
   Widget _buildStatusCard() {
+    final name = _profile?['full_name']?.toString() ?? 'Student';
+    final role = _profile?['role']?.toString().toUpperCase() ?? 'MEMBER';
+    final xp = int.tryParse(_profile?['xp']?.toString() ?? '0') ?? 0;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -235,7 +447,6 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
         border: Border.all(
           color: _neonGreen.withOpacity(0.25),
           width: 1,
-          // Dashed border approximation via custom approach
         ),
         boxShadow: [
           BoxShadow(
@@ -272,16 +483,16 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Level badge
+                // Level/Position badge
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: _neonGreen,
                     borderRadius: BorderRadius.circular(2),
                   ),
-                  child: const Text(
-                    'NOVICE',
-                    style: TextStyle(
+                  child: Text(
+                    role,
+                    style: const TextStyle(
                       color: _surfaceDark,
                       fontSize: 8,
                       fontWeight: FontWeight.w900,
@@ -290,6 +501,14 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
                   ),
                 ),
                 const SizedBox(height: 6),
+                Text(
+                  name,
+                  style: const TextStyle(
+                    color: _textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const Text(
                   'Begin your hacking journey',
                   style: TextStyle(
@@ -304,8 +523,8 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
           const SizedBox(width: 12),
           // Circular XP ring
           _CircularXpRing(
-            progress: 0.45,
-            xp: 450,
+            progress: (xp % 1000) / 1000.0,
+            xp: xp,
             maxXp: 1000,
           ),
         ],
@@ -313,29 +532,27 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
     );
   }
 
-  // ── Course list card ───────────────────────────────────────────────────────
+  // ── Folder card ───────────────────────────────────────────────────────
 
-  Widget _buildCourseListCard(_CourseCard course, int index) {
+  Widget _buildFolderCard(Map<String, dynamic> folder, int index) {
+    // Count is nested inside academy_lectures list
+    final lecturesRelation = folder['academy_lectures'] as List?;
+    final count = lecturesRelation != null && lecturesRelation.isNotEmpty
+        ? (lecturesRelation.first['count'] ?? 0)
+        : 0;
+
     return GestureDetector(
-      onTap: () {
-        // TODO: Navigate to course detail screen
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Opening: ${course.title}',
-              style: const TextStyle(fontFamily: 'monospace'),
-            ),
-            backgroundColor: _surfaceElevated,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: BorderSide(color: _neonGreen.withOpacity(0.4)),
-            ),
-          ),
-        );
-      },
+      onTap: () => Navigator.push(
+        context,
+        AppTransitions.slideUp(AcademyFolderDetailScreen(
+          folderId: folder['id'],
+          folderName: folder['name'],
+          folderDescription: folder['description'] ?? 'No description',
+          isExec: _isExec,
+        )),
+      ).then((_) => _fetchFolders()),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: _surfaceMid,
           borderRadius: BorderRadius.circular(8),
@@ -343,103 +560,66 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
         ),
         child: Row(
           children: [
-            // Icon badge
             Container(
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: course.accentColor.withOpacity(0.12),
+                color: _neonGreen.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: course.accentColor.withOpacity(0.25),
+                  color: _neonGreen.withOpacity(0.25),
                 ),
               ),
-              child: Icon(course.icon, color: course.accentColor, size: 20),
+              child: const Icon(Icons.folder_open_rounded, color: _neonGreen, size: 24),
             ),
             const SizedBox(width: 14),
-            // Title + meta
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Tag badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: course.accentColor.withOpacity(0.10),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                    child: Text(
-                      course.tag,
-                      style: TextStyle(
-                        color: course.accentColor,
-                        fontSize: 8,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
                   Text(
-                    course.title,
+                    folder['name'] ?? 'Unnamed Folder',
                     style: const TextStyle(
                       color: _textPrimary,
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                       height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   Text(
-                    course.subtitle,
+                    folder['description'] ?? 'No description.',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: _textSecondary,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w400,
+                      fontSize: 11,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  // Progress bar
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(1),
-                    child: LinearProgressIndicator(
-                      value: course.progress,
-                      minHeight: 2,
-                      backgroundColor: _border,
-                      valueColor: AlwaysStoppedAnimation<Color>(course.accentColor),
+                  const SizedBox(height: 6),
+                  Text(
+                    '$count Video Lecture${count == 1 ? '' : 's'}',
+                    style: const TextStyle(
+                      color: _neonGreen,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 12),
-            // Right side: lesson count + arrow
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '${course.lessons}',
-                  style: const TextStyle(
-                    color: _textPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const Text(
-                  'lessons',
-                  style: TextStyle(
-                    color: _textSecondary,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: _textSecondary,
-                  size: 12,
-                ),
-              ],
+            if (_isExec) ...[
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.delete_outline_rounded,
+                    color: Colors.redAccent, size: 20),
+                onPressed: () => _deleteFolder(folder['id'], folder['name']),
+              ),
+            ],
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: _textSecondary,
+              size: 12,
             ),
           ],
         ),
@@ -502,7 +682,7 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
                 ),
                 SizedBox(height: 2),
                 Text(
-                  'Complete all 7 modules to earn your certificate',
+                  'Complete all modules to earn your certificate',
                   style: TextStyle(
                     color: _textSecondary,
                     fontSize: 10,
@@ -533,7 +713,7 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
     );
   }
 
-  Widget _sectionLabel(String label, {int? count}) {
+  Widget _sectionLabel(String label, {int? count, Widget? action}) {
     return Row(
       children: [
         Container(
@@ -573,40 +753,433 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
             ),
           ),
         ],
+        const Spacer(),
+        if (action != null) action,
       ],
     );
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Helper data class
+// ACADEMY FOLDER DETAIL SCREEN
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _CourseCard {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final String tag;
-  final int lessons;
-  final double progress;
-  final Color accentColor;
-  const _CourseCard({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.tag,
-    required this.lessons,
-    required this.progress,
-    required this.accentColor,
+class AcademyFolderDetailScreen extends StatefulWidget {
+  final String folderId;
+  final String folderName;
+  final String folderDescription;
+  final bool isExec;
+
+  const AcademyFolderDetailScreen({
+    super.key,
+    required this.folderId,
+    required this.folderName,
+    required this.folderDescription,
+    required this.isExec,
   });
+
+  @override
+  State<AcademyFolderDetailScreen> createState() => _AcademyFolderDetailScreenState();
+}
+
+class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
+  static const Color _neonGreen       = Color(0xFF00FF41);
+  static const Color _surfaceDark     = Color(0xFF0A0E27);
+  static const Color _surfaceMid      = Color(0xFF1A1F3A);
+  static const Color _surfaceElevated = Color(0xFF252D4A);
+  static const Color _textPrimary     = Color(0xFFF0F0F0);
+  static const Color _textSecondary   = Color(0xFFA0A0A0);
+  static const Color _border          = Color(0xFF2A3A5A);
+
+  List<Map<String, dynamic>> _lectures = [];
+  bool _isLoading = true;
+  bool _isUploading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLectures();
+  }
+
+  Future<void> _fetchLectures() async {
+    final supabase = Provider.of<SupabaseService>(context, listen: false).client;
+    try {
+      final response = await supabase
+          .from('academy_lectures')
+          .select('*')
+          .eq('folder_id', widget.folderId)
+          .order('created_at', ascending: true);
+      if (mounted) {
+        setState(() {
+          _lectures = List<Map<String, dynamic>>.from(response);
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _pickAndUploadLecture() async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.video,
+      allowMultiple: false,
+    );
+    if (result == null || result.files.single.path == null || !mounted) return;
+
+    final titleController = TextEditingController();
+    final descController = TextEditingController();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: _surfaceMid,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: _border),
+        ),
+        title: const Text('New Video Lecture', style: TextStyle(color: _textPrimary)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              style: const TextStyle(color: _textPrimary),
+              decoration: const InputDecoration(
+                labelText: 'Title',
+                labelStyle: TextStyle(color: _textSecondary),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: _border)),
+                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: _neonGreen)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: descController,
+              style: const TextStyle(color: _textPrimary),
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                labelStyle: TextStyle(color: _textSecondary),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: _border)),
+                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: _neonGreen)),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('CANCEL', style: TextStyle(color: _textSecondary)),
+          ),
+          TextButton(
+            onPressed: () {
+              if (titleController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(ctx).showSnackBar(
+                  const SnackBar(content: Text('Title is required')),
+                );
+                return;
+              }
+              Navigator.pop(ctx, true);
+            },
+            child: const Text('UPLOAD', style: TextStyle(color: _neonGreen, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      final file = File(result.files.single.path!);
+      final bytes = await file.readAsBytes();
+      final extension = result.files.single.extension ?? 'mp4';
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$extension';
+      final storagePath = 'videos/$fileName';
+
+      final supabase = Provider.of<SupabaseService>(context, listen: false);
+
+      // Upload to Storage
+      await supabase.client.storage
+          .from('academy-lectures')
+          .uploadBinary(
+            storagePath,
+            bytes,
+            fileOptions: FileOptions(
+              contentType: 'video/$extension',
+              upsert: true,
+            ),
+          );
+
+      // Get public URL
+      final publicUrl = supabase.client.storage
+          .from('academy-lectures')
+          .getPublicUrl(storagePath);
+
+      // Save metadata to DB
+      await supabase.client.from('academy_lectures').insert({
+        'folder_id': widget.folderId,
+        'title': titleController.text.trim(),
+        'description': descController.text.trim(),
+        'video_url': publicUrl,
+        'created_by': supabase.currentUser?.id,
+      });
+
+      _fetchLectures();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Lecture uploaded successfully!'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Upload failed: $e'), backgroundColor: Colors.redAccent),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isUploading = false);
+      }
+    }
+  }
+
+  Future<void> _deleteLecture(String id, String title) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: _surfaceMid,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: _border),
+        ),
+        title: const Text('Delete Lecture?', style: TextStyle(color: _textPrimary)),
+        content: Text(
+          'Are you sure you want to delete "$title"?',
+          style: const TextStyle(color: _textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('CANCEL', style: TextStyle(color: _textSecondary)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('DELETE', style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final supabase = Provider.of<SupabaseService>(context, listen: false).client;
+    try {
+      await supabase.from('academy_lectures').delete().eq('id', id);
+      _fetchLectures();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Lecture deleted')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _surfaceDark,
+      appBar: AppBar(
+        backgroundColor: _surfaceDark,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: _neonGreen, size: 16),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          widget.folderName,
+          style: const TextStyle(
+            color: _textPrimary,
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.0,
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Folder description
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: Text(
+                widget.folderDescription,
+                style: const TextStyle(color: _textSecondary, fontSize: 13),
+              ),
+            ),
+
+            if (_isUploading) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _surfaceMid,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: _border),
+                  ),
+                  child: const Row(
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(color: _neonGreen, strokeWidth: 2),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Uploading video lecture to Academy...',
+                          style: TextStyle(color: _neonGreen, fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Add lecture button
+            if (widget.isExec && !_isUploading) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _pickAndUploadLecture,
+                    icon: const Icon(Icons.video_library_rounded, size: 18),
+                    label: const Text('UPLOAD VIDEO LECTURE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _neonGreen.withOpacity(0.08),
+                      foregroundColor: _neonGreen,
+                      side: BorderSide(color: _neonGreen.withOpacity(0.2)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator(color: _neonGreen))
+                  : _lectures.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.video_collection_outlined, size: 48, color: _textSecondary),
+                              SizedBox(height: 12),
+                              Text(
+                                'No lectures in this folder yet',
+                                style: TextStyle(color: _textPrimary, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: _lectures.length,
+                          itemBuilder: (ctx, i) {
+                            final lecture = _lectures[i];
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: _surfaceMid,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: _border),
+                              ),
+                              child: Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => VideoPlayerScreen(
+                                          networkUrl: lecture['video_url'],
+                                          title: lecture['title'],
+                                        ),
+                                      ),
+                                    ),
+                                    child: Container(
+                                      width: 44,
+                                      height: 44,
+                                      decoration: BoxDecoration(
+                                        color: _neonGreen.withOpacity(0.12),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: _neonGreen.withOpacity(0.3)),
+                                      ),
+                                      child: const Icon(Icons.play_arrow_rounded, color: _neonGreen, size: 24),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          lecture['title'] ?? 'Untitled Lecture',
+                                          style: const TextStyle(
+                                            color: _textPrimary,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          lecture['description'] ?? 'No description provided.',
+                                          style: const TextStyle(color: _textSecondary, fontSize: 11),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (widget.isExec) ...[
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete_outline_rounded,
+                                          color: Colors.redAccent, size: 20),
+                                      onPressed: () => _deleteLecture(lecture['id'], lecture['title']),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Circular XP Progress Ring widget
+// Helper Models / Widgets
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _CircularXpRing extends StatelessWidget {
-  final double progress; // 0.0 – 1.0
+  final double progress;
   final int xp;
   final int maxXp;
   const _CircularXpRing({
@@ -692,10 +1265,6 @@ class _RingPainter extends CustomPainter {
   bool shouldRepaint(_RingPainter old) => old.progress != progress;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sticky header delegate
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
   final double minHeight;
   final double maxHeight;
@@ -728,6 +1297,3 @@ class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
         old.child != child;
   }
 }
-
-
-

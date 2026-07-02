@@ -8,7 +8,7 @@ import '../features/notes/screens/group_screen.dart';
 import '../features/projects/screens/project_list_screen.dart';
 import '../features/marketplace/screens/marketplace_screen.dart';
 import '../features/requests/screens/requests_screen.dart';
-import '../features/profile/screens/profile_screen.dart';
+import '../screens/my_downloads_screen.dart';
 import '../core/services/supabase_service.dart';
 import 'theme/app_theme.dart';
 import 'utils/app_transitions.dart';
@@ -49,7 +49,7 @@ class MainScaffoldState extends State<MainScaffold>
     const GroupScreen(),
     const ProjectListScreen(),
     const MarketplaceScreen(),
-    const ProfileScreen(),
+    const MyDownloadsScreen(), // replaces Profile — still reachable from dashboard
   ];
 
   @override
@@ -292,7 +292,7 @@ class MainScaffoldState extends State<MainScaffold>
                 _buildNavItem(1, Icons.menu_book_rounded, Icons.menu_book_outlined),
                 _buildNavItem(2, Icons.assignment_rounded, Icons.assignment_outlined),
                 _buildNavItem(3, Icons.shopping_bag_rounded, Icons.shopping_bag_outlined),
-                _buildNavItem(4, Icons.person_rounded, Icons.person_outlined),
+                _buildNavItem(4, Icons.download_done_rounded, Icons.download_for_offline_outlined),
                 if (_isExec) _buildBellItem(),
               ],
             ),

@@ -12,6 +12,7 @@ import 'core/exec_main_scaffold.dart';
 import 'core/splash_screen.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'core/providers/academic_provider.dart';
+import 'core/providers/theme_provider.dart';
 import 'core/services/version_service.dart';
 import 'features/force_update/screens/force_update_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -63,6 +64,7 @@ void main() async {
       providers: [
         Provider.value(value: supabaseService),
         ChangeNotifierProvider(create: (_) => AcademicProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: const MentronApp(),
     ),
@@ -97,6 +99,7 @@ class _MentronAppState extends State<MentronApp> {
           _isExec = false;
           _isLoadingRole = false;
         });
+        Provider.of<ThemeProvider>(context, listen: false).setExecMode(false);
       }
       return;
     }
@@ -120,9 +123,10 @@ class _MentronAppState extends State<MentronApp> {
 
       if (mounted) {
         setState(() {
-          _isExec = role == 'exec' || role == 'core';
+          _isExec = role == 'exec' || role == 'core' || role == 'admin';
           _isLoadingRole = false;
         });
+        Provider.of<ThemeProvider>(context, listen: false).setExecMode(_isExec);
       }
     } catch (_) {
       if (mounted) setState(() => _isLoadingRole = false);
@@ -131,13 +135,24 @@ class _MentronAppState extends State<MentronApp> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       title: 'Mentron',
       debugShowCheckedModeBanner: false,
-      // All users get the new light pastel theme; exec uses exec theme
-      theme: _isExec ? ExecTheme.darkTheme : AppTheme.darkTheme,
+      theme: themeProvider.isExecMode ? ExecTheme.darkTheme : AppTheme.darkTheme,
       scrollBehavior: const _AndroidScrollBehavior(),
-      home: AppRoot(isExec: _isExec, isLoadingRole: _isLoadingRole),
+      builder: (context, child) {
+        if (themeProvider.isExecMode && child != null) {
+          return Container(
+            decoration: const BoxDecoration(
+              gradient: ExecThemeData.bgGradient,
+            ),
+            child: child,
+          );
+        }
+        return child ?? const SizedBox.shrink();
+      },
+      home: AppRoot(isExec: themeProvider.isExecMode, isLoadingRole: _isLoadingRole),
     );
   }
 }

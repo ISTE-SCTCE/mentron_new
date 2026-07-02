@@ -25,7 +25,7 @@ class _AddMarketplaceItemScreenState extends State<AddMarketplaceItemScreen> {
   bool _isLoading = false;
 
   Future<void> _pickImage() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.image,
       allowMultiple: false,
     );

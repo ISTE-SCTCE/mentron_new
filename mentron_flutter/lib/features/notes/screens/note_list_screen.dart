@@ -9,6 +9,8 @@ import '../../../core/utils/department_mapper.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../data/models/note_model.dart';
 import 'note_viewer_screen.dart';
+import '../../../services/offline_storage_service.dart';
+import '../../../widgets/download_progress_widget.dart';
 
 class NoteListScreen extends StatefulWidget {
   final String deptCode;
@@ -25,9 +27,23 @@ class _NoteListScreenState extends State<NoteListScreen> {
   String? _currentUserId;
   String? _currentUserRole;
 
+  // Offline download state — keyed by note.id
+  final _offlineService = OfflineStorageService();
+  final Map<String, double> _downloadProgress = {}; // null = not downloading
+  final Map<String, bool> _isDownloading = {};
+  // local set populated from Hive on init
+  final Set<String> _downloaded = {};
+
   @override
   void initState() {
     super.initState();
+    _offlineService.initializeStorage().then((_) {
+      // Populate which notes are already downloaded
+      final existing = _offlineService.getDownloadedContent();
+      setState(() {
+        _downloaded.addAll(existing.map((e) => e.id));
+      });
+    });
     _loadUserAndNotes();
   }
 
@@ -204,6 +220,10 @@ class _NoteListScreenState extends State<NoteListScreen> {
 
   Widget _buildNoteCard(Note note, int index) {
     final canDelete = _canDelete(note);
+    final isDownloaded = _downloaded.contains(note.id);
+    final isDownloading = _isDownloading[note.id] == true;
+    final progress = _downloadProgress[note.id] ?? 0.0;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: GlassContainer(
@@ -221,7 +241,15 @@ class _NoteListScreenState extends State<NoteListScreen> {
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppTheme.textMain),
                   ),
                 ),
-                // Delete button — only shown if user has permission
+                // Download / delete button
+                DownloadButton(
+                  isDownloaded: isDownloaded,
+                  isDownloading: isDownloading,
+                  progress: progress,
+                  onDownload: () => _downloadNote(note),
+                  onDelete: () => _removeDownload(note),
+                ),
+                // Delete from server button — only shown if user has permission
                 if (canDelete)
                   IconButton(
                     onPressed: () => _deleteNote(note),
@@ -237,6 +265,14 @@ class _NoteListScreenState extends State<NoteListScreen> {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(color: AppTheme.textMuted, fontSize: 13, height: 1.5),
             ),
+            // Show inline progress bar while downloading
+            if (isDownloading) ...[
+              const SizedBox(height: 12),
+              DownloadProgressWidget(
+                title: note.title,
+                progress: progress,
+              ),
+            ],
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -296,6 +332,79 @@ class _NoteListScreenState extends State<NoteListScreen> {
           SnackBar(backgroundColor: Colors.red, content: Text(ErrorHandler.friendly(e))),
         );
       }
+    }
+  }
+
+  // ── Offline Download ────────────────────────────────────────────────────────
+
+  Future<void> _downloadNote(Note note) async {
+    if (_isDownloading[note.id] == true) return;
+
+    const String apiBaseUrl = 'https://mentron.istesctce.in';
+    String fetchUrl = note.fileUrl;
+    if (!fetchUrl.startsWith('http')) {
+      fetchUrl = '$apiBaseUrl$fetchUrl';
+    }
+
+    setState(() {
+      _isDownloading[note.id] = true;
+      _downloadProgress[note.id] = 0.0;
+    });
+
+    try {
+      await _offlineService.downloadContent(
+        contentId: note.id,
+        title: note.title,
+        url: fetchUrl,
+        contentType: 'notes',
+        onProgress: (p) {
+          if (mounted) setState(() => _downloadProgress[note.id] = p);
+        },
+      );
+      if (mounted) {
+        setState(() {
+          _downloaded.add(note.id);
+          _isDownloading[note.id] = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('"${note.title}" saved for offline'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isDownloading[note.id] = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Download failed: ${ErrorHandler.friendly(e)}'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _removeDownload(Note note) async {
+    await _offlineService.deleteDownloadedContent(note.id);
+    if (mounted) {
+      setState(() {
+        _downloaded.remove(note.id);
+        _isDownloading.remove(note.id);
+        _downloadProgress.remove(note.id);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('"${note.title}" removed from offline storage'),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
     }
   }
 }

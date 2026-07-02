@@ -2,48 +2,45 @@ import Flutter
 import UIKit
 
 @main
-@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+@objc class AppDelegate: FlutterAppDelegate {
 
   // Secure text field used as the iOS screenshot/recording blocker.
   // UITextField with isSecureTextEntry = true causes the system to blank the
   // layer when a screen recording or external mirroring is detected.
   private var secureTextField: UITextField?
-  private var contentProtectionChannel: FlutterMethodChannel?
 
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
+    GeneratedPluginRegistrant.register(with: self)
 
-  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
-    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    // ── Content Protection MethodChannel ──────────────────────────────────────
+    // Standard Flutter MethodChannel wiring per:
+    // https://docs.flutter.dev/platform-integration/platform-channels
+    if let controller = window?.rootViewController as? FlutterViewController {
+      let contentProtectionChannel = FlutterMethodChannel(
+        name: "com.mentron.app/content_protection",
+        binaryMessenger: controller.binaryMessenger
+      )
 
-    // ── Content Protection MethodChannel ─────────────────────────────────────
-    guard let controller = window?.rootViewController as? FlutterViewController else {
-      return
-    }
-
-    contentProtectionChannel = FlutterMethodChannel(
-      name: "com.mentron.app/content_protection",
-      binaryMessenger: controller.binaryMessenger
-    )
-
-    contentProtectionChannel?.setMethodCallHandler { [weak self] call, result in
-      switch call.method {
-      case "enableProtection":
-        self?.enableScreenProtection()
-        result(nil)
-      case "disableProtection":
-        self?.disableScreenProtection()
-        result(nil)
-      case "isCapturing":
-        result(UIScreen.main.isCaptured)
-      default:
-        result(FlutterMethodNotImplemented)
+      contentProtectionChannel.setMethodCallHandler { [weak self] call, result in
+        switch call.method {
+        case "enableProtection":
+          self?.enableScreenProtection()
+          result(nil)
+        case "disableProtection":
+          self?.disableScreenProtection()
+          result(nil)
+        case "isCapturing":
+          result(UIScreen.main.isCaptured)
+        default:
+          result(FlutterMethodNotImplemented)
+        }
       }
     }
+
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   // ── iOS Secure Overlay Technique ─────────────────────────────────────────

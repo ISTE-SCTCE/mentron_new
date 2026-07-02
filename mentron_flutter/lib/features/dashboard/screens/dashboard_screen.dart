@@ -168,23 +168,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SliverToBoxAdapter(
               child: DashboardCarousel(),
             ),
-            // ── Course Cards ──────────────────────────────────────
+            // ── Course Cards ──────────────────────────────────────────────────────────
             SliverToBoxAdapter(
-              child: _buildSectionLabel('Featured Courses'),
+              child: _buildSectionLabel(
+                'Featured Courses',
+                onSeeAll: () => MainScaffoldState.of(context)?.setIndex(1),
+              ),
             ),
             SliverToBoxAdapter(
               child: _buildCourseCards(),
             ),
-            // ── Subject Scrollable Cards ──────────────────────────
+            // ── Subject Scrollable Cards ──────────────────────────────────────────────
             if (!_isExec) ...[
               SliverToBoxAdapter(
-                child: _buildSectionLabel('Your Subjects'),
+                child: _buildSectionLabel(
+                  'Your Subjects',
+                  onSeeAll: () => MainScaffoldState.of(context)?.setIndex(1),
+                ),
               ),
               SliverToBoxAdapter(
                 child: _buildSubjectCards(),
               ),
             ],
-            // ── Quick Actions Grid ────────────────────────────────
+            // ── Quick Actions Grid ────────────────────────────────────────────────────
             SliverToBoxAdapter(
               child: _buildSectionLabel('Quick Actions'),
             ),
@@ -193,7 +199,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             // ── Calendar ─────────────────────────────────────────
             SliverToBoxAdapter(
-              child: _buildSectionLabel('Class Calendar'),
+              child: _buildSectionLabel(
+                'Class Calendar',
+                onSeeAll: () => MainScaffoldState.of(context)?.setIndex(1),
+              ),
             ),
             const SliverToBoxAdapter(child: RealTimeCalendar()),
             // Bottom padding for navbar
@@ -272,9 +281,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: AppTheme.accentSecondary.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(50),
                   ),
-                  child: const Text(
-                    'Member Plan',
-                    style: TextStyle(
+                  child: Text(
+                    _userRole == 'core'
+                        ? 'Core'
+                        : (_userRole == 'exec'
+                            ? 'Execom'
+                            : (_userRole == 'admin' ? 'Admin' : 'Member')),
+                    style: const TextStyle(
                       color: AppTheme.accentSecondary,
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -843,7 +856,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Helpers
   // ─────────────────────────────────────────────────────────────────────────
 
-  Widget _buildSectionLabel(String label) {
+  Widget _buildSectionLabel(String label, {VoidCallback? onSeeAll}) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 26, 20, 0),
       child: Row(
@@ -857,14 +870,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               fontWeight: FontWeight.w800,
             ),
           ),
-          Text(
-            'See all',
-            style: const TextStyle(
-              color: AppTheme.accentPrimary,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
+          if (onSeeAll != null)
+            GestureDetector(
+              onTap: onSeeAll,
+              child: const Text(
+                'See all',
+                style: TextStyle(
+                  color: AppTheme.accentPrimary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
-          ),
         ],
       ),
     );

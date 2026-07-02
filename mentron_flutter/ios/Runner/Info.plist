@@ -69,5 +69,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- image_picker: required to access the photo library -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Mentron needs access to your photo library to let you set a profile picture.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Mentron needs access to save photos to your library.</string>
 </dict>
 </plist>

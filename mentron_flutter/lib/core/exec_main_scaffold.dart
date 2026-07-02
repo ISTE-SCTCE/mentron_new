@@ -12,6 +12,7 @@ import '../core/services/supabase_service.dart';
 import 'theme/exec_theme.dart';
 import 'utils/app_transitions.dart';
 import '../features/auth/screens/login_screen.dart';
+import '../screens/my_downloads_screen.dart';
 
 class ExecMainScaffold extends StatefulWidget {
   const ExecMainScaffold({super.key});
@@ -48,6 +49,7 @@ class ExecMainScaffoldState extends State<ExecMainScaffold>
     const GroupScreen(),
     const ProjectListScreen(),
     const MarketplaceScreen(),
+    const MyDownloadsScreen(),
   ];
 
   @override
@@ -297,6 +299,7 @@ class ExecMainScaffoldState extends State<ExecMainScaffold>
                 _buildNavItem(1, Icons.library_books_rounded, Icons.library_books_outlined),
                 _buildNavItem(2, Icons.rocket_launch_rounded, Icons.rocket_launch_outlined),
                 _buildNavItem(3, Icons.shopping_bag_rounded, Icons.shopping_bag_outlined),
+                _buildNavItem(4, Icons.download_done_rounded, Icons.download_for_offline_outlined),
                 if (_isExec) _buildBellItem(),
               ],
             ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -42,12 +43,14 @@ class _NoteViewerScreenState extends State<NoteViewerScreen>
   bool _isVideoError = false;
   bool _isPdfError = false;
   String? _pdfErrorMessage;
+  bool _isCapturing = false;
+  Timer? _captureCheckTimer;
 
   @override
   void initState() {
     super.initState();
 
-    // ── Screen protection — enable on entering this screen ──────────────────
+    // ── Screen protection — enable on entering this screen ──────────────────────
     WidgetsBinding.instance.addObserver(this);
     _protection.enableScreenProtection();
 
@@ -60,6 +63,21 @@ class _NoteViewerScreenState extends State<NoteViewerScreen>
     if (isVideo) {
       _initializeVideoPlayer();
     }
+
+    // ── iOS capture detection poll ─────────────────────────────────────────────────
+    _captureCheckTimer = Timer.periodic(
+      const Duration(seconds: 2),
+      (_) async {
+        final capturing = await _protection.isScreenRecording();
+        if (capturing != _isCapturing && mounted) {
+          setState(() => _isCapturing = capturing);
+          if (capturing) {
+            _videoPlayerController?.pause();
+            _showCaptureWarning();
+          }
+        }
+      },
+    );
   }
 
   Future<void> _initializeVideoPlayer() async {
@@ -96,6 +114,17 @@ class _NoteViewerScreenState extends State<NoteViewerScreen>
     }
   }
 
+  void _showCaptureWarning() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const AlertDialog(
+        title: Text('Screen Recording Detected'),
+        content: Text('Content is hidden while recording.'),
+      ),
+    );
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused ||
@@ -110,15 +139,51 @@ class _NoteViewerScreenState extends State<NoteViewerScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _captureCheckTimer?.cancel();
     _videoPlayerController?.dispose();
     _chewieController?.dispose();
-    // ── Screen protection — disable when leaving this screen ────────────────
+    // ── Screen protection — disable when leaving this screen ─────────────────
     _protection.disableScreenProtection();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Capture warning overlay — covers entire screen on iOS when recording detected
+    if (_isCapturing) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.screen_lock_portrait_rounded,
+                    color: Colors.white54, size: 56),
+                SizedBox(height: 20),
+                Text(
+                  'Screen recording detected',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'Content is hidden while your screen is being recorded or mirrored.',
+                  style: TextStyle(color: Colors.white54, fontSize: 13, height: 1.5),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppTheme.surfaceColor,
       appBar: AppBar(
