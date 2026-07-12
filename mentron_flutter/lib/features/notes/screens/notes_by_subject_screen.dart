@@ -12,6 +12,8 @@ import 'create_folder_screen.dart';
 import 'note_viewer_screen.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../core/utils/app_transitions.dart';
+import '../../../services/offline_storage_service.dart';
+import '../../../widgets/download_progress_widget.dart';
 
 class NotesBySubjectScreen extends StatefulWidget {
   final String subjectName;
@@ -47,6 +49,13 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
   String? _currentUserRole;
   bool _isLeadership = false;
   Map<String, bool> _permissions = {};
+
+  // Offline download state — keyed by note.id
+  final _offlineService = OfflineStorageService();
+  final Map<String, double> _downloadProgress = {}; // null = not downloading
+  final Map<String, bool> _isDownloading = {};
+  // local set populated from Hive on init
+  final Set<String> _downloaded = {};
 
   bool get _isInFolder => widget.folderId != null;
   RealtimeChannel? _notesSubscription;
@@ -85,6 +94,15 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
           });
         }
       } catch (_) {}
+    }
+
+    await _offlineService.initializeStorage();
+    final existing = _offlineService.getDownloadedContent();
+    if (mounted) {
+      setState(() {
+        _downloaded.clear();
+        _downloaded.addAll(existing.map((e) => e.id));
+      });
     }
 
     await Future.wait([
@@ -198,17 +216,86 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
     setState(() => _notes.removeWhere((n) => n.id == note.id));
   }
 
+  Future<void> _downloadNote(Note note) async {
+    if (_isDownloading[note.id] == true) return;
+
+    const String apiBaseUrl = 'https://mentron.istesctce.in';
+    String fetchUrl = note.fileUrl;
+    if (!fetchUrl.startsWith('http')) {
+      fetchUrl = '$apiBaseUrl$fetchUrl';
+    }
+
+    setState(() {
+      _isDownloading[note.id] = true;
+      _downloadProgress[note.id] = 0.0;
+    });
+
+    try {
+      await _offlineService.downloadContent(
+        contentId: note.id,
+        title: note.title,
+        url: fetchUrl,
+        contentType: 'notes',
+        onProgress: (p) {
+          if (mounted) setState(() => _downloadProgress[note.id] = p);
+        },
+      );
+      if (mounted) {
+        setState(() {
+          _downloaded.add(note.id);
+          _isDownloading[note.id] = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('"${note.title}" saved for offline'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isDownloading[note.id] = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Download failed: ${ErrorHandler.friendly(e)}'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _removeDownload(Note note) async {
+    await _offlineService.deleteDownloadedContent(note.id);
+    if (mounted) {
+      setState(() {
+        _downloaded.remove(note.id);
+        _isDownloading.remove(note.id);
+        _downloadProgress.remove(note.id);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('"${note.title}" removed from offline storage'),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+    }
+  }
+
   Future<void> _openNote(Note note) async {
     if (!mounted) return;
 
-    final bool isFolderNote = _isInFolder || 
-        widget.subjectName.startsWith('PYQ - ') || 
-        widget.subjectName.startsWith('Video - ');
+    // Only gate access if the uploader explicitly required ISTE ID
+    final bool isAuthorized = !note.requireIsteId ||
+        _currentUserRole == 'exec' ||
+        _currentUserRole == 'core' ||
+        _currentUserIsteId != null;
 
-    bool isAuthorized = true;
-    if (isFolderNote) {
-      isAuthorized = (_currentUserRole == 'exec' || _currentUserRole == 'core' || _currentUserIsteId != null);
-    }
 
     if (!isAuthorized) {
       final String? enteredId = await showDialog<String>(
@@ -306,6 +393,23 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       try {
         await supabase.client.rpc('increment_note_views', params: {'target_note_id': note.id});
       } catch (_) {}
+
+      final isDownloaded = _downloaded.contains(note.id);
+      if (isDownloaded) {
+        final tempFile = await _offlineService.decryptToTemp(note.id);
+        if (mounted) {
+          await Navigator.push(
+            context,
+            AppTransitions.slideUp(
+              NoteViewerScreen(url: tempFile.path, title: note.title, isLocalFile: true),
+            ),
+          );
+          if (await tempFile.exists()) {
+            await tempFile.delete();
+          }
+        }
+        return;
+      }
 
       const String apiBaseUrl = 'https://mentron.istesctce.in';
       String fetchUrl = note.fileUrl;
@@ -607,6 +711,13 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                                         Icon(Icons.description_outlined, color: widget.color, size: 18),
                                         const SizedBox(width: 10),
                                         Expanded(child: Text(note.title, style: const TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.w900, fontSize: 16))),
+                                        DownloadButton(
+                                          isDownloaded: _downloaded.contains(note.id),
+                                          isDownloading: _isDownloading[note.id] == true,
+                                          progress: _downloadProgress[note.id] ?? 0.0,
+                                          onDownload: () => _downloadNote(note),
+                                          onDelete: () => _removeDownload(note),
+                                        ),
                                         if (_canDelete(note))
                                           IconButton(
                                             onPressed: () => _deleteNote(note),
@@ -615,6 +726,13 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                                       ]),
                                       const SizedBox(height: 8),
                                       Text(note.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppTheme.textMuted, fontSize: 12, height: 1.4)),
+                                      if (_isDownloading[note.id] == true) ...[
+                                        const SizedBox(height: 12),
+                                        DownloadProgressWidget(
+                                          title: note.title,
+                                          progress: _downloadProgress[note.id] ?? 0.0,
+                                        ),
+                                      ],
                                       const SizedBox(height: 16),
                                       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../features/dashboard/screens/dashboard_screen.dart';
 import '../features/notes/screens/group_screen.dart';
 import '../features/projects/screens/project_list_screen.dart';
 import '../features/marketplace/screens/marketplace_screen.dart';
 import '../features/requests/screens/requests_screen.dart';
+import '../features/notifications/screens/notifications_inbox_screen.dart';
 import '../screens/my_downloads_screen.dart';
 import '../core/services/supabase_service.dart';
+import '../services/notification_manager_service.dart';
 import 'theme/app_theme.dart';
 import 'utils/app_transitions.dart';
 import '../features/auth/screens/login_screen.dart';
@@ -36,6 +39,7 @@ class MainScaffoldState extends State<MainScaffold>
   bool _isNavbarVisible = true;
   bool _isExec = false;
   int _pendingCount = 0;
+  int _notifBadgeCount = 0;   // unread broadcast notifications for all users
   RealtimeChannel? _roleChannel;
   Timer? _sessionCheckTimer;
   bool _isCheckingSession = false;
@@ -69,6 +73,7 @@ class MainScaffoldState extends State<MainScaffold>
 
     _checkUserRole();
     _subscribeToRoleChanges();
+    _loadNotifBadge();
     _sessionCheckTimer = Timer.periodic(
       const Duration(seconds: 30),
       (_) => _validateSession(),
@@ -81,6 +86,7 @@ class MainScaffoldState extends State<MainScaffold>
     if (state == AppLifecycleState.resumed) {
       _checkUserRole();
       _validateSession();
+      _loadNotifBadge();
     }
   }
 
@@ -185,6 +191,26 @@ class MainScaffoldState extends State<MainScaffold>
           _pendingCount = (projects as List).length;
         });
       }
+    } catch (_) {}
+  }
+
+  /// Loads the unread broadcast notification count for the bell badge.
+  /// "Unread" = sent after [notifications_inbox_last_seen] in SharedPreferences.
+  Future<void> _loadNotifBadge() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final lastSeenMs =
+          prefs.getInt(NotificationsInboxScreen.lastSeenPrefKey);
+      final since = lastSeenMs != null
+          ? DateTime.fromMillisecondsSinceEpoch(lastSeenMs)
+          : DateTime.now().subtract(const Duration(days: 30));
+
+      final supabase =
+          Provider.of<SupabaseService>(context, listen: false);
+      final svc = NotificationManagerService(supabase.client);
+      final count = await svc.countNewSince(since);
+
+      if (mounted) setState(() => _notifBadgeCount = count);
     } catch (_) {}
   }
 
@@ -293,6 +319,7 @@ class MainScaffoldState extends State<MainScaffold>
                 _buildNavItem(2, Icons.assignment_rounded, Icons.assignment_outlined),
                 _buildNavItem(3, Icons.shopping_bag_rounded, Icons.shopping_bag_outlined),
                 _buildNavItem(4, Icons.download_done_rounded, Icons.download_for_offline_outlined),
+                // Exec-only requests bell
                 if (_isExec) _buildBellItem(),
               ],
             ),
@@ -327,7 +354,65 @@ class MainScaffoldState extends State<MainScaffold>
     );
   }
 
-  /// Exec-only bell icon with pending badge
+  /// Notification inbox bell — shown for ALL signed-in users.
+  /// Badge = number of unread broadcast notifications.
+  Widget _buildNotifInboxBell() {
+    return GestureDetector(
+      onTap: () async {
+        await Navigator.push(
+          context,
+          AppTransitions.slideUp(const NotificationsInboxScreen()),
+        );
+        // Refresh badge after returning (user may have marked as read)
+        _loadNotifBadge();
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Stack(
+        alignment: Alignment.center,
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: const BoxDecoration(
+              color: Colors.transparent,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.notifications_outlined,
+              color: Color(0xFF8E90A6),
+              size: 22,
+            ),
+          ),
+          if (_notifBadgeCount > 0)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                constraints:
+                    const BoxConstraints(minWidth: 16, minHeight: 16),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF6D28D9),
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  _notifBadgeCount > 99 ? '99+' : '$_notifBadgeCount',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 8,
+                    fontWeight: FontWeight.w900,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Exec-only bell icon with pending project-approval badge
   Widget _buildBellItem() {
     return GestureDetector(
       onTap: () async {

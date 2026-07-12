@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
     let subject: string
     let fileKey: string
     let folderId: string | null = null
+    let requireIsteId: boolean = false
 
     if (contentType.includes('application/json')) {
         try {
@@ -32,6 +33,7 @@ export async function POST(request: NextRequest) {
             subject = body.subject || ''
             fileKey = body.fileKey || ''
             folderId = body.folder_id || null
+            requireIsteId = body.require_iste_id === true
         } catch {
             return NextResponse.json({ error: 'Invalid JSON body.' }, { status: 400 })
         }
@@ -51,6 +53,7 @@ export async function POST(request: NextRequest) {
         subject = formData.get('subject') as string || ''
         fileKey = formData.get('fileKey') as string || ''
         folderId = formData.get('folder_id') as string | null
+        requireIsteId = formData.get('require_iste_id') === 'true'
     }
 
     if (!fileKey) {
@@ -79,6 +82,8 @@ export async function POST(request: NextRequest) {
     if (folderId && folderId.trim() !== '') {
         basePayload.folder_id = folderId.trim()
     }
+
+    basePayload.require_iste_id = requireIsteId
 
     let insertError
     let redirectUrl: string

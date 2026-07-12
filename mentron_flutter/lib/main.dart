@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,7 @@ import 'core/main_scaffold.dart';
 import 'core/exec_main_scaffold.dart';
 import 'core/splash_screen.dart';
 import 'features/auth/screens/login_screen.dart';
+import 'features/notifications/screens/notifications_inbox_screen.dart';
 import 'core/providers/academic_provider.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/services/version_service.dart';
@@ -20,6 +22,7 @@ import 'features/auth/screens/onboarding_screen.dart';
 import 'services/auth_security_service.dart';
 import 'services/api_security_service.dart';
 import 'services/offline_storage_service.dart';
+import 'services/fcm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,6 +62,30 @@ void main() async {
   // ── Phase 4: Offline Storage ──────────────────────────────────────────────
   await OfflineStorageService().initializeStorage();
 
+  // ── Phase 5: Firebase + FCM ───────────────────────────────────────────────
+  // Requires google-services.json (Android) and GoogleService-Info.plist (iOS)
+  // in the respective platform directories. The try-catch prevents a crash
+  // if Firebase is not yet configured during local development.
+  try {
+    await Firebase.initializeApp();
+    await FCMService.instance.initialize();
+
+    // ── First-launch notification permission gate ──────────────────────────
+    // The OS native permission dialog must only be shown ONCE (first install).
+    // A SharedPreferences flag persists across sessions. If permission was
+    // previously denied/granted the dialog is NOT shown again, preventing
+    // user annoyance and complying with platform best-practice guidelines.
+    final prefs = await SharedPreferences.getInstance();
+    final permissionRequested =
+        prefs.getBool('notification_permission_requested') ?? false;
+    if (!permissionRequested) {
+      await FCMService.instance.requestPermissions();
+      await prefs.setBool('notification_permission_requested', true);
+    }
+  } catch (e) {
+    debugPrint('[Firebase] Init skipped (not configured yet): $e');
+  }
+
   runApp(
     MultiProvider(
       providers: [
@@ -81,15 +108,34 @@ class MentronApp extends StatefulWidget {
 class _MentronAppState extends State<MentronApp> {
   bool _isExec = false;
   bool _isLoadingRole = true;
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
     super.initState();
+    // Pass the navigator key to FCMService so tapped notifications can route
+    // to the inbox without needing a BuildContext.
+    FCMService.navigatorKey = _navigatorKey;
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     _checkRole(supabase.client.auth.currentSession?.user.id);
     supabase.authStateChanges.listen((event) {
       _checkRole(event.session?.user.id);
+      // Subscribe / unsubscribe from FCM topic on auth state change
+      if (event.session != null) {
+        FCMService.instance.subscribeToAllUsersTopic();
+        // Store FCM token for targeted marketplace notifications
+        FCMService.instance.storeToken(
+          supabase.client,
+          event.session!.user.id,
+        );
+      } else {
+        FCMService.instance.unsubscribeFromAllUsersTopic();
+      }
     });
+    // Subscribe immediately if already signed in
+    if (supabase.client.auth.currentSession != null) {
+      FCMService.instance.subscribeToAllUsersTopic();
+    }
   }
 
   Future<void> _checkRole(String? userId) async {
@@ -139,8 +185,12 @@ class _MentronAppState extends State<MentronApp> {
     return MaterialApp(
       title: 'Mentron',
       debugShowCheckedModeBanner: false,
+      navigatorKey: _navigatorKey,
       theme: themeProvider.isExecMode ? ExecTheme.darkTheme : AppTheme.darkTheme,
       scrollBehavior: const _AndroidScrollBehavior(),
+      routes: {
+        '/notifications_inbox': (_) => const NotificationsInboxScreen(),
+      },
       builder: (context, child) {
         if (themeProvider.isExecMode && child != null) {
           return Container(

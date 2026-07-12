@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "43760246944",
+    "project_id": "mentron-e664c",
+    "storage_bucket": "mentron-e664c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:43760246944:android:bacc37da6edffffda5e9c5",
+        "android_client_info": {
+          "package_name": "com.iste.mentron"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsi1usGXRHv4JHCuY8qn2_yX1H1pKgAh4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:43760246944:android:c348791fc73d24c2a5e9c5",
+        "android_client_info": {
+          "package_name": "com.mentron.istesctce"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsi1usGXRHv4JHCuY8qn2_yX1H1pKgAh4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

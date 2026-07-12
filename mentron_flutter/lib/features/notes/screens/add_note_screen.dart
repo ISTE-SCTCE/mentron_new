@@ -34,6 +34,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
   File? _selectedFile;
   bool _isLoading = false;
+  bool _requireIsteId = false;
   List<Map<String, dynamic>> _availableFolders = [];
   bool _loadingFolders = false;
 
@@ -295,6 +296,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
           'subject': _selectedSubject,
           'fileKey': fileKey,
           'folder_id': _selectedFolderId,
+          'require_iste_id': _requireIsteId,
         }),
       );
 
@@ -588,7 +590,62 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                         ],
 
                         _buildFilePicker(),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 20),
+
+                        // ── Require ISTE ID toggle ──────────────────────
+                        GestureDetector(
+                          onTap: () => setState(() => _requireIsteId = !_requireIsteId),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            decoration: BoxDecoration(
+                              color: _requireIsteId
+                                  ? AppTheme.accentSecondary.withOpacity(0.08)
+                                  : Colors.white.withOpacity(0.03),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: _requireIsteId
+                                    ? AppTheme.accentSecondary.withOpacity(0.4)
+                                    : Colors.white.withOpacity(0.08),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Checkbox(
+                                  value: _requireIsteId,
+                                  onChanged: (v) => setState(() => _requireIsteId = v ?? false),
+                                  activeColor: AppTheme.accentSecondary,
+                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                                const SizedBox(width: 10),
+                                const Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Require ISTE ID to access',
+                                        style: TextStyle(
+                                          color: AppTheme.textMain,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      SizedBox(height: 2),
+                                      Text(
+                                        'Non-members will need to verify ISTE membership',
+                                        style: TextStyle(
+                                          color: AppTheme.textMuted,
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
 
                         ElevatedButton(
                           onPressed: _isLoading ? null : _handleUpload,

@@ -8,6 +8,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/utils/app_transitions.dart';
 import '../../../screens/video_player_screen.dart';
+import '../../../services/offline_storage_service.dart';
+import '../../../widgets/download_progress_widget.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OFFENSO ACADEMY — Main Screen (entry point)
@@ -371,14 +373,6 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
                 ),
               ),
 
-            // ── Certificates teaser ───────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                child: _buildCertificateTeaser(),
-              ).animate().fadeIn(delay: 500.ms),
-            ),
-
             const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
           ],
         ),
@@ -627,91 +621,7 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
     );
   }
 
-  // ── Certificate teaser ─────────────────────────────────────────────────────
 
-  Widget _buildCertificateTeaser() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [_surfaceMid, _surfaceElevated],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: _neonGreen.withOpacity(0.2),
-          style: BorderStyle.solid,
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: _neonGreen.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.workspace_premium_outlined, color: _neonGreen, size: 26),
-          ),
-          const SizedBox(width: 14),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'CERTIFICATE OF COMPLETION',
-                  style: TextStyle(
-                    color: _neonGreen,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-                SizedBox(height: 3),
-                Text(
-                  'Ethical Hacking Mastery 101',
-                  style: TextStyle(
-                    color: _textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  'Complete all modules to earn your certificate',
-                  style: TextStyle(
-                    color: _textSecondary,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              border: Border.all(color: _neonGreen, width: 1),
-              borderRadius: BorderRadius.circular(2),
-            ),
-            child: const Text(
-              'VIEW',
-              style: TextStyle(
-                color: _neonGreen,
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _sectionLabel(String label, {int? count, Widget? action}) {
     return Row(
@@ -786,7 +696,6 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
   static const Color _neonGreen       = Color(0xFF00FF41);
   static const Color _surfaceDark     = Color(0xFF0A0E27);
   static const Color _surfaceMid      = Color(0xFF1A1F3A);
-  static const Color _surfaceElevated = Color(0xFF252D4A);
   static const Color _textPrimary     = Color(0xFFF0F0F0);
   static const Color _textSecondary   = Color(0xFFA0A0A0);
   static const Color _border          = Color(0xFF2A3A5A);
@@ -795,10 +704,28 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
   bool _isLoading = true;
   bool _isUploading = false;
 
+  // ── Offline download state ──────────────────────────────────────────────
+  final _offlineService = OfflineStorageService();
+  final Map<String, double> _downloadProgress = {};
+  final Map<String, bool> _isDownloading = {};
+  final Set<String> _downloaded = {};
+
   @override
   void initState() {
     super.initState();
     _fetchLectures();
+    _initOffline();
+  }
+
+  Future<void> _initOffline() async {
+    await _offlineService.initializeStorage();
+    final existing = _offlineService.getDownloadedContent();
+    if (mounted) {
+      setState(() {
+        _downloaded.clear();
+        _downloaded.addAll(existing.map((e) => e.id));
+      });
+    }
   }
 
   Future<void> _fetchLectures() async {
@@ -944,6 +871,73 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
       if (mounted) {
         setState(() => _isUploading = false);
       }
+    }
+  }
+
+  Future<void> _downloadLecture(Map<String, dynamic> lecture) async {
+    final id = lecture['id'] as String;
+    final url = lecture['video_url'] as String? ?? '';
+    if (_isDownloading[id] == true || url.isEmpty) return;
+
+    setState(() {
+      _isDownloading[id] = true;
+      _downloadProgress[id] = 0.0;
+    });
+
+    try {
+      await _offlineService.downloadContent(
+        contentId: id,
+        title: lecture['title'] ?? 'Lecture',
+        url: url,
+        contentType: 'academy_videos',
+        onProgress: (p) {
+          if (mounted) setState(() => _downloadProgress[id] = p);
+        },
+      );
+      if (mounted) {
+        setState(() {
+          _downloaded.add(id);
+          _isDownloading[id] = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('"${lecture['title']}" saved for offline'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isDownloading[id] = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Download failed: $e'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _removeDownloadedLecture(String id, String title) async {
+    await _offlineService.deleteDownloadedContent(id);
+    if (mounted) {
+      setState(() {
+        _downloaded.remove(id);
+        _isDownloading.remove(id);
+        _downloadProgress.remove(id);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('"$title" removed from offline storage'),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
     }
   }
 
@@ -1101,6 +1095,10 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
                           itemCount: _lectures.length,
                           itemBuilder: (ctx, i) {
                             final lecture = _lectures[i];
+                            final id = lecture['id'] as String;
+                            final isDownloaded = _downloaded.contains(id);
+                            final isDownloading = _isDownloading[id] == true;
+                            final progress = _downloadProgress[id] ?? 0.0;
                             return Container(
                               margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.all(14),
@@ -1109,56 +1107,91 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(color: _border),
                               ),
-                              child: Row(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  GestureDetector(
-                                    onTap: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => VideoPlayerScreen(
-                                          networkUrl: lecture['video_url'],
-                                          title: lecture['title'],
-                                        ),
-                                      ),
-                                    ),
-                                    child: Container(
-                                      width: 44,
-                                      height: 44,
-                                      decoration: BoxDecoration(
-                                        color: _neonGreen.withOpacity(0.12),
-                                        shape: BoxShape.circle,
-                                        border: Border.all(color: _neonGreen.withOpacity(0.3)),
-                                      ),
-                                      child: const Icon(Icons.play_arrow_rounded, color: _neonGreen, size: 24),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 14),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          lecture['title'] ?? 'Untitled Lecture',
-                                          style: const TextStyle(
-                                            color: _textPrimary,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.bold,
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => VideoPlayerScreen(
+                                              networkUrl: lecture['video_url'],
+                                              title: lecture['title'],
+                                            ),
                                           ),
                                         ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          lecture['description'] ?? 'No description provided.',
-                                          style: const TextStyle(color: _textSecondary, fontSize: 11),
+                                        child: Container(
+                                          width: 44,
+                                          height: 44,
+                                          decoration: BoxDecoration(
+                                            color: _neonGreen.withOpacity(0.12),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(color: _neonGreen.withOpacity(0.3)),
+                                          ),
+                                          child: const Icon(Icons.play_arrow_rounded, color: _neonGreen, size: 24),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              lecture['title'] ?? 'Untitled Lecture',
+                                              style: const TextStyle(
+                                                color: _textPrimary,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              lecture['description'] ?? 'No description provided.',
+                                              style: const TextStyle(color: _textSecondary, fontSize: 11),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      // Download button
+                                      if (isDownloading)
+                                        SizedBox(
+                                          width: 22,
+                                          height: 22,
+                                          child: CircularProgressIndicator(
+                                            value: progress,
+                                            color: _neonGreen,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      else if (isDownloaded)
+                                        IconButton(
+                                          icon: const Icon(Icons.download_done_rounded, color: _neonGreen, size: 20),
+                                          onPressed: () => _removeDownloadedLecture(id, lecture['title'] ?? ''),
+                                          tooltip: 'Remove offline copy',
+                                        )
+                                      else
+                                        IconButton(
+                                          icon: const Icon(Icons.download_outlined, color: _textSecondary, size: 20),
+                                          onPressed: () => _downloadLecture(lecture),
+                                          tooltip: 'Download for offline',
+                                        ),
+                                      if (widget.isExec) ...[
+                                        const SizedBox(width: 4),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete_outline_rounded,
+                                              color: Colors.redAccent, size: 20),
+                                          onPressed: () => _deleteLecture(lecture['id'], lecture['title']),
                                         ),
                                       ],
-                                    ),
+                                    ],
                                   ),
-                                  if (widget.isExec) ...[
-                                    const SizedBox(width: 8),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete_outline_rounded,
-                                          color: Colors.redAccent, size: 20),
-                                      onPressed: () => _deleteLecture(lecture['id'], lecture['title']),
+                                  if (isDownloading) ...[
+                                    const SizedBox(height: 10),
+                                    DownloadProgressWidget(
+                                      title: lecture['title'] ?? 'Lecture',
+                                      progress: progress,
                                     ),
                                   ],
                                 ],

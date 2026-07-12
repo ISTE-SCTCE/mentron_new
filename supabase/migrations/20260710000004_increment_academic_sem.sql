@@ -1,0 +1,1 @@
+-- Migration reverted: Academic sem calculation logic updated in code instead.

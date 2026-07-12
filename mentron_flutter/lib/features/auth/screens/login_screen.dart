@@ -10,6 +10,9 @@ import 'forgot_password_screen.dart';
 import '../../../core/utils/app_transitions.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../core/main_scaffold.dart';
+import 'dart:async';
+import 'package:flutter/services.dart';
+import '../../execom/screens/execom_login_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,6 +26,15 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
+  Timer? _logoPressTimer;
+
+  @override
+  void dispose() {
+    _logoPressTimer?.cancel();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   Future<void> _handleLogin() async {
     final email = _emailController.text.trim().toLowerCase();
@@ -83,11 +95,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Mentron logo
-                    Image.asset(
-                      'assets/images/mentron_logo.png',
-                      width: 200,
-                      filterQuality: FilterQuality.high,
-                      isAntiAlias: true,
+                    GestureDetector(
+                      onTapDown: (_) {
+                        _logoPressTimer = Timer(const Duration(seconds: 2), () {
+                          HapticFeedback.heavyImpact();
+                          Navigator.push(
+                            context,
+                            AppTransitions.fade(const ExecomLoginScreen()),
+                          );
+                        });
+                      },
+                      onTapUp: (_) => _logoPressTimer?.cancel(),
+                      onTapCancel: () => _logoPressTimer?.cancel(),
+                      child: Image.asset(
+                        'assets/images/mentron_logo.png',
+                        width: 200,
+                        filterQuality: FilterQuality.high,
+                        isAntiAlias: true,
+                      ),
                     ).animate().scale(
                       delay: 200.ms,
                       duration: 600.ms,

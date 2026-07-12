@@ -17,8 +17,8 @@ class AcademicService {
     // Base semester for the current academic year cycle starting in August
     int semester = (yearsDifference * 2) + 1;
 
-    // If we are before August, we are in the even semester of the previous academic year
-    if (currentMonth < 8) {
+    // If we are before June (January to May), we are in the even semester
+    if (currentMonth < 6) {
       semester -= 1; 
     }
 

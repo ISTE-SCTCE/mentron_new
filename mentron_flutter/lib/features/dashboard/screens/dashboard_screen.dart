@@ -1,5 +1,7 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/models/subject_data.dart';
@@ -8,9 +10,9 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/illustration_card.dart';
 import '../widgets/real_time_calendar.dart';
 import '../widgets/dashboard_carousel.dart';
-import '../widgets/event_banner_widget.dart';
-import '../widgets/offenso_banner_widget.dart';
-import '../../notes/screens/add_note_screen.dart';
+import '../../../widgets/home/offenso_banner_card.dart';
+import '../../../widgets/home/offenso_launch_overlay.dart';
+import '../../home/widgets/events_calendar_widget.dart';
 import '../../notes/screens/notes_by_subject_screen.dart';
 import '../../projects/screens/add_project_screen.dart';
 import '../../events/screens/event_list_screen.dart';
@@ -21,6 +23,9 @@ import 'core_members_screen.dart';
 import '../../../core/utils/app_transitions.dart';
 import '../../../core/main_scaffold.dart';
 import '../../../core/providers/academic_provider.dart';
+import '../../../widgets/home/event_banner_bottom_sheet.dart';
+import '../../../services/notification_manager_service.dart';
+import '../../notifications/screens/notifications_inbox_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -38,12 +43,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String _userRole = 'member';
   Map<String, dynamic>? _profile;
   bool _isExec = false;
+  int _notifBadgeCount = 0;
 
   @override
   void initState() {
     super.initState();
     _loadInitialStats();
+    _loadNotifBadge();
     _setupRealtime();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await OffensoLaunchOverlay.showIfNeeded(context);
+      _showActiveEventsBottomSheetIfNeeded();
+    });
+  }
+
+  Future<void> _loadNotifBadge() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final lastSeenMs = prefs.getInt(NotificationsInboxScreen.lastSeenPrefKey);
+      final since = lastSeenMs != null
+          ? DateTime.fromMillisecondsSinceEpoch(lastSeenMs)
+          : DateTime.now().subtract(const Duration(days: 30));
+
+      final supabase = Provider.of<SupabaseService>(context, listen: false).client;
+      final svc = NotificationManagerService(supabase);
+      final count = await svc.countNewSince(since);
+
+      if (mounted) setState(() => _notifBadgeCount = count);
+    } catch (_) {}
   }
 
   Future<void> _loadInitialStats() async {
@@ -71,6 +98,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _isExec = userRole == 'exec' || userRole == 'core';
               _profile = profileRes;
             });
+            
+            // Re-initialize academic provider to sync semester updates
+            final admissionYear = profileRes['admission_year'] as int? ?? DateTime.now().year;
+            final admissionMonth = profileRes['admission_month'] as int? ?? 8;
+            Provider.of<AcademicProvider>(context, listen: false).initialize(admissionYear, admissionMonth);
           }
           if (profileRes['xp'] != null) {
             fetchedXp = int.tryParse(profileRes['xp'].toString()) ?? 0;
@@ -119,7 +151,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   List<String> _getTopSubjects() {
-    final academic = Provider.of<AcademicProvider>(context, listen: false);
+    final academic = Provider.of<AcademicProvider>(context);
     final year = academic.currentAcademicYear;
     final semNum = academic.currentSemester;
     final sem = 'S$semNum';
@@ -143,6 +175,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Provider.of<AcademicProvider>(context);
     final firstName =
         _profile?['full_name']?.toString().split(' ').first ?? 'Student';
 
@@ -162,11 +195,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             // ── Offenso Academy Main Banner ───────────────────────
             const SliverToBoxAdapter(
-              child: OffensoBannerWidget(),
+              child: OffensoBannerCard(),
             ),
             // ── Dashboard Event & Trending Subject Carousel ──────
             const SliverToBoxAdapter(
               child: DashboardCarousel(),
+            ),
+            // ── Events Calendar ──────────────────────────────────
+            const SliverToBoxAdapter(
+              child: EventsCalendarWidget(),
             ),
             // ── Course Cards ──────────────────────────────────────────────────────────
             SliverToBoxAdapter(
@@ -199,10 +236,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             // ── Calendar ─────────────────────────────────────────
             SliverToBoxAdapter(
-              child: _buildSectionLabel(
-                'Class Calendar',
-                onSeeAll: () => MainScaffoldState.of(context)?.setIndex(1),
-              ),
+              child: _buildSectionLabel('Calendar'),
             ),
             const SliverToBoxAdapter(child: RealTimeCalendar()),
             // Bottom padding for navbar
@@ -307,9 +341,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(width: 8),
           // Notification
-          _buildHeaderAction(
-            icon: Icons.notifications_none_rounded,
-            onTap: () {},
+          GestureDetector(
+            onTap: () async {
+              await Navigator.push(
+                context,
+                AppTransitions.slideUp(const NotificationsInboxScreen()),
+              );
+              _loadNotifBadge();
+            },
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                _buildHeaderAction(
+                  icon: Icons.notifications_none_rounded,
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      AppTransitions.slideUp(const NotificationsInboxScreen()),
+                    );
+                    _loadNotifBadge();
+                  },
+                ),
+                if (_notifBadgeCount > 0)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.redAccent,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        _notifBadgeCount > 9 ? '9+' : '$_notifBadgeCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ],
       ),
@@ -387,7 +461,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // ─────────────────────────────────────────────────────────────────────────
 
   Widget _buildCourseCards() {
-    final academic = Provider.of<AcademicProvider>(context, listen: false);
+    final academic = Provider.of<AcademicProvider>(context);
     final year = academic.currentAcademicYear;
     final semNum = academic.currentSemester;
     final sem = 'S$semNum';
@@ -448,7 +522,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // ─────────────────────────────────────────────────────────────────────────
 
   Widget _buildSubjectCards() {
-    final academic = Provider.of<AcademicProvider>(context, listen: false);
+    final academic = Provider.of<AcademicProvider>(context);
     final year = academic.currentAcademicYear;
     final semNum = academic.currentSemester;
     final sem = 'S$semNum';
@@ -885,6 +959,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _showActiveEventsBottomSheetIfNeeded() async {
+    // Show only ~30% of the time to avoid annoying the user
+    if (Random().nextDouble() > 0.3) return;
+
+    final supabaseService = Provider.of<SupabaseService>(context, listen: false);
+    final supabase = supabaseService.client;
+    final now = DateTime.now().toUtc().toIso8601String();
+
+    try {
+      final response = await supabase
+          .from('events')
+          .select('*')
+          .lte('start_date', now)
+          .gte('end_date', now)
+          .order('start_date', ascending: true)
+          .limit(3);
+
+      final activeEvents = List<Map<String, dynamic>>.from(response);
+      if (activeEvents.isNotEmpty && mounted) {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          barrierColor: Colors.black.withOpacity(0.6),
+          builder: (ctx) => EventBannerBottomSheet(events: activeEvents),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error showing active events bottom sheet: $e');
+    }
   }
 }
 

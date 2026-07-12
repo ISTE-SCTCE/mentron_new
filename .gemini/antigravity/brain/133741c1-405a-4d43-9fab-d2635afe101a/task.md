@@ -1,0 +1,9 @@
+- [x] Create lib/widgets/home/offenso_banner_card.dart StatefulWidget
+- [x] Implement gradient background, scanline, and scan sweep animation
+- [x] Add corner brackets, blinking red dot, and terminal prompt layout
+- [x] Add blinking cursor (using step animation)
+- [x] Add CTA button (with double glow box shadows) and "Certified" badge
+- [x] Integrate OffensoBannerCard in dashboard_screen.dart (replace OffensoBannerWidget)
+- [x] Create lib/widgets/home/offenso_launch_overlay.dart full-screen splash promo
+- [x] Trigger overlay once per session from dashboard_screen.dart
+- [x] Verify build and layout stability for both elements

@@ -439,10 +439,12 @@ class _DownloadCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // Open arrow
+              // Delete button
               const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward_ios_rounded,
-                  color: AppTheme.textMuted, size: 14),
+              IconButton(
+                icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 20),
+                onPressed: onDelete,
+              ),
             ],
           ),
         ),

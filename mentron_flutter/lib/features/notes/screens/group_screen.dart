@@ -40,7 +40,7 @@ class _GroupScreenState extends State<GroupScreen> {
     try {
       final profile = await supabase.client
           .from('profiles')
-          .select('department, roll_number, year')
+          .select('department, roll_number, year, admission_year, admission_month')
           .eq('id', user.id)
           .maybeSingle();
 
@@ -54,6 +54,12 @@ class _GroupScreenState extends State<GroupScreen> {
           final stored = (profile['department'] as String? ?? '').trim();
           if (stored.isNotEmpty && stored.toLowerCase() != 'other') dept = stored;
         }
+        
+        // Re-initialize academic provider to sync semester updates
+        final admissionYear = profile['admission_year'] as int? ?? DateTime.now().year;
+        final admissionMonth = profile['admission_month'] as int? ?? 8;
+        Provider.of<AcademicProvider>(context, listen: false).initialize(admissionYear, admissionMonth);
+
         setState(() {
           _userRoll = roll;
           _userDept = dept;
@@ -177,7 +183,7 @@ class _GroupScreenState extends State<GroupScreen> {
   }
 
   Widget _buildMySubjectsList() {
-    final academic = Provider.of<AcademicProvider>(context, listen: false);
+    final academic = Provider.of<AcademicProvider>(context);
     final year = academic.currentAcademicYear;
     final semNum = academic.currentSemester;
     final sem = 'S$semNum';

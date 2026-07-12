@@ -52,6 +52,7 @@ export default function NotesUploadPage() {
     const [uploadStage, setUploadStage] = useState<'idle' | 'preparing' | 'uploading' | 'saving'>('idle')
     const [submitError, setSubmitError] = useState<string | null>(null)
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [requireIsteId, setRequireIsteId] = useState(false)
 
     // Auth check
     useEffect(() => {
@@ -267,6 +268,7 @@ export default function NotesUploadPage() {
                     formData.set('department', dept)
                 }
                 if (folderId) formData.set('folder_id', folderId)
+                formData.set('require_iste_id', requireIsteId ? 'true' : 'false')
 
                 // CRITICAL: Remove the large binary file from formData before sending to Vercel/metadata API
                 // This prevents the "Request Entity Too Large" error 413
@@ -512,7 +514,33 @@ export default function NotesUploadPage() {
                                     )}
                                 </div>
                             </div>
-                        </div>
+
+                        {/* Require ISTE ID toggle */}
+                        <button
+                            type="button"
+                            onClick={() => setRequireIsteId(prev => !prev)}
+                            className={`w-full flex items-start gap-4 p-5 rounded-2xl border text-left transition-all duration-200 ${
+                                requireIsteId
+                                    ? 'bg-blue-500/10 border-blue-500/40 shadow-[0_0_20px_rgba(59,130,246,0.1)]'
+                                    : 'bg-white/3 border-white/8 hover:bg-white/5 hover:border-white/15'
+                            }`}
+                        >
+                            <div className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                                requireIsteId ? 'bg-blue-500 border-blue-500' : 'border-white/20 bg-black/30'
+                            }`}>
+                                {requireIsteId && (
+                                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                )}
+                            </div>
+                            <div>
+                                <p className="text-sm font-black text-white uppercase tracking-wider">Require ISTE ID to access</p>
+                                <p className="text-xs text-gray-500 font-medium mt-1">Non-ISTE members will need to verify their membership ID before opening this note</p>
+                            </div>
+                        </button>
+
+                    </div>
 
                         {uploadStage !== 'idle' && (
                             <div className="space-y-3 pt-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -534,6 +562,7 @@ export default function NotesUploadPage() {
                                 </div>
                             </div>
                         )}
+
 
                         <button
                             type="submit"

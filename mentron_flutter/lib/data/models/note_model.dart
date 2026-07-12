@@ -9,6 +9,7 @@ class Note {
   final DateTime createdAt;
   final String? uploaderName;
   final String? folderId;
+  final bool requireIsteId;
 
   Note({
     required this.id,
@@ -21,6 +22,7 @@ class Note {
     required this.createdAt,
     this.uploaderName,
     this.folderId,
+    this.requireIsteId = false,
   });
 
   factory Note.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,8 @@ class Note {
       createdAt: DateTime.parse(json['created_at']),
       uploaderName: json['profiles']?['full_name'],
       folderId: json['folder_id'],
+      requireIsteId: json['require_iste_id'] == true,
     );
   }
 }
+
