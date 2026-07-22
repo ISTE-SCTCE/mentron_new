@@ -452,86 +452,84 @@ export function DashboardClient({
         <p className="section-label" style={{ marginBottom: 14 }}>Featured Event</p>
         
         {/* WHAT THE HACK FEATURED GLOW CARD */}
-        <div style={{
-          position: 'relative',
-          borderRadius: 24,
-          overflow: 'hidden',
-          background: '#0B0E2A',
-          border: '2px solid #00FF41',
-          boxShadow: '0 0 25px rgba(0, 255, 65, 0.25)',
-          marginBottom: 24,
-        }}>
-          {/* Neon header badge */}
+        <Link href="/events/offenso" style={{ textDecoration: 'none', display: 'block' }}>
           <div style={{
-            position: 'absolute', top: 12, left: 12, zIndex: 10,
-            background: 'rgba(0, 255, 65, 0.15)',
-            border: '1px solid #00FF41',
-            borderRadius: 6,
-            padding: '4px 8px',
-            display: 'flex', alignItems: 'center', gap: 4
+            position: 'relative',
+            borderRadius: 24,
+            overflow: 'hidden',
+            background: '#0B0E2A',
+            border: '2px solid #00FF41',
+            boxShadow: '0 0 25px rgba(0, 255, 65, 0.25)',
+            marginBottom: 24,
+            cursor: 'pointer',
           }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00FF41' }} />
-            <span style={{ fontFamily: 'Inter', fontSize: 10, fontWeight: 900, color: '#00FF41', letterSpacing: 1 }}>CYBERSECURITY</span>
-          </div>
-
-          {/* Event Banner Image */}
-          <div style={{ position: 'relative', height: 200, width: '100%', overflow: 'hidden' }}>
-            <img 
-              src="https://istesctce.in/images/events-images/what%20the%20hack.jpeg" 
-              alt="What The Hack" 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              onError={(e: any) => {
-                e.target.src = 'https://istesctce.in/images/Logos/isteofficiallogo.png'
-              }}
-            />
+            {/* Neon header badge */}
             <div style={{
-              position: 'absolute', bottom: 0, left: 0, right: 0,
-              height: '100%',
-              background: 'linear-gradient(to top, #0B0E2A 20%, rgba(11, 14, 42, 0.6) 60%, transparent 100%)'
-            }} />
-          </div>
+              position: 'absolute', top: 12, left: 12, zIndex: 10,
+              background: 'rgba(0, 255, 65, 0.15)',
+              border: '1px solid #00FF41',
+              borderRadius: 6,
+              padding: '4px 8px',
+              display: 'flex', alignItems: 'center', gap: 4
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00FF41' }} />
+              <span style={{ fontFamily: 'Inter', fontSize: 10, fontWeight: 900, color: '#00FF41', letterSpacing: 1 }}>CYBERSECURITY</span>
+            </div>
 
-          {/* Card Info */}
-          <div style={{ padding: '0 20px 20px' }}>
-            <h3 style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 22, color: 'white', margin: '0 0 6px' }}>
-              What The Hack
-            </h3>
-            <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 13, color: '#A0A5C0', margin: '0 0 16px', lineHeight: 1.4 }}>
-              An immersive cybersecurity workshop exploring offensive security and ethical hacking techniques.
-            </p>
+            {/* Event Banner Image */}
+            <div style={{ position: 'relative', height: 200, width: '100%', overflow: 'hidden' }}>
+              <img 
+                src="https://istesctce.in/images/events-images/what%20the%20hack.jpeg" 
+                alt="What The Hack" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={(e: any) => {
+                  e.target.src = 'https://istesctce.in/images/Logos/isteofficiallogo.png'
+                }}
+              />
+              <div style={{
+                position: 'absolute', bottom: 0, left: 0, right: 0,
+                height: '100%',
+                background: 'linear-gradient(to top, #0B0E2A 20%, rgba(11, 14, 42, 0.6) 60%, transparent 100%)'
+              }} />
+            </div>
 
-            {isOffenso ? (
-              <Link href="/events/offenso" style={{ textDecoration: 'none' }}>
-                <button style={{
+            {/* Card Info */}
+            <div style={{ padding: '0 20px 20px' }}>
+              <h3 style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 22, color: 'white', margin: '0 0 6px' }}>
+                What The Hack
+              </h3>
+              <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 13, color: '#A0A5C0', margin: '0 0 16px', lineHeight: 1.4 }}>
+                An immersive cybersecurity workshop exploring offensive security and ethical hacking techniques.
+              </p>
+
+              {isOffenso ? (
+                <div style={{
                   width: '100%',
                   background: 'linear-gradient(135deg, #00FF41, #00B32D)',
                   color: '#0A0E27',
-                  border: 'none',
                   fontFamily: 'Poppins', fontWeight: 800, fontSize: 13, letterSpacing: 0.5,
-                  padding: '12px 20px', borderRadius: 12, cursor: 'pointer',
+                  padding: '12px 20px', borderRadius: 12,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                   boxShadow: '0 6px 20px rgba(0, 255, 65, 0.3)'
                 }}>
                   Enter Offenso Academy <ChevronRight size={14} />
-                </button>
-              </Link>
-            ) : (
-              <a href="https://istesctce.in/HTML/whatthehack.html" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                <button style={{
+                </div>
+              ) : (
+                <div style={{
                   width: '100%',
-                  background: 'transparent',
-                  border: '1px solid #00FF41',
-                  color: '#00FF41',
+                  background: 'rgba(255, 0, 127, 0.1)',
+                  border: '1px solid #FF007F',
+                  color: '#FF007F',
                   fontFamily: 'Poppins', fontWeight: 800, fontSize: 13, letterSpacing: 0.5,
-                  padding: '12px 20px', borderRadius: 12, cursor: 'pointer',
+                  padding: '12px 20px', borderRadius: 12,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 }}>
-                  Explore & Register <ExternalLink size={14} />
-                </button>
-              </a>
-            )}
+                  Access Portal (Restricted Entry) <ChevronRight size={14} />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </Link>
 
         {/* HORIZONTAL CAROUSEL OF OTHER EVENTS */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
