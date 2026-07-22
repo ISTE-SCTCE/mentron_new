@@ -41,6 +41,10 @@ android {
         }
     }
 
+    packaging {
+        doNotStrip.add("**")
+    }
+
     defaultConfig {
         applicationId = "com.iste.mentron"
         minSdk = flutter.minSdkVersion  // ART optimizations, modern Android only

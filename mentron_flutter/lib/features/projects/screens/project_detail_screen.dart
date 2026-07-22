@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:file_picker/file_picker.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
@@ -49,15 +51,34 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
   Future<void> _handleApply() async {
     if (_currentUserId == null) return;
 
-    setState(() => _isApplying = true);
-    final supabase = Provider.of<SupabaseService>(context, listen: false).client;
-
     try {
-      // Simple profile-based application — no CV needed
+      // 1. Pick PDF resume
+      final result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+
+      if (result == null || result.files.single.path == null) {
+        // User cancelled picker
+        return;
+      }
+
+      setState(() => _isApplying = true);
+      final supabase = Provider.of<SupabaseService>(context, listen: false).client;
+
+      final file = File(result.files.single.path!);
+      final fileName = '${_currentUserId}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final path = '$_currentUserId/${widget.project.id}/$fileName';
+
+      // 2. Upload to storage bucket
+      await supabase.storage.from('cv_bucket').upload(path, file);
+      final publicUrl = supabase.storage.from('cv_bucket').getPublicUrl(path);
+
+      // 3. Insert project application row
       await supabase.from('project_applications').insert({
         'project_id': widget.project.id,
         'profile_id': _currentUserId,
-        'cv_url': '',   // kept for schema compatibility
+        'cv_url': publicUrl,
         'status': 'pending',
       });
 
@@ -69,7 +90,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: Colors.green,
-            content: Text('🎉 Application submitted! The project owner will review your profile.'),
+            content: Text('🎉 Application submitted successfully with your PDF resume!'),
           ),
         );
       }
@@ -209,7 +230,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
               icon: _isApplying
                   ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
                   : const Icon(Icons.send_rounded, size: 18),
-              label: Text(_isApplying ? 'APPLYING...' : 'APPLY NOW'),
+              label: Text(_isApplying ? 'APPLYING...' : 'APPLY VIA RESUME'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),

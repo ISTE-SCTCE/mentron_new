@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/app/lib/supabase/server'
+import { getAuthUser } from '@/app/lib/supabase/server'
 
 export async function GET(
     request: NextRequest,
@@ -7,7 +7,7 @@ export async function GET(
 ) {
     const { bucket, path } = await params
     const filePath = path.join('/')
-    const supabase = await createClient()
+    const { supabase } = await getAuthUser(request)
 
     // 1. Download file from R2 Storage
     const { s3Client, BUCKET_NAME } = await import('@/app/lib/s3')
@@ -26,10 +26,22 @@ export async function GET(
         }
 
         // Convert to ArrayBuffer -> Buffer
-        const buffer = Buffer.from(await data.transformToByteArray())
+        let buffer = Buffer.from(await data.transformToByteArray())
 
-        // Determine Content-Type based on extension
-        const ext = filePath.split('.').pop()?.toLowerCase()
+        // If file is gzipped, decompress it
+        if (filePath.endsWith('.gz')) {
+            const zlib = await import('zlib')
+            const { promisify } = await import('util')
+            const gunzip = promisify(zlib.gunzip)
+            buffer = await gunzip(buffer)
+        }
+
+        // Determine Content-Type based on extension (stripping .gz if present)
+        let cleanPath = filePath
+        if (cleanPath.endsWith('.gz')) {
+            cleanPath = cleanPath.slice(0, -3)
+        }
+        const ext = cleanPath.split('.').pop()?.toLowerCase()
         let contentType = 'application/octet-stream'
         const mimeMap: Record<string, string> = {
             'webp': 'image/webp',
@@ -69,9 +81,21 @@ export async function GET(
             }
             
             const arrayBuffer = await supabaseFile.arrayBuffer()
-            const buffer = Buffer.from(arrayBuffer)
+            let buffer = Buffer.from(arrayBuffer)
+
+            // If file is gzipped, decompress it
+            if (filePath.endsWith('.gz')) {
+                const zlib = await import('zlib')
+                const { promisify } = await import('util')
+                const gunzip = promisify(zlib.gunzip)
+                buffer = await gunzip(buffer)
+            }
             
-            const ext = filePath.split('.').pop()?.toLowerCase()
+            let cleanPath = filePath
+            if (cleanPath.endsWith('.gz')) {
+                cleanPath = cleanPath.slice(0, -3)
+            }
+            const ext = cleanPath.split('.').pop()?.toLowerCase()
             let contentType = 'application/octet-stream'
             const mimeMap: Record<string, string> = {
                 'webp': 'image/webp',

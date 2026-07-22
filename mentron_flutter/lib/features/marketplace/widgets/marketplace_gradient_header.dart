@@ -117,6 +117,7 @@ class MarketplaceGradientHeader extends StatelessWidget {
                   // Search bar (solid white pill)
                   Container(
                     height: 48,
+                    clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(24),
@@ -136,6 +137,7 @@ class MarketplaceGradientHeader extends StatelessWidget {
                         color: MarketplaceTheme.ink,
                       ),
                       decoration: InputDecoration(
+                        filled: false,
                         hintText: 'Search textbooks, parts...',
                         hintStyle: GoogleFonts.inter(
                           fontSize: 14,

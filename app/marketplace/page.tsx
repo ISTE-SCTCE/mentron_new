@@ -1,58 +1,31 @@
 import { createClient } from '@/app/lib/supabase/server'
+import { MarketplaceClient } from './MarketplaceClient'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
 
 export default async function MarketplacePage() {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) redirect('/login')
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
-    return (
-        <div className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-[#030305]">
-            
+  const { data: items } = await supabase
+    .from('marketplace_items')
+    .select('*, profiles(full_name)')
+    .order('created_at', { ascending: false })
+    .limit(50)
 
-            
-            {/* Overlay gradient to ensure text readability */}
-            <div className="absolute inset-0 bg-[#030305]/40 pointer-events-none z-[1]" />
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name, role')
+    .eq('id', user.id)
+    .single()
 
-            {/* Content */}
-            <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-lg">
-                {/* Icon */}
-                <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-5xl mb-8 shadow-[0_0_60px_rgba(59,130,246,0.3)]">
-                    🛍️
-                </div>
-
-                {/* Labels */}
-                <p className="text-[10px] font-black tracking-[0.3em] text-blue-400 uppercase mb-4">
-                    Coming Soon
-                </p>
-                <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white mb-4">
-                    Marketplace
-                </h1>
-                <p className="text-gray-400 font-medium leading-relaxed text-base mb-10">
-                    Buy and sell items within the Mentron community. <br className="hidden sm:block" />
-                    We&apos;re putting the finishing touches on it — stay tuned!
-                </p>
-
-                {/* Feature teasers */}
-                <div className="grid grid-cols-3 gap-4 w-full mb-10">
-                    {[
-                        { icon: '📦', label: 'Buy Items' },
-                        { icon: '🏷️', label: 'Sell Stuff' },
-                        { icon: '🤝', label: 'Community Deals' },
-                    ].map(f => (
-                        <div key={f.label} className="glass p-4 rounded-2xl border border-white/5 flex flex-col items-center gap-2">
-                            <span className="text-2xl">{f.icon}</span>
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{f.label}</span>
-                        </div>
-                    ))}
-                </div>
-
-
-
-            </div>
-        </div>
-    )
+  return (
+    <MarketplaceClient
+      items={items || []}
+      userId={user.id}
+      userName={profile?.full_name || ''}
+    />
+  )
 }
-

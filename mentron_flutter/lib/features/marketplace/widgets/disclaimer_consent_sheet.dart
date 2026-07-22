@@ -36,23 +36,27 @@ class DisclaimerConsentSheet extends StatefulWidget {
 
 class _DisclaimerConsentSheetState extends State<DisclaimerConsentSheet> {
   bool _agreed            = false;
+  bool _showPhone         = false;
   bool _showPayment       = false;
   bool _isLoadingSettings = false;
   bool _isSubmitting      = false;
 
   String? _qrUrl;
   String? _upiId;
+  String? _profilePhone;
 
   File?   _proofFile;
   final _utrController = TextEditingController();
+  final _phoneController = TextEditingController();
 
   MarketplaceService? _svc;
 
   @override
   void initState() {
     super.initState();
-    // _svc is initialized in didChangeDependencies() where
-    // Provider.of<SupabaseService> is safe to call.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadProfilePhone();
+    });
   }
 
   @override
@@ -69,7 +73,30 @@ class _DisclaimerConsentSheetState extends State<DisclaimerConsentSheet> {
   @override
   void dispose() {
     _utrController.dispose();
+    _phoneController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadProfilePhone() async {
+    try {
+      final supa = Provider.of<SupabaseService>(context, listen: false);
+      final user = supa.currentUser;
+      if (user != null) {
+        final res = await supa.client
+            .from('profiles')
+            .select('phone')
+            .eq('id', user.id)
+            .maybeSingle();
+        if (res != null && mounted) {
+          setState(() {
+            _profilePhone = res['phone'] as String?;
+            if (_profilePhone != null) {
+              _phoneController.text = _profilePhone!;
+            }
+          });
+        }
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadPaymentSettings() async {
@@ -90,7 +117,19 @@ class _DisclaimerConsentSheetState extends State<DisclaimerConsentSheet> {
   }
 
   void _onAgreeTap() {
-    setState(() => _showPayment = true);
+    setState(() => _showPhone = true);
+  }
+
+  void _onPhoneSubmit() {
+    final phone = _phoneController.text.trim();
+    if (phone.length != 10 || !RegExp(r'^\d{10}$').hasMatch(phone)) {
+      _showSnack('Please enter a valid 10-digit phone number.');
+      return;
+    }
+    setState(() {
+      _showPhone = false;
+      _showPayment = true;
+    });
     _loadPaymentSettings();
   }
 
@@ -107,8 +146,9 @@ class _DisclaimerConsentSheetState extends State<DisclaimerConsentSheet> {
       _showSnack('Please upload your payment screenshot.');
       return;
     }
-    if (_utrController.text.trim().isEmpty) {
-      _showSnack('Please enter the UTR / transaction ID.');
+    final utrText = _utrController.text.trim();
+    if (utrText.length != 12 || !RegExp(r'^\d{12}$').hasMatch(utrText)) {
+      _showSnack('Please enter a valid 12-digit UPI Transaction ID (numbers only).');
       return;
     }
 
@@ -127,12 +167,72 @@ class _DisclaimerConsentSheetState extends State<DisclaimerConsentSheet> {
         buyerId:        buyer.id,
         amount:         widget.price,
         paymentProofUrl: proofUrl,
-        utrNumber:      _utrController.text.trim(),
+        utrNumber:      utrText,
+        phoneNumber:    _phoneController.text.trim(),
       );
 
       if (mounted) {
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: const Color(0xFF1E1C31),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            title: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.greenAccent,
+                  size: 54,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Submitted for Review',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            ),
+            content: const Text(
+              'Your payment details have been successfully submitted! The EXECOM team will verify it shortly. 🎉',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 14,
+                height: 1.5,
+              ),
+            ),
+            actionsAlignment: MainAxisAlignment.center,
+            actions: [
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7B6EF6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                ),
+                child: const Text(
+                  'OK',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
         Navigator.pop(context, true); // signal success to parent
-        _showSnack('Payment submitted! EXECOM will verify shortly. 🎉');
       }
     } catch (e) {
       if (mounted) _showSnack('Error: ${e.toString()}');
@@ -155,8 +255,15 @@ class _DisclaimerConsentSheetState extends State<DisclaimerConsentSheet> {
 
   @override
   Widget build(BuildContext context) {
+    double initialSize = 0.6;
+    if (_showPhone) {
+      initialSize = 0.55;
+    } else if (_showPayment) {
+      initialSize = 0.92;
+    }
+
     return DraggableScrollableSheet(
-      initialChildSize: _showPayment ? 0.92 : 0.6,
+      initialChildSize: initialSize,
       minChildSize: 0.4,
       maxChildSize: 0.95,
       expand: false,
@@ -185,7 +292,9 @@ class _DisclaimerConsentSheetState extends State<DisclaimerConsentSheet> {
                 child: SingleChildScrollView(
                   controller: controller,
                   padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
-                  child: _showPayment ? _buildPaymentSection() : _buildDisclaimerSection(),
+                  child: _showPayment
+                      ? _buildPaymentSection()
+                      : (_showPhone ? _buildPhoneSection() : _buildDisclaimerSection()),
                 ),
               ),
             ],
@@ -436,7 +545,7 @@ class _DisclaimerConsentSheetState extends State<DisclaimerConsentSheet> {
         const SizedBox(height: 16),
 
         // ── UTR input ────────────────────────────────────────────────────
-        Text('UTR / Transaction ID', style: MarketplaceTheme.heading(15)),
+        Text('UPI Transaction ID / UTR', style: MarketplaceTheme.heading(15)),
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
@@ -446,13 +555,18 @@ class _DisclaimerConsentSheetState extends State<DisclaimerConsentSheet> {
           ),
           child: TextField(
             controller: _utrController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(12),
+            ],
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: MarketplaceTheme.ink,
             ),
             decoration: InputDecoration(
-              hintText: 'e.g. 305XXXXXXXXX',
+              hintText: 'Enter 12-digit transaction ID',
               hintStyle: MarketplaceTheme.body_(14),
               prefixIcon: const Icon(Icons.numbers_rounded,
                   color: Color(0xFF8D8AA0), size: 18),
@@ -465,6 +579,11 @@ class _DisclaimerConsentSheetState extends State<DisclaimerConsentSheet> {
               ),
             ),
           ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'Please enter the 12-digit transaction ID. Note: Transaction ID refers to the UPI transaction ID or UTR number shown in your GPay / PhonePe / Paytm payment screen.',
+          style: MarketplaceTheme.body_(11, color: Colors.grey),
         ),
 
         const SizedBox(height: 24),
@@ -505,6 +624,87 @@ class _DisclaimerConsentSheetState extends State<DisclaimerConsentSheet> {
                           color: Colors.white,
                         ),
                       ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+  Widget _buildPhoneSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Contact Information', style: MarketplaceTheme.heading(20)),
+        const SizedBox(height: 8),
+        Text(
+          'Please confirm your phone number. Sellers or EXECOM will use this to contact you for the product handoff.',
+          style: MarketplaceTheme.body_(13),
+        ),
+        const SizedBox(height: 20),
+
+        Container(
+          decoration: BoxDecoration(
+            color: MarketplaceTheme.background,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE5E3F0), width: 1.5),
+          ),
+          child: TextField(
+            controller: _phoneController,
+            keyboardType: TextInputType.phone,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(10),
+            ],
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: MarketplaceTheme.ink,
+            ),
+            decoration: InputDecoration(
+              hintText: 'Enter 10-digit Mobile Number',
+              hintStyle: MarketplaceTheme.body_(14),
+              prefixIcon: const Icon(Icons.phone_android_rounded,
+                  color: Color(0xFF8D8AA0), size: 18),
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        SizedBox(
+          width: double.infinity,
+          child: GestureDetector(
+            onTap: _onPhoneSubmit,
+            child: Container(
+              height: 52,
+              decoration: BoxDecoration(
+                gradient: MarketplaceTheme.heroGradient,
+                borderRadius: BorderRadius.circular(26),
+                boxShadow: [
+                  BoxShadow(
+                    color: MarketplaceTheme.purple.withOpacity(0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  'Confirm & Proceed to Payment',
+                  style: GoogleFonts.baloo2(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
           ),

@@ -18,6 +18,7 @@ import 'core_members_screen.dart';
 import '../../execom/screens/event_manager_screen.dart';
 import '../../execom/screens/notification_manager_screen.dart';
 import '../../execom/screens/payment_management_screen.dart';
+import '../../execom/screens/buyers_list_screen.dart';
 import '../../../core/utils/app_transitions.dart';
 import '../widgets/event_banner_widget.dart';
 import '../../../core/main_scaffold.dart';
@@ -342,6 +343,19 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
             () => Navigator.push(
               context,
               AppTransitions.slideUp(const PaymentManagementScreen()),
+            ),
+            isWide: true,
+          ),
+          const SizedBox(height: 12),
+          _buildBentoItem(
+            'Buyers List',
+            'View & Export Purchases',
+            Icons.people_alt_rounded,
+            Colors.lightBlueAccent,
+            80,
+            () => Navigator.push(
+              context,
+              AppTransitions.slideUp(const BuyersListPage()),
             ),
             isWide: true,
           ),

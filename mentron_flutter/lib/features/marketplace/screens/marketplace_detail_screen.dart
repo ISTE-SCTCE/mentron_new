@@ -8,6 +8,7 @@ import '../../../core/theme/marketplace_theme.dart';
 import '../../../models/marketplace_listing.dart';
 import '../../../services/marketplace_service.dart';
 import '../widgets/disclaimer_consent_sheet.dart';
+import '../widgets/full_screen_image_viewer.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MarketplaceDetailScreen — Product Detail Page
@@ -24,12 +25,88 @@ class MarketplaceDetailScreen extends StatefulWidget {
 
 class _MarketplaceDetailScreenState extends State<MarketplaceDetailScreen> {
   int _imageIndex = 0;
+  bool _isExecOrSeller = false;
+  bool _isDeleting = false;
 
   @override
   void initState() {
     super.initState();
     // Log view (non-blocking; RLS + dedup handled server-side)
-    WidgetsBinding.instance.addPostFrameCallback((_) => _logView());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _logView();
+      _checkDeletePermission();
+    });
+  }
+
+  Future<void> _checkDeletePermission() async {
+    try {
+      final supa = Provider.of<SupabaseService>(context, listen: false);
+      final user = supa.currentUser;
+      if (user == null) return;
+
+      if (user.id == widget.listing.sellerId) {
+        if (mounted) setState(() => _isExecOrSeller = true);
+        return;
+      }
+
+      final res = await supa.client
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .maybeSingle();
+
+      if (res != null) {
+        final role = res['role'] as String?;
+        if (role == 'exec' || role == 'core' || role == 'admin') {
+          if (mounted) setState(() => _isExecOrSeller = true);
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _deleteListing() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Delete Listing?', style: MarketplaceTheme.heading(18)),
+        content: Text('Are you sure you want to delete this listing permanently? This cannot be undone.', style: MarketplaceTheme.body_(14)),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Cancel', style: MarketplaceTheme.label(14, color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text('Delete', style: MarketplaceTheme.label(14, color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    setState(() => _isDeleting = true);
+    try {
+      final supa = Provider.of<SupabaseService>(context, listen: false);
+      final svc = MarketplaceService(supa.client);
+      await svc.deleteListing(widget.listing.id);
+      
+      if (mounted) {
+        Navigator.pop(context); // Close detail screen
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Listing deleted successfully.'), behavior: SnackBarBehavior.floating),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isDeleting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete: $e'), behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
   }
 
   Future<void> _logView() async {
@@ -184,6 +261,32 @@ class _MarketplaceDetailScreenState extends State<MarketplaceDetailScreen> {
             ),
           ),
 
+          // ── Delete button (only for sellers/execs) ──────────────────────
+          if (_isExecOrSeller)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 8,
+              right: 12,
+              child: GestureDetector(
+                onTap: _isDeleting ? null : _deleteListing,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent.withOpacity(0.85),
+                    shape: BoxShape.circle,
+                  ),
+                  child: _isDeleting
+                      ? const Padding(
+                          padding: EdgeInsets.all(10),
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Icon(Icons.delete_outline_rounded,
+                          color: Colors.white, size: 20),
+                ),
+              ),
+            ),
+
           // ── Fixed "Buy Now" button ─────────────────────────────────────
           Positioned(
             left: 0,
@@ -255,15 +358,28 @@ class _MarketplaceDetailScreenState extends State<MarketplaceDetailScreen> {
               ? PageView.builder(
                   itemCount: images.length,
                   onPageChanged: (i) => setState(() => _imageIndex = i),
-                  itemBuilder: (_, i) => ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(32)),
-                    child: CachedNetworkImage(
-                      imageUrl: images[i],
-                      fit: BoxFit.contain,
-                      placeholder: (_, __) => const Center(
-                        child: CircularProgressIndicator(
-                            color: Colors.white54),
+                  itemBuilder: (_, i) => GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => FullScreenImageViewer(
+                            images: images,
+                            initialIndex: i,
+                          ),
+                        ),
+                      );
+                    },
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(32)),
+                      child: CachedNetworkImage(
+                        imageUrl: images[i],
+                        fit: BoxFit.contain,
+                        placeholder: (_, __) => const Center(
+                          child: CircularProgressIndicator(
+                              color: Colors.white54),
+                        ),
                       ),
                     ),
                   ),

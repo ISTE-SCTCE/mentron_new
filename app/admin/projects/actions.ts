@@ -63,15 +63,16 @@ export async function updateApplicationStatus(formData: FormData) {
     }
 
     if (updatedApp && (status === 'approved' || status === 'rejected')) {
-        const title = status === 'approved' ? 'Application Accepted 🎉' : 'Application Update'
+        const title = status === 'approved' ? 'Application Accepted 🎉' : 'Application Rejected ✕'
         const message = status === 'approved' 
-            ? `Your application for "${updatedApp.projects?.title}" has been accepted. The respective person will contact you soon.`
-            : `Your application for "${updatedApp.projects?.title}" has been rejected. Thank you for your interest.`
+            ? `Your application for "${updatedApp.projects?.title}" is accepted.`
+            : `Your application for "${updatedApp.projects?.title}" is rejected.`
             
         await supabase.from('notifications').insert({
             user_id: updatedApp.profile_id,
             title,
-            message
+            message,
+            is_read: false
         })
     }
 

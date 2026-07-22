@@ -104,6 +104,11 @@ class MarketplaceService {
     return response['id'] as String;
   }
 
+  /// Delete a listing from the database.
+  Future<void> deleteListing(String listingId) async {
+    await _client.from('marketplace_listings').delete().eq('id', listingId);
+  }
+
   /// Upload one or more images to Supabase storage.
   /// Returns the list of public URLs.
   Future<List<String>> uploadListingImages(
@@ -202,6 +207,7 @@ class MarketplaceService {
     required double amount,
     required String paymentProofUrl,
     required String utrNumber,
+    required String phoneNumber,
   }) async {
     final response = await _client
         .from('marketplace_orders')
@@ -211,11 +217,21 @@ class MarketplaceService {
           'amount':                 amount,
           'payment_proof_url':      paymentProofUrl,
           'utr_number':             utrNumber,
+          'phone_number':           phoneNumber,
           'disclaimer_accepted_at': DateTime.now().toIso8601String(),
           'order_status':           'pending_verification',
         })
         .select('id')
         .single();
+
+    try {
+      await _client
+          .from('profiles')
+          .update({'phone': phoneNumber})
+          .eq('id', buyerId);
+    } catch (e) {
+      debugPrint('[MarketplaceService] Failed to update profile phone: $e');
+    }
 
     return response['id'] as String;
   }
@@ -258,7 +274,12 @@ class MarketplaceService {
     if (qrImageUrl != null) updates['qr_image_url'] = qrImageUrl;
     if (upiId != null)      updates['upi_id']        = upiId;
 
-    await _client.from('payment_settings').update(updates);
+    final row = await _client.from('payment_settings').select('id').limit(1).maybeSingle();
+    if (row != null) {
+      await _client.from('payment_settings').update(updates).eq('id', row['id']);
+    } else {
+      await _client.from('payment_settings').insert(updates);
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -322,11 +343,34 @@ class MarketplaceService {
 
   /// Confirm a payment (EXECOM only).
   Future<void> confirmOrder(String orderId, String adminId) async {
-    await _client.from('marketplace_orders').update({
+    final response = await _client.from('marketplace_orders').update({
       'order_status': 'payment_confirmed',
       'verified_by':  adminId,
       'verified_at':  DateTime.now().toIso8601String(),
-    }).eq('id', orderId);
+    }).eq('id', orderId).select('listing_id, buyer_id, marketplace_listings(title)').maybeSingle();
+
+    if (response != null && response['listing_id'] != null) {
+      final listingId = response['listing_id'] as String;
+      final buyerId = response['buyer_id'] as String?;
+      final listingJson = response['marketplace_listings'] as Map<String, dynamic>?;
+      final listingTitle = listingJson?['title'] as String? ?? 'Item';
+
+      // 1. Mark the listing as sold so it's removed from the marketplace
+      await _client
+          .from('marketplace_listings')
+          .update({'status': 'sold'})
+          .eq('id', listingId);
+
+      // 2. Insert in-app notification for the buyer
+      if (buyerId != null) {
+        await _client.from('notifications').insert({
+          'user_id': buyerId,
+          'title': 'Purchase Verified 🎉',
+          'message': "Your purchase of '$listingTitle' has been verified! You will be contacted soon.",
+          'is_read': false,
+        });
+      }
+    }
   }
 
   /// Reject a payment (EXECOM only).
@@ -365,6 +409,20 @@ class MarketplaceService {
     return (response as List)
         .map((json) => MarketplaceListing.fromJson(json as Map<String, dynamic>))
         .toList();
+  }
+
+  /// Stream pending listings for real-time updates in the Payment Manager.
+  Stream<List<MarketplaceListing>> streamPendingListings() {
+    return _client
+        .from('marketplace_listings')
+        .stream(primaryKey: ['id'])
+        .asyncMap((rows) async {
+          try {
+            return await fetchPendingListings();
+          } catch (_) {
+            return <MarketplaceListing>[];
+          }
+        });
   }
 
   /// Approve a listing (set status to live).

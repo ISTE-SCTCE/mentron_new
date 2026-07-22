@@ -405,10 +405,45 @@ class _AddMarketplaceItemScreenState extends State<AddMarketplaceItemScreen>
                 ),
               );
             },
+            onDeleteTap: () => _deleteListing(listing.id),
           ).animate(delay: Duration(milliseconds: 50 * i)).fadeIn().slideY(begin: 0.05);
         },
       ),
     );
+  }
+
+  Future<void> _deleteListing(String id) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Delete Listing?', style: MarketplaceTheme.heading(18)),
+        content: Text('Are you sure you want to delete this listing permanently? This cannot be undone.', style: MarketplaceTheme.body_(14)),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Cancel', style: MarketplaceTheme.label(14, color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text('Delete', style: MarketplaceTheme.label(14, color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    try {
+      setState(() => _isLoadingListings = true);
+      await _svc.deleteListing(id);
+      _showSnack('Listing deleted.');
+      _loadMyListings();
+    } catch (e) {
+      if (mounted) _showSnack('Failed to delete: $e');
+      if (mounted) setState(() => _isLoadingListings = false);
+    }
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
@@ -518,8 +553,9 @@ class _AddMarketplaceItemScreenState extends State<AddMarketplaceItemScreen>
 class _MyListingRow extends StatelessWidget {
   final MarketplaceListing listing;
   final VoidCallback onActivityTap;
+  final VoidCallback onDeleteTap;
 
-  const _MyListingRow({required this.listing, required this.onActivityTap});
+  const _MyListingRow({required this.listing, required this.onActivityTap, required this.onDeleteTap});
 
   @override
   Widget build(BuildContext context) {
@@ -619,6 +655,30 @@ class _MyListingRow extends StatelessWidget {
                 ),
               ),
             ),
+            
+          const SizedBox(width: 8),
+
+          // Delete button
+          GestureDetector(
+            onTap: onDeleteTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: MarketplaceTheme.coralSoft,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.delete_outline_rounded,
+                      color: MarketplaceTheme.coral, size: 18),
+                  Text('Delete',
+                      style: MarketplaceTheme.label(9,
+                          color: MarketplaceTheme.coral)),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

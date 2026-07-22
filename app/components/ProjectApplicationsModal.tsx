@@ -82,15 +82,16 @@ export function ProjectApplicationsModal({ projectId, projectTitle, onClose }: P
         }
 
         // Insert notification
-        const title = newStatus === 'approved' ? 'Application Accepted 🎉' : 'Application Update'
+        const title = newStatus === 'approved' ? 'Application Accepted 🎉' : 'Application Rejected ✕'
         const message = newStatus === 'approved' 
-            ? `Your application for "${projectTitle}" has been accepted.`
-            : `Your application for "${projectTitle}" has been rejected. Thank you for your interest.`
+            ? `Your application for "${projectTitle}" is accepted.`
+            : `Your application for "${projectTitle}" is rejected.`
             
         await supabase.from('notifications').insert({
             user_id: applicantId,
             title,
-            message
+            message,
+            is_read: false
         })
 
         // Update local state

@@ -17,12 +17,14 @@ class NoteViewerScreen extends StatefulWidget {
   /// Set to true when [url] is a local filesystem path (e.g. decrypted offline file).
   /// Set to false (default) for remote URLs.
   final bool isLocalFile;
+  final Map<String, String>? headers;
 
   const NoteViewerScreen({
     super.key,
     required this.url,
     required this.title,
     this.isLocalFile = false,
+    this.headers,
   });
 
   @override
@@ -245,13 +247,14 @@ class _NoteViewerScreenState extends State<NoteViewerScreen>
           widget.url,
         );
       }
-      return const PDF(
+      return PDF(
         enableSwipe: true,
         swipeHorizontal: false,
         autoSpacing: false,
         pageFling: false,
       ).cachedFromUrl(
         widget.url,
+        headers: widget.headers,
         placeholder: (progress) => Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -302,6 +305,7 @@ class _NoteViewerScreenState extends State<NoteViewerScreen>
           maxScale: 5.0,
           child: CachedNetworkImage(
             imageUrl: widget.url,
+            httpHeaders: widget.headers,
             placeholder: (context, url) => const BouncingBallsLoader(),
             errorWidget: (context, url, error) => const Column(
               mainAxisSize: MainAxisSize.min,

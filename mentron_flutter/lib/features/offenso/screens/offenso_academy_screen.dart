@@ -10,6 +10,7 @@ import '../../../core/utils/app_transitions.dart';
 import '../../../screens/video_player_screen.dart';
 import '../../../services/offline_storage_service.dart';
 import '../../../widgets/download_progress_widget.dart';
+import '../../notes/screens/note_viewer_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OFFENSO ACADEMY — Main Screen (entry point)
@@ -592,7 +593,7 @@ class _OffensoAcademyScreenState extends State<OffensoAcademyScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    '$count Video Lecture${count == 1 ? '' : 's'}',
+                    '$count Material${count == 1 ? '' : 's'}',
                     style: const TextStyle(
                       color: _neonGreen,
                       fontSize: 10,
@@ -852,6 +853,7 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
         'title': titleController.text.trim(),
         'description': descController.text.trim(),
         'video_url': publicUrl,
+        'lecture_type': 'video',
         'created_by': supabase.currentUser?.id,
       });
 
@@ -874,9 +876,144 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
     }
   }
 
+  Future<void> _pickAndUploadNotes() async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'docx', 'pptx', 'jpg', 'jpeg', 'png'],
+      allowMultiple: false,
+    );
+    if (result == null || result.files.single.path == null || !mounted) return;
+
+    final titleController = TextEditingController();
+    final descController = TextEditingController();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: _surfaceMid,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: _border),
+        ),
+        title: const Text('New Notes / Document', style: TextStyle(color: _textPrimary)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              style: const TextStyle(color: _textPrimary),
+              decoration: const InputDecoration(
+                labelText: 'Title',
+                labelStyle: TextStyle(color: _textSecondary),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: _border)),
+                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: _neonGreen)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: descController,
+              style: const TextStyle(color: _textPrimary),
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                labelStyle: TextStyle(color: _textSecondary),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: _border)),
+                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: _neonGreen)),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('CANCEL', style: TextStyle(color: _textSecondary)),
+          ),
+          TextButton(
+            onPressed: () {
+              if (titleController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(ctx).showSnackBar(
+                  const SnackBar(content: Text('Title is required')),
+                );
+                return;
+              }
+              Navigator.pop(ctx, true);
+            },
+            child: const Text('UPLOAD', style: TextStyle(color: _neonGreen, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      final file = File(result.files.single.path!);
+      final bytes = await file.readAsBytes();
+      final extension = result.files.single.extension ?? 'pdf';
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$extension';
+      final storagePath = 'notes/$fileName';
+
+      String contentType = 'application/pdf';
+      if (['jpg', 'jpeg', 'png'].contains(extension.toLowerCase())) {
+        contentType = 'image/$extension';
+      }
+
+      final supabase = Provider.of<SupabaseService>(context, listen: false);
+
+      // Upload to Storage
+      await supabase.client.storage
+          .from('academy-lectures')
+          .uploadBinary(
+            storagePath,
+            bytes,
+            fileOptions: FileOptions(
+              contentType: contentType,
+              upsert: true,
+            ),
+          );
+
+      // Get public URL
+      final publicUrl = supabase.client.storage
+          .from('academy-lectures')
+          .getPublicUrl(storagePath);
+
+      // Save metadata to DB
+      await supabase.client.from('academy_lectures').insert({
+        'folder_id': widget.folderId,
+        'title': titleController.text.trim(),
+        'description': descController.text.trim(),
+        'notes_url': publicUrl,
+        'lecture_type': 'notes',
+        'created_by': supabase.currentUser?.id,
+      });
+
+      _fetchLectures();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Notes uploaded successfully!'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Upload failed: $e'), backgroundColor: Colors.redAccent),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isUploading = false);
+      }
+    }
+  }
+
   Future<void> _downloadLecture(Map<String, dynamic> lecture) async {
     final id = lecture['id'] as String;
-    final url = lecture['video_url'] as String? ?? '';
+    final isNotes = lecture['lecture_type'] == 'notes';
+    final url = (isNotes ? lecture['notes_url'] : lecture['video_url']) as String? ?? '';
     if (_isDownloading[id] == true || url.isEmpty) return;
 
     setState(() {
@@ -1049,25 +1186,44 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
               const SizedBox(height: 16),
             ],
 
-            // Add lecture button
+            // Add lecture/notes buttons
             if (widget.isExec && !_isUploading) ...[
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _pickAndUploadLecture,
-                    icon: const Icon(Icons.video_library_rounded, size: 18),
-                    label: const Text('UPLOAD VIDEO LECTURE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _neonGreen.withOpacity(0.08),
-                      foregroundColor: _neonGreen,
-                      side: BorderSide(color: _neonGreen.withOpacity(0.2)),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      elevation: 0,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _pickAndUploadLecture,
+                        icon: const Icon(Icons.video_library_rounded, size: 16),
+                        label: const Text('UPLOAD VIDEO', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _neonGreen.withOpacity(0.08),
+                          foregroundColor: _neonGreen,
+                          side: BorderSide(color: _neonGreen.withOpacity(0.2)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          elevation: 0,
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _pickAndUploadNotes,
+                        icon: const Icon(Icons.description_rounded, size: 16),
+                        label: const Text('UPLOAD NOTES', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _neonGreen.withOpacity(0.08),
+                          foregroundColor: _neonGreen,
+                          side: BorderSide(color: _neonGreen.withOpacity(0.2)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          elevation: 0,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 16),
@@ -1113,15 +1269,31 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
                                   Row(
                                     children: [
                                       GestureDetector(
-                                        onTap: () => Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => VideoPlayerScreen(
-                                              networkUrl: lecture['video_url'],
-                                              title: lecture['title'],
-                                            ),
-                                          ),
-                                        ),
+                                        onTap: () {
+                                          final isNotes = lecture['lecture_type'] == 'notes';
+                                          final fileUrl = (isNotes ? lecture['notes_url'] : lecture['video_url']) as String? ?? '';
+                                          if (isNotes) {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) => NoteViewerScreen(
+                                                  url: fileUrl,
+                                                  title: lecture['title'] ?? 'Notes',
+                                                ),
+                                              ),
+                                            );
+                                          } else {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) => VideoPlayerScreen(
+                                                  networkUrl: fileUrl,
+                                                  title: lecture['title'] ?? 'Lecture',
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        },
                                         child: Container(
                                           width: 44,
                                           height: 44,
@@ -1130,7 +1302,13 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
                                             shape: BoxShape.circle,
                                             border: Border.all(color: _neonGreen.withOpacity(0.3)),
                                           ),
-                                          child: const Icon(Icons.play_arrow_rounded, color: _neonGreen, size: 24),
+                                          child: Icon(
+                                            lecture['lecture_type'] == 'notes'
+                                                ? Icons.description_rounded
+                                                : Icons.play_arrow_rounded,
+                                            color: _neonGreen,
+                                            size: 24,
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(width: 14),

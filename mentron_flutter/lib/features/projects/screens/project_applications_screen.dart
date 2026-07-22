@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../data/models/project_model.dart';
+import '../../notes/screens/note_viewer_screen.dart';
 
 class ProjectApplicationsScreen extends StatefulWidget {
   final Project project;
@@ -33,7 +35,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
       // Fetch applications with FULL profile info joined
       final response = await supabase
           .from('project_applications')
-          .select('*, profiles!project_applications_profile_id_fkey(full_name, department, roll_number, year, role)')
+          .select('*, profiles!project_applications_applicant_id_fkey(full_name, department, roll_number, year, role)')
           .eq('project_id', widget.project.id)
           .order('created_at', ascending: false);
 
@@ -44,7 +46,16 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
+      debugPrint('Error fetching applications: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Error loading applications: ${ErrorHandler.friendly(e)}'),
+          ),
+        );
+      }
     }
   }
 
@@ -55,6 +66,21 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
           .from('project_applications')
           .update({'status': status})
           .eq('id', app['id']);
+
+      final applicantId = app['profile_id'] as String?;
+      if (applicantId != null) {
+        final title = status == 'approved' ? 'Application Accepted 🎉' : 'Application Rejected ✕';
+        final message = status == 'approved'
+            ? 'Your application for "${widget.project.title}" is accepted.'
+            : 'Your application for "${widget.project.title}" is rejected.';
+
+        await supabase.from('notifications').insert({
+          'user_id': applicantId,
+          'title': title,
+          'message': message,
+          'is_read': false,
+        });
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -255,6 +281,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
     final initials = name.isNotEmpty ? name[0].toUpperCase() : 'A';
 
     Color statusColor = isAccepted ? Colors.greenAccent : isRejected ? Colors.redAccent : Colors.amber;
+    final cvUrl = app['cv_url'] as String?;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -302,6 +329,75 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
             ),
             child: Text(status.toUpperCase(), style: TextStyle(color: statusColor, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
           ),
+          if (cvUrl != null && cvUrl.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: _buildActionButton(
+                'VIEW CV / RESUME (PDF)',
+                Icons.picture_as_pdf_rounded,
+                AppTheme.accentSecondary,
+                () async {
+                  String finalUrl = cvUrl;
+                  Map<String, String>? headers;
+                  try {
+                    const String apiBaseUrl = 'https://mentron.istesctce.in';
+                    
+                    if (!finalUrl.startsWith('http')) {
+                      finalUrl = '$apiBaseUrl$finalUrl';
+                    }
+
+                    if (finalUrl.contains('/api/files/')) {
+                      final session = Provider.of<SupabaseService>(context, listen: false).client.auth.currentSession;
+                      final token = session?.accessToken;
+                      if (token != null) {
+                        headers = {'Authorization': 'Bearer $token'};
+                      }
+                    } else {
+                      String? path;
+                      if (finalUrl.contains('/storage/v1/object/public/cv_bucket/')) {
+                        path = finalUrl.split('/storage/v1/object/public/cv_bucket/').last;
+                      } else if (finalUrl.contains('/storage/v1/object/sign/cv_bucket/')) {
+                        path = finalUrl.split('/storage/v1/object/sign/cv_bucket/').last.split('?').first;
+                      } else if (finalUrl.contains('cv_bucket/')) {
+                        path = finalUrl.split('cv_bucket/').last;
+                      }
+
+                      if (path != null) {
+                        if (path.endsWith('.gz')) {
+                          finalUrl = '$apiBaseUrl/api/files/cv_bucket/$path';
+                          final session = Provider.of<SupabaseService>(context, listen: false).client.auth.currentSession;
+                          final token = session?.accessToken;
+                          if (token != null) {
+                            headers = {'Authorization': 'Bearer $token'};
+                          }
+                        } else {
+                          final supabase = Provider.of<SupabaseService>(context, listen: false).client;
+                          finalUrl = await supabase.storage.from('cv_bucket').createSignedUrl(path, 60 * 60 * 24);
+                        }
+                      }
+                    }
+                  } catch (e) {
+                    debugPrint('Error preparing CV URL: $e');
+                  }
+                  
+                  if (context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NoteViewerScreen(
+                          url: finalUrl,
+                          title: '$name - CV',
+                          headers: headers,
+                        ),
+                      ),
+                    );
+                  }
+                },
+
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
           // Action buttons
           if (!isAccepted && !isRejected) Row(

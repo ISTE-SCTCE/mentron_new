@@ -59,18 +59,33 @@ class ListingCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: MarketplaceTheme.heading(13, color: MarketplaceTheme.ink),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
+
+                  // Seller Name
+                  if (listing.sellerName != null) ...[
+                    Row(
+                      children: [
+                        const Icon(Icons.person_outline_rounded,
+                            color: Colors.grey, size: 11),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            listing.sellerName! + (listing.sellerAdmissionYear != null ? " ('${listing.sellerAdmissionYear.toString().substring(2)})" : ""),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: MarketplaceTheme.label(9, color: Colors.grey),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                  ],
 
                   // Price pill + seller
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       MarketplaceTheme.pricePill(listing.formattedPrice),
-                      if (listing.sellerAdmissionYear != null)
-                        Text(
-                          "'${listing.sellerAdmissionYear.toString().substring(2)}",
-                          style: MarketplaceTheme.label(10),
-                        ),
                     ],
                   ),
                 ],

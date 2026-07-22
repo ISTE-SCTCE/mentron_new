@@ -42,6 +42,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen>
 
   // Realtime stream subscription for pending orders (Tab 0)
   StreamSubscription<List<MarketplaceOrder>>? _ordersSubscription;
+  StreamSubscription<List<MarketplaceListing>>? _listingsSubscription;
 
   // ── Payment Settings tab state ─────────────────────────────────────────────
   String? _qrUrl;
@@ -60,6 +61,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen>
       final client = Provider.of<SupabaseService>(context, listen: false).client;
       _svc = MarketplaceService(client);
       _subscribeToOrders(); // Realtime stream instead of one-shot fetch
+      _subscribeToListings(); // Realtime stream for listings
     });
   }
 
@@ -75,6 +77,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen>
   @override
   void dispose() {
     _ordersSubscription?.cancel();
+    _listingsSubscription?.cancel();
     _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     _upiCtrl.dispose();
@@ -99,6 +102,25 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen>
       onError: (Object e) {
         debugPrint('[PayMgmt] streamPendingOrders error: $e');
         if (mounted) setState(() => _loadingOrders = false);
+      },
+    );
+  }
+
+  /// Subscribe to the Supabase Realtime stream for pending listings.
+  void _subscribeToListings() {
+    setState(() => _loadingListings = true);
+    _listingsSubscription = _svc.streamPendingListings().listen(
+      (listings) {
+        if (mounted) {
+          setState(() {
+            _pendingListings = listings;
+            _loadingListings = false;
+          });
+        }
+      },
+      onError: (Object e) {
+        debugPrint('[PayMgmt] streamPendingListings error: $e');
+        if (mounted) setState(() => _loadingListings = false);
       },
     );
   }

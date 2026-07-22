@@ -95,6 +95,7 @@ class _SignupScreenState extends State<SignupScreen> {
           'role': newRole,
           'department': _selectedDept,
           'xp': 0,
+          'email': email,
           'iste_id': _isteIdController.text.trim().isEmpty
               ? null
               : _isteIdController.text.trim(),

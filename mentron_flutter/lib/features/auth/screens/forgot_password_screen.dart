@@ -30,7 +30,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     setState(() => _isLoading = true);
     try {
       final supabase = Provider.of<SupabaseService>(context, listen: false);
-      await supabase.client.auth.resetPasswordForEmail(email);
+      await supabase.client.auth.resetPasswordForEmail(
+        email,
+        redirectTo: 'https://mentron.istesctce.in/reset-password',
+      );
       
       if (mounted) {
         setState(() {

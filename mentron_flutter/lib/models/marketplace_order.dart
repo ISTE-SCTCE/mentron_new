@@ -56,6 +56,7 @@ class MarketplaceOrder {
   final DateTime deliveryDeadline;
   final String? verifiedBy;
   final DateTime? verifiedAt;
+  final String? phoneNumber;
 
   // Joined fields
   final String? listingTitle;
@@ -63,6 +64,11 @@ class MarketplaceOrder {
   final String? buyerName;
   final String? buyerDepartment;
   final int? buyerAdmissionYear;
+  final String? buyerEmail;
+  final String? sellerName;
+  final String? sellerDepartment;
+  final int? sellerAdmissionYear;
+  final String? sellerPhone;
 
   const MarketplaceOrder({
     required this.id,
@@ -77,16 +83,23 @@ class MarketplaceOrder {
     required this.deliveryDeadline,
     this.verifiedBy,
     this.verifiedAt,
+    this.phoneNumber,
     this.listingTitle,
     this.listingImages,
     this.buyerName,
     this.buyerDepartment,
     this.buyerAdmissionYear,
+    this.buyerEmail,
+    this.sellerName,
+    this.sellerDepartment,
+    this.sellerAdmissionYear,
+    this.sellerPhone,
   });
 
   factory MarketplaceOrder.fromJson(Map<String, dynamic> json) {
     final listingJson = json['marketplace_listings'] as Map<String, dynamic>?;
     final buyerJson   = json['profiles'] as Map<String, dynamic>?;
+    final sellerJson  = listingJson?['profiles'] as Map<String, dynamic>?;
 
     return MarketplaceOrder(
       id:                    json['id'] as String,
@@ -105,6 +118,7 @@ class MarketplaceOrder {
       verifiedAt:            json['verified_at'] != null
                                ? DateTime.parse(json['verified_at'] as String)
                                : null,
+      phoneNumber:           json['phone_number'] as String?,
       listingTitle:          listingJson?['title'] as String?,
       listingImages:         listingJson != null
                                ? List<String>.from(listingJson['images'] as List? ?? [])
@@ -112,6 +126,11 @@ class MarketplaceOrder {
       buyerName:             buyerJson?['full_name'] as String?,
       buyerDepartment:       buyerJson?['department'] as String?,
       buyerAdmissionYear:    buyerJson?['admission_year'] as int?,
+      buyerEmail:            buyerJson?['email'] as String?,
+      sellerName:            sellerJson?['full_name'] as String?,
+      sellerDepartment:      sellerJson?['department'] as String?,
+      sellerAdmissionYear:   sellerJson?['admission_year'] as int?,
+      sellerPhone:           sellerJson?['phone'] as String?,
     );
   }
 

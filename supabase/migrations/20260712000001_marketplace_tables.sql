@@ -31,7 +31,7 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 CREATE TABLE IF NOT EXISTS marketplace_listings (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  seller_id    UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  seller_id    UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   title        TEXT NOT NULL CHECK (char_length(title) <= 120),
   description  TEXT,
   category     marketplace_category NOT NULL DEFAULT 'other',
@@ -56,7 +56,7 @@ CREATE INDEX IF NOT EXISTS marketplace_listings_created_idx
 CREATE TABLE IF NOT EXISTS marketplace_orders (
   id                     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   listing_id             UUID NOT NULL REFERENCES marketplace_listings(id) ON DELETE CASCADE,
-  buyer_id               UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  buyer_id               UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   amount                 NUMERIC(10, 2) NOT NULL CHECK (amount >= 0),
   payment_proof_url      TEXT,
   utr_number             TEXT,
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS marketplace_orders (
   order_status           marketplace_order_status NOT NULL DEFAULT 'pending_verification',
   created_at             TIMESTAMP WITH TIME ZONE DEFAULT now(),
   delivery_deadline      TIMESTAMP WITH TIME ZONE,
-  verified_by            UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  verified_by            UUID REFERENCES profiles(id) ON DELETE SET NULL,
   verified_at            TIMESTAMP WITH TIME ZONE
 );
 
@@ -102,7 +102,7 @@ CREATE INDEX IF NOT EXISTS marketplace_orders_created_idx
 CREATE TABLE IF NOT EXISTS marketplace_listing_views (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   listing_id  UUID NOT NULL REFERENCES marketplace_listings(id) ON DELETE CASCADE,
-  viewer_id   UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  viewer_id   UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   viewed_at   TIMESTAMP WITH TIME ZONE DEFAULT now(),
   viewed_date DATE NOT NULL DEFAULT CURRENT_DATE
 );
