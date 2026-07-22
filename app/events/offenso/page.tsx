@@ -1,24 +1,22 @@
 import { createClient } from '@/app/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import {
-  ShieldAlert, Lock, Zap, Calendar, MapPin, Trophy, Users,
-  CheckCircle2, ArrowRight, ExternalLink, Sparkles, BookOpen
-} from 'lucide-react'
-import { isOffensoParticipant, OFFENSO_PARTICIPANTS } from '@/app/lib/data/offensoParticipants'
+import { Lock, ShieldAlert } from 'lucide-react'
+import { isOffensoParticipant } from '@/app/lib/data/offensoParticipants'
+import { OffensoClient, Folder } from './OffensoClient'
 
 export const dynamic = 'force-dynamic'
 
 export default async function OffensoPage() {
   const supabase = await createClient()
 
+  // 1. Fetch current logged in user
   const { data: { user } } = await supabase.auth.getUser()
-
   if (!user) {
-    redirect('/login?error=Please login to access the Offenso Event page')
+    redirect('/login?error=Please login to access the Offenso Academy portal')
   }
 
-  // Also query Supabase `offenso_participants` table if available
+  // 2. Query offenso_participants table
   const { data: dbParticipant } = await supabase
     .from('offenso_participants')
     .select('*')
@@ -29,24 +27,36 @@ export default async function OffensoPage() {
   const hasLocalAccess = isOffensoParticipant(user.email)
   const isAuthorized = hasDbAccess || hasLocalAccess
 
-  // If user is not authorized
+  // If user is not authorized, return access restricted screen
   if (!isAuthorized) {
     return (
       <div
         className="min-h-screen flex flex-col items-center justify-center px-6"
-        style={{ background: '#F8F6FF', paddingTop: 60, paddingBottom: 104 }}
+        style={{ background: '#0A0E27', paddingTop: 60, paddingBottom: 104, color: '#F0F0F0' }}
       >
+        {/* Cyberpunk Scanline */}
         <div
-          className="glass"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%)',
+            backgroundSize: '100% 4px',
+            pointerEvents: 'none',
+            zIndex: 999,
+            opacity: 0.6,
+          }}
+        />
+
+        <div
           style={{
             maxWidth: 440,
             width: '100%',
             padding: 36,
             textAlign: 'center',
-            background: '#FFFFFF',
+            background: '#0F1535',
             borderRadius: 32,
-            boxShadow: '0 12px 36px rgba(108,99,255,0.12)',
-            border: '1.5px solid rgba(255,107,107,0.2)',
+            boxShadow: '0 12px 36px rgba(255, 0, 127, 0.15)',
+            border: '1.5px solid rgba(255, 0, 127, 0.3)',
           }}
         >
           <div
@@ -54,42 +64,43 @@ export default async function OffensoPage() {
               width: 72,
               height: 72,
               borderRadius: '50%',
-              background: 'rgba(255,107,107,0.1)',
+              background: 'rgba(255, 0, 127, 0.1)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 20px',
+              border: '1px solid #FF007F',
             }}
           >
-            <Lock size={32} color="#FF6B6B" />
+            <Lock size={32} color="#FF007F" />
           </div>
 
           <span
             style={{
-              fontFamily: 'Inter',
+              fontFamily: 'monospace',
               fontWeight: 900,
               fontSize: 10,
               letterSpacing: 2.5,
-              color: '#FF6B6B',
+              color: '#FF007F',
               textTransform: 'uppercase',
               display: 'block',
               marginBottom: 8,
             }}
           >
-            EXCLUSIVE EVENT GATEWAY
+            RESTRICTED ENTRY
           </span>
 
           <h1
             style={{
               fontFamily: 'Poppins',
               fontWeight: 900,
-              fontSize: 26,
-              color: '#2D2845',
+              fontSize: 24,
+              color: '#FFFFFF',
               margin: '0 0 12px',
               letterSpacing: '-0.5px',
             }}
           >
-            Offenso Access Restricted
+            Access Denied
           </h1>
 
           <p
@@ -97,24 +108,30 @@ export default async function OffensoPage() {
               fontFamily: 'Inter',
               fontWeight: 500,
               fontSize: 13,
-              color: '#8B85A8',
+              color: '#A0A0A0',
               lineHeight: 1.6,
               margin: '0 0 24px',
             }}
           >
-            Sorry, <strong style={{ color: '#2D2845' }}>{user.email}</strong> is not registered in the official Offenso participant roster. This portal is strictly reserved for confirmed event attendees.
+            Agent <strong style={{ color: '#00FF41' }}>{user.email}</strong> is not present in the verified Offenso Roster. Access to this dynamic hacking archive is restricted.
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <Link href="/dashboard" style={{ textDecoration: 'none' }}>
-              <button className="btn-primary" style={{ width: '100%' }}>
-                Return to Dashboard
-              </button>
-            </Link>
-
-            <Link href="/events" style={{ textDecoration: 'none' }}>
-              <button className="btn-outlined" style={{ width: '100%' }}>
-                View All Public Events
+              <button
+                style={{
+                  width: '100%',
+                  background: 'linear-gradient(135deg, #00FF41, #00F0FF)',
+                  color: '#0A0E27',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: 12,
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  fontFamily: 'monospace',
+                }}
+              >
+                RETURN TO DASHBOARD
               </button>
             </Link>
           </div>
@@ -123,135 +140,38 @@ export default async function OffensoPage() {
     )
   }
 
-  // Find participant info
-  const participantInfo = OFFENSO_PARTICIPANTS.find(
-    p => p.email.toLowerCase() === user.email?.toLowerCase().trim()
-  ) || dbParticipant
+  // 3. Fetch user's profile details to check role
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name, role')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  const isExec = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+
+  // 4. Fetch dynamic academy folders joined with academy_lectures
+  const { data: dbFolders } = await supabase
+    .from('academy_folders')
+    .select('*, academy_lectures(*)')
+    .order('created_at', { ascending: false })
+
+  const folders: Folder[] = (dbFolders || []).map((f: any) => {
+    // Sort lectures by creation date descending
+    const sortedLectures = (f.academy_lectures || []).sort((a: any, b: any) => {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
+    return {
+      ...f,
+      academy_lectures: sortedLectures,
+    }
+  })
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ background: '#F8F6FF', paddingBottom: 104 }}
-    >
-      {/* Header Banner */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #6C63FF 0%, #FF8C69 100%)',
-          padding: '60px 24px 80px',
-          color: 'white',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative', zIndex: 10 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.2)', padding: '6px 14px', borderRadius: 50, marginBottom: 16 }}>
-            <Sparkles size={14} color="white" />
-            <span style={{ fontFamily: 'Inter', fontWeight: 800, fontSize: 10, letterSpacing: 2, textTransform: 'uppercase' }}>
-              CONFIRMED PARTICIPANT PORTAL
-            </span>
-          </div>
-
-          <h1 style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 'clamp(28px, 5vw, 42px)', margin: 0, lineHeight: 1.15 }}>
-            Welcome to OFFENSO
-          </h1>
-
-          <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 15, opacity: 0.9, marginTop: 8 }}>
-            Hello, {participantInfo?.name || user.email}! You are authorized to access the event materials, rules, and live leaderboard.
-          </p>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div style={{ maxWidth: 800, margin: '-40px auto 0', padding: '0 24px', width: '100%', position: 'relative', zIndex: 20 }}>
-        {/* Participant Status Card */}
-        <div
-          className="glass-card"
-          style={{
-            background: '#FFFFFF',
-            borderRadius: 24,
-            padding: 24,
-            marginBottom: 20,
-            boxShadow: '0 10px 30px rgba(108,99,255,0.1)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div>
-              <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 10, color: '#FF8C69', letterSpacing: 1.5, textTransform: 'uppercase', margin: 0 }}>
-                REGISTRATION VERIFIED
-              </p>
-              <p style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 18, color: '#2D2845', margin: '4px 0 0' }}>
-                {participantInfo?.name || 'Registered Member'}
-              </p>
-              <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 12, color: '#8B85A8', margin: '2px 0 0' }}>
-                {user.email}
-              </p>
-            </div>
-
-            <span
-              style={{
-                background: '#EEFAF9',
-                color: '#4ECDC4',
-                fontFamily: 'Inter',
-                fontWeight: 800,
-                fontSize: 11,
-                padding: '6px 14px',
-                borderRadius: 50,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
-            >
-              <CheckCircle2 size={14} /> ACTIVE ACCESS
-            </span>
-          </div>
-        </div>
-
-        {/* Schedule & Event Highlights */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16, marginBottom: 24 }}>
-          <div className="glass-card" style={{ padding: 20 }}>
-            <div className="icon-container" style={{ background: '#EEEEFF', marginBottom: 12 }}>
-              <Trophy size={20} color="#6C63FF" />
-            </div>
-            <h3 style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 16, color: '#2D2845', margin: '0 0 6px' }}>
-              Prizes & Rewards
-            </h3>
-            <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 12, color: '#8B85A8', margin: 0, lineHeight: 1.5 }}>
-              Compete for top positions, cash rewards, and official certificates issued by ISTE SCTCE.
-            </p>
-          </div>
-
-          <div className="glass-card" style={{ padding: 20 }}>
-            <div className="icon-container" style={{ background: '#FFF3EE', marginBottom: 12 }}>
-              <Calendar size={20} color="#FF8C69" />
-            </div>
-            <h3 style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 16, color: '#2D2845', margin: '0 0 6px' }}>
-              Event Timeline
-            </h3>
-            <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 12, color: '#8B85A8', margin: 0, lineHeight: 1.5 }}>
-              Check-in begins at 9:00 AM. Keynote address and problem statement release follow immediately.
-            </p>
-          </div>
-        </div>
-
-        {/* Total Roster Count Banner */}
-        <div
-          className="glass-card"
-          style={{
-            background: 'linear-gradient(135deg, #EEEEFF, #EEFAF9)',
-            borderRadius: 24,
-            padding: 24,
-            marginBottom: 32,
-            textAlign: 'center',
-          }}
-        >
-          <p style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 24, color: '#2D2845', margin: 0 }}>
-            {OFFENSO_PARTICIPANTS.length} Confirmed Attendees
-          </p>
-          <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 13, color: '#6C63FF', marginTop: 4 }}>
-            Official Roster Verified by ISTE SCTCE
-          </p>
-        </div>
-      </div>
-    </div>
+    <OffensoClient
+      initialFolders={folders}
+      isExec={isExec}
+      userEmail={user.email || ''}
+      userName={profile?.full_name || 'Hacker'}
+    />
   )
 }

@@ -276,9 +276,9 @@ export default async function SubjectNotesPage({
             {isSubfolder ? 'All Notes' : 'Notes (No Folder)'}
           </p>
 
-          {notes && notes.length > 0 ? (
+          {finalNotes && finalNotes.length > 0 ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-              {notes.map((note: any) => (
+              {finalNotes.map((note: any) => (
                 <div key={note.id} className="glass-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <h3 style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 16, color: '#2D2845', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                     {note.title}

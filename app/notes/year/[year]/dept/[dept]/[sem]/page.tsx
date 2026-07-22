@@ -121,8 +121,14 @@ export default async function DeptSubjectsPage({
   const notesBySubject: Record<string, any[]> = {}
   for (const note of (allNotes ?? [])) {
     if (!note.subject) continue
-    notesBySubject[note.subject] = notesBySubject[note.subject] ?? []
-    notesBySubject[note.subject].push(note)
+    let cleanSubject = note.subject
+    if (cleanSubject.startsWith('PYQ - ')) {
+      cleanSubject = cleanSubject.slice(6)
+    } else if (cleanSubject.startsWith('Video - ')) {
+      cleanSubject = cleanSubject.slice(8)
+    }
+    notesBySubject[cleanSubject] = notesBySubject[cleanSubject] ?? []
+    notesBySubject[cleanSubject].push(note)
   }
 
   // Fetch custom "root" folders created dynamically

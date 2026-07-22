@@ -40,10 +40,23 @@ function AnimatedNumber({ value, suffix = '+' }: { value: number; suffix?: strin
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
   const [stats, setStats] = useState({ members: 0, materials: 0 })
+  const [userEmail, setUserEmail] = useState<string | null>(null)
 
   useEffect(() => {
     setMounted(true)
     const supabase = createClient()
+
+    async function checkUser() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          setUserEmail(user.email ?? null)
+        }
+      } catch (err) {
+        console.error('Failed to get user session:', err)
+      }
+    }
+
     async function fetchStats() {
       try {
         const [{ count: membersCount }, { count: notesCount }] = await Promise.all([
@@ -58,6 +71,8 @@ export default function LandingPage() {
         console.error('Failed to fetch real-time stats:', err)
       }
     }
+
+    checkUser()
     fetchStats()
   }, [])
 
@@ -68,7 +83,7 @@ export default function LandingPage() {
       style={{ background: '#F8F6FF', position: 'relative', overflowX: 'hidden' }}
     >
       {/* What The Hack Event Popup Modal */}
-      <WhatTheHackModal />
+      <WhatTheHackModal userEmail={userEmail} />
 
       {/* Liquid background blobs */}
       <div
