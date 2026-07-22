@@ -1,10 +1,9 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/app/lib/supabase/server'
-import { DEPARTMENTS, DeptKey, SemKey } from '@/app/lib/data/subjects'
+import { DEPARTMENTS, DeptKey, SemKey, getSubjects } from '@/app/lib/data/subjects'
 import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
 import { SubjectFoldersClient } from '@/app/notes/SubjectFoldersClient'
-import { SubjectRowClient } from '@/app/notes/SubjectRowClient'
 import { Lock } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -52,7 +51,7 @@ export default async function DeptSubjectsPage({
     .eq('id', user?.id ?? '')
     .single()
 
-  const isPrivileged = profile?.role === 'exec' || profile?.role === 'core'
+  const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
   if (!isPrivileged) {
     const detectedDept = getDepartmentFromRollNumber(profile?.roll_number)
     const userDept = (detectedDept !== 'Other' ? detectedDept : profile?.department) ?? ''
@@ -108,14 +107,16 @@ export default async function DeptSubjectsPage({
     }
   }
 
-  // Fetch custom "root" folders which ACT as subjects now.
+  // Get core subjects statically
+  const subjects = getSubjects(deptKey, semKey)
+
+  // Fetch all notes for count calculations
   const { data: allNotes } = await supabase
     .from('notes')
-    .select('id, subject, title, file_url, profiles!notes_profile_id_fkey(full_name)')
+    .select('id, subject')
     .eq('year', yearNum)
     .ilike('department', `%${deptKey}%`)
     .eq('semester', semKey)
-    .order('created_at', { ascending: false })
 
   const notesBySubject: Record<string, any[]> = {}
   for (const note of (allNotes ?? [])) {
@@ -124,6 +125,7 @@ export default async function DeptSubjectsPage({
     notesBySubject[note.subject].push(note)
   }
 
+  // Fetch custom "root" folders created dynamically
   const { data: rootFolders } = await supabase
     .from('note_folders')
     .select('id, name')
@@ -205,14 +207,14 @@ export default async function DeptSubjectsPage({
           </div>
         </div>
 
-        {/* SubjectFoldersClient helper (folder generation tool) */}
+        {/* SubjectFoldersClient (Dynamic custom folders manager) */}
         <div style={{ marginBottom: 32 }}>
           <SubjectFoldersClient
             subjectName="ROOT"
             department={deptKey}
             year={yearNum.toString()}
             semester={semKey}
-            initialFolders={[]}
+            initialFolders={rootFolders ?? []}
             canCreateFolder={isPrivileged}
             styleAccent={style.accent}
             styleBorder={style.border}
@@ -220,20 +222,17 @@ export default async function DeptSubjectsPage({
             deptKey={deptKey}
             semKey={semKey}
             isPrivileged={isPrivileged}
-            title="Create Additional Custom Subjects"
-            hideFolderList={true}
           />
         </div>
 
-        {/* Subjects List */}
+        {/* Core Subjects List */}
         <p style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 16, color: '#8B85A8', letterSpacing: 1, marginBottom: 16 }}>
           SUBJECTS — {semKey}
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {rootFolders && rootFolders.length > 0 ? (
-            rootFolders.map((folder, idx) => {
-              const subject = folder.name
+          {subjects.length > 0 ? (
+            subjects.map((subject, idx) => {
               const isElective = subject.startsWith('— Electives:')
               if (isElective) {
                 const electives = subject.replace('— Electives: ', '').split(', ')
@@ -251,7 +250,7 @@ export default async function DeptSubjectsPage({
                       Open Electives (Choose One)
                     </p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {electives.map((e: string, i: number) => (
+                      {electives.map((e, i) => (
                         <Link
                           key={i}
                           href={`${basePath}/${encodeURIComponent(e.trim())}`}
@@ -281,25 +280,61 @@ export default async function DeptSubjectsPage({
               }
 
               const subjectNotes = notesBySubject[subject] ?? []
-              const pyqNotes = notesBySubject[`PYQ - ${subject}`] ?? []
-              const videoNotes = notesBySubject[`Video - ${subject}`] ?? []
-              const noteCount = subjectNotes.length + pyqNotes.length + videoNotes.length
+              const noteCount = subjectNotes.length
 
               return (
-                <SubjectRowClient
+                <Link
                   key={idx}
-                  id={folder.id}
-                  name={folder.name}
-                  basePath={basePath}
-                  noteCount={noteCount}
-                  style={{
-                    color: style.color,
-                    border: style.border,
-                    accent: style.accent,
-                  }}
-                  idx={idx}
-                  isPrivileged={isPrivileged}
-                />
+                  href={`${basePath}/${encodeURIComponent(subject)}`}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <div
+                    className="glass-card"
+                    style={{
+                      padding: '16px 20px',
+                      background: '#FFFFFF',
+                      border: '1px solid rgba(108,99,255,0.06)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 16,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <span
+                      style={{
+                        background: style.color,
+                        color: style.accent,
+                        fontFamily: 'Poppins',
+                        fontWeight: 900,
+                        fontSize: 11,
+                        width: 28,
+                        height: 28,
+                        borderRadius: 8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {idx + 1}
+                    </span>
+                    <span style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 14, color: '#2D2845', flex: 1 }}>
+                      {subject}
+                    </span>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {noteCount > 0 ? (
+                        <span style={{ background: style.color, color: style.accent, fontFamily: 'Inter', fontWeight: 800, fontSize: 10, padding: '4px 10px', borderRadius: 50 }}>
+                          {noteCount} note{noteCount !== 1 ? 's' : ''}
+                        </span>
+                      ) : (
+                        <span style={{ background: '#F1F1F4', color: '#8B85A8', fontFamily: 'Inter', fontWeight: 800, fontSize: 10, padding: '4px 10px', borderRadius: 50 }}>
+                          No notes
+                        </span>
+                      )}
+                      <span style={{ color: style.accent, fontWeight: 900 }}>→</span>
+                    </div>
+                  </div>
+                </Link>
               )
             })
           ) : (
@@ -307,11 +342,6 @@ export default async function DeptSubjectsPage({
               <p style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 16, color: '#2D2845', margin: 0 }}>
                 No subjects found
               </p>
-              {isPrivileged && (
-                <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 12, color: '#8B85A8', marginTop: 4 }}>
-                  Use the generation button above to initialize subjects.
-                </p>
-              )}
             </div>
           )}
         </div>
