@@ -4,124 +4,164 @@ import { notFound } from 'next/navigation'
 import { DEPARTMENTS, DeptKey, DEPT_TO_GROUP } from '@/app/lib/data/subjects'
 
 const YEAR_META: Record<number, { label: string; emoji: string; color: string; border: string; accent: string }> = {
-    1: { label: '1st Year', emoji: '🌱', color: 'from-green-500/20 to-emerald-500/10', border: 'border-green-500/20', accent: 'text-green-400' },
-    2: { label: '2nd Year', emoji: '📘', color: 'from-blue-500/20 to-cyan-500/10', border: 'border-blue-500/20', accent: 'text-blue-400' },
-    3: { label: '3rd Year', emoji: '🔬', color: 'from-purple-500/20 to-violet-500/10', border: 'border-purple-500/20', accent: 'text-purple-400' },
-    4: { label: '4th Year', emoji: '🎓', color: 'from-orange-500/20 to-amber-500/10', border: 'border-orange-500/20', accent: 'text-orange-400' },
+  1: { label: '1st Year', emoji: '🌱', color: '#EEEEFF', border: 'rgba(108,99,255,0.12)', accent: '#6C63FF' },
+  2: { label: '2nd Year', emoji: '📘', color: '#FFF3EE', border: 'rgba(255,140,105,0.12)', accent: '#FF8C69' },
+  3: { label: '3rd Year', emoji: '🔬', color: '#EEFAF9', border: 'rgba(78,205,196,0.12)', accent: '#4ECDC4' },
+  4: { label: '4th Year', emoji: '🎓', color: '#FFF0F5', border: 'rgba(255,107,157,0.12)', accent: '#FF6B9D' },
 }
 
 const SEMS: Record<number, { sem: string; label: string }[]> = {
-    1: [{ sem: 'S1', label: 'Semester 1' }, { sem: 'S2', label: 'Semester 2' }],
-    2: [{ sem: 'S3', label: 'Semester 3' }, { sem: 'S4', label: 'Semester 4' }],
-    3: [{ sem: 'S5', label: 'Semester 5' }, { sem: 'S6', label: 'Semester 6' }],
-    4: [{ sem: 'S7', label: 'Semester 7' }, { sem: 'S8', label: 'Semester 8' }],
+  1: [{ sem: 'S1', label: 'Semester 1' }, { sem: 'S2', label: 'Semester 2' }],
+  2: [{ sem: 'S3', label: 'Semester 3' }, { sem: 'S4', label: 'Semester 4' }],
+  3: [{ sem: 'S5', label: 'Semester 5' }, { sem: 'S6', label: 'Semester 6' }],
+  4: [{ sem: 'S7', label: 'Semester 7' }, { sem: 'S8', label: 'Semester 8' }],
 }
 
 export default async function YearPage({
-    params,
+  params,
 }: {
-    params: Promise<{ year: string }>
+  params: Promise<{ year: string }>
 }) {
-    const { year } = await params
-    const yearNum = parseInt(year)
-    if (![1, 2, 3, 4].includes(yearNum)) notFound()
+  const { year } = await params
+  const yearNum = parseInt(year)
+  if (![1, 2, 3, 4].includes(yearNum)) notFound()
 
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('department, role')
-        .eq('id', user?.id)
-        .single()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('department, role')
+    .eq('id', user?.id)
+    .single()
 
-    const userDept = profile?.department?.toUpperCase() as DeptKey | undefined
-    const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
-    const assignedGroup = userDept ? DEPT_TO_GROUP[userDept] : null
+  const userDept = profile?.department?.toUpperCase() as DeptKey | undefined
+  const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+  const assignedGroup = userDept ? DEPT_TO_GROUP[userDept] : null
 
-    const meta = YEAR_META[yearNum]
-    const sems = SEMS[yearNum]
-    const deptList = (Object.entries(DEPARTMENTS) as [DeptKey, typeof DEPARTMENTS[DeptKey]][])
+  const meta = YEAR_META[yearNum]
+  const sems = SEMS[yearNum]
+  const deptList = (Object.entries(DEPARTMENTS) as [DeptKey, typeof DEPARTMENTS[DeptKey]][])
 
-    return (
-        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
-            <div className="max-w-6xl mx-auto">
-                {/* Breadcrumb */}
-                <div className="flex items-center gap-3 mb-12 text-sm font-bold">
-                    <Link href="/notes" className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">← Notes</Link>
-                    <span className="text-gray-700">/</span>
-                    <span className={`${meta.accent} uppercase tracking-widest`}>{meta.label}</span>
-                </div>
-
-                {/* Header */}
-                <div className="mb-12 space-y-2">
-                    <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase flex items-center gap-2">
-                        <span className="w-8 h-[1px] bg-blue-500 inline-block" />
-                        {meta.label}
-                    </p>
-                    <h1 className="text-5xl font-black tracking-tighter text-white flex items-center gap-4">
-                        <span>{meta.emoji}</span> Select Semester
-                    </h1>
-                </div>
-
-                {/* Semester Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-10 mb-16">
-                    {sems.map(({ sem, label }: { sem: string; label: string }) => {
-                        let href = ''
-                        if (yearNum === 1) {
-                            if (!isPrivileged && assignedGroup) {
-                                href = `/notes/year/1/group/${assignedGroup}/${sem}`
-                            } else {
-                                href = `/notes/year/1/semester/${sem}`
-                            }
-                        } else {
-                           href = `/notes/year/${yearNum}/semester/${sem}`
-                        }
-
-                        return (
-                            <Link
-                                key={sem}
-                                href={href}
-                                className={`glass-card group bg-gradient-to-br ${meta.color} border ${meta.border} hover:scale-[1.02] transition-all block`}
-                            >
-                                <div className="flex justify-between items-start mb-8">
-                                    <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/5 flex items-center justify-center text-4xl font-black text-white/30 group-hover:text-white/90 transition-all tracking-tighter">
-                                        {sem}
-                                    </div>
-                                    <span className={`text-[10px] font-black tracking-widest uppercase ${meta.accent}`}>
-                                        {meta.label}
-                                    </span>
-                                </div>
-                                <h2 className="text-3xl font-black text-white group-hover:text-glow transition-all mb-2 tracking-tighter">{label}</h2>
-                                <p className="text-gray-500 text-sm font-medium mb-6">
-                                    {yearNum === 1 ? 'View your group subjects' : 'Select your department'}
-                                </p>
-                                <div className={`flex items-center gap-2 ${meta.accent} text-xs font-black uppercase tracking-widest`}>
-                                    <span>{yearNum === 1 ? 'View Group' : 'Choose Department'}</span>
-                                    <span className="group-hover:translate-x-1 transition-transform">→</span>
-                                </div>
-                            </Link>
-                        )
-                    })}
-                </div>
-
-                {/* For years 2-4: also show dept overview below semester cards */}
-                {yearNum > 1 && (
-                    <div>
-                        <div className="mb-6">
-                            <p className="text-[10px] font-black tracking-[0.3em] text-gray-600 uppercase">Available Departments</p>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                            {deptList.map(([code, dept]) => (
-                                <div key={code} className="glass p-4 rounded-2xl text-center border border-white/5">
-                                    <div className="text-2xl mb-2">{dept.emoji}</div>
-                                    <p className="text-xs font-black text-white">{code}</p>
-                                    <p className="text-[9px] text-gray-500 mt-1">{dept.name}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-            </div>
+  return (
+    <div className="min-h-screen" style={{ background: '#F8F6FF', paddingBottom: 104 }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '48px 20px 0' }}>
+        {/* Breadcrumb */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontFamily: 'Inter', fontWeight: 700, marginBottom: 32 }}>
+          <Link href="/notes" style={{ color: '#8B85A8', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: 0.5 }}>← Notes</Link>
+          <span style={{ color: '#B8B4D0' }}>/</span>
+          <span style={{ color: meta.accent, textTransform: 'uppercase', letterSpacing: 0.5 }}>{meta.label}</span>
         </div>
-    )
+
+        {/* Header */}
+        <div style={{ marginBottom: 32 }}>
+          <p style={{ fontFamily: 'Inter', fontWeight: 900, fontSize: 9, letterSpacing: 2, color: '#FF8C69', marginBottom: 4 }}>
+            {meta.label.toUpperCase()}
+          </p>
+          <h1 style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 28, color: '#2D2845', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span>{meta.emoji}</span> Select Semester
+          </h1>
+        </div>
+
+        {/* Semester Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 48 }}>
+          {sems.map(({ sem, label }: { sem: string; label: string }) => {
+            let href = ''
+            if (yearNum === 1) {
+              if (!isPrivileged && assignedGroup) {
+                href = `/notes/year/1/group/${assignedGroup}/${sem}`
+              } else {
+                href = `/notes/year/1/semester/${sem}`
+              }
+            } else {
+              href = `/notes/year/${yearNum}/semester/${sem}`
+            }
+
+            return (
+              <Link key={sem} href={href} style={{ textDecoration: 'none' }}>
+                <div
+                  className="glass-card"
+                  style={{
+                    padding: 24,
+                    background: '#FFFFFF',
+                    border: `1.5px solid ${meta.border}`,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minHeight: 180,
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                    <div
+                      className="icon-container"
+                      style={{
+                        background: meta.color,
+                        width: 48,
+                        height: 48,
+                        borderRadius: 16,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontFamily: 'Poppins',
+                        fontWeight: 900,
+                        fontSize: 16,
+                        color: meta.accent,
+                      }}
+                    >
+                      {sem}
+                    </div>
+                    <span style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 12, color: meta.accent }}>
+                      {meta.label}
+                    </span>
+                  </div>
+
+                  <h2 style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 20, color: '#2D2845', margin: '0 0 4px' }}>
+                    {label}
+                  </h2>
+                  <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 12, color: '#8B85A8', margin: 0 }}>
+                    {yearNum === 1 ? 'View your group subjects' : 'Select your department'}
+                  </p>
+
+                  <div style={{ flex: 1 }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: meta.accent, fontFamily: 'Poppins', fontWeight: 900, fontSize: 11, letterSpacing: 0.5, marginTop: 12 }}>
+                    <span>{yearNum === 1 ? 'VIEW GROUP' : 'CHOOSE DEPARTMENT'}</span>
+                    <span>→</span>
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+
+        {/* For years 2-4: show dept overview */}
+        {yearNum > 1 && (
+          <div>
+            <p style={{ fontFamily: 'Poppins', fontWeight: 700, fontSize: 14, color: '#8B85A8', letterSpacing: 1, marginBottom: 12 }}>
+              AVAILABLE DEPARTMENTS
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 12 }}>
+              {deptList.map(([code, dept]) => (
+                <div
+                  key={code}
+                  className="glass"
+                  style={{
+                    padding: 16,
+                    background: '#FFFFFF',
+                    borderRadius: 20,
+                    textAlign: 'center',
+                    border: '1px solid rgba(108,99,255,0.06)',
+                  }}
+                >
+                  <div style={{ fontSize: 24, marginBottom: 8 }}>{dept.emoji}</div>
+                  <p style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 13, color: '#2D2845', margin: 0 }}>{code}</p>
+                  <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 10, color: '#8B85A8', margin: '2px 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {dept.name}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }

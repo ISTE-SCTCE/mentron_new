@@ -4,104 +4,139 @@ import { notFound } from 'next/navigation'
 import { DEPARTMENTS, DeptKey } from '@/app/lib/data/subjects'
 
 const YEAR_META: Record<number, { label: string; color: string; border: string; accent: string }> = {
-    2: { label: '2nd Year', color: 'from-blue-500/20 to-cyan-500/10', border: 'border-blue-500/20', accent: 'text-blue-400' },
-    3: { label: '3rd Year', color: 'from-purple-500/20 to-violet-500/10', border: 'border-purple-500/20', accent: 'text-purple-400' },
-    4: { label: '4th Year', color: 'from-orange-500/20 to-amber-500/10', border: 'border-orange-500/20', accent: 'text-orange-400' },
+  2: { label: '2nd Year', color: '#FFF3EE', border: 'rgba(255,140,105,0.12)', accent: '#FF8C69' },
+  3: { label: '3rd Year', color: '#EEFAF9', border: 'rgba(78,205,196,0.12)', accent: '#4ECDC4' },
+  4: { label: '4th Year', color: '#FFF0F5', border: 'rgba(255,107,157,0.12)', accent: '#FF6B9D' },
 }
 
-const DEPT_COLORS: Record<DeptKey, { color: string; border: string; accent: string }> = {
-    CSE: { color: 'from-blue-500/20 to-cyan-500/10', border: 'border-blue-500/20', accent: 'text-blue-400' },
-    ECE: { color: 'from-cyan-500/20 to-sky-500/10', border: 'border-cyan-500/20', accent: 'text-cyan-400' },
-    ME:  { color: 'from-orange-500/20 to-amber-500/10', border: 'border-orange-500/20', accent: 'text-orange-400' },
-    MEA: { color: 'from-red-500/20 to-rose-500/10', border: 'border-red-500/20', accent: 'text-red-400' },
-    BT:  { color: 'from-green-500/20 to-emerald-500/10', border: 'border-green-500/20', accent: 'text-green-400' },
+const DEPT_META: Record<DeptKey, { color: string; border: string; accent: string }> = {
+  CSE: { color: '#EEEEFF', border: 'rgba(108,99,255,0.12)', accent: '#6C63FF' },
+  ECE: { color: '#EEFAF9', border: 'rgba(78,205,196,0.12)', accent: '#4ECDC4' },
+  ME:  { color: '#FFF3EE', border: 'rgba(255,140,105,0.12)', accent: '#FF8C69' },
+  MEA: { color: '#FFF0F5', border: 'rgba(255,107,157,0.12)', accent: '#FF6B9D' },
+  BT:  { color: '#F0F8FF', border: 'rgba(116,185,255,0.12)', accent: '#74B9FF' },
 }
 
 const VALID_SEMS: Record<number, string[]> = {
-    2: ['S3', 'S4'],
-    3: ['S5', 'S6'],
-    4: ['S7', 'S8'],
+  2: ['S3', 'S4'],
+  3: ['S5', 'S6'],
+  4: ['S7', 'S8'],
 }
 
 export default async function DeptPickerPage({
-    params,
+  params,
 }: {
-    params: Promise<{ year: string; sem: string }>
+  params: Promise<{ year: string; sem: string }>
 }) {
-    const { year, sem } = await params
-    const yearNum = parseInt(year)
-    if (![2, 3, 4].includes(yearNum) || !VALID_SEMS[yearNum].includes(sem.toUpperCase())) notFound()
+  const { year, sem } = await params
+  const yearNum = parseInt(year)
+  if (![2, 3, 4].includes(yearNum) || !VALID_SEMS[yearNum].includes(sem.toUpperCase())) notFound()
 
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('department, role')
-        .eq('id', user?.id)
-        .single()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('department, role')
+    .eq('id', user?.id)
+    .single()
 
-    const userDept = profile?.department?.toUpperCase()
-    const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+  const userDept = profile?.department?.toUpperCase()
+  const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
 
-    const semKey = sem.toUpperCase()
-    const yearMeta = YEAR_META[yearNum]
-    const allDepts = (Object.entries(DEPARTMENTS) as [DeptKey, typeof DEPARTMENTS[DeptKey]][])
-    const deptList = allDepts.filter(([code]) => {
-        if (isPrivileged || !userDept) return true
-        return code === userDept
-    })
+  const semKey = sem.toUpperCase()
+  const yearMeta = YEAR_META[yearNum]
+  const allDepts = (Object.entries(DEPARTMENTS) as [DeptKey, typeof DEPARTMENTS[DeptKey]][])
+  const deptList = allDepts.filter(([code]) => {
+    if (isPrivileged || !userDept) return true
+    return code === userDept
+  })
 
-    return (
-        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
-            <div className="max-w-6xl mx-auto">
-                {/* Breadcrumb */}
-                <div className="flex items-center gap-2 flex-wrap mb-12 text-sm font-bold">
-                    <Link href="/notes" className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">Notes</Link>
-                    <span className="text-gray-700">/</span>
-                    <Link href={`/notes/year/${yearNum}`} className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">{yearMeta.label}</Link>
-                    <span className="text-gray-700">/</span>
-                    <span className={`${yearMeta.accent} uppercase tracking-widest`}>{semKey}</span>
-                </div>
-
-                {/* Header */}
-                <div className="mb-12 space-y-2">
-                    <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase flex items-center gap-2">
-                        <span className="w-8 h-[1px] bg-blue-500 inline-block" />
-                        {yearMeta.label} · {semKey}
-                    </p>
-                    <h1 className="text-5xl font-black tracking-tighter text-white">Select Department</h1>
-                    <p className="text-gray-500 text-lg">Choose your stream to view subjects and notes</p>
-                </div>
-
-                {/* Department Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {deptList.map(([code, dept]: [DeptKey, any]) => {
-                        const style = DEPT_COLORS[code]
-                        return (
-                            <Link
-                                key={code}
-                                href={`/notes/year/${yearNum}/dept/${code}/${semKey}`}
-                                className={`glass-card group bg-gradient-to-br ${style.color} border ${style.border} hover:scale-[1.02] transition-all block`}
-                            >
-                                <div className="flex justify-between items-start mb-6">
-                                    <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-3xl grayscale group-hover:grayscale-0 transition-all">
-                                        {dept.emoji}
-                                    </div>
-                                    <span className={`text-[10px] font-black tracking-widest uppercase ${style.accent} glass border ${style.border} px-3 py-1 rounded-full`}>
-                                        {code}
-                                    </span>
-                                </div>
-                                <h2 className="text-xl font-black text-white group-hover:text-glow transition-all mb-1 tracking-tight leading-snug">{dept.name}</h2>
-                                <p className="text-gray-500 text-sm font-medium mb-6">View {semKey} subjects &amp; notes</p>
-                                <div className={`flex items-center gap-2 ${style.accent} text-xs font-black uppercase tracking-widest`}>
-                                    <span>View Subjects</span>
-                                    <span className="group-hover:translate-x-1 transition-transform">→</span>
-                                </div>
-                            </Link>
-                        )
-                    })}
-                </div>
-            </div>
+  return (
+    <div className="min-h-screen" style={{ background: '#F8F6FF', paddingBottom: 104 }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '48px 20px 0' }}>
+        {/* Breadcrumb */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontFamily: 'Inter', fontWeight: 700, marginBottom: 32, flexWrap: 'wrap' }}>
+          <Link href="/notes" style={{ color: '#8B85A8', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: 0.5 }}>Notes</Link>
+          <span style={{ color: '#B8B4D0' }}>/</span>
+          <Link href={`/notes/year/${yearNum}`} style={{ color: '#8B85A8', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: 0.5 }}>{yearMeta.label}</Link>
+          <span style={{ color: '#B8B4D0' }}>/</span>
+          <span style={{ color: yearMeta.accent, textTransform: 'uppercase', letterSpacing: 0.5 }}>{semKey}</span>
         </div>
-    )
+
+        {/* Header */}
+        <div style={{ marginBottom: 32 }}>
+          <p style={{ fontFamily: 'Inter', fontWeight: 900, fontSize: 9, letterSpacing: 2, color: '#FF8C69', marginBottom: 4 }}>
+            {yearMeta.label.toUpperCase()} · {semKey}
+          </p>
+          <h1 style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 28, color: '#2D2845', margin: 0 }}>
+            Select Department
+          </h1>
+          <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 13, color: '#8B85A8', marginTop: 4 }}>
+            Choose your stream to view subjects and notes
+          </p>
+        </div>
+
+        {/* Department Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+          {deptList.map(([code, dept]: [DeptKey, any]) => {
+            const meta = DEPT_META[code] || DEPT_META['CSE']
+            return (
+              <Link key={code} href={`/notes/year/${yearNum}/dept/${code}/${semKey}`} style={{ textDecoration: 'none' }}>
+                <div
+                  className="glass-card"
+                  style={{
+                    padding: 24,
+                    background: '#FFFFFF',
+                    border: `1.5px solid ${meta.border}`,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minHeight: 180,
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                    <div
+                      className="icon-container"
+                      style={{
+                        background: meta.color,
+                        width: 48,
+                        height: 48,
+                        borderRadius: 16,
+                        fontSize: 22,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {dept.emoji}
+                    </div>
+                    <span style={{
+                      background: meta.color, color: meta.accent,
+                      fontFamily: 'Poppins', fontWeight: 900, fontSize: 11,
+                      padding: '4px 12px', borderRadius: 50,
+                    }}>
+                      {code}
+                    </span>
+                  </div>
+
+                  <h2 style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 20, color: '#2D2845', margin: '0 0 4px' }}>
+                    {dept.name}
+                  </h2>
+                  <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 12, color: '#8B85A8', margin: 0 }}>
+                    View {semKey} subjects &amp; notes
+                  </p>
+
+                  <div style={{ flex: 1 }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: meta.accent, fontFamily: 'Poppins', fontWeight: 900, fontSize: 11, letterSpacing: 0.5, marginTop: 12 }}>
+                    <span>VIEW SUBJECTS</span>
+                    <span>→</span>
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
 }
