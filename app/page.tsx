@@ -7,13 +7,60 @@ import {
   Zap, Sparkles, CheckCircle2, ChevronRight, GraduationCap
 } from 'lucide-react'
 import { WhatTheHackModal } from '@/app/components/WhatTheHackModal'
+import { createClient } from '@/app/lib/supabase/client'
+
+function AnimatedNumber({ value, suffix = '+' }: { value: number; suffix?: string }) {
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    if (value <= 0) return
+    const duration = 1500
+    const startTime = performance.now()
+
+    const updateCount = (currentTime: number) => {
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      const easeOut = 1 - Math.pow(1 - progress, 3)
+      const currentVal = Math.floor(easeOut * value)
+      setCount(currentVal)
+
+      if (progress < 1) {
+        requestAnimationFrame(updateCount)
+      } else {
+        setCount(value)
+      }
+    }
+
+    requestAnimationFrame(updateCount)
+  }, [value])
+
+  return <>{count.toLocaleString()}{suffix}</>
+}
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
+  const [stats, setStats] = useState({ members: 0, materials: 0 })
 
   useEffect(() => {
     setMounted(true)
+    const supabase = createClient()
+    async function fetchStats() {
+      try {
+        const [{ count: membersCount }, { count: notesCount }] = await Promise.all([
+          supabase.from('profiles').select('*', { count: 'exact', head: true }),
+          supabase.from('notes').select('*', { count: 'exact', head: true }),
+        ])
+        setStats({
+          members: membersCount || 0,
+          materials: notesCount || 0,
+        })
+      } catch (err) {
+        console.error('Failed to fetch real-time stats:', err)
+      }
+    }
+    fetchStats()
   }, [])
+
 
   return (
     <div
@@ -249,21 +296,22 @@ export default function LandingPage() {
           }}
         >
           <div>
-            <p style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 28, color: 'white', margin: 0 }}>1,200+</p>
+            <p style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 28, color: 'white', margin: 0 }}>
+              <AnimatedNumber value={stats.members} suffix="+" />
+            </p>
             <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: 0 }}>SCTCE Members</p>
           </div>
           <div>
-            <p style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 28, color: 'white', margin: 0 }}>500+</p>
+            <p style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 28, color: 'white', margin: 0 }}>
+              <AnimatedNumber value={stats.materials} suffix="+" />
+            </p>
             <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: 0 }}>Curated Materials</p>
-          </div>
-          <div>
-            <p style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 28, color: 'white', margin: 0 }}>50+</p>
-            <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: 0 }}>Active Projects</p>
           </div>
           <div>
             <p style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 28, color: 'white', margin: 0 }}>SCTCE</p>
             <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: 0 }}>ISTE Chapter</p>
           </div>
+
         </div>
       </main>
 
