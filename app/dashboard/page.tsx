@@ -25,7 +25,9 @@ export default async function DashboardPage() {
     .eq('email', user?.email?.toLowerCase().trim())
     .maybeSingle()
 
-  const isOffenso = !!dbParticipant || isOffensoParticipant(user?.email)
+  const dashboardUserRole = profile?.role || user?.user_metadata?.role || 'member'
+  const isExec = dashboardUserRole === 'exec' || dashboardUserRole === 'core' || dashboardUserRole === 'admin'
+  const isOffenso = !!dbParticipant || isOffensoParticipant(user?.email) || isExec
 
   // Aggregate stats
   const { count: membersCount } = await supabase

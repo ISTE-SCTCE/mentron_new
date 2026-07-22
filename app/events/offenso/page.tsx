@@ -23,9 +23,19 @@ export default async function OffensoPage() {
     .eq('email', user.email?.toLowerCase().trim())
     .maybeSingle()
 
+  // 3. Query profile role
+  const { data: userProfile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  const userRole = userProfile?.role || 'member'
+  const userIsExec = userRole === 'exec' || userRole === 'core' || userRole === 'admin'
+
   const hasDbAccess = !!dbParticipant
   const hasLocalAccess = isOffensoParticipant(user.email)
-  const isAuthorized = hasDbAccess || hasLocalAccess
+  const isAuthorized = hasDbAccess || hasLocalAccess || userIsExec
 
   // If user is not authorized, return access restricted screen
   if (!isAuthorized) {

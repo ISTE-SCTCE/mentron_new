@@ -51,13 +51,21 @@ export default function LandingPage() {
       try {
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
-          const { data: dbPart } = await supabase
-            .from('offenso_participants')
-            .select('id')
-            .eq('email', user.email?.toLowerCase().trim())
-            .maybeSingle()
+          const [{ data: dbPart }, { data: profile }] = await Promise.all([
+            supabase
+              .from('offenso_participants')
+              .select('id')
+              .eq('email', user.email?.toLowerCase().trim())
+              .maybeSingle(),
+            supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', user.id)
+              .maybeSingle()
+          ])
 
-          setIsAuthorized(!!dbPart || isOffensoParticipant(user.email))
+          const isExec = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+          setIsAuthorized(!!dbPart || isOffensoParticipant(user.email) || isExec)
         }
       } catch (err) {
         console.error('Failed to get user session:', err)
