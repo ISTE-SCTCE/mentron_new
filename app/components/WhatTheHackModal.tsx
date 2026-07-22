@@ -168,7 +168,7 @@ export function WhatTheHackModal({ isAuthorized }: Props) {
             The ultimate 24-hour national level hackathon is back! Unleash your engineering potential, build revolutionary projects, and win exciting cash prizes.
           </p>
 
-          {/* Details Pill Grid */}
+          {/* Details Pill Grid (Only Venue is enough, per user request) */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
             <div
               style={{
@@ -176,57 +176,21 @@ export function WhatTheHackModal({ isAuthorized }: Props) {
                 alignItems: 'center',
                 gap: 12,
                 padding: '12px 16px',
-                background: '#EEEEFF',
+                background: '#EEFAF9',
                 borderRadius: 16,
               }}
             >
-              <Trophy size={20} color="#6C63FF" />
+              <MapPin size={20} color="#4ECDC4" />
               <div>
-                <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 10, color: '#8B85A8', margin: 0 }}>PRIZE POOL</p>
-                <p style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 14, color: '#2D2845', margin: 0 }}>₹50,000+ & Exclusive Goodies</p>
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '12px',
-                  background: '#FFF3EE',
-                  borderRadius: 16,
-                }}
-              >
-                <Calendar size={18} color="#FF8C69" />
-                <div>
-                  <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 9, color: '#8B85A8', margin: 0 }}>DATE</p>
-                  <p style={{ fontFamily: 'Poppins', fontWeight: 700, fontSize: 12, color: '#2D2845', margin: 0 }}>Coming Soon</p>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '12px',
-                  background: '#EEFAF9',
-                  borderRadius: 16,
-                }}
-              >
-                <MapPin size={18} color="#4ECDC4" />
-                <div>
-                  <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 9, color: '#8B85A8', margin: 0 }}>VENUE</p>
-                  <p style={{ fontFamily: 'Poppins', fontWeight: 700, fontSize: 12, color: '#2D2845', margin: 0 }}>SCTCE Campus</p>
-                </div>
+                <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 10, color: '#8B85A8', margin: 0 }}>VENUE</p>
+                <p style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 14, color: '#2D2845', margin: 0 }}>SCTCE Campus</p>
               </div>
             </div>
           </div>
 
           {/* Action Buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <a href="/events" onClick={handleClose} style={{ textDecoration: 'none' }}>
+            <a href="/events/offenso" onClick={handleClose} style={{ textDecoration: 'none' }}>
               <button
                 className="btn-primary"
                 style={{
@@ -237,7 +201,7 @@ export function WhatTheHackModal({ isAuthorized }: Props) {
                   width: '100%',
                 }}
               >
-                <span>REGISTER NOW</span>
+                <span>ACCESS GUIDE LECTURES HERE</span>
                 <ArrowRight size={18} />
               </button>
             </a>

@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/app/lib/supabase/client'
 import {
   Terminal, ShieldCheck, FolderPlus, FilePlus2, Play, Download,
   ExternalLink, Trash2, ArrowLeft, X, Sparkles, Tv
 } from 'lucide-react'
 import Link from 'next/link'
+import { PdfViewerModal } from '@/app/components/PdfViewerModal'
 
 export interface Lecture {
   id: string
@@ -38,6 +39,16 @@ export function OffensoClient({ initialFolders, isExec, userEmail, userName }: P
   const [folders, setFolders] = useState<Folder[]>(initialFolders)
   const [activeFolderId, setActiveFolderId] = useState<string>(initialFolders[0]?.id || '')
   const [playingLecture, setPlayingLecture] = useState<Lecture | null>(null)
+  const [viewingNotesUrl, setViewingNotesUrl] = useState<string | null>(null)
+  const [viewingNotesTitle, setViewingNotesTitle] = useState<string>('')
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   // Modals state
   const [showFolderModal, setShowFolderModal] = useState(false)
@@ -190,19 +201,6 @@ export function OffensoClient({ initialFolders, isExec, userEmail, userName }: P
         fontFamily: 'Inter, sans-serif',
       }}
     >
-      {/* Blinking Cyberpunk Scanline overlay */}
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06))',
-          backgroundSize: '100% 4px, 6px 100%',
-          pointerEvents: 'none',
-          zIndex: 999,
-          opacity: 0.8,
-        }}
-      />
-
       {/* Cyber Header */}
       <div
         style={{
@@ -336,7 +334,7 @@ export function OffensoClient({ initialFolders, isExec, userEmail, userName }: P
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 32, alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '320px 1fr', gap: 32, alignItems: 'start' }}>
           
           {/* Folders List Sidebar */}
           <div>
@@ -547,31 +545,28 @@ export function OffensoClient({ initialFolders, isExec, userEmail, userName }: P
                       )}
 
                       {lecture.notes_url && (
-                        <a
-                          href={lecture.notes_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ textDecoration: 'none' }}
+                        <button
+                          onClick={() => {
+                            setViewingNotesUrl(lecture.notes_url!)
+                            setViewingNotesTitle(lecture.title)
+                          }}
+                          style={{
+                            background: 'transparent',
+                            border: '1.5px solid #2A3A5A',
+                            color: '#F0F0F0',
+                            fontFamily: 'monospace',
+                            fontWeight: 700,
+                            fontSize: 12,
+                            padding: '6px 16px',
+                            borderRadius: 50,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                          }}
                         >
-                          <button
-                            style={{
-                              background: 'transparent',
-                              border: '1.5px solid #2A3A5A',
-                              color: '#F0F0F0',
-                              fontFamily: 'monospace',
-                              fontWeight: 700,
-                              fontSize: 12,
-                              padding: '6px 16px',
-                              borderRadius: 50,
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 6,
-                            }}
-                          >
-                            <Download size={12} /> DOWNLOAD NOTES
-                          </button>
-                        </a>
+                          <Tv size={12} /> VIEW NOTES
+                        </button>
                       )}
                     </div>
                   </div>
@@ -840,6 +835,18 @@ export function OffensoClient({ initialFolders, isExec, userEmail, userName }: P
             </form>
           </div>
         </div>
+      )}
+
+      {/* Dynamic PDF Notes Viewer Modal */}
+      {viewingNotesUrl && (
+        <PdfViewerModal
+          url={viewingNotesUrl}
+          title={viewingNotesTitle}
+          onClose={() => {
+            setViewingNotesUrl(null)
+            setViewingNotesTitle('')
+          }}
+        />
       )}
     </div>
   )
