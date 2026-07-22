@@ -262,6 +262,74 @@ export default function LandingPage() {
           </div>
         </div>
 
+        {/* WHAT THE HACK FLAGSHIP BANNER */}
+        <div 
+          style={{ 
+            width: '100%', 
+            maxWidth: 800, 
+            margin: '0 auto 48px', 
+            position: 'relative',
+            borderRadius: 28,
+            overflow: 'hidden',
+            background: '#0B0E2A',
+            border: '2px solid #00FF41',
+            boxShadow: '0 12px 40px rgba(0, 255, 65, 0.2)',
+          }}
+        >
+          {/* Link wraps the whole banner as requested */}
+          <Link href="/events/offenso" style={{ textDecoration: 'none', display: 'block' }}>
+            <div style={{ position: 'relative', height: 260, width: '100%', overflow: 'hidden' }}>
+              <img 
+                src="https://istesctce.in/images/events-images/what%20the%20hack.jpeg" 
+                alt="What The Hack Flagship Banner" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={(e: any) => {
+                  e.target.src = 'https://istesctce.in/images/Logos/isteofficiallogo.png'
+                }}
+              />
+              <div style={{
+                position: 'absolute', bottom: 0, left: 0, right: 0, top: 0,
+                background: 'linear-gradient(to top, #0B0E2A 10%, rgba(11, 14, 42, 0.4) 60%, transparent 100%)'
+              }} />
+              
+              {/* Flagship Badge */}
+              <div style={{
+                position: 'absolute', top: 16, left: 16, zIndex: 10,
+                background: 'rgba(0, 255, 65, 0.15)',
+                border: '1px solid #00FF41',
+                borderRadius: 6,
+                padding: '4px 10px',
+                display: 'flex', alignItems: 'center', gap: 6
+              }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00FF41' }} />
+                <span style={{ fontFamily: 'Inter', fontSize: 10, fontWeight: 900, color: '#00FF41', letterSpacing: 1.5 }}>FLAGSHIP EVENT</span>
+              </div>
+            </div>
+
+            {/* Banner Details */}
+            <div style={{ padding: '24px 32px 32px' }}>
+              <h3 style={{ fontFamily: 'Poppins', fontWeight: 950, fontSize: 24, color: 'white', margin: '0 0 8px' }}>
+                What The Hack
+              </h3>
+              <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 14, color: '#A0A5C0', margin: '0 0 20px', lineHeight: 1.6 }}>
+                Step into the cybersecurity arena. An immersive, hands-on offensive security hacking workshop. Tap into the official Offenso Hacking Academy dynamically loaded modules.
+              </p>
+              
+              <button style={{
+                background: 'linear-gradient(135deg, #00FF41, #00B32D)',
+                color: '#0A0E27',
+                border: 'none',
+                fontFamily: 'Poppins', fontWeight: 800, fontSize: 13, letterSpacing: 0.5,
+                padding: '12px 24px', borderRadius: 12, cursor: 'pointer',
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                boxShadow: '0 6px 20px rgba(0, 255, 65, 0.3)'
+              }}>
+                Enter Offenso Hacking Academy <ArrowRight size={14} />
+              </button>
+            </div>
+          </Link>
+        </div>
+
         {/* Feature Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 48 }}>
           {/* Card 1 */}
