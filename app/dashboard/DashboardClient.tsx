@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import {
   Bell, MessageSquare, BookOpen, Rocket, Trophy, Lightbulb,
   ShieldCheck, ArrowRight, TrendingUp, Users, FileText, Zap,
-  ChevronRight, Calculator, Atom, Code2, Cpu, Download,
+  ChevronRight, Calculator, Atom, Code2, Cpu, Download, ExternalLink,
 } from 'lucide-react'
 import { logout } from '@/app/login/actions'
 import { WhatTheHackModal } from '@/app/components/WhatTheHackModal'
@@ -22,6 +22,7 @@ interface Props {
   coreMember: boolean
   events: any[]
   userEmail?: string | null
+  isOffenso: boolean
 }
 
 
@@ -144,7 +145,7 @@ function CalendarWidget() {
 
 export function DashboardClient({
   displayName, displayRole, displayDept, userXP,
-  totalMembers, totalNotes, totalProjects, isExec, coreMember, events, userEmail,
+  totalMembers, totalNotes, totalProjects, isExec, coreMember, events, userEmail, isOffenso,
 }: Props) {
   const [mounted, setMounted] = useState(false)
   const firstName = displayName.split(' ')[0] || 'Student'
@@ -161,7 +162,7 @@ export function DashboardClient({
       className="min-h-screen"
       style={{ background: '#F8F6FF', paddingBottom: 104, overflowX: 'hidden' }}
     >
-      <WhatTheHackModal userEmail={userEmail} />
+      <WhatTheHackModal isAuthorized={isOffenso} />
 
       {/* ── Header ── */}
       <div
@@ -234,30 +235,31 @@ export function DashboardClient({
         </p>
       </div>
 
-      {/* ── XP + Stats Strip ── */}
+      {/* ── XP Strip ── */}
       <div style={{ padding: '16px 20px 0', ...a('0.15s') }}>
         <div style={{
-          display: 'flex', gap: 10,
-          padding: '14px 20px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '16px 24px',
           background: 'linear-gradient(135deg, #8B7FFF, #6C63FF)',
           borderRadius: 20,
+          boxShadow: '0 8px 24px rgba(108,99,255,0.2)',
         }}>
-          {[
-            { label: 'Your XP', value: userXP, icon: Zap },
-            { label: 'Members', value: totalMembers, icon: Users },
-            { label: 'Notes', value: totalNotes, icon: FileText },
-            { label: 'Projects', value: totalProjects, icon: Rocket },
-          ].map(({ label, value, icon: Icon }, i) => (
-            <div key={i} style={{ flex: 1, textAlign: 'center' }}>
-              <Icon size={14} color="rgba(255,255,255,0.7)" style={{ marginBottom: 2 }} />
-              <p style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 16, color: 'white', margin: 0 }}>
-                {value.toLocaleString()}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.2)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <Zap size={20} color="white" />
+            </div>
+            <div>
+              <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 12, color: 'rgba(255,255,255,0.85)', margin: 0 }}>
+                Your Experience Points
               </p>
-              <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 9, color: 'rgba(255,255,255,0.65)', margin: 0 }}>
-                {label}
+              <p style={{ fontFamily: 'Poppins', fontWeight: 950, fontSize: 24, color: 'white', margin: 0, lineHeight: 1.1 }}>
+                {userXP.toLocaleString()} <span style={{ fontSize: 14, fontWeight: 700 }}>XP</span>
               </p>
             </div>
-          ))}
+          </div>
         </div>
       </div>
 
@@ -445,44 +447,204 @@ export function DashboardClient({
         </div>
       </div>
 
-      {/* ── Recent Events ── */}
-      {events.length > 0 && (
-        <div style={{ padding: '26px 20px 0', ...a('0.3s') }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <p className="section-label">Upcoming Events</p>
-            <Link href="/events" style={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 13, color: '#6C63FF', textDecoration: 'none' }}>
-              See all
-            </Link>
+      {/* ── Featured & Sync Event Banners (istesctce.in Sync) ── */}
+      <div style={{ padding: '26px 20px 0', ...a('0.3s') }}>
+        <p className="section-label" style={{ marginBottom: 14 }}>Featured Event</p>
+        
+        {/* WHAT THE HACK FEATURED GLOW CARD */}
+        <div style={{
+          position: 'relative',
+          borderRadius: 24,
+          overflow: 'hidden',
+          background: '#0B0E2A',
+          border: '2px solid #00FF41',
+          boxShadow: '0 0 25px rgba(0, 255, 65, 0.25)',
+          marginBottom: 24,
+        }}>
+          {/* Neon header badge */}
+          <div style={{
+            position: 'absolute', top: 12, left: 12, zIndex: 10,
+            background: 'rgba(0, 255, 65, 0.15)',
+            border: '1px solid #00FF41',
+            borderRadius: 6,
+            padding: '4px 8px',
+            display: 'flex', alignItems: 'center', gap: 4
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00FF41' }} />
+            <span style={{ fontFamily: 'Inter', fontSize: 10, fontWeight: 900, color: '#00FF41', letterSpacing: 1 }}>CYBERSECURITY</span>
           </div>
-          {events.map((event, i) => (
-            <Link key={event.id || i} href="/events" style={{ textDecoration: 'none' }}>
-              <div
-                className="glass-card"
-                style={{ marginBottom: 10, display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer' }}
-              >
-                <div
-                  className="icon-container"
-                  style={{
-                    background: ['#EEEEFF', '#FFF3EE', '#EEFAF9'][i % 3],
-                    flexShrink: 0,
+
+          {/* Event Banner Image */}
+          <div style={{ position: 'relative', height: 200, width: '100%', overflow: 'hidden' }}>
+            <img 
+              src="https://istesctce.in/images/events-images/what%20the%20hack.jpeg" 
+              alt="What The Hack" 
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={(e: any) => {
+                e.target.src = 'https://istesctce.in/images/Logos/isteofficiallogo.png'
+              }}
+            />
+            <div style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0,
+              height: '100%',
+              background: 'linear-gradient(to top, #0B0E2A 20%, rgba(11, 14, 42, 0.6) 60%, transparent 100%)'
+            }} />
+          </div>
+
+          {/* Card Info */}
+          <div style={{ padding: '0 20px 20px' }}>
+            <h3 style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 22, color: 'white', margin: '0 0 6px' }}>
+              What The Hack
+            </h3>
+            <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 13, color: '#A0A5C0', margin: '0 0 16px', lineHeight: 1.4 }}>
+              An immersive cybersecurity workshop exploring offensive security and ethical hacking techniques.
+            </p>
+
+            {isOffenso ? (
+              <Link href="/events/offenso" style={{ textDecoration: 'none' }}>
+                <button style={{
+                  width: '100%',
+                  background: 'linear-gradient(135deg, #00FF41, #00B32D)',
+                  color: '#0A0E27',
+                  border: 'none',
+                  fontFamily: 'Poppins', fontWeight: 800, fontSize: 13, letterSpacing: 0.5,
+                  padding: '12px 20px', borderRadius: 12, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  boxShadow: '0 6px 20px rgba(0, 255, 65, 0.3)'
+                }}>
+                  Enter Offenso Academy <ChevronRight size={14} />
+                </button>
+              </Link>
+            ) : (
+              <a href="https://istesctce.in/HTML/whatthehack.html" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                <button style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: '1px solid #00FF41',
+                  color: '#00FF41',
+                  fontFamily: 'Poppins', fontWeight: 800, fontSize: 13, letterSpacing: 0.5,
+                  padding: '12px 20px', borderRadius: 12, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                }}>
+                  Explore & Register <ExternalLink size={14} />
+                </button>
+              </a>
+            )}
+          </div>
+        </div>
+
+        {/* HORIZONTAL CAROUSEL OF OTHER EVENTS */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <p className="section-label">Active & Upcoming Events</p>
+          <a href="https://istesctce.in/HTML/events.html" target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 13, color: '#6C63FF', textDecoration: 'none' }}>
+            View Web Page
+          </a>
+        </div>
+
+        <div className="no-scrollbar" style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 12, margin: '0 -20px', paddingLeft: 20, paddingRight: 20 }}>
+          {[
+            {
+              title: 'Mentron 2.0',
+              status: 'ONGOING',
+              statusBg: '#EEFAF9',
+              statusColor: '#4ECDC4',
+              desc: 'The ultimate mentorship program returns.',
+              img: 'https://istesctce.in/images/events-images/mentron(main)poster.png',
+              link: '/notes'
+            },
+            {
+              title: 'Internship Initiative (I Cube)',
+              status: 'ONGOING',
+              statusBg: '#EEFAF9',
+              statusColor: '#4ECDC4',
+              desc: 'ISTE SCT SC Internship Initiative presented by SWAS.',
+              img: 'https://istesctce.in/images/events-images/I%20cube.jpg',
+              link: '/projects'
+            },
+            {
+              title: "Understanding 'C'",
+              status: 'UPCOMING',
+              statusBg: '#FFF3EE',
+              statusColor: '#FF8C69',
+              desc: 'A workshop to understand the basics of C programming.',
+              img: 'https://istesctce.in/images/hackathon.jpg',
+              link: 'https://istesctce.in/HTML/events.html'
+            },
+            {
+              title: 'Web Genesis',
+              status: 'UPCOMING',
+              statusBg: '#FFF3EE',
+              statusColor: '#FF8C69',
+              desc: 'Master the art of modern web development.',
+              img: 'https://istesctce.in/images/workshop.jpg',
+              link: 'https://istesctce.in/HTML/events.html'
+            },
+            {
+              title: 'Reverse Quiz',
+              status: 'PAST',
+              statusBg: '#EEEEFF',
+              statusColor: '#6C63FF',
+              desc: 'Think backwards and reason forward.',
+              img: 'https://istesctce.in/images/events-images/reverse-quiz.jpg',
+              link: 'https://istesctce.in/HTML/events.html'
+            },
+            {
+              title: 'Grand Launch',
+              status: 'PAST',
+              statusBg: '#EEEEFF',
+              statusColor: '#6C63FF',
+              desc: 'Inaugurating the ISTE Student Chapter at SCTCE.',
+              img: 'https://istesctce.in/images/events-images/launch-event.jpg',
+              link: 'https://istesctce.in/HTML/events.html'
+            }
+          ].map((evt, idx) => (
+            <div key={idx} style={{ flexShrink: 0, width: 260, borderRadius: 20, overflow: 'hidden', background: '#FFFFFF', border: '1px solid rgba(108,99,255,0.06)', boxShadow: '0 8px 24px rgba(108,99,255,0.04)' }}>
+              {/* Event Image */}
+              <div style={{ position: 'relative', height: 140, overflow: 'hidden' }}>
+                <img 
+                  src={evt.img} 
+                  alt={evt.title} 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={(e: any) => {
+                    e.target.src = 'https://istesctce.in/images/Logos/isteofficiallogo.png'
                   }}
-                >
-                  <Zap size={20} color={['#6C63FF', '#FF8C69', '#4ECDC4'][i % 3]} />
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontFamily: 'Poppins', fontWeight: 700, fontSize: 14, color: '#2D2845', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {event.title || 'Event'}
-                  </p>
-                  <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 12, color: '#8B85A8', margin: '2px 0 0' }}>
-                    {event.start_date ? new Date(event.start_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : 'Upcoming'}
-                  </p>
-                </div>
-                <ChevronRight size={16} color="#8B85A8" />
+                />
+                <span style={{
+                  position: 'absolute', top: 10, left: 10,
+                  background: evt.statusBg, color: evt.statusColor,
+                  fontFamily: 'Inter', fontWeight: 800, fontSize: 9,
+                  padding: '3px 8px', borderRadius: 4, letterSpacing: 0.5
+                }}>
+                  {evt.status}
+                </span>
               </div>
-            </Link>
+              
+              {/* Event Info */}
+              <div style={{ padding: 14 }}>
+                <h4 style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 14, color: '#2D2845', margin: '0 0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {evt.title}
+                </h4>
+                <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 11, color: '#8B85A8', margin: '0 0 10px', height: 32, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: 1.4 }}>
+                  {evt.desc}
+                </p>
+                {evt.link.startsWith('/') ? (
+                  <Link href={evt.link} style={{ textDecoration: 'none' }}>
+                    <span style={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 11, color: '#6C63FF', display: 'flex', alignItems: 'center', gap: 2 }}>
+                      Explore <ChevronRight size={12} />
+                    </span>
+                  </Link>
+                ) : (
+                  <a href={evt.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                    <span style={{ fontFamily: 'Inter', fontWeight: 700, fontSize: 11, color: '#6C63FF', display: 'flex', alignItems: 'center', gap: 2 }}>
+                      Explore <ExternalLink size={12} />
+                    </span>
+                  </a>
+                )}
+              </div>
+            </div>
           ))}
         </div>
-      )}
+      </div>
 
       {/* ── Calendar ── */}
       <div style={{ ...a('0.32s') }}>

@@ -1,6 +1,7 @@
 import { createClient } from '@/app/lib/supabase/server'
 import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
 import { isCoreMember } from '@/app/lib/utils/coreAuth'
+import { isOffensoParticipant } from '@/app/lib/data/offensoParticipants'
 import { DashboardClient } from './DashboardClient'
 
 export const dynamic = 'force-dynamic'
@@ -16,6 +17,15 @@ export default async function DashboardPage() {
     .select('*')
     .eq('id', user?.id)
     .single()
+
+  // Check offenso access
+  const { data: dbParticipant } = await supabase
+    .from('offenso_participants')
+    .select('id')
+    .eq('email', user?.email?.toLowerCase().trim())
+    .maybeSingle()
+
+  const isOffenso = !!dbParticipant || isOffensoParticipant(user?.email)
 
   // Aggregate stats
   const { count: membersCount } = await supabase
@@ -61,7 +71,7 @@ export default async function DashboardPage() {
       coreMember={coreMember}
       events={events || []}
       userEmail={user?.email || null}
+      isOffenso={isOffenso}
     />
-
   )
 }

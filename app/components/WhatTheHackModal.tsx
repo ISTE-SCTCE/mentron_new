@@ -13,10 +13,10 @@ const ALLOWED_EMAILS: string[] = [
 
 
 interface Props {
-  userEmail?: string | null
+  isAuthorized: boolean
 }
 
-export function WhatTheHackModal({ userEmail }: Props) {
+export function WhatTheHackModal({ isAuthorized }: Props) {
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
@@ -24,17 +24,10 @@ export function WhatTheHackModal({ userEmail }: Props) {
     const dismissed = sessionStorage.getItem('what_the_hack_dismissed')
     if (dismissed) return
 
-    // Email authorization check
-    if (userEmail) {
-      const emailLower = userEmail.toLowerCase().trim()
-      const isAllowed = ALLOWED_EMAILS.includes('*') || ALLOWED_EMAILS.some(e => e.toLowerCase() === emailLower)
-      if (isAllowed) {
-        setIsOpen(true)
-      }
-    } else if (ALLOWED_EMAILS.includes('*')) {
+    if (isAuthorized) {
       setIsOpen(true)
     }
-  }, [userEmail])
+  }, [isAuthorized])
 
   const handleClose = () => {
     sessionStorage.setItem('what_the_hack_dismissed', 'true')

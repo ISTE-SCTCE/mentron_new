@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { WhatTheHackModal } from '@/app/components/WhatTheHackModal'
 import { createClient } from '@/app/lib/supabase/client'
+import { isOffensoParticipant } from '@/app/lib/data/offensoParticipants'
 
 function AnimatedNumber({ value, suffix = '+' }: { value: number; suffix?: string }) {
   const [count, setCount] = useState(0)
@@ -40,7 +41,7 @@ function AnimatedNumber({ value, suffix = '+' }: { value: number; suffix?: strin
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
   const [stats, setStats] = useState({ members: 0, materials: 0 })
-  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [isAuthorized, setIsAuthorized] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -50,7 +51,13 @@ export default function LandingPage() {
       try {
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
-          setUserEmail(user.email ?? null)
+          const { data: dbPart } = await supabase
+            .from('offenso_participants')
+            .select('id')
+            .eq('email', user.email?.toLowerCase().trim())
+            .maybeSingle()
+
+          setIsAuthorized(!!dbPart || isOffensoParticipant(user.email))
         }
       } catch (err) {
         console.error('Failed to get user session:', err)
@@ -83,7 +90,7 @@ export default function LandingPage() {
       style={{ background: '#F8F6FF', position: 'relative', overflowX: 'hidden' }}
     >
       {/* What The Hack Event Popup Modal */}
-      <WhatTheHackModal userEmail={userEmail} />
+      <WhatTheHackModal isAuthorized={isAuthorized} />
 
       {/* Liquid background blobs */}
       <div
