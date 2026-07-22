@@ -958,8 +958,13 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
       final storagePath = 'notes/$fileName';
 
       String contentType = 'application/pdf';
-      if (['jpg', 'jpeg', 'png'].contains(extension.toLowerCase())) {
-        contentType = 'image/$extension';
+      final extLower = extension.toLowerCase();
+      if (['jpg', 'jpeg', 'png', 'webp'].contains(extLower)) {
+        contentType = 'image/$extLower';
+      } else if (extLower == 'docx') {
+        contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      } else if (extLower == 'pptx') {
+        contentType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
       }
 
       final supabase = Provider.of<SupabaseService>(context, listen: false);
