@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import "./globals.css"
 import { MobileNavbar } from "./components/MobileNavbar"
+import { SidebarWrapper } from "./components/SidebarWrapper"
 import { LoadingProvider } from "./lib/context/LoadingContext"
 import { LoadingOverlay } from "./components/LoadingOverlay"
 import { NavigationInterceptor } from "./components/NavigationInterceptor"
@@ -77,7 +78,7 @@ export default function RootLayout({
           <NavigationEventsWrapper />
 
           <div className="relative z-10 w-full">
-            {children}
+            <SidebarWrapper>{children}</SidebarWrapper>
           </div>
 
           {/* Flutter-style Bottom Navigation Pill */}

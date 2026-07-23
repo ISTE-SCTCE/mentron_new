@@ -53,12 +53,12 @@ export function PurchaseModal({ item, buyerId, buyerName, onClose, onSuccess }: 
     }
 
     return (
-        <div className="fixed inset-0 z-[9998] flex items-start justify-center p-4 pt-20 md:pt-32 overflow-y-auto">
+        <div className="fixed inset-0 z-[9998] flex items-end md:items-center justify-center p-0 md:p-4 overflow-y-auto">
             {/* Backdrop */}
             <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
 
-            {/* Modal */}
-            <div className="relative z-10 w-full max-w-md glass rounded-[2.5rem] p-8 border border-white/10 shadow-2xl">
+            {/* Modal / Bottom Sheet */}
+            <div className="relative z-10 w-full max-w-full md:max-w-md glass rounded-t-[2.5rem] md:rounded-[2.5rem] rounded-b-none md:rounded-b-[2.5rem] p-8 border-t md:border border-white/10 shadow-2xl animate-in slide-in-from-bottom duration-300 md:animate-none">
                 {/* Header */}
                 <div className="flex justify-between items-start mb-7">
                     <div>

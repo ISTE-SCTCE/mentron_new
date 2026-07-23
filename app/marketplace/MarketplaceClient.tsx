@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, ShoppingBag, Tag, Plus, Package } from 'lucide-react'
+import Link from 'next/link'
+import { Search, ShoppingBag, Plus, Package } from 'lucide-react'
+import { PurchaseModal } from '@/app/components/PurchaseModal'
 
 const CATEGORIES = ['All', 'Books', 'Electronics', 'Stationery', 'Clothes', 'Others']
 
@@ -17,15 +19,16 @@ interface Item {
   price: number
   category?: string
   condition?: string
-  seller_id?: string
+  seller_id: string
   created_at: string
-  profiles?: { full_name: string }
+  profiles?: { full_name: string | null }
   image_url?: string
 }
 
 export function MarketplaceClient({ items, userId, userName }: { items: Item[], userId: string, userName: string }) {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null)
 
   const filtered = items.filter(item => {
     const q = search.toLowerCase()
@@ -65,18 +68,35 @@ export function MarketplaceClient({ items, userId, userName }: { items: Item[], 
             <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 13, color: '#8B85A8' }}>Be the first to list an item!</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
             {filtered.map((item, i) => {
               const color = CAT_COLORS[item.category || 'Others'] || '#6C63FF'
               return (
-                <div key={item.id} className="glass-card" style={{ padding: 14, cursor: 'pointer' }}>
-                  {/* Item image placeholder */}
+                <div 
+                  key={item.id} 
+                  className="glass-card" 
+                  style={{ padding: 14, cursor: 'pointer' }}
+                  onClick={() => setSelectedItem(item)}
+                >
+                  {/* Item image */}
                   <div style={{
-                    width: '100%', height: 100, borderRadius: 16, marginBottom: 10,
+                    width: '100%', height: 140, borderRadius: 16, marginBottom: 10,
+                    overflow: 'hidden',
                     background: `linear-gradient(135deg, ${color}22, ${color}11)`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
-                    <ShoppingBag size={32} color={color} />
+                    {item.image_url ? (
+                      <img 
+                        src={item.image_url} 
+                        alt={item.title} 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        onError={(e: any) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <ShoppingBag size={32} color={color} />
+                    )}
                   </div>
                   <p style={{ fontFamily: 'Poppins', fontWeight: 700, fontSize: 13, color: '#2D2845', margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {item.title}
@@ -100,19 +120,32 @@ export function MarketplaceClient({ items, userId, userName }: { items: Item[], 
       </div>
 
       {/* FAB */}
-      <button
-        style={{
-          position: 'fixed', right: 24, bottom: 100,
-          width: 56, height: 56, borderRadius: '50%',
-          background: 'linear-gradient(135deg, #FFAA85, #FF8C69)',
-          border: 'none', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 8px 24px rgba(255,140,105,0.35)',
-          zIndex: 40,
-        }}
-      >
-        <Plus size={24} color="white" />
-      </button>
+      <Link href="/marketplace/new">
+        <button
+          style={{
+            position: 'fixed', right: 24, bottom: 100,
+            width: 56, height: 56, borderRadius: '50%',
+            background: 'linear-gradient(135deg, #FFAA85, #FF8C69)',
+            border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 8px 24px rgba(255,140,105,0.35)',
+            zIndex: 40,
+          }}
+        >
+          <Plus size={24} color="white" />
+        </button>
+      </Link>
+
+      {/* Purchase Dialog */}
+      {selectedItem && (
+        <PurchaseModal
+          item={selectedItem as any}
+          buyerId={userId}
+          buyerName={userName}
+          onClose={() => setSelectedItem(null)}
+          onSuccess={() => setSelectedItem(null)}
+        />
+      )}
     </div>
   )
 }

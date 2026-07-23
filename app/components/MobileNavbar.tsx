@@ -53,7 +53,7 @@ export function MobileNavbar() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 flex justify-center px-6 pb-6 pointer-events-none"
+      className="fixed bottom-0 left-0 right-0 z-50 flex justify-center px-6 pb-6 pointer-events-none lg:hidden"
       style={{
         transition: 'transform 280ms cubic-bezier(0.4, 0, 0.2, 1)',
         transform: visible ? 'translateY(0)' : 'translateY(120px)',
