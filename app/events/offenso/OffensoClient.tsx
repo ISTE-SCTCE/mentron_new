@@ -88,6 +88,78 @@ export function OffensoClient({ initialFolders, isExec, userEmail, userName }: P
   const [showLectureModal, setShowLectureModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // ── Announcement Board ──
+  const DEFAULT_ANNOUNCEMENT = `💚 Dear Offenso Fam💚
+As promised, today we're sharing the Kali Linux installation video guide 💻🐉
+This video explains the complete installation process step by step. Please watch it carefully and follow along.
+
+🔗 Watch here: [ https://tinyurl.com/RandDoffenso ]
+
+If you have any doubts, feel free to reach out.
+Let's keep learning and growing together 💚🚀`
+
+  const [announcement, setAnnouncement] = useState(DEFAULT_ANNOUNCEMENT)
+  const [editingAnnouncement, setEditingAnnouncement] = useState(false)
+  const [announcementDraft, setAnnouncementDraft] = useState(DEFAULT_ANNOUNCEMENT)
+  const [savingAnnouncement, setSavingAnnouncement] = useState(false)
+
+  // Load announcement from DB on mount
+  useEffect(() => {
+    async function loadAnnouncement() {
+      const { data } = await supabase
+        .from('academy_announcements')
+        .select('message')
+        .eq('id', 1)
+        .maybeSingle()
+      if (data?.message) {
+        setAnnouncement(data.message)
+        setAnnouncementDraft(data.message)
+      }
+    }
+    loadAnnouncement()
+  }, [])
+
+  async function saveAnnouncement() {
+    setSavingAnnouncement(true)
+    try {
+      await supabase
+        .from('academy_announcements')
+        .upsert({ id: 1, message: announcementDraft }, { onConflict: 'id' })
+      setAnnouncement(announcementDraft)
+      setEditingAnnouncement(false)
+    } catch (err: any) {
+      alert(err.message || 'Failed to save')
+    } finally {
+      setSavingAnnouncement(false)
+    }
+  }
+
+  // Auto-detect URLs in text and make them clickable
+  function renderMessage(text: string) {
+    const urlRegex = /(https?:\/\/[^\s\]]+)/g
+    const parts = text.split(urlRegex)
+    return parts.map((part, i) =>
+      urlRegex.test(part) ? (
+        <a
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: '#00FF41',
+            textDecoration: 'underline',
+            fontWeight: 700,
+            wordBreak: 'break-all',
+          }}
+        >
+          {part}
+        </a>
+      ) : (
+        <span key={i}>{part}</span>
+      )
+    )
+  }
+
   // Form states
   const [newFolderName, setNewFolderName] = useState('')
   const [newFolderDesc, setNewFolderDesc] = useState('')
@@ -288,6 +360,130 @@ export function OffensoClient({ initialFolders, isExec, userEmail, userName }: P
           <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#00F0FF', textDecoration: 'none', fontSize: 13, fontWeight: 700 }}>
             <ArrowLeft size={16} /> BACK TO EVENTS
           </Link>
+        </div>
+
+        {/* ── Pinned Announcement Board ── */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(0,255,65,0.06) 0%, rgba(0,240,255,0.04) 100%)',
+            border: '1.5px solid rgba(0,255,65,0.35)',
+            borderRadius: 20,
+            padding: 24,
+            marginBottom: 32,
+            position: 'relative',
+            boxShadow: '0 4px 24px rgba(0,255,65,0.08)',
+          }}
+        >
+          {/* Header row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 18 }}>📢</span>
+              <span style={{
+                fontSize: 11,
+                fontWeight: 900,
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+                fontFamily: 'monospace',
+                color: '#00FF41',
+              }}>
+                LATEST ANNOUNCEMENT
+              </span>
+            </div>
+            {isExec && !editingAnnouncement && (
+              <button
+                onClick={() => { setAnnouncementDraft(announcement); setEditingAnnouncement(true) }}
+                style={{
+                  background: 'rgba(0,255,65,0.1)',
+                  border: '1px solid rgba(0,255,65,0.4)',
+                  color: '#00FF41',
+                  borderRadius: 8,
+                  padding: '5px 14px',
+                  fontSize: 11,
+                  fontWeight: 900,
+                  fontFamily: 'monospace',
+                  cursor: 'pointer',
+                  letterSpacing: 1,
+                }}
+              >
+                ✏️ EDIT
+              </button>
+            )}
+          </div>
+
+          {/* Viewing mode */}
+          {!editingAnnouncement && (
+            <div
+              style={{
+                fontSize: 14,
+                lineHeight: 1.8,
+                color: '#E0E0E0',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+              }}
+            >
+              {renderMessage(announcement)}
+            </div>
+          )}
+
+          {/* Editing mode (exec only) */}
+          {editingAnnouncement && (
+            <div>
+              <textarea
+                value={announcementDraft}
+                onChange={e => setAnnouncementDraft(e.target.value)}
+                rows={10}
+                style={{
+                  width: '100%',
+                  background: 'rgba(0,0,0,0.4)',
+                  border: '1px solid rgba(0,255,65,0.4)',
+                  borderRadius: 12,
+                  padding: '14px 16px',
+                  color: '#F0F0F0',
+                  fontSize: 14,
+                  lineHeight: 1.7,
+                  resize: 'vertical',
+                  outline: 'none',
+                  fontFamily: 'Inter, sans-serif',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <div style={{ display: 'flex', gap: 10, marginTop: 12, justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setEditingAnnouncement(false)}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid #2A3A5A',
+                    color: '#A0A0A0',
+                    borderRadius: 8,
+                    padding: '7px 18px',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  CANCEL
+                </button>
+                <button
+                  onClick={saveAnnouncement}
+                  disabled={savingAnnouncement}
+                  style={{
+                    background: 'linear-gradient(135deg, #00FF41, #00F0FF)',
+                    color: '#0A0E27',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '7px 20px',
+                    fontSize: 12,
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  {savingAnnouncement ? 'SAVING...' : '💾 SAVE'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Video Player Display */}
