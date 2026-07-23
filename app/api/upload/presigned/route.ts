@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
             ContentType: fileType,
         })
 
-        // Generated URL is valid for 5 minutes
-        const url = await getSignedUrl(s3Client, command, { expiresIn: 300 })
+        // Generated URL is valid for 3 hours (enough for large 1 GB video uploads)
+        const url = await getSignedUrl(s3Client, command, { expiresIn: 10800 })
 
         return NextResponse.json({ url, key })
     } catch (error: any) {

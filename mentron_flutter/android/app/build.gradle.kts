@@ -42,7 +42,7 @@ android {
     }
 
     packaging {
-        doNotStrip.add("**")
+        // Allowing native binaries to be stripped to dramatically reduce APK size.
     }
 
     defaultConfig {

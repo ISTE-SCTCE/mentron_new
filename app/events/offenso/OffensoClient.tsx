@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/app/lib/supabase/client'
 import {
   Terminal, ShieldCheck, FolderPlus, FilePlus2, Play, Download,
@@ -42,6 +42,39 @@ export function OffensoClient({ initialFolders, isExec, userEmail, userName }: P
   const [viewingNotesUrl, setViewingNotesUrl] = useState<string | null>(null)
   const [viewingNotesTitle, setViewingNotesTitle] = useState<string>('')
   const [isMobile, setIsMobile] = useState(false)
+  const [streamUrl, setStreamUrl] = useState<string | null>(null)
+  const [streamLoading, setStreamLoading] = useState(false)
+
+  // Fetch a presigned R2 GET URL whenever the user opens a video lecture.
+  // This lets the browser stream directly from R2 with range-request support
+  // instead of buffering through the Next.js proxy (which caused MIME errors).
+  const fetchStreamUrl = useCallback(async (lecture: Lecture | null) => {
+    if (!lecture?.video_url) {
+      setStreamUrl(null)
+      return
+    }
+    setStreamUrl(null)
+    setStreamLoading(true)
+    try {
+      // video_url is stored as "/api/files/academy-lectures/filename.mp4"
+      // Extract the R2 key: everything after "/api/files/"
+      const key = lecture.video_url.replace(/^\/api\/files\//, '')
+      const res = await fetch(`/api/stream?key=${encodeURIComponent(key)}`)
+      if (!res.ok) throw new Error('Failed to get stream URL')
+      const data = await res.json()
+      setStreamUrl(data.url)
+    } catch (err) {
+      console.error('Stream URL fetch failed:', err)
+      // Fallback to proxy URL so user sees something
+      setStreamUrl(lecture.video_url)
+    } finally {
+      setStreamLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchStreamUrl(playingLecture)
+  }, [playingLecture, fetchStreamUrl])
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768)
@@ -314,11 +347,16 @@ export function OffensoClient({ initialFolders, isExec, userEmail, userName }: P
                 }}
               >
                 <video
-                  src={playingLecture.video_url}
+                  key={streamUrl || 'loading'}
+                  src={streamUrl || undefined}
                   controls
                   autoPlay
                   style={{ width: '100%', height: '100%' }}
-                />
+                >
+                  {streamLoading && (
+                    <p style={{ color: '#A0A0A0', textAlign: 'center', marginTop: 40 }}>Loading video...</p>
+                  )}
+                </video>
               </div>
             ) : (
               <div style={{ padding: '40px 20px', textAlign: 'center', background: 'rgba(0,0,0,0.3)', borderRadius: 16 }}>

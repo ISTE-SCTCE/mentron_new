@@ -485,8 +485,17 @@ export default function NotesUploadPage() {
                                         onChange={(e) => {
                                             const file = e.target.files?.[0] || null
                                             console.log('File Input Change Detected:', file?.name)
+                                            if (file) {
+                                                const MAX_SIZE_BYTES = 1 * 1024 * 1024 * 1024 // 1 GB
+                                                if (file.size > MAX_SIZE_BYTES) {
+                                                    setSubmitError(`File is too large (${(file.size / (1024 * 1024 * 1024)).toFixed(2)} GB). Maximum allowed size is 1 GB.`)
+                                                    e.target.value = ''
+                                                    setSelectedFile(null)
+                                                    return
+                                                }
+                                                setSubmitError(null)
+                                            }
                                             setSelectedFile(file)
-                                            if (file) setSubmitError(null)
                                         }}
                                         className={`${inputBase} file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-orange-500 file:text-white file:uppercase file:tracking-widest cursor-pointer hover:border-orange-500/30 transition-colors`}
                                     />

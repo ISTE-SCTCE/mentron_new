@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:http/http.dart' as http;
 import '../../../core/services/supabase_service.dart';
 import '../../../core/utils/app_transitions.dart';
 import '../../../screens/video_player_screen.dart';
@@ -748,12 +750,48 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
     }
   }
 
+  String _formatUrl(String url) {
+    if (url.startsWith('/api/files/')) {
+      return 'https://mentron.istesctce.in$url';
+    }
+    return url;
+  }
+
+  /// Fetches a presigned R2 GET URL for direct video streaming.
+  /// Falls back to the proxy URL if the API call fails.
+  Future<String> _getStreamUrl(String storedUrl) async {
+    if (!storedUrl.startsWith('/api/files/')) {
+      return storedUrl;
+    }
+    try {
+      final key = storedUrl.replaceFirst('/api/files/', '');
+      final supabase = Provider.of<SupabaseService>(context, listen: false);
+      final session = supabase.client.auth.currentSession;
+      if (session == null) throw Exception('No session');
+
+      final response = await http.get(
+        Uri.parse('https://mentron.istesctce.in/api/stream?key=${Uri.encodeComponent(key)}'),
+        headers: {'Authorization': 'Bearer ${session.accessToken}'},
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        return data['url'] as String;
+      }
+    } catch (e) {
+      debugPrint('_getStreamUrl failed: $e');
+    }
+    // Fallback: proxy URL (may have issues for large files)
+    return 'https://mentron.istesctce.in$storedUrl';
+  }
+
   Future<void> _pickAndUploadLecture() async {
     final result = await FilePicker.pickFiles(
       type: FileType.video,
       allowMultiple: false,
     );
     if (result == null || result.files.single.path == null || !mounted) return;
+
+    final file = File(result.files.single.path!);
 
     final titleController = TextEditingController();
     final descController = TextEditingController();
@@ -821,38 +859,64 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
       _isUploading = true;
     });
 
+    final uploadClient = http.Client();
     try {
-      final file = File(result.files.single.path!);
-      final bytes = await file.readAsBytes();
       final extension = result.files.single.extension ?? 'mp4';
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$extension';
-      final storagePath = 'videos/$fileName';
+      final fileName = result.files.single.name;
+      final contentType = 'video/$extension';
 
       final supabase = Provider.of<SupabaseService>(context, listen: false);
+      final session = supabase.client.auth.currentSession;
+      if (session == null) throw Exception('No active session');
 
-      // Upload to Storage
-      await supabase.client.storage
-          .from('academy-lectures')
-          .uploadBinary(
-            storagePath,
-            bytes,
-            fileOptions: FileOptions(
-              contentType: 'video/$extension',
-              upsert: true,
-            ),
-          );
+      // ── STEP 1: Get Presigned URL ──
+      const String apiBaseUrl = 'https://mentron.istesctce.in';
+      final presignedUri = Uri.parse('$apiBaseUrl/api/upload/presigned');
 
-      // Get public URL
-      final publicUrl = supabase.client.storage
-          .from('academy-lectures')
-          .getPublicUrl(storagePath);
+      final presignedResponse = await http.post(
+        presignedUri,
+        headers: {
+          'Authorization': 'Bearer ${session.accessToken}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "fileName": fileName,
+          "fileType": contentType,
+          "bucketFolder": "academy-lectures",
+        }),
+      );
+
+      if (presignedResponse.statusCode != 200) {
+        throw Exception('Failed to prepare upload: ${presignedResponse.body}');
+      }
+
+      final presignedData = jsonDecode(presignedResponse.body);
+      final String uploadUrl = presignedData['url'];
+      final String fileKey = presignedData['key'];
+
+      // ── STEP 2: Upload Direct to R2 ──
+      final fileBytes = await file.readAsBytes();
+      final request = http.Request('PUT', Uri.parse(uploadUrl));
+      request.headers['Content-Type'] = contentType;
+      request.bodyBytes = fileBytes;
+
+      final streamedResponse = await uploadClient
+          .send(request)
+          .timeout(const Duration(hours: 3));
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw Exception('Failed to upload file to storage.');
+      }
+
+      final relativeFileUrl = '/api/files/$fileKey';
 
       // Save metadata to DB
       await supabase.client.from('academy_lectures').insert({
         'folder_id': widget.folderId,
         'title': titleController.text.trim(),
         'description': descController.text.trim(),
-        'video_url': publicUrl,
+        'video_url': relativeFileUrl,
         'lecture_type': 'video',
         'created_by': supabase.currentUser?.id,
       });
@@ -870,6 +934,7 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
         );
       }
     } finally {
+      uploadClient.close();
       if (mounted) {
         setState(() => _isUploading = false);
       }
@@ -883,6 +948,8 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
       allowMultiple: false,
     );
     if (result == null || result.files.single.path == null || !mounted) return;
+
+    final file = File(result.files.single.path!);
 
     final titleController = TextEditingController();
     final descController = TextEditingController();
@@ -950,13 +1017,11 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
       _isUploading = true;
     });
 
+    final uploadClient = http.Client();
     try {
-      final file = File(result.files.single.path!);
-      final bytes = await file.readAsBytes();
       final extension = result.files.single.extension ?? 'pdf';
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$extension';
-      final storagePath = 'notes/$fileName';
-
+      final fileName = result.files.single.name;
+      
       String contentType = 'application/pdf';
       final extLower = extension.toLowerCase();
       if (['jpg', 'jpeg', 'png', 'webp'].contains(extLower)) {
@@ -968,30 +1033,57 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
       }
 
       final supabase = Provider.of<SupabaseService>(context, listen: false);
+      final session = supabase.client.auth.currentSession;
+      if (session == null) throw Exception('No active session');
 
-      // Upload to Storage
-      await supabase.client.storage
-          .from('academy-lectures')
-          .uploadBinary(
-            storagePath,
-            bytes,
-            fileOptions: FileOptions(
-              contentType: contentType,
-              upsert: true,
-            ),
-          );
+      // ── STEP 1: Get Presigned URL ──
+      const String apiBaseUrl = 'https://mentron.istesctce.in';
+      final presignedUri = Uri.parse('$apiBaseUrl/api/upload/presigned');
 
-      // Get public URL
-      final publicUrl = supabase.client.storage
-          .from('academy-lectures')
-          .getPublicUrl(storagePath);
+      final presignedResponse = await http.post(
+        presignedUri,
+        headers: {
+          'Authorization': 'Bearer ${session.accessToken}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "fileName": fileName,
+          "fileType": contentType,
+          "bucketFolder": "academy-lectures",
+        }),
+      );
+
+      if (presignedResponse.statusCode != 200) {
+        throw Exception('Failed to prepare upload: ${presignedResponse.body}');
+      }
+
+      final presignedData = jsonDecode(presignedResponse.body);
+      final String uploadUrl = presignedData['url'];
+      final String fileKey = presignedData['key'];
+
+      // ── STEP 2: Upload Direct to R2 ──
+      final fileBytes = await file.readAsBytes();
+      final request = http.Request('PUT', Uri.parse(uploadUrl));
+      request.headers['Content-Type'] = contentType;
+      request.bodyBytes = fileBytes;
+
+      final streamedResponse = await uploadClient
+          .send(request)
+          .timeout(const Duration(hours: 3));
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw Exception('Failed to upload file to storage.');
+      }
+
+      final relativeFileUrl = '/api/files/$fileKey';
 
       // Save metadata to DB
       await supabase.client.from('academy_lectures').insert({
         'folder_id': widget.folderId,
         'title': titleController.text.trim(),
         'description': descController.text.trim(),
-        'notes_url': publicUrl,
+        'notes_url': relativeFileUrl,
         'lecture_type': 'notes',
         'created_by': supabase.currentUser?.id,
       });
@@ -1009,6 +1101,7 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
         );
       }
     } finally {
+      uploadClient.close();
       if (mounted) {
         setState(() => _isUploading = false);
       }
@@ -1018,7 +1111,7 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
   Future<void> _downloadLecture(Map<String, dynamic> lecture) async {
     final id = lecture['id'] as String;
     final isNotes = lecture['lecture_type'] == 'notes';
-    final url = (isNotes ? lecture['notes_url'] : lecture['video_url']) as String? ?? '';
+    final url = _formatUrl((isNotes ? lecture['notes_url'] : lecture['video_url']) as String? ?? '');
     if (_isDownloading[id] == true || url.isEmpty) return;
 
     setState(() {
@@ -1274,10 +1367,11 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
                                   Row(
                                     children: [
                                       GestureDetector(
-                                        onTap: () {
+                                        onTap: () async {
                                           final isNotes = lecture['lecture_type'] == 'notes';
-                                          final fileUrl = (isNotes ? lecture['notes_url'] : lecture['video_url']) as String? ?? '';
+                                          final storedUrl = (isNotes ? lecture['notes_url'] : lecture['video_url']) as String? ?? '';
                                           if (isNotes) {
+                                            final fileUrl = _formatUrl(storedUrl);
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -1288,11 +1382,14 @@ class _AcademyFolderDetailScreenState extends State<AcademyFolderDetailScreen> {
                                               ),
                                             );
                                           } else {
+                                            // Get presigned stream URL for direct R2 streaming
+                                            final streamUrl = await _getStreamUrl(storedUrl);
+                                            if (!mounted) return;
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (_) => VideoPlayerScreen(
-                                                  networkUrl: fileUrl,
+                                                  networkUrl: streamUrl,
                                                   title: lecture['title'] ?? 'Lecture',
                                                 ),
                                               ),

@@ -265,14 +265,23 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
       final fileBytes = await _selectedFile!.readAsBytes();
 
-      final request = http.Request('PUT', Uri.parse(uploadUrl));
-      request.headers['Content-Type'] = contentType;
-      request.bodyBytes = fileBytes;
+      // Use a client with a 3-hour timeout to support large (up to 1 GB) video uploads
+      final uploadClient = http.Client();
+      try {
+        final request = http.Request('PUT', Uri.parse(uploadUrl));
+        request.headers['Content-Type'] = contentType;
+        request.bodyBytes = fileBytes;
 
-      final response = await request.send();
+        final streamedResponse = await uploadClient
+            .send(request)
+            .timeout(const Duration(hours: 3));
+        final response = await http.Response.fromStream(streamedResponse);
 
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        throw Exception('Failed to upload file to R2 storage.');
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          throw Exception('Failed to upload file to R2 storage.');
+        }
+      } finally {
+        uploadClient.close();
       }
 
       setState(() => _uploadProgress = 1.0);
