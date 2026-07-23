@@ -1,11 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════
    MENTRON — Flutter App Design System (Light Pastel Theme)
    Exact replica of AppTheme.dart
 ═══════════════════════════════════════════════════════ */
-
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
   /* Core Background & Surface */
