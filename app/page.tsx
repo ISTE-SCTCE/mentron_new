@@ -1,436 +1,113 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { createClient } from './lib/supabase/client'
 import Link from 'next/link'
-import {
-  BookOpen, Rocket, Trophy, Users, ArrowRight, ShieldCheck,
-  Zap, Sparkles, CheckCircle2, ChevronRight, GraduationCap
-} from 'lucide-react'
-import { WhatTheHackModal } from '@/app/components/WhatTheHackModal'
-import { createClient } from '@/app/lib/supabase/client'
-import { isOffensoParticipant } from '@/app/lib/data/offensoParticipants'
+import { Footer } from './components/Footer'
+import { AboutSection } from './components/AboutSection'
 
-function AnimatedNumber({ value, suffix = '+' }: { value: number; suffix?: string }) {
-  const [count, setCount] = useState(0)
-
+export default function Home() {
+  const [event, setEvent] = useState<any>(null)
+  const supabase = createClient()
   useEffect(() => {
-    if (value <= 0) return
-    const duration = 1500
-    const startTime = performance.now()
+    const fetchEvent = async () => {
+      const { data } = await supabase
+        .from('events')
+        .select('*')
+        .single()
 
-    const updateCount = (currentTime: number) => {
-      const elapsed = currentTime - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      const easeOut = 1 - Math.pow(1 - progress, 3)
-      const currentVal = Math.floor(easeOut * value)
-      setCount(currentVal)
-
-      if (progress < 1) {
-        requestAnimationFrame(updateCount)
-      } else {
-        setCount(value)
-      }
+      setEvent(data)
     }
 
-    requestAnimationFrame(updateCount)
-  }, [value])
-
-  return <>{count.toLocaleString()}{suffix}</>
-}
-
-export default function LandingPage() {
-  const [mounted, setMounted] = useState(false)
-  const [stats, setStats] = useState({ members: 0, materials: 0 })
-  const [isAuthorized, setIsAuthorized] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-    const supabase = createClient()
-
-    async function checkUser() {
-      try {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (user) {
-          const [{ data: dbPart }, { data: profile }] = await Promise.all([
-            supabase
-              .from('offenso_participants')
-              .select('id')
-              .eq('email', user.email?.toLowerCase().trim())
-              .maybeSingle(),
-            supabase
-              .from('profiles')
-              .select('role')
-              .eq('id', user.id)
-              .maybeSingle()
-          ])
-
-          const isExec = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
-          setIsAuthorized(!!dbPart || isOffensoParticipant(user.email) || isExec)
-        }
-      } catch (err) {
-        console.error('Failed to get user session:', err)
-      }
-    }
-
-    async function fetchStats() {
-      try {
-        const [{ count: membersCount }, { count: notesCount }] = await Promise.all([
-          supabase.from('profiles').select('*', { count: 'exact', head: true }),
-          supabase.from('notes').select('*', { count: 'exact', head: true }),
-        ])
-        setStats({
-          members: membersCount || 0,
-          materials: notesCount || 0,
-        })
-      } catch (err) {
-        console.error('Failed to fetch real-time stats:', err)
-      }
-    }
-
-    checkUser()
-    fetchStats()
-  }, [])
-
+    fetchEvent()
+  }, [supabase])
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ background: '#F8F6FF', position: 'relative', overflowX: 'hidden' }}
-    >
-      {/* What The Hack Event Popup Modal */}
-      <WhatTheHackModal isAuthorized={isAuthorized} />
+    <div className="flex flex-col min-h-screen relative overflow-hidden bg-[#020204]">
+      {/* Premium Background Aesthetic */}
+      <div className="absolute inset-0 bg-[#020204] z-0" />
+      
+      {/* Dynamic Animated Mesh */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/20 via-transparent to-purple-900/20 pointer-events-none z-[1]" />
+      
+      {/* Animated Orbs - Enhanced for Vibrancy */}
+      <div className="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] rounded-full bg-blue-600/15 blur-[160px] animate-pulse pointer-events-none z-[2]" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] rounded-full bg-purple-600/15 blur-[160px] animate-pulse pointer-events-none z-[2]" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-[30%] left-[20%] w-[40%] h-[40%] rounded-full bg-blue-500/10 blur-[140px] animate-pulse pointer-events-none z-[2]" style={{ animationDelay: '4s' }} />
 
-      {/* Liquid background blobs */}
-      <div
-        style={{
-          position: 'fixed',
-          top: '-15%',
-          left: '-15%',
-          width: '65vw',
-          height: '65vw',
-          background: 'rgba(108,99,255,0.12)',
-          borderRadius: '50%',
-          filter: 'blur(90px)',
-          zIndex: 0,
-          pointerEvents: 'none',
-          animation: 'blobDrift 18s ease-in-out infinite alternate',
-        }}
-      />
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '-15%',
-          right: '-15%',
-          width: '55vw',
-          height: '55vw',
-          background: 'rgba(255,140,105,0.10)',
-          borderRadius: '50%',
-          filter: 'blur(90px)',
-          zIndex: 0,
-          pointerEvents: 'none',
-          animation: 'blobDrift 22s ease-in-out infinite alternate-reverse',
-        }}
-      />
+      {/* Grid Texture */}
+      <div className="absolute inset-0 opacity-[0.05] pointer-events-none z-[3]" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+      
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020204]/40 to-[#020204]/90 pointer-events-none z-[4]" />
 
-      {/* Navbar Header */}
-      <header
-        className="relative z-10 w-full"
-        style={{ padding: '24px 24px 12px', maxWidth: 1200, margin: '0 auto' }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          {/* Logo */}
-          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div
-              style={{
-                width: 42,
-                height: 42,
-                borderRadius: 14,
-                background: 'linear-gradient(135deg, #8B7FFF, #6C63FF)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 14px rgba(108,99,255,0.25)',
-              }}
-            >
-              <span style={{ color: 'white', fontFamily: 'Poppins', fontWeight: 900, fontSize: 20 }}>M</span>
-            </div>
-            <div>
-              <span style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 22, color: '#2D2845', letterSpacing: '-0.5px' }}>
-                MENTRON
-              </span>
-              <span style={{ display: 'block', fontFamily: 'Inter', fontWeight: 700, fontSize: 9, color: '#FF8C69', letterSpacing: 1.5, textTransform: 'uppercase' }}>
-                ISTE SCTCE
-              </span>
-            </div>
+      {/* Navigation */}
+      <nav className="py-6 px-4 md:px-8 flex justify-between items-center bg-transparent relative z-30">
+        <div className="text-xl md:text-2xl font-black tracking-tighter text-white">MENTRON</div>
+        <div className="flex gap-4 md:gap-8 items-center">
+          <Link href="/login" className="text-xs md:text-sm font-bold text-gray-400 hover:text-white transition-all">
+            Login
           </Link>
-
-          {/* Action Links */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Link href="/login" style={{ textDecoration: 'none' }}>
-              <button
-                style={{
-                  background: 'transparent',
-                  color: '#6C63FF',
-                  fontFamily: 'Inter',
-                  fontWeight: 700,
-                  fontSize: 13,
-                  padding: '8px 16px',
-                  borderRadius: 50,
-                  border: '1.5px solid rgba(108,99,255,0.2)',
-                  cursor: 'pointer',
-                }}
-              >
-                Sign In
-              </button>
-            </Link>
-            <Link href="/signup" style={{ textDecoration: 'none' }}>
-              <button
-                className="btn-primary"
-                style={{
-                  padding: '9px 20px',
-                  fontSize: 13,
-                  width: 'auto',
-                  borderRadius: 50,
-                }}
-              >
-                Join Now
-              </button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Hero Section */}
-      <main className="relative z-10 flex-1 w-full max-w-5xl mx-auto px-6 pt-8 pb-16">
-        <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 48px' }}>
-          {/* Top Badge */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 16px', background: '#EEEEFF', borderRadius: 50, marginBottom: 20 }}>
-            <Sparkles size={14} color="#6C63FF" />
-            <span style={{ fontFamily: 'Inter', fontWeight: 800, fontSize: 11, color: '#6C63FF', letterSpacing: 1, textTransform: 'uppercase' }}>
-              Official Academic Companion
-            </span>
-          </div>
-
-          <h1
-            style={{
-              fontFamily: 'Poppins',
-              fontWeight: 900,
-              fontSize: 'clamp(32px, 6vw, 54px)',
-              color: '#2D2845',
-              lineHeight: 1.15,
-              letterSpacing: '-1px',
-              margin: '0 0 18px',
-            }}
+          <Link
+            href="/signup"
+            className="glass glass-hover px-4 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-sm font-bold text-white shadow-lg"
           >
-            Empowering SCTCE Students to <span className="gradient-text">Excel & Innovate</span>
+            Join the Club
+          </Link>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <main className="flex-1 flex flex-col justify-center items-center text-center px-6 relative z-10 py-20 lg:py-0">
+        <div className="max-w-4xl mx-auto space-y-10">
+          <div className="inline-block px-4 py-2 glass rounded-full text-[9px] md:text-[10px] font-black tracking-[0.3em] text-blue-400 uppercase mb-4 animate-fade-in shadow-[0_0_20px_rgba(59,130,246,0.2)]">
+            Engineering the Future
+          </div>
+
+          <h1 className="text-6xl md:text-9xl font-black tracking-tighter text-white leading-[0.95] animate-slide-up">
+            Connect. <br />
+            <span className="text-glow text-blue-600">Learn.</span> <br />
+            Innovate.
           </h1>
 
-          <p
-            style={{
-              fontFamily: 'Inter',
-              fontWeight: 500,
-              fontSize: 16,
-              color: '#8B85A8',
-              lineHeight: 1.6,
-              margin: '0 0 32px',
-            }}
-          >
-            Access curated semester notes, previous year question papers, collaborate on club projects, and engage in national level hackathons.
+          <p className="text-base md:text-xl text-gray-400 max-w-2xl mx-auto font-medium leading-relaxed animate-fade-in-delayed">
+            The elite community for tech enthusiasts, developers, and pioneers.
+            Access exclusive resources, projects, and events.
           </p>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
-            <Link href="/dashboard" style={{ textDecoration: 'none' }}>
-              <button
-                className="btn-primary"
-                style={{
-                  padding: '16px 32px',
-                  fontSize: 16,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  boxShadow: '0 8px 24px rgba(108,99,255,0.3)',
-                }}
-              >
-                <span>ENTER DASHBOARD</span>
-                <ArrowRight size={20} />
-              </button>
+          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center pt-8 animate-fade-in-delayed">
+            <Link
+              href="/signup"
+              className="w-full sm:w-auto bg-white text-black hover:bg-gray-200 px-8 py-4 sm:px-10 sm:py-5 rounded-3xl sm:rounded-full font-black text-base sm:text-lg shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-105 transition-all duration-300"
+            >
+              Get Started
             </Link>
-
-            <Link href="/signup" style={{ textDecoration: 'none' }}>
-              <button
-                className="btn-outlined"
-                style={{
-                  padding: '15px 28px',
-                  fontSize: 15,
-                }}
-              >
-                CREATE ACCOUNT
-              </button>
+            <Link
+              href="/events"
+              className="w-full sm:w-auto glass border border-white/10 bg-white/5 px-8 py-4 sm:px-10 sm:py-5 rounded-3xl sm:rounded-full text-white font-black text-base sm:text-lg hover:bg-white/10 transition-all"
+            >
+              Explore Events
             </Link>
           </div>
-        </div>
-
-        {/* WHAT THE HACK FLAGSHIP BANNER */}
-        <div 
-          style={{ 
-            width: '100%', 
-            maxWidth: 800, 
-            margin: '0 auto 48px', 
-            position: 'relative',
-            borderRadius: 28,
-            overflow: 'hidden',
-            background: '#0B0E2A',
-            border: '2px solid #00FF41',
-            boxShadow: '0 12px 40px rgba(0, 255, 65, 0.2)',
-          }}
-        >
-          {/* Link wraps the whole banner as requested */}
-          <Link href="/events/offenso" style={{ textDecoration: 'none', display: 'block' }}>
-            <div style={{ position: 'relative', height: 260, width: '100%', overflow: 'hidden' }}>
-              <img 
-                src="https://istesctce.in/images/events-images/what%20the%20hack.jpeg" 
-                alt="What The Hack Flagship Banner" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                onError={(e: any) => {
-                  e.target.src = 'https://istesctce.in/images/Logos/isteofficiallogo.png'
-                }}
-              />
-              <div style={{
-                position: 'absolute', bottom: 0, left: 0, right: 0, top: 0,
-                background: 'linear-gradient(to top, #0B0E2A 10%, rgba(11, 14, 42, 0.4) 60%, transparent 100%)'
-              }} />
-              
-              {/* Flagship Badge */}
-              <div style={{
-                position: 'absolute', top: 16, left: 16, zIndex: 10,
-                background: 'rgba(0, 255, 65, 0.15)',
-                border: '1px solid #00FF41',
-                borderRadius: 6,
-                padding: '4px 10px',
-                display: 'flex', alignItems: 'center', gap: 6
-              }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00FF41' }} />
-                <span style={{ fontFamily: 'Inter', fontSize: 10, fontWeight: 900, color: '#00FF41', letterSpacing: 1.5 }}>FLAGSHIP EVENT</span>
-              </div>
-            </div>
-
-            {/* Banner Details */}
-            <div style={{ padding: '24px 32px 32px' }}>
-              <h3 style={{ fontFamily: 'Poppins', fontWeight: 950, fontSize: 24, color: 'white', margin: '0 0 8px' }}>
-                What The Hack
-              </h3>
-              <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 14, color: '#A0A5C0', margin: '0 0 20px', lineHeight: 1.6 }}>
-                Step into the cybersecurity arena. An immersive, hands-on offensive security hacking workshop. Tap into the official Offenso Hacking Academy dynamically loaded modules.
-              </p>
-              
-              <button style={{
-                background: 'linear-gradient(135deg, #00FF41, #00B32D)',
-                color: '#0A0E27',
-                border: 'none',
-                fontFamily: 'Poppins', fontWeight: 800, fontSize: 13, letterSpacing: 0.5,
-                padding: '12px 24px', borderRadius: 12, cursor: 'pointer',
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                boxShadow: '0 6px 20px rgba(0, 255, 65, 0.3)'
-              }}>
-                Enter Offenso Hacking Academy <ArrowRight size={14} />
-              </button>
-            </div>
-          </Link>
-        </div>
-
-        {/* Feature Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 48 }}>
-          {/* Card 1 */}
-          <div className="glass-card" style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div className="icon-container" style={{ background: '#EEEEFF', width: 48, height: 48 }}>
-              <BookOpen size={24} color="#6C63FF" />
-            </div>
-            <h3 style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 18, color: '#2D2845', margin: 0 }}>
-              Curated Notes & PYQs
-            </h3>
-            <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 13, color: '#8B85A8', lineHeight: 1.6, margin: 0 }}>
-              Organized by semester (S1 to S8) and department (CSE, ECE, ME, MEA, BT) for quick access before exams.
-            </p>
-          </div>
-
-          {/* Card 2 */}
-          <div className="glass-card" style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div className="icon-container" style={{ background: '#FFF3EE', width: 48, height: 48 }}>
-              <Rocket size={24} color="#FF8C69" />
-            </div>
-            <h3 style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 18, color: '#2D2845', margin: 0 }}>
-              Club & Student Projects
-            </h3>
-            <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 13, color: '#8B85A8', lineHeight: 1.6, margin: 0 }}>
-              Apply for technical projects, build hands-on skills, and earn XP badges recognized by ISTE SCTCE mentors.
-            </p>
-          </div>
-
-          {/* Card 3 */}
-          <div className="glass-card" style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div className="icon-container" style={{ background: '#EEFAF9', width: 48, height: 48 }}>
-              <Trophy size={24} color="#4ECDC4" />
-            </div>
-            <h3 style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 18, color: '#2D2845', margin: 0 }}>
-              Hackathons & Events
-            </h3>
-            <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 13, color: '#8B85A8', lineHeight: 1.6, margin: 0 }}>
-              Direct registrations for workshops, idea presentation forums, and flagship hackathons like What The Hack.
-            </p>
-          </div>
-        </div>
-
-        {/* Stats Strip */}
-        <div
-          style={{
-            background: 'linear-gradient(135deg, #8B7FFF, #6C63FF)',
-            borderRadius: 28,
-            padding: '24px 32px',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-            gap: 20,
-            textAlign: 'center',
-            boxShadow: '0 12px 32px rgba(108,99,255,0.2)',
-          }}
-        >
-          <div>
-            <p style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 28, color: 'white', margin: 0 }}>
-              <AnimatedNumber value={stats.members} suffix="+" />
-            </p>
-            <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: 0 }}>SCTCE Members</p>
-          </div>
-          <div>
-            <p style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 28, color: 'white', margin: 0 }}>
-              <AnimatedNumber value={stats.materials} suffix="+" />
-            </p>
-            <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: 0 }}>Curated Materials</p>
-          </div>
-          <div>
-            <p style={{ fontFamily: 'Poppins', fontWeight: 900, fontSize: 28, color: 'white', margin: 0 }}>SCTCE</p>
-            <p style={{ fontFamily: 'Inter', fontWeight: 600, fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: 0 }}>ISTE Chapter</p>
-          </div>
-
         </div>
       </main>
 
-      {/* Footer */}
-      <footer
-        style={{
-          borderTop: '1px solid rgba(108,99,255,0.08)',
-          padding: '24px 24px 40px',
-          textAlign: 'center',
-          background: '#FFFFFF',
-        }}
-      >
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-          <p style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 16, color: '#2D2845', margin: 0 }}>
-            MENTRON by ISTE SCTCE
-          </p>
-          <p style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: 12, color: '#8B85A8', margin: 0 }}>
-            Indian Society for Technical Education — Student Chapter SCTCE
-          </p>
-        </div>
-      </footer>
+      <AboutSection />
+      <Footer />
+
+      {/* Animation Overrides */}
+      <style jsx global>{`
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slide-up {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fade-in 1s ease-out forwards; }
+        .animate-slide-up { animation: slide-up 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .animate-fade-in-delayed { animation: fade-in 1s ease-out 0.5s forwards; opacity: 0; }
+      `}</style>
     </div>
   )
 }

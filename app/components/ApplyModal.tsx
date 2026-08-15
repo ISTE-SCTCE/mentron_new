@@ -13,11 +13,10 @@ interface Props {
     onSuccess: () => void
 }
 
-const ALLOWED_TYPES = ['application/pdf']
+const ALLOWED_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
 const MAX_SIZE_MB = 5
 
-export function ApplyModal({ projectId, projectTitle, cvRequired: _ignoredCvRequired, userName, userEmail, onClose, onSuccess }: Props) {
-    const cvRequired = true
+export function ApplyModal({ projectId, projectTitle, cvRequired = true, userName, userEmail, onClose, onSuccess }: Props) {
     const [name, setName] = useState(userName)
     const [message, setMessage] = useState('')
     const [file, setFile] = useState<File | null>(null)
@@ -35,7 +34,7 @@ export function ApplyModal({ projectId, projectTitle, cvRequired: _ignoredCvRequ
         if (!chosen) return
 
         if (!ALLOWED_TYPES.includes(chosen.type)) {
-            setFileError('Only PDF files are accepted.')
+            setFileError('Only PDF or DOCX files are accepted.')
             return
         }
         if (chosen.size > MAX_SIZE_MB * 1024 * 1024) {
@@ -148,9 +147,6 @@ export function ApplyModal({ projectId, projectTitle, cvRequired: _ignoredCvRequ
                         <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase mb-1">Internship</p>
                         <h2 className="text-2xl font-black text-white leading-tight">Apply for</h2>
                         <h3 className="text-lg font-black text-blue-400 leading-tight">{projectTitle}</h3>
-                        <p className="text-xs text-gray-400 mt-2 font-medium">
-                            Please apply by uploading a valid PDF resume/CV.
-                        </p>
                     </div>
                     <button
                         onClick={onClose}
@@ -205,7 +201,7 @@ export function ApplyModal({ projectId, projectTitle, cvRequired: _ignoredCvRequ
                     {/* CV Upload */}
                     <div>
                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2">
-                            CV / Resume <span className="text-gray-600 normal-case">(PDF · max 5MB)</span>
+                            CV / Resume <span className="text-gray-600 normal-case">{cvRequired ? '(PDF or DOCX · max 5MB)' : '(Optional)'}</span>
                         </label>
                         <div
                             className="relative border border-dashed border-white/10 rounded-2xl p-6 text-center cursor-pointer hover:border-blue-500/40 hover:bg-blue-500/5 transition-all"
@@ -214,7 +210,7 @@ export function ApplyModal({ projectId, projectTitle, cvRequired: _ignoredCvRequ
                             <input
                                 ref={fileRef}
                                 type="file"
-                                accept=".pdf,application/pdf"
+                                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                                 onChange={handleFileChange}
                                 className="hidden"
                             />
@@ -230,7 +226,7 @@ export function ApplyModal({ projectId, projectTitle, cvRequired: _ignoredCvRequ
                                 <div>
                                     <p className="text-3xl mb-2">☁️</p>
                                     <p className="text-sm font-bold text-gray-400">Click to upload your CV</p>
-                                    <p className="text-[10px] text-gray-600 mt-1">PDF · max 5MB</p>
+                                    <p className="text-[10px] text-gray-600 mt-1">PDF or DOCX · max 5MB</p>
                                 </div>
                             )}
                         </div>
@@ -274,7 +270,7 @@ export function ApplyModal({ projectId, projectTitle, cvRequired: _ignoredCvRequ
                             }
                         `}
                     >
-                        {uploading ? 'Uploading Resume…' : submitting ? 'Applying…' : 'Apply via Resume'}
+                        {uploading ? 'Uploading CV…' : submitting ? 'Submitting…' : 'Submit Application'}
                     </button>
                 </form>
             </div>

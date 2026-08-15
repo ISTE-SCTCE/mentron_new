@@ -1,48 +1,67 @@
 import { createClient } from '@/app/lib/supabase/server'
-import { EventsClient } from './EventsClient'
-
-export const dynamic = 'force-dynamic'
+import { EventsBanner } from '@/app/components/EventsBanner'
+import { EventConceptsForum } from '@/app/components/EventConceptsForum'
 
 export default async function EventsListPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    // Fetch user profile for role checking
+    const { data: profile } = user ? await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle() : { data: null }
+    
+    const currentUserRole = profile?.role || user?.user_metadata?.role || 'member'
 
-  const { data: profile } = user ? await supabase
-    .from('profiles')
-    .select('role, full_name')
-    .eq('id', user.id)
-    .maybeSingle() : { data: null }
+    // Fetch Official/Local events from both possible tables
+    const [eventsResult, eventCalResult] = await Promise.all([
+        supabase.from('event').select('*').order('created_at', { ascending: false }),
+        supabase.from('event_cal').select('*').order('created_at', { ascending: false })
+    ])
 
-  const currentUserRole = profile?.role || user?.user_metadata?.role || 'member'
+    const mergedEvents = [
+        ...(eventsResult.data || []),
+        ...(eventCalResult.data || [])
+    ].map(e => ({
+        id: e.id,
+        event_name: e.event_name || e.title || 'Untitled Event',
+        venue: e.venue || 'TBA',
+        date: e.date || e.event_date || 'Upcoming',
+        description: e.description || '',
+        registration_required: e.registration_required || false
+    }))
 
-  const [eventsResult, eventCalResult] = await Promise.all([
-    supabase.from('event').select('*').order('created_at', { ascending: false }),
-    supabase.from('event_cal').select('*').order('created_at', { ascending: false }),
-  ])
+    // Fetch Event Concepts and Votes
+    const { data: conceptsData, error: conceptError } = await supabase
+        .from('event_concepts')
+        .select(`
+            id, 
+            user_id,
+            title, 
+            description, 
+            created_at, 
+            profiles(full_name),
+            event_concept_votes(vote_value, user_id)
+        `)
+        .order('created_at', { ascending: false })
 
-  const allEvents = [
-    ...(eventsResult.data || []),
-    ...(eventCalResult.data || []),
-  ].map(e => ({
-    id: e.id,
-    title: e.event_name || e.title || 'Untitled Event',
-    venue: e.venue || 'TBA',
-    date: e.date || e.event_date || null,
-    description: e.description || '',
-    registration_required: e.registration_required || false,
-  }))
+    if (conceptError) {
+        console.error('Fetch concepts error:', conceptError)
+    }
 
-  const { data: conceptsData } = await supabase
-    .from('event_concepts')
-    .select('id, user_id, title, description, created_at, profiles(full_name), event_concept_votes(vote_value, user_id)')
-    .order('created_at', { ascending: false })
+    return (
+        <div className="min-h-screen text-[#ededed]">
+            {/* ─── Immersive Full-Width Banner ─── */}
+            <EventsBanner events={mergedEvents} />
 
-  return (
-    <EventsClient
-      events={allEvents}
-      concepts={(conceptsData || []) as any}
-      currentUserId={user?.id}
-      currentUserRole={currentUserRole}
-    />
-  )
+            {/* ─── Reddit-Style Event Concepts Forum ─── */}
+            <EventConceptsForum 
+                concepts={conceptsData as any || []} 
+                currentUserId={user?.id}
+                currentUserRole={currentUserRole}
+            />
+        </div>
+    )
 }

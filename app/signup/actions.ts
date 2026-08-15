@@ -18,7 +18,6 @@ export async function signup(formData: FormData) {
     const selectedDept = formData.get('department') as string
     const department = selectedDept || getDepartmentFromRollNumber(rollNumber)
     const isteId = (formData.get('iste_id') as string) || null;
-    const college = (formData.get('college') as string) || 'sctce';
     const upperRoll = rollNumber.trim().toUpperCase();
 
     // 1. Check if roll number already exists in PROFILES to prevent ghost auth users
@@ -47,7 +46,6 @@ export async function signup(formData: FormData) {
                 year: year,
                 role: role,
                 iste_id: isteId,
-                college: college,
             },
         },
     });
@@ -57,7 +55,8 @@ export async function signup(formData: FormData) {
         redirect(`/signup?error=${encodeURIComponent(signUpError.message)}`);
     }
 
-    // Fallback profile creation
+    // We manually insert the profile here as a fallback in case 
+    // the 'on_auth_user_created' database trigger in Supabase was never applied by the user.
     if (user) {
         const { error: profileError } = await supabase.from('profiles').insert({
             id: user.id,
@@ -67,13 +66,11 @@ export async function signup(formData: FormData) {
             year: year,
             role: role,
             iste_id: isteId,
-            college: college,
         });
         if (profileError) {
             console.error('Fallback profile creation error:', profileError);
         }
     }
-
 
     redirect('/login')
 }
