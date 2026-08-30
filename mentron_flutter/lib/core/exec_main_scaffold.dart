@@ -13,6 +13,7 @@ import 'theme/exec_theme.dart';
 import 'utils/app_transitions.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../screens/my_downloads_screen.dart';
+import '../utils/constants.dart';
 
 class ExecMainScaffold extends StatefulWidget {
   const ExecMainScaffold({super.key});
@@ -39,6 +40,11 @@ class ExecMainScaffoldState extends State<ExecMainScaffold>
   RealtimeChannel? _roleChannel;
   Timer? _sessionCheckTimer;
   bool _isCheckingSession = false;
+
+  // ── EXECOM idle timeout ─────────────────────────────────────────────────────
+  // Elevated-privilege screens must re-auth after kExecomIdleTimeoutSeconds
+  // of inactivity. Any user touch/scroll resets the countdown.
+  Timer? _idleTimer;
 
   // Animation controller for smooth show/hide
   late AnimationController _navbarAnimController;
@@ -74,6 +80,8 @@ class ExecMainScaffoldState extends State<ExecMainScaffold>
     );
     // Also validate immediately on start (with a small delay for init)
     Future.delayed(const Duration(seconds: 5), _validateSession);
+    // Start EXECOM idle timeout countdown
+    _resetIdleTimer();
   }
 
   /// Re-check role whenever the app comes back to the foreground.
@@ -114,8 +122,49 @@ class ExecMainScaffoldState extends State<ExecMainScaffold>
     WidgetsBinding.instance.removeObserver(this);
     _roleChannel?.unsubscribe();
     _sessionCheckTimer?.cancel();
+    _idleTimer?.cancel();
     _navbarAnimController.dispose();
     super.dispose();
+  }
+
+  // ── Idle Timeout ─────────────────────────────────────────────────────────────────
+
+  /// Reset the idle countdown. Call this on any user interaction.
+  void _resetIdleTimer() {
+    _idleTimer?.cancel();
+    _idleTimer = Timer(
+      Duration(seconds: MentronConstants.kExecomIdleTimeoutSeconds),
+      _onIdleTimeout,
+    );
+  }
+
+  /// Called when the idle timer fires. Signs out and navigates to login.
+  Future<void> _onIdleTimeout() async {
+    if (!mounted) return;
+    final supabase = Provider.of<SupabaseService>(context, listen: false);
+    await supabase.signOut();
+    if (mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        AppTransitions.fade(const LoginScreen()),
+        (_) => false,
+      );
+      // Show timeout notification after navigation settles
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: Color(0xFF7C3AED),
+              duration: Duration(seconds: 6),
+              behavior: SnackBarBehavior.floating,
+              content: Text(
+                '🔒 EXECOM session timed out due to inactivity. Please sign in again.',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          );
+        }
+      });
+    }
   }
 
   /// Validates that this device still owns the active session.
@@ -243,15 +292,24 @@ class ExecMainScaffoldState extends State<ExecMainScaffold>
     return Scaffold(
       body: Stack(
         children: [
-          // ΓöÇΓöÇ Full-screen content ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
-          NotificationListener<ScrollNotification>(
-            onNotification: _onScrollNotification,
-            child: IndexedStack(
-              index: _currentIndex,
-              children: _screens,
+          // ── Full-screen content (wrapped in GestureDetector for idle reset) ──
+          GestureDetector(
+            // Any tap or pointer event resets the idle timer
+            onTapDown: (_) => _resetIdleTimer(),
+            onPanDown: (_) => _resetIdleTimer(),
+            behavior: HitTestBehavior.translucent,
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (n) {
+                _resetIdleTimer(); // scroll also counts as activity
+                return _onScrollNotification(n);
+              },
+              child: IndexedStack(
+                index: _currentIndex,
+                children: _screens,
+              ),
             ),
           ),
-          // ΓöÇΓöÇ Floating auto-hiding navbar ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+          // ── Floating auto-hiding navbar ──────────────────────────────────
           Positioned(
             left: 0,
             right: 0,

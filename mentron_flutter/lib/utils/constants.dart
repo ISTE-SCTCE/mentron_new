@@ -12,6 +12,7 @@ class MentronConstants {
   static const String kPinSaltKey = 'mentron_pin_salt';
   static const String kEncryptionKeyKey = 'mentron_enc_key';
   static const String kEncryptionIvKey = 'mentron_enc_iv';
+  static const String kHiveEncryptionKey = 'mentron_hive_key';
 
   // ── Hive Box Names ────────────────────────────────────────────────────────
   static const String kDownloadsBox = 'mentron_downloads';
@@ -19,6 +20,7 @@ class MentronConstants {
   // ── File Size Limits ─────────────────────────────────────────────────────
   static const int kMaxVideoSizeBytes = 500 * 1024 * 1024;   // 500 MB
   static const int kMaxNotesSizeBytes = 50 * 1024 * 1024;    // 50 MB
+  static const int kMaxPaymentProofSizeBytes = 5 * 1024 * 1024; // 5 MB
   static const int kMaxStringLength = 4096;
 
   // ── Rate Limiting ─────────────────────────────────────────────────────────
@@ -31,6 +33,14 @@ class MentronConstants {
   /// Refresh the JWT this many seconds before it expires
   static const int kTokenRefreshBufferSeconds = 300; // 5 minutes
 
+  // ── Security & Idle Timeouts ──────────────────────────────────────────────
+  /// Seconds of inactivity before EXECOM dashboard forces re-authentication.
+  static const int kExecomIdleTimeoutSeconds = 900; // 15 minutes
+
+  // ── Execom Roles ──────────────────────────────────────────────────────────
+  /// Role strings that grant EXECOM access. Both 'exec' and 'execom' accepted.
+  static const Set<String> kExecomRoles = {'exec', 'execom', 'core', 'admin'};
+
   // ── Anomaly Detection ─────────────────────────────────────────────────────
   /// Flag a user if they download more than this many files within the window
   static const int kAnomalyDownloadThreshold = 10;
@@ -40,6 +50,13 @@ class MentronConstants {
   static const String kOfflineRootDir = 'mentron_offline';
   static const String kOfflineVideosDir = 'videos';
   static const String kOfflineNotesDir = 'notes';
+
+  // ── Valid Extensions ──────────────────────────────────────────────────────
+  /// Allowed file extensions for payment proof images (without leading dot).
+  static const Set<String> kValidPaymentProofExtensions = {'jpg', 'jpeg', 'png'};
+
+  /// Alias for payment proof max size (matches kMaxPaymentProofSizeBytes).
+  static const int kPaymentProofMaxBytes = kMaxPaymentProofSizeBytes;
 
   // ── Method Channel ────────────────────────────────────────────────────────
   static const String kContentProtectionChannel =

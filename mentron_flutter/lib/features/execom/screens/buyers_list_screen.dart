@@ -15,6 +15,7 @@ import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/exec_theme.dart';
 import '../../../models/marketplace_order.dart';
 import '../../../services/buyers_service.dart';
+import '../../../services/content_protection_service.dart';
 import '../../../shared/widgets/exec_glass_container.dart';
 import '../../../shared/widgets/exec_liquid_background.dart';
 
@@ -45,6 +46,8 @@ class _BuyersListPageState extends State<BuyersListPage> {
   @override
   void initState() {
     super.initState();
+    // Block screenshots: this screen shows buyer PII (phone, name, order details)
+    ContentProtectionService().enableScreenProtection();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final client = Provider.of<SupabaseService>(context, listen: false).client;
       _svc = BuyersService(client);
@@ -61,6 +64,7 @@ class _BuyersListPageState extends State<BuyersListPage> {
 
   @override
   void dispose() {
+    ContentProtectionService().disableScreenProtection();
     _searchCtrl.dispose();
     super.dispose();
   }

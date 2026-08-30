@@ -5,8 +5,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/utils/app_transitions.dart';
-import '../../../core/utils/error_handler.dart';
 import '../../../core/main_scaffold.dart';
+import '../../../utils/constants.dart';
 
 class ExecomLoginScreen extends StatefulWidget {
   const ExecomLoginScreen({super.key});
@@ -38,21 +38,26 @@ class _ExecomLoginScreenState extends State<ExecomLoginScreen> {
       final response = await supabase.signIn(email: operatorId, password: accessKey);
 
       if (response.user != null && mounted) {
-        // 2. Check role from profiles
+        // 2. Server-side role check — role is ALWAYS verified from DB,
+        //    never trusted from client-side cache or local state.
         final profile = await supabase.client
             .from('profiles')
             .select('role')
             .eq('id', response.user!.id)
             .single();
 
-        final role = profile['role'] as String?;
-        if (role == 'execom' || role == 'core') {
-          // Log success to audit_log
+        final role = (profile['role'] as String?)?.toLowerCase() ?? '';
+
+        // MentronConstants.kExecomRoles = {'exec', 'execom', 'core', 'admin'}
+        // Both 'exec' and 'execom' are valid (historical naming inconsistency fixed).
+        if (MentronConstants.kExecomRoles.contains(role)) {
+          // Log successful EXECOM login to the security audit trail
           await supabase.client.from('audit_log').insert({
             'user_id': response.user!.id,
             'action': 'execom_login',
             'entity': 'auth',
-            'details': 'Successful execom login',
+            'details': 'Successful EXECOM login (role: $role)',
+            'severity': 'info',
           });
 
           await supabase.sessionGuard.claimSession();
@@ -60,20 +65,20 @@ class _ExecomLoginScreenState extends State<ExecomLoginScreen> {
             Navigator.pushAndRemoveUntil(
               context,
               AppTransitions.fade(const MainScaffold()),
-              (route) => false, // Remove all previous routes to start fresh
+              (route) => false,
             );
           }
         } else {
-          // Unauthorized role
-          // Log failed attempt to audit_log
+          // Unauthorized role — log the escalation attempt and sign out immediately.
+          // Never leave a non-EXECOM session open after a failed elevation attempt.
           await supabase.client.from('audit_log').insert({
             'user_id': response.user!.id,
             'action': 'execom_login_denied',
             'entity': 'auth',
-            'details': 'Unauthorized role attempt: $role',
+            'details': 'Unauthorized role escalation attempt (role: "$role")',
+            'severity': 'warn',
           });
           
-          // Sign out immediately
           await supabase.signOut();
           _showAccessDenied('ACCESS DENIED. UNAUTHORIZED ROLE.');
         }

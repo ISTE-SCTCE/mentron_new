@@ -135,6 +135,8 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       String deptFilter = widget.dept ?? '';
       if (widget.year == '1' && deptFilter.isNotEmpty) {
         deptFilter = DepartmentMapper.getGroupFromDepartment(deptFilter);
+      } else if (deptFilter.isNotEmpty) {
+        deptFilter = deptFilter.trim().toUpperCase();
       }
 
       if (deptFilter.isNotEmpty) {
@@ -153,7 +155,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
         query = query.eq('folder_id', widget.folderId!);
       } else {
         // Show only notes NOT in any folder (null folder_id)
-        query = query.isFilter('folder_id', null);
+        query = query.filter('folder_id', 'is', null);
       }
 
       final response = await query.order('created_at', ascending: false);
@@ -175,6 +177,8 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       String deptFilter = widget.dept ?? '';
       if (widget.year == '1' && deptFilter.isNotEmpty) {
         deptFilter = DepartmentMapper.getGroupFromDepartment(deptFilter);
+      } else if (deptFilter.isNotEmpty) {
+        deptFilter = deptFilter.trim().toUpperCase();
       }
 
       if (deptFilter.isNotEmpty) {

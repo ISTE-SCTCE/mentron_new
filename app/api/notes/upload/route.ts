@@ -88,21 +88,35 @@ export async function POST(request: NextRequest) {
     let insertError
     let redirectUrl: string
 
+    const cleanDept = (department ?? '').trim().toUpperCase()
+    let deptCode = cleanDept
+    if (isFirstYear && cleanDept !== '' && ['A', 'B', 'C', 'D'].includes(cleanDept)) {
+        deptCode = cleanDept
+    } else if (isFirstYear) {
+        if (cleanDept.includes('A') || cleanDept.includes('CS')) deptCode = 'A'
+        else if (cleanDept.includes('B') || cleanDept.includes('EE') || cleanDept.includes('EC')) deptCode = 'B'
+        else if (cleanDept.includes('C') || cleanDept.includes('ME') || cleanDept.includes('CIVIL')) deptCode = 'C'
+        else if (cleanDept.includes('D') || cleanDept.includes('BT')) deptCode = 'D'
+        else deptCode = 'A'
+    }
+
     if (isFirstYear && groups.length > 0) {
         // Insert for multiple groups
-        const payloads = groups.map(g => ({
+        const payloads = groups.map((g: string) => ({
             ...basePayload,
-            department: g
+            department: g.trim().toUpperCase()
         }))
         const { error } = await supabase.from('notes').insert(payloads)
         insertError = error
         redirectUrl = `/notes/year/1/group/${groups[0]}/${semester}`
     } else {
         // Insert for single department
-        basePayload.department = department
+        basePayload.department = isFirstYear ? deptCode : cleanDept
         const { error } = await supabase.from('notes').insert(basePayload)
         insertError = error
-        redirectUrl = `/notes/year/${yearNum}/dept/${department}/${semester}`
+        redirectUrl = isFirstYear
+            ? `/notes/year/1/group/${deptCode}/${semester}`
+            : `/notes/year/${yearNum}/dept/${cleanDept}/${semester}`
     }
 
     if (insertError) {

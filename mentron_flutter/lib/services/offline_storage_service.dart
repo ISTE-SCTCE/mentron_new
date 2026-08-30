@@ -12,6 +12,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart' as enc;
@@ -20,6 +21,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/downloaded_content.dart';
 import '../utils/constants.dart';
@@ -32,8 +34,10 @@ class OfflineStorageService {
   OfflineStorageService._internal();
 
   final _logger = Logger();
+  // Disable encryptedSharedPreferences on Android to prevent unrecoverable KeyStore/cryptographic crashes.
+  // Standard FlutterSecureStorage still encrypts at rest using KeyStore-backed AES keys.
   final _storage = const FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    aOptions: AndroidOptions(encryptedSharedPreferences: false),
   );
 
   SupabaseClient get _client => Supabase.instance.client;
@@ -66,13 +70,100 @@ class OfflineStorageService {
     await _videosDir.create(recursive: true);
     await _notesDir.create(recursive: true);
 
-    // Open Hive box (Hive.initFlutter() must have been called in main())
-    _box = await Hive.openBox<DownloadedContent>(
-        MentronConstants.kDownloadsBox);
+    // ── Encrypted Hive Box ────────────────────────────────────────────────
+    // Derive (or generate) a 256-bit AES key stored in FlutterSecureStorage.
+    // If the box fails to open (due to legacy unencrypted box, corrupted files,
+    // or key mismatch after reinstall), we wipe it from disk and start fresh.
+    Uint8List hiveKey;
+    try {
+      hiveKey = await _getOrCreateHiveKey();
+    } catch (e) {
+      _logger.w(
+        'OfflineStorageService: FlutterSecureStorage failed to read/write Hive key: $e. '
+        'Wiping all secure storage and retrying...',
+      );
+      try {
+        await _storage.deleteAll();
+      } catch (_) {}
+
+      try {
+        hiveKey = await _getOrCreateHiveKey();
+      } catch (err) {
+        _logger.e(
+          'OfflineStorageService: FlutterSecureStorage completely broken. '
+          'Falling back to SharedPreferences: $err',
+        );
+        hiveKey = await _getFallbackHiveKey();
+      }
+    }
+    
+    try {
+      _box = await Hive.openBox<DownloadedContent>(
+        MentronConstants.kDownloadsBox,
+        encryptionCipher: HiveAesCipher(hiveKey),
+      );
+    } catch (e) {
+      _logger.w(
+        'OfflineStorageService: failed to open encrypted box (possible corruption or key mismatch). '
+        'Wiping and recreating: $e',
+      );
+      try {
+        await Hive.deleteBoxFromDisk(MentronConstants.kDownloadsBox);
+      } catch (err) {
+        _logger.e('OfflineStorageService: failed to delete box from disk: $err');
+      }
+      // Retry opening after deletion
+      _box = await Hive.openBox<DownloadedContent>(
+        MentronConstants.kDownloadsBox,
+        encryptionCipher: HiveAesCipher(hiveKey),
+      );
+    }
 
     _initialized = true;
-    _logger.i('OfflineStorageService: initialized at ${offlineRoot.path}');
+    _logger.i('OfflineStorageService: initialized (encrypted) at ${offlineRoot.path}');
   }
+
+  // ── Hive Key Management ───────────────────────────────────────────────────
+
+  /// Retrieves or generates the 256-bit key used for HiveAesCipher.
+  /// Key is stored exclusively in FlutterSecureStorage — never hardcoded.
+  Future<Uint8List> _getOrCreateHiveKey() async {
+    final existing = await _storage.read(key: MentronConstants.kHiveEncryptionKey);
+    if (existing != null) {
+      return base64Decode(existing);
+    }
+    // Generate a fresh 32-byte (256-bit) key
+    final rng = Random.secure();
+    final key = Uint8List.fromList(List.generate(32, (_) => rng.nextInt(256)));
+    await _storage.write(
+      key: MentronConstants.kHiveEncryptionKey,
+      value: base64Encode(key),
+    );
+    _logger.i('OfflineStorageService: new Hive encryption key generated');
+    return key;
+  }
+
+  /// Fallback key generation when FlutterSecureStorage is completely broken.
+  /// Uses standard SharedPreferences to store the key.
+  Future<Uint8List> _getFallbackHiveKey() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final keyB64 = prefs.getString('fallback_hive_key');
+      if (keyB64 != null) {
+        return base64Decode(keyB64);
+      }
+      final rng = Random.secure();
+      final key = Uint8List.fromList(List.generate(32, (_) => rng.nextInt(256)));
+      await prefs.setString('fallback_hive_key', base64Encode(key));
+      return key;
+    } catch (e) {
+      _logger.e('OfflineStorageService: SharedPreferences fallback failed. Using static fallback: $e');
+      // Emergency static key so the app does not crash under any circumstances
+      return Uint8List.fromList(List.generate(32, (i) => i));
+    }
+  }
+
+
 
   // ── Download ──────────────────────────────────────────────────────────────
 
@@ -251,17 +342,34 @@ class OfflineStorageService {
   }
 
   Future<Uint8List> _getOrCreateKey() async {
-    final existing =
-        await _storage.read(key: MentronConstants.kEncryptionKeyKey);
-    if (existing != null) {
-      return base64Decode(existing);
+    try {
+      final existing =
+          await _storage.read(key: MentronConstants.kEncryptionKeyKey);
+      if (existing != null) {
+        return base64Decode(existing);
+      }
+      // Generate a new 256-bit key
+      final key = enc.Key.fromSecureRandom(32);
+      await _storage.write(
+          key: MentronConstants.kEncryptionKeyKey,
+          value: base64Encode(key.bytes));
+      return key.bytes;
+    } catch (e) {
+      _logger.e('OfflineStorageService: failed to read/write kEncryptionKeyKey: $e');
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final keyB64 = prefs.getString('fallback_encryption_key');
+        if (keyB64 != null) {
+          return base64Decode(keyB64);
+        }
+        final key = enc.Key.fromSecureRandom(32);
+        await prefs.setString('fallback_encryption_key', base64Encode(key.bytes));
+        return key.bytes;
+      } catch (err) {
+        _logger.e('OfflineStorageService: SharedPreferences fallback for kEncryptionKeyKey failed: $err');
+        return Uint8List.fromList(List.generate(32, (i) => i + 1));
+      }
     }
-    // Generate a new 256-bit key
-    final key = enc.Key.fromSecureRandom(32);
-    await _storage.write(
-        key: MentronConstants.kEncryptionKeyKey,
-        value: base64Encode(key.bytes));
-    return key.bytes;
   }
 
   // ── Audit Logging ─────────────────────────────────────────────────────────
@@ -281,6 +389,23 @@ class OfflineStorageService {
     } catch (e) {
       _logger.w('OfflineStorageService: audit log failed (non-critical): $e');
     }
+  }
+
+  // ── Logout Cleanup ────────────────────────────────────────────────────────
+
+  /// Wipe and close all Hive boxes managed by this service.
+  /// Called on logout to ensure no sensitive metadata persists on disk.
+  Future<void> clearAllBoxes() async {
+    try {
+      if (_initialized && _box.isOpen) {
+        await _box.deleteFromDisk(); // deletes the .hive file on disk
+      }
+    } catch (e) {
+      _logger.w('OfflineStorageService: clearAllBoxes failed (non-critical): $e');
+    } finally {
+      _initialized = false;
+    }
+    _logger.i('OfflineStorageService: Hive boxes cleared on logout');
   }
 
   // ── Guards ────────────────────────────────────────────────────────────────

@@ -7,6 +7,32 @@
 	<!-- Enable Impeller GPU renderer for smooth 60/120fps -->
 	<key>FLTEnableImpeller</key>
 	<true/>
+	<!--
+	    App Transport Security (ATS) Configuration
+	    =============================================
+	    NSAllowsArbitraryLoads = false  → Enforce HTTPS for all connections.
+	    The Supabase domain is explicitly listed to require forward secrecy.
+	    No HTTP cleartext traffic is permitted anywhere in the app.
+	-->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>ysllolnoyezfdllqocgv.supabase.co</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<false/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<true/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.2</string>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

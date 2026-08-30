@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Mentron Network Security Configuration
+    =======================================
+    • Blocks all cleartext (HTTP) traffic app-wide.
+    • Pins the Supabase TLS certificate (SHA-256 of the SubjectPublicKeyInfo).
+    • Allows system CA trust for all other HTTPS traffic (e.g. CDN, Firebase).
+
+    CERT ROTATION:
+    When Supabase rotates their certificate, update the <pin> value below.
+    To obtain the new pin:
+        openssl s_client -connect ysllolnoyezfdllqocgv.supabase.co:443 < /dev/null \
+          | openssl x509 -noout -pubkey \
+          | openssl pkey -pubin -outform der \
+          | openssl dgst -sha256 -binary \
+          | base64
+    Then update this file + SUPABASE_CERT_FINGERPRINT in .env and redeploy.
+    See CERT_ROTATION.md at the project root for the full procedure.
+-->
+<network-security-config>
+
+    <!-- ── Global: No cleartext traffic anywhere ──────────────────────────── -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Trust the system certificate store (covers all standard HTTPS) -->
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- ── Supabase domain: Certificate pinning ───────────────────────────── -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">ysllolnoyezfdllqocgv.supabase.co</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+        <pin-set expiration="2027-01-01">
+            <!--
+                Primary pin: SHA-256 of the Supabase SubjectPublicKeyInfo (SPKI).
+                This is the certificate in use as of 2026-07.
+                Rotate before expiration date above.
+            -->
+            <pin digest="SHA-256">gHAiWtUN7SGdLJx9KZwAT4JOsAz39lr+9gfQe3Lmyvo=</pin>
+            <!--
+                Backup pin: DigiCert Global Root CA (Supabase's CA chain).
+                Keep this as a safety net so rotation of the leaf cert
+                doesn't break the app before an update reaches users.
+            -->
+            <pin digest="SHA-256">r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E=</pin>
+        </pin-set>
+    </domain-config>
+
+    <!-- ── Firebase / FCM: Standard HTTPS only ────────────────────────────── -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">firebase.com</domain>
+        <domain includeSubdomains="true">googleapis.com</domain>
+        <domain includeSubdomains="true">firebaseio.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+
+</network-security-config>

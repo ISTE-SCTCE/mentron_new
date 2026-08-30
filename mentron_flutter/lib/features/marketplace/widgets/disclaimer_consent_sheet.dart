@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/marketplace_theme.dart';
 import '../../../services/marketplace_service.dart';
+import '../../../services/device_security_service.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DisclaimerConsentSheet
@@ -158,17 +159,25 @@ class _DisclaimerConsentSheetState extends State<DisclaimerConsentSheet> {
       final buyer = supa.currentUser;
       if (buyer == null) throw Exception('Not signed in');
 
-      // Upload proof screenshot
-      final proofUrl = await _svc!.uploadPaymentProof(_proofFile!, buyer.id);
+      // Root/jailbreak check — block payments on compromised devices
+      final deviceStatus = await DeviceSecurityService().checkIntegrity();
+      if (deviceStatus.isCompromised && mounted) {
+        setState(() => _isSubmitting = false);
+        await DeviceSecurityService.showCompromisedDeviceDialog(context);
+        return;
+      }
 
-      // Create order row
+      // Upload proof screenshot (validates type + size + magic bytes internally)
+      final proofPath = await _svc!.uploadPaymentProof(_proofFile!, buyer.id);
+
+      // Create order row (includes duplicate-submission guard)
       await _svc!.createOrder(
-        listingId:      widget.listingId,
-        buyerId:        buyer.id,
-        amount:         widget.price,
-        paymentProofUrl: proofUrl,
-        utrNumber:      utrText,
-        phoneNumber:    _phoneController.text.trim(),
+        listingId:       widget.listingId,
+        buyerId:         buyer.id,
+        amount:          widget.price,
+        paymentProofPath: proofPath,
+        utrNumber:       utrText,
+        phoneNumber:     _phoneController.text.trim(),
       );
 
       if (mounted) {

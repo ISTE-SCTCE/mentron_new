@@ -48,7 +48,7 @@ android {
     defaultConfig {
         applicationId = "com.iste.mentron"
         minSdk = flutter.minSdkVersion  // ART optimizations, modern Android only
-        targetSdk = 36
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled = true
@@ -83,3 +83,5 @@ flutter {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
+
+

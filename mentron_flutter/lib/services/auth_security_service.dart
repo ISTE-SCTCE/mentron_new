@@ -17,8 +17,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/constants.dart';
+import 'offline_storage_service.dart';
 
 /// Centralises all auth-side security for Mentron.
 class AuthSecurityService {
@@ -29,8 +31,10 @@ class AuthSecurityService {
 
   // ── Dependencies ─────────────────────────────────────────────────────────
 
+  // Disable encryptedSharedPreferences on Android to prevent unrecoverable KeyStore/cryptographic crashes.
+  // Standard FlutterSecureStorage still encrypts at rest using KeyStore-backed AES keys.
   final _storage = const FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    aOptions: AndroidOptions(encryptedSharedPreferences: false),
     iOptions: IOSOptions(
       accessibility: KeychainAccessibility.first_unlock_this_device,
     ),
@@ -44,42 +48,72 @@ class AuthSecurityService {
   // ── Initialisation ────────────────────────────────────────────────────────
 
   /// Call once from main() after Supabase.initialize().
-  /// Wires up the auto-refresh listener.
+  /// Wires up the auto-refresh listener and handles unexpected sign-out events.
   void initialize() {
     _client.auth.onAuthStateChange.listen((data) async {
       final session = data.session;
-      if (session == null) return;
 
-      // Persist tokens securely on every auth state change
-      await _saveTokens(session);
+      switch (data.event) {
+        case AuthChangeEvent.signedIn:
+          // Persist tokens and record the session on first sign-in
+          if (session != null) {
+            await _saveTokens(session);
+            await _recordSession(session);
+          }
+          break;
 
-      // Write / update user_sessions row
-      if (data.event == AuthChangeEvent.signedIn) {
-        await _recordSession(session);
+        case AuthChangeEvent.tokenRefreshed:
+          // SDK automatically refreshed the JWT; persist the new pair
+          if (session != null) {
+            await _saveTokens(session);
+            _logger.i('AuthSecurityService: JWT token refreshed and persisted');
+          }
+          break;
+
+        case AuthChangeEvent.signedOut:
+          // Triggered when Supabase invalidates the session (e.g. refresh token
+          // expired or revoked from server). Clear everything immediately.
+          await _handleForcedSignOut();
+          break;
+
+        default:
+          // For other events (passwordRecovery, userUpdated, etc.),
+          // persist tokens if a session is available.
+          if (session != null) {
+            await _saveTokens(session);
+          }
       }
     });
+  }
+
+  /// Handles a server-forced sign-out (refresh token expired / revoked).
+  Future<void> _handleForcedSignOut() async {
+    _logger.w('AuthSecurityService: forced sign-out detected — clearing all credentials');
+    await clearAllSecureStorage();
+    await _clearHiveBoxes();
   }
 
   // ── Token Management ──────────────────────────────────────────────────────
 
   Future<void> _saveTokens(Session session) async {
-    await _storage.write(
-        key: MentronConstants.kJwtKey, value: session.accessToken);
+    await _writeSecure(
+        MentronConstants.kJwtKey, session.accessToken);
     if (session.refreshToken != null) {
-      await _storage.write(
-          key: MentronConstants.kRefreshTokenKey, value: session.refreshToken);
+      await _writeSecure(
+          MentronConstants.kRefreshTokenKey, session.refreshToken!);
     }
   }
 
   Future<String?> readJwt() =>
-      _storage.read(key: MentronConstants.kJwtKey);
+      _readSecure(MentronConstants.kJwtKey);
 
   Future<String?> readRefreshToken() =>
-      _storage.read(key: MentronConstants.kRefreshTokenKey);
+      _readSecure(MentronConstants.kRefreshTokenKey);
 
   // ── Logout ────────────────────────────────────────────────────────────────
 
   /// Clears every key this service owns from secure storage.
+  /// Also wipes Hive boxes so no metadata persists post-logout.
   /// Call before client.auth.signOut().
   Future<void> clearAllSecureStorage() async {
     final keysToDelete = [
@@ -90,11 +124,25 @@ class AuthSecurityService {
       MentronConstants.kPinSaltKey,
       MentronConstants.kEncryptionKeyKey,
       MentronConstants.kEncryptionIvKey,
+      // Note: kHiveEncryptionKey and kEncryptionKeyKey are intentionally
+      // NOT deleted here — they are device-bound keys. Deleting them would
+      // permanently corrupt any existing encrypted data. The Hive box itself
+      // is wiped via clearHiveBoxes() on logout instead.
     ];
     for (final key in keysToDelete) {
-      await _storage.delete(key: key);
+      await _deleteSecure(key);
     }
+    await _clearHiveBoxes();
     _logger.i('AuthSecurityService: all secure storage cleared on logout');
+  }
+
+  /// Delegates to OfflineStorageService to wipe Hive boxes on logout.
+  Future<void> _clearHiveBoxes() async {
+    try {
+      await OfflineStorageService().clearAllBoxes();
+    } catch (e) {
+      _logger.w('AuthSecurityService: Hive box clear failed (non-critical): $e');
+    }
   }
 
   // ── Session Recording ─────────────────────────────────────────────────────
@@ -180,17 +228,17 @@ class AuthSecurityService {
   Future<void> setPin(String pin) async {
     final salt = _randomBytes(16);
     final hash = _pbkdf2(pin, salt);
-    await _storage.write(
-        key: MentronConstants.kPinHashKey, value: base64Encode(hash));
-    await _storage.write(
-        key: MentronConstants.kPinSaltKey, value: base64Encode(salt));
+    await _writeSecure(
+        MentronConstants.kPinHashKey, base64Encode(hash));
+    await _writeSecure(
+        MentronConstants.kPinSaltKey, base64Encode(salt));
     _logger.i('AuthSecurityService: PIN set');
   }
 
   /// Returns true if [pin] matches the stored hash.
   Future<bool> verifyPin(String pin) async {
-    final saltB64 = await _storage.read(key: MentronConstants.kPinSaltKey);
-    final hashB64 = await _storage.read(key: MentronConstants.kPinHashKey);
+    final saltB64 = await _readSecure(MentronConstants.kPinSaltKey);
+    final hashB64 = await _readSecure(MentronConstants.kPinHashKey);
     if (saltB64 == null || hashB64 == null) return false;
     final salt = base64Decode(saltB64);
     final storedHash = base64Decode(hashB64);
@@ -200,12 +248,12 @@ class AuthSecurityService {
 
   /// Removes the PIN from secure storage.
   Future<void> clearPin() async {
-    await _storage.delete(key: MentronConstants.kPinHashKey);
-    await _storage.delete(key: MentronConstants.kPinSaltKey);
+    await _deleteSecure(MentronConstants.kPinHashKey);
+    await _deleteSecure(MentronConstants.kPinSaltKey);
   }
 
   Future<bool> hasPin() async {
-    final hash = await _storage.read(key: MentronConstants.kPinHashKey);
+    final hash = await _readSecure(MentronConstants.kPinHashKey);
     return hash != null;
   }
 
@@ -242,5 +290,50 @@ class AuthSecurityService {
       result |= a[i] ^ b[i];
     }
     return result == 0;
+  }
+
+  // ── Secure Storage Helper Methods with Fallbacks ────────────────────────────
+
+  Future<String?> _readSecure(String key) async {
+    try {
+      return await _storage.read(key: key);
+    } catch (e) {
+      _logger.w('AuthSecurityService: failed to read secure key $key: $e. Falling back to SharedPreferences.');
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        return prefs.getString('fallback_$key');
+      } catch (err) {
+        _logger.e('AuthSecurityService: fallback read for $key failed: $err');
+        return null;
+      }
+    }
+  }
+
+  Future<void> _writeSecure(String key, String value) async {
+    try {
+      await _storage.write(key: key, value: value);
+    } catch (e) {
+      _logger.w('AuthSecurityService: failed to write secure key $key: $e. Falling back to SharedPreferences.');
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('fallback_$key', value);
+      } catch (err) {
+        _logger.e('AuthSecurityService: fallback write for $key failed: $err');
+      }
+    }
+  }
+
+  Future<void> _deleteSecure(String key) async {
+    try {
+      await _storage.delete(key: key);
+    } catch (e) {
+      _logger.w('AuthSecurityService: failed to delete secure key $key: $e. Falling back to SharedPreferences.');
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('fallback_$key');
+    } catch (err) {
+      _logger.e('AuthSecurityService: fallback delete for $key failed: $err');
+    }
   }
 }

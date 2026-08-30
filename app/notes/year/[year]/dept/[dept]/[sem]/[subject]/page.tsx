@@ -69,6 +69,8 @@ export default async function SubjectNotesPage({
         .eq('year', yearNum)
         .eq('semester', semKey)
         .eq('subject', subjectName)
+        .eq('department', deptKey.toUpperCase())
+        .is('folder_id', null)
         .order('created_at', { ascending: false })
 
     let finalNotes = notes ?? []

@@ -52,7 +52,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadNotifBadge();
     _setupRealtime();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await OffensoLaunchOverlay.showIfNeeded(context);
       _showActiveEventsBottomSheetIfNeeded();
     });
   }
@@ -192,10 +191,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             // ── Greeting + Headline ───────────────────────────────
             SliverToBoxAdapter(
               child: _buildHeadlineSection(firstName),
-            ),
-            // ── Offenso Academy Main Banner ───────────────────────
-            const SliverToBoxAdapter(
-              child: OffensoBannerCard(),
             ),
             // ── Dashboard Event & Trending Subject Carousel ──────
             const SliverToBoxAdapter(

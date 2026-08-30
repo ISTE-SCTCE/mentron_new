@@ -57,6 +57,7 @@ export default async function Year1SubjectNotesPage({
         .eq('department', groupKey)
         .eq('semester', sem)
         .eq('subject', subjectName)
+        .is('folder_id', null)
         .order('created_at', { ascending: false })
 
     const uploadUrl = `/notes/upload?year=1&dept=${groupKey}&sem=${sem}&subject=${encodeURIComponent(subjectName)}`

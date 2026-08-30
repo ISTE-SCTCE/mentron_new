@@ -349,29 +349,7 @@ class _EventsCalendarWidgetState extends State<EventsCalendarWidget> {
     }
 
     if (_events.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        child: GlassContainer(
-          borderRadius: 24,
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.event_busy_rounded, color: AppTheme.textMuted.withOpacity(0.4), size: 40),
-              const SizedBox(height: 12),
-              Text(
-                'No upcoming events scheduled at the moment.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppTheme.textMuted,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      return const SizedBox.shrink();
     }
 
     return Padding(

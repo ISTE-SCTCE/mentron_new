@@ -14,6 +14,7 @@
 import 'dart:math';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../utils/constants.dart';
 
 class SessionGuardService {
@@ -22,8 +23,10 @@ class SessionGuardService {
   final SupabaseClient _client;
   SessionGuardService(this._client);
 
+  // Disable encryptedSharedPreferences on Android to prevent unrecoverable KeyStore/cryptographic crashes.
+  // Standard FlutterSecureStorage still encrypts at rest using KeyStore-backed AES keys.
   static const _storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    aOptions: AndroidOptions(encryptedSharedPreferences: false),
     iOptions: IOSOptions(
       accessibility: KeychainAccessibility.first_unlock_this_device,
     ),
@@ -40,7 +43,7 @@ class SessionGuardService {
     final token = List.generate(32, (_) => _rng.nextInt(256))
         .map((b) => b.toRadixString(16).padLeft(2, '0'))
         .join();
-    await _storage.write(key: MentronConstants.kDeviceTokenKey, value: token);
+    await _writeSecure(MentronConstants.kDeviceTokenKey, token);
 
     try {
       await _client
@@ -60,7 +63,7 @@ class SessionGuardService {
     if (userId == null) return true; // Not logged in — nothing to validate.
 
     final localToken =
-        await _storage.read(key: MentronConstants.kDeviceTokenKey);
+        await _readSecure(MentronConstants.kDeviceTokenKey);
 
     // No local token means this device never claimed a session properly.
     // This can happen if the app was reinstalled. Force them to log in again.
@@ -91,13 +94,49 @@ class SessionGuardService {
   /// Clears the session token from the DB so another device can log in freely.
   Future<void> clearSession() async {
     final userId = _client.auth.currentUser?.id;
-    await _storage.delete(key: MentronConstants.kDeviceTokenKey);
+    await _deleteSecure(MentronConstants.kDeviceTokenKey);
 
     if (userId == null) return;
     try {
       await _client
           .from('profiles')
           .update({'session_token': null}).eq('id', userId);
+    } catch (_) {}
+  }
+
+  // ── Secure Storage Helper Methods with Fallbacks ────────────────────────────
+
+  Future<String?> _readSecure(String key) async {
+    try {
+      return await _storage.read(key: key);
+    } catch (e) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        return prefs.getString('fallback_$key');
+      } catch (_) {
+        return null;
+      }
+    }
+  }
+
+  Future<void> _writeSecure(String key, String value) async {
+    try {
+      await _storage.write(key: key, value: value);
+    } catch (e) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('fallback_$key', value);
+      } catch (_) {}
+    }
+  }
+
+  Future<void> _deleteSecure(String key) async {
+    try {
+      await _storage.delete(key: key);
+    } catch (_) {}
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('fallback_$key');
     } catch (_) {}
   }
 }

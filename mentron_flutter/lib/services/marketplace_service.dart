@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/marketplace_listing.dart';
 import '../models/marketplace_order.dart';
 import '../models/marketplace_listing_view.dart';
+import '../utils/constants.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MarketplaceService — all Supabase calls for the marketplace feature
@@ -186,36 +188,106 @@ class MarketplaceService {
         .toList();
   }
 
-  /// Upload a payment screenshot. Returns its public URL.
+  /// Validate a payment proof file before upload.
+  /// Checks:
+  ///   • Extension is jpg/jpeg/png only
+  ///   • File size <= kPaymentProofMaxBytes (5 MB)
+  ///   • Magic bytes match declared image type (anti-polyglot)
   ///
-  /// IMPORTANT: The `marketplace-payment-proofs` Supabase Storage bucket
-  /// **must** be set to Public (or have an authenticated-read RLS policy)
-  /// so that the EXECOM Payment Manager can render the screenshot inline.
+  /// Throws [ArgumentError] if validation fails.
+  Future<void> _validatePaymentProof(File file) async {
+    // 1. Extension check
+    final ext = file.path.split('.').last.toLowerCase();
+    if (!MentronConstants.kValidPaymentProofExtensions.contains(ext)) {
+      throw ArgumentError(
+          'Invalid payment proof format. Only JPG and PNG screenshots are accepted.');
+    }
+
+    // 2. File size check
+    final size = await file.length();
+    if (size <= 0) {
+      throw ArgumentError('Payment proof file is empty.');
+    }
+    if (size > MentronConstants.kPaymentProofMaxBytes) {
+      final maxMb = MentronConstants.kPaymentProofMaxBytes ~/ (1024 * 1024);
+      throw ArgumentError(
+          'Payment proof exceeds the ${maxMb}MB size limit. Please upload a smaller screenshot.');
+    }
+
+    // 3. Magic bytes check (prevents file-extension spoofing)
+    final bytes = await file.openRead(0, 8).first;
+    final magic = Uint8List.fromList(bytes);
+    final isJpeg = magic.length >= 3 &&
+        magic[0] == 0xFF &&
+        magic[1] == 0xD8 &&
+        magic[2] == 0xFF;
+    final isPng = magic.length >= 4 &&
+        magic[0] == 0x89 &&
+        magic[1] == 0x50 && // 'P'
+        magic[2] == 0x4E && // 'N'
+        magic[3] == 0x47;   // 'G'
+    if (!isJpeg && !isPng) {
+      throw ArgumentError(
+          'Payment proof does not appear to be a valid JPEG or PNG image.');
+    }
+  }
+
+  /// Upload a payment screenshot to the PRIVATE proofs bucket.
+  /// Returns the **storage object path** (not a URL).
+  /// Use [getSignedPaymentProofUrl] to get a time-limited URL for viewing.
+  ///
+  /// Validates file type, size, and magic bytes before upload.
   Future<String> uploadPaymentProof(File file, String buyerId) async {
-    final ext = file.path.split('.').last;
+    await _validatePaymentProof(file);
+
+    final ext = file.path.split('.').last.toLowerCase();
     final path = '$buyerId/${DateTime.now().millisecondsSinceEpoch}.$ext';
     await _client.storage
         .from(_proofsBucket)
-        .upload(path, file, fileOptions: const FileOptions(upsert: true));
-    return _client.storage.from(_proofsBucket).getPublicUrl(path);
+        .upload(path, file, fileOptions: const FileOptions(upsert: false));
+    // Return the storage path, NOT a public URL (bucket is now private).
+    return path;
+  }
+
+  /// Generate a time-limited signed URL for a payment proof.
+  /// [storagePath] is the value returned by [uploadPaymentProof].
+  /// Default expiry: 1 hour. Use shorter durations for sensitive screens.
+  Future<String> getSignedPaymentProofUrl(
+    String storagePath, {
+    int expiresInSeconds = 3600,
+  }) async {
+    return await _client.storage
+        .from(_proofsBucket)
+        .createSignedUrl(storagePath, expiresInSeconds);
   }
 
   /// Create an order after payment proof is submitted.
+  /// Checks for duplicate orders (same listing + buyer) before inserting.
+  ///
+  /// [paymentProofPath] is the storage path returned by [uploadPaymentProof].
   Future<String> createOrder({
     required String listingId,
     required String buyerId,
     required double amount,
-    required String paymentProofUrl,
+    required String paymentProofPath,
     required String utrNumber,
     required String phoneNumber,
   }) async {
+    // Duplicate order guard: prevent payment spam / replay
+    final existing = await hasPendingOrder(listingId: listingId, buyerId: buyerId);
+    if (existing) {
+      throw StateError(
+          'You have already submitted a payment for this item. '
+          'Please wait for EXECOM to verify your previous submission.');
+    }
+
     final response = await _client
         .from('marketplace_orders')
         .insert({
           'listing_id':             listingId,
           'buyer_id':               buyerId,
           'amount':                 amount,
-          'payment_proof_url':      paymentProofUrl,
+          'payment_proof_url':      paymentProofPath, // storage path, not public URL
           'utr_number':             utrNumber,
           'phone_number':           phoneNumber,
           'disclaimer_accepted_at': DateTime.now().toIso8601String(),
@@ -234,6 +306,27 @@ class MarketplaceService {
     }
 
     return response['id'] as String;
+  }
+
+  /// Returns true if the buyer already has an active (non-cancelled) order
+  /// for this listing. Used to prevent duplicate payment submissions.
+  Future<bool> hasPendingOrder({
+    required String listingId,
+    required String buyerId,
+  }) async {
+    try {
+      final response = await _client
+          .from('marketplace_orders')
+          .select('id')
+          .eq('listing_id', listingId)
+          .eq('buyer_id', buyerId)
+          .neq('order_status', 'cancelled')
+          .neq('order_status', 'refunded')
+          .limit(1);
+      return (response as List).isNotEmpty;
+    } catch (_) {
+      return false;
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════════════

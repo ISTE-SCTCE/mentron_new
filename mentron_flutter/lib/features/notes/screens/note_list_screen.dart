@@ -76,19 +76,25 @@ class _NoteListScreenState extends State<NoteListScreen> {
       String deptFilter = widget.deptCode;
       if (widget.year == '1') {
         deptFilter = DepartmentMapper.getGroupFromDepartment(widget.deptCode);
+      } else {
+        deptFilter = deptFilter.trim().toUpperCase();
       }
 
-      // Fetch ALL notes for this filter
+      final yearNum = int.tryParse(widget.year) ?? 1;
+
+      // Fetch ALL notes for this filter (root notes outside folders)
       final response = await supabase
           .from('notes')
           .select('*, profiles!notes_profile_id_fkey(full_name)')
           .eq('department', deptFilter)
+          .eq('year', yearNum)
+          .filter('folder_id', 'is', null)
           .order('created_at', ascending: false);
 
       final allNotes = (response as List).map((json) => Note.fromJson(json)).toList();
 
-      // Filter by year client-side
-      final filtered = allNotes.where((n) => n.year == widget.year).toList();
+      // Filter by year safely
+      final filtered = allNotes.where((n) => n.year.toString() == widget.year.toString()).toList();
 
       if (mounted) {
         setState(() {

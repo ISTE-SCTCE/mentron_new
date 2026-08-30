@@ -11,6 +11,7 @@ import '../../../core/theme/exec_theme.dart';
 import '../../../models/marketplace_listing.dart';
 import '../../../models/marketplace_order.dart';
 import '../../../services/marketplace_service.dart';
+import '../../../services/content_protection_service.dart';
 import '../../../shared/widgets/exec_glass_container.dart';
 import '../../../shared/widgets/exec_liquid_background.dart';
 
@@ -55,6 +56,9 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen>
   @override
   void initState() {
     super.initState();
+    // ── Enable screen protection (FLAG_SECURE / iOS secure overlay) ──────────────
+    // Prevents screenshots and screen recording of payment proofs and buyer PII.
+    ContentProtectionService().enableScreenProtection();
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(_onTabChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -76,6 +80,8 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen>
 
   @override
   void dispose() {
+    // ── Disable screen protection when leaving the screen ──────────────────────
+    ContentProtectionService().disableScreenProtection();
     _ordersSubscription?.cancel();
     _listingsSubscription?.cancel();
     _tabController.removeListener(_onTabChanged);
