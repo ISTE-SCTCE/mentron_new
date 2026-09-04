@@ -121,17 +121,17 @@ export default async function DeptSubjectsPage({
                 </div>
 
                 {/* Header card */}
-                <div className={`glass-card mb-12 bg-gradient-to-br ${style.color} border ${style.border}`}>
-                    <div className="flex items-center justify-between gap-6 flex-wrap">
-                        <div className="flex items-center gap-6">
-                            <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center text-4xl">{deptMeta.emoji}</div>
+                <div className={`glass-card p-6 sm:p-8 rounded-3xl mb-8 sm:mb-12 bg-gradient-to-br ${style.color} border ${style.border}`}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                        <div className="flex items-start sm:items-center gap-4 sm:gap-6">
+                            <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl sm:text-4xl shrink-0">{deptMeta.emoji}</div>
                             <div>
                                 <p className={`text-[10px] font-black tracking-[0.3em] uppercase ${style.accent}`}>{yearMeta.label} · {semKey}</p>
-                                <h1 className="text-4xl font-black tracking-tighter text-white mt-1">{deptMeta.name}</h1>
-                                <p className={`text-sm font-bold mt-1 ${style.accent}`}>{deptKey}</p>
+                                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter text-white mt-1 break-words">{deptMeta.name}</h1>
+                                <p className={`text-xs sm:text-sm font-bold mt-1 ${style.accent}`}>{deptKey}</p>
                             </div>
                         </div>
-                        <Link href={uploadUrl} className={`glass glass-hover px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest ${style.accent} border ${style.border}`}>
+                        <Link href={uploadUrl} className={`glass glass-hover px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest ${style.accent} border ${style.border} text-center shrink-0`}>
                             + Contribute Notes
                         </Link>
                     </div>

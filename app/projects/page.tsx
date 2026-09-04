@@ -32,13 +32,16 @@ export default async function ProjectsPage() {
     const appliedIds = myApplications?.map(a => a.project_id) ?? []
 
     return (
-        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
+        <div className="min-h-screen p-4 sm:p-6 md:p-8 pt-20 sm:pt-28 md:pt-32 text-[#ededed]">
             <div className="max-w-[1800px] mx-auto">
-                <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <header className="mb-8 sm:mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase mb-3">Innovations</p>
-                        <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white">Active Projects</h1>
-                        <p className="text-gray-500 text-sm font-medium mt-2">
+                        <p className="text-[10px] font-black tracking-[0.3em] text-cyan-400 uppercase mb-2 flex items-center gap-2">
+                            <span className="w-8 h-[1px] bg-gradient-to-r from-purple-500 to-cyan-400 inline-block" />
+                            Innovations
+                        </p>
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-white">Active Projects</h1>
+                        <p className="text-gray-400 text-xs sm:text-sm font-medium mt-1">
                             Browse open internship positions and submit your application.
                         </p>
                     </div>

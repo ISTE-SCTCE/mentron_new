@@ -113,37 +113,37 @@ export function SettingsClient({ profile, userEmail }: SettingsClientProps) {
             }} />
 
             {/* Profile Information Panel */}
-            <div className="glass-card p-8">
-                <div className="flex items-center gap-3 mb-8">
+            <div className="glass-card p-6 sm:p-8 rounded-3xl border-white/10">
+                <div className="flex items-center gap-3 mb-6 sm:mb-8">
                     <User className="text-cyan-400" size={20} />
-                    <h2 className="text-xl font-bold text-white">Profile Information</h2>
+                    <h2 className="text-lg sm:text-xl font-bold text-white">Profile Information</h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-blue-400/80">Email</label>
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Email</label>
                         <input type="text" disabled value={userEmail}
-                            className="w-full glass bg-white/5 border-white/10 rounded-xl px-4 py-3 text-blue-300 opacity-80 cursor-not-allowed" />
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-gray-400 opacity-80 cursor-not-allowed text-sm sm:text-base" />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-blue-400/80">Full Name</label>
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Full Name</label>
                         <input type="text" value={fullName} onChange={e => setFullName(e.target.value)}
-                            className="w-full glass bg-white/5 border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 transition-colors" />
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all font-medium text-sm sm:text-base" />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-blue-400/80">Department Name</label>
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Department Name</label>
                         <input type="text" value={departmentName} onChange={e => setDepartmentName(e.target.value)}
-                            className="w-full glass bg-white/5 border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 transition-colors" />
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all font-medium text-sm sm:text-base" />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-blue-400/80">Roll Number</label>
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Roll Number</label>
                         <input type="text" value={rollNumber} onChange={e => setRollNumber(e.target.value)}
-                            className="w-full glass bg-white/5 border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 transition-colors" />
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all font-medium text-sm sm:text-base" />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-blue-400/80">Year</label>
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Year</label>
                         <select value={year} onChange={e => setYear(e.target.value)}
-                            className="w-full glass bg-[#0a0a0a] border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 transition-colors">
+                            className="w-full bg-[#0a0a0f] border border-white/10 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all text-sm sm:text-base">
                             <option value="">Select Year</option>
                             <option value="1">Year 1</option>
                             <option value="2">Year 2</option>
@@ -152,119 +152,117 @@ export function SettingsClient({ profile, userEmail }: SettingsClientProps) {
                         </select>
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-blue-400/80">Role</label>
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Role</label>
                         <input type="text" disabled value={profile?.role || 'user'}
-                            className="w-full glass bg-white/5 border-white/10 rounded-xl px-4 py-3 text-blue-300 opacity-80 cursor-not-allowed capitalize" />
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-gray-400 opacity-80 cursor-not-allowed capitalize text-sm sm:text-base" />
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-blue-400/80">ISTE ID (Optional)</label>
+                    <div className="space-y-2 md:col-span-2">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">ISTE ID (Optional)</label>
                         <input type="text" value={isteId} onChange={e => setIsteId(e.target.value)}
                             placeholder="Provide ISTE ID for notes access"
-                            className="w-full glass bg-white/5 border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 transition-colors" />
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all font-medium text-sm sm:text-base" />
                     </div>
                 </div>
 
-                <div className="pt-8">
+                <div className="pt-6 sm:pt-8">
                     <button
                         disabled={isUpdatingProfile}
                         onClick={handleUpdateProfile}
-                        className="relative group overflow-hidden rounded-full font-bold px-8 py-3 text-sm transition-all focus:outline-none disabled:opacity-50"
-                        style={{ background: 'linear-gradient(90deg, #10B981, #059669)', boxShadow: '0 0 20px rgba(16, 185, 129, 0.4)' }}>
-                        <span className="relative z-10 flex items-center gap-2">
+                        className="w-full sm:w-auto relative group overflow-hidden rounded-2xl font-bold px-8 py-3.5 text-xs sm:text-sm uppercase tracking-wider transition-all focus:outline-none disabled:opacity-50 text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-[1.02] active:scale-[0.98]">
+                        <span className="relative z-10 flex items-center justify-center gap-2">
                             <User size={16} />
                             {isUpdatingProfile ? 'SAVING...' : 'SAVE CHANGES'}
                         </span>
-                        <div className="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300" />
                     </button>
                 </div>
             </div>
 
             {/* Change Password Panel */}
-            <div className="glass-card p-8">
-                <div className="flex items-center gap-3 mb-8">
+            <div className="glass-card p-6 sm:p-8 rounded-3xl border-white/10">
+                <div className="flex items-center gap-3 mb-6 sm:mb-8">
                     <Lock className="text-purple-400" size={20} />
-                    <h2 className="text-xl font-bold text-white">Change Password</h2>
+                    <h2 className="text-lg sm:text-xl font-bold text-white">Change Password</h2>
                 </div>
 
                 <div className="space-y-6">
                     <div className="space-y-2 max-w-xl">
-                        <label className="text-sm font-medium text-blue-400/80">Current Password</label>
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Current Password</label>
                         <input type={showPasswords ? "text" : "password"}
                             placeholder="Enter your current password"
                             value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)}
-                            className="w-full glass bg-white/5 border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500/50 transition-colors placeholder:text-gray-700" />
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all text-sm sm:text-base" />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 max-w-4xl">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-blue-400/80">New Password</label>
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">New Password</label>
                             <input type={showPasswords ? "text" : "password"}
                                 placeholder="At least 6 characters"
                                 value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
-                                className="w-full glass bg-white/5 border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 transition-colors placeholder:text-gray-700" />
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all text-sm sm:text-base" />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-blue-400/80">Confirm New Password</label>
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Confirm New Password</label>
                             <input type={showPasswords ? "text" : "password"}
                                 placeholder="Re-enter new password"
                                 value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="w-full glass bg-white/5 border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 transition-colors placeholder:text-gray-700" />
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all text-sm sm:text-base" />
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3 pt-2">
-                        <button onClick={() => setShowPasswords(!showPasswords)} className="w-5 h-5 rounded flex items-center justify-center border border-white/20 bg-black/50">
+                    <div className="flex items-center gap-3 pt-1">
+                        <button type="button" onClick={() => setShowPasswords(!showPasswords)} className="w-5 h-5 rounded-md flex items-center justify-center border border-white/20 bg-white/5">
                             {showPasswords && <div className="w-3 h-3 bg-cyan-400 rounded-sm" />}
                         </button>
-                        <span className="text-sm text-blue-300">Show passwords</span>
+                        <span className="text-xs text-gray-300 font-medium">Show passwords</span>
                     </div>
 
-                    <div className="pt-4">
+                    <div className="pt-2">
                         <button
                             disabled={isUpdatingPassword}
                             onClick={handleUpdatePassword}
-                            className="relative group overflow-hidden rounded-full font-bold px-8 py-3 text-sm transition-all focus:outline-none disabled:opacity-50"
-                            style={{ background: 'linear-gradient(90deg, #00B4DB, #0083B0)', boxShadow: '0 0 20px rgba(0, 180, 219, 0.4)' }}>
-                            <span className="relative z-10 flex items-center gap-2">
+                            className="w-full sm:w-auto relative group overflow-hidden rounded-2xl font-bold px-8 py-3.5 text-xs sm:text-sm uppercase tracking-wider transition-all focus:outline-none disabled:opacity-50 text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-[0_0_20px_rgba(112,0,223,0.3)] hover:scale-[1.02] active:scale-[0.98]">
+                            <span className="relative z-10 flex items-center justify-center gap-2">
                                 <Lock size={16} />
                                 {isUpdatingPassword ? 'UPDATING...' : 'UPDATE PASSWORD'}
                             </span>
-                            <div className="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300" />
                         </button>
                     </div>
                 </div>
             </div>
 
             {/* Notification Preferences Panel */}
-            <div className="glass-card p-8">
-                <div className="flex items-center gap-3 mb-8">
-                    <Bell className="text-red-400" size={20} />
-                    <h2 className="text-xl font-bold text-white">Notification Preferences</h2>
+            <div className="glass-card p-6 sm:p-8 rounded-3xl border-white/10">
+                <div className="flex items-center gap-3 mb-6 sm:mb-8">
+                    <Bell className="text-cyan-400" size={20} />
+                    <h2 className="text-lg sm:text-xl font-bold text-white">Notification Preferences</h2>
                 </div>
 
-                <div className="space-y-8 max-w-2xl">
-                    <div className="flex items-center justify-between">
+                <div className="space-y-6 max-w-2xl">
+                    <div className="flex items-center justify-between gap-4">
                         <div>
-                            <h3 className="text-sm font-bold text-white mb-1">Email Notifications</h3>
-                            <p className="text-xs text-blue-400/60">Receive email for announcements and updates</p>
+                            <h3 className="text-sm font-bold text-white mb-0.5">Email Notifications</h3>
+                            <p className="text-xs text-gray-400">Receive email for announcements and updates</p>
                         </div>
                         <button
+                            type="button"
                             onClick={() => setEmailEnabled(!emailEnabled)}
-                            className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${emailEnabled ? 'bg-cyan-500' : 'bg-white/10'}`}>
+                            className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 shrink-0 ${emailEnabled ? 'bg-cyan-500 shadow-[0_0_12px_rgba(0,198,255,0.4)]' : 'bg-white/10'}`}>
                             <div className={`w-4 h-4 rounded-full bg-white transition-transform duration-300 ${emailEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
                         </button>
                     </div>
 
                     <div className="w-full h-[1px] bg-white/5" />
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-4">
                         <div>
-                            <h3 className="text-sm font-bold text-white mb-1">Desktop Notifications</h3>
-                            <p className="text-xs text-blue-400/60">Show browser push notifications</p>
+                            <h3 className="text-sm font-bold text-white mb-0.5">Desktop Notifications</h3>
+                            <p className="text-xs text-gray-400">Show browser push notifications</p>
                         </div>
                         <button
+                            type="button"
                             onClick={() => setDesktopEnabled(!desktopEnabled)}
-                            className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${desktopEnabled ? 'bg-cyan-500' : 'bg-white/10'}`}>
+                            className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 shrink-0 ${desktopEnabled ? 'bg-cyan-500 shadow-[0_0_12px_rgba(0,198,255,0.4)]' : 'bg-white/10'}`}>
                             <div className={`w-4 h-4 rounded-full bg-white transition-transform duration-300 ${desktopEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
                         </button>
                     </div>
@@ -272,14 +270,14 @@ export function SettingsClient({ profile, userEmail }: SettingsClientProps) {
             </div>
 
             {/* Danger Zone Panel */}
-            <div className="glass-card p-8 box-border border-red-500/20">
-                <div className="flex items-center gap-3 mb-4">
-                    <AlertTriangle className="text-red-500" size={20} />
-                    <h2 className="text-xl font-bold text-red-500">Danger Zone</h2>
+            <div className="glass-card p-6 sm:p-8 rounded-3xl box-border border-red-500/20 bg-red-500/5">
+                <div className="flex items-center gap-3 mb-3">
+                    <AlertTriangle className="text-red-400" size={20} />
+                    <h2 className="text-lg sm:text-xl font-bold text-red-400">Danger Zone</h2>
                 </div>
 
-                <p className="text-xs text-blue-400/60 mb-8">These actions are irreversible. Please be careful.</p>
-                <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10 text-[10px] font-black tracking-widest text-red-400 uppercase">
+                <p className="text-xs text-gray-400 mb-6">These actions are irreversible. Please be careful.</p>
+                <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-[10px] font-black tracking-widest text-red-400 uppercase">
                     Account deletion is currently managed by system administrators.
                 </div>
             </div>

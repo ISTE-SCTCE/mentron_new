@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { useState, useRef, useTransition, useEffect, useCallback } from 'react'
 import { createClient } from '@/app/lib/supabase/client'
 import { getPermissionsClient } from '@/app/lib/utils/coreAuthClient'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
     YEAR_SEMS,
     type GroupKey,
@@ -53,6 +54,7 @@ export default function NotesUploadPage() {
     const [submitError, setSubmitError] = useState<string | null>(null)
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [requireIsteId, setRequireIsteId] = useState(false)
+    const [uploadSuccess, setUploadSuccess] = useState(false)
 
     // Auth check
     useEffect(() => {
@@ -134,7 +136,7 @@ export default function NotesUploadPage() {
 
     const subjectList = fetchedSubjects
 
-    const inputBase = 'w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none'
+    const inputBase = 'w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all font-medium appearance-none text-sm sm:text-base'
     const labelBase = 'text-[10px] font-black tracking-widest text-gray-500 uppercase px-2 mb-2 block'
 
     // Load folders whenever subject + dept/group + sem + year are set
@@ -184,10 +186,72 @@ export default function NotesUploadPage() {
 
     if (isAuthorized === null) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
-                <div className="text-gray-500 font-black tracking-widest text-xs uppercase animate-pulse">
-                    Verifying Permissions...
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <motion.div
+                        className="w-10 h-10 rounded-full border-2 border-purple-500/30 border-t-purple-500"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 0.9, ease: 'linear', repeat: Infinity }}
+                    />
+                    <p className="text-gray-500 font-black tracking-widest text-xs uppercase">Verifying Permissions...</p>
                 </div>
+            </div>
+        )
+    }
+
+    // Success overlay — shown briefly before redirect
+    if (uploadSuccess) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <motion.div
+                    initial={{ scale: 0.7, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    className="flex flex-col items-center gap-5"
+                >
+                    <motion.div
+                        className="w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shadow-[0_0_40px_rgba(16,185,129,0.2)]"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 15 }}
+                    >
+                        <motion.svg
+                            className="w-9 h-9 text-emerald-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            initial={{ pathLength: 0 }}
+                            animate={{ pathLength: 1 }}
+                            transition={{ delay: 0.2, duration: 0.5, ease: 'easeOut' }}
+                        >
+                            <motion.path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2.5}
+                                d="M5 13l4 4L19 7"
+                                initial={{ pathLength: 0 }}
+                                animate={{ pathLength: 1 }}
+                                transition={{ delay: 0.2, duration: 0.5, ease: 'easeOut' }}
+                            />
+                        </motion.svg>
+                    </motion.div>
+                    <motion.p
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.35 }}
+                        className="text-white font-black tracking-widest text-sm uppercase"
+                    >
+                        Notes Published!
+                    </motion.p>
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                        className="text-gray-500 text-xs"
+                    >
+                        Redirecting to library...
+                    </motion.p>
+                </motion.div>
             </div>
         )
     }
@@ -285,7 +349,11 @@ export default function NotesUploadPage() {
                 }
 
                 const json = await res.json()
-                router.push(json.redirect ?? '/notes')
+                // Flash success state for 800ms, then redirect
+                setUploadSuccess(true)
+                setTimeout(() => {
+                    router.push(json.redirect ?? '/notes')
+                }, 850)
 
             } catch (err: any) {
                 console.error('Final Upload Error:', err)
@@ -297,22 +365,22 @@ export default function NotesUploadPage() {
     }
 
     return (
-        <div className="min-h-screen pt-48 p-8 text-[#ededed]">
+        <div className="min-h-screen pt-20 sm:pt-28 md:pt-32 p-4 sm:p-6 md:p-8 text-[#ededed]">
             <div className="max-w-2xl mx-auto">
-                <header className="flex justify-between items-center mb-16">
-                    <div className="flex items-center gap-8">
-                        <Link href="/notes" className="text-gray-500 hover:text-white transition-all text-sm font-bold uppercase tracking-widest">
-                            ← Back to Library
+                <header className="flex justify-between items-center mb-8 sm:mb-12">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
+                        <Link href="/notes" className="text-gray-400 hover:text-white transition-all text-xs font-bold uppercase tracking-widest inline-flex items-center gap-1.5 group">
+                            <span className="group-hover:-translate-x-0.5 transition-transform">←</span> Back to Library
                         </Link>
                         <div className="space-y-1">
-                            <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Contribution</p>
-                            <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white">Upload Notes</h1>
+                            <p className="text-[10px] font-black tracking-[0.3em] text-cyan-400 uppercase">Contribution</p>
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-white">Upload Notes</h1>
                         </div>
                     </div>
                 </header>
 
-                <div className="glass p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-8 opacity-10">
+                <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[3rem] shadow-2xl relative overflow-hidden border-white/10">
+                    <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                         <span className="text-8xl">📚</span>
                     </div>
 
@@ -322,8 +390,8 @@ export default function NotesUploadPage() {
                         </div>
                     )}
 
-                    <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
-                        <div className="space-y-6">
+                    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+                        <div className="space-y-5 sm:space-y-6">
 
                             {/* Title */}
                             <div className="space-y-2">
@@ -349,7 +417,7 @@ export default function NotesUploadPage() {
                             </div>
 
                             {/* Row 1: Year + Semester */}
-                            <div className="grid grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                 <div className="space-y-2">
                                     <label className={labelBase}>Year</label>
                                     <select
@@ -519,14 +587,14 @@ export default function NotesUploadPage() {
                         <button
                             type="button"
                             onClick={() => setRequireIsteId(prev => !prev)}
-                            className={`w-full flex items-start gap-4 p-5 rounded-2xl border text-left transition-all duration-200 ${
+                            className={`w-full flex items-start gap-4 p-4 sm:p-5 rounded-2xl border text-left transition-all duration-200 ${
                                 requireIsteId
-                                    ? 'bg-blue-500/10 border-blue-500/40 shadow-[0_0_20px_rgba(59,130,246,0.1)]'
+                                    ? 'bg-purple-500/10 border-purple-500/40 shadow-[0_0_20px_rgba(112,0,223,0.15)]'
                                     : 'bg-white/3 border-white/8 hover:bg-white/5 hover:border-white/15'
                             }`}
                         >
                             <div className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                                requireIsteId ? 'bg-blue-500 border-blue-500' : 'border-white/20 bg-black/30'
+                                requireIsteId ? 'bg-purple-600 border-purple-500' : 'border-white/20 bg-black/30'
                             }`}>
                                 {requireIsteId && (
                                     <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -535,8 +603,8 @@ export default function NotesUploadPage() {
                                 )}
                             </div>
                             <div>
-                                <p className="text-sm font-black text-white uppercase tracking-wider">Require ISTE ID to access</p>
-                                <p className="text-xs text-gray-500 font-medium mt-1">Non-ISTE members will need to verify their membership ID before opening this note</p>
+                                <p className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">Require ISTE ID to access</p>
+                                <p className="text-[11px] sm:text-xs text-gray-400 font-medium mt-1">Non-ISTE members will need to verify their membership ID before opening this note</p>
                             </div>
                         </button>
 
@@ -544,19 +612,19 @@ export default function NotesUploadPage() {
 
                         {uploadStage !== 'idle' && (
                             <div className="space-y-3 pt-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                                <div className="flex justify-between items-center text-[10px] font-black tracking-widest uppercase text-gray-500">
+                                <div className="flex justify-between items-center text-[10px] font-black tracking-widest uppercase text-gray-400">
                                     <span>
                                         {uploadStage === 'preparing' ? 'Preparing Secure Bridge...' :
                                          uploadStage === 'uploading' ? 'Streaming to Cloudflare R2...' :
                                          uploadStage === 'saving' ? 'Publishing Metadata...' : 'Ready'}
                                     </span>
                                     {uploadStage === 'uploading' && (
-                                        <span className="text-blue-500">{Math.round(uploadProgress)}%</span>
+                                        <span className="text-cyan-400 font-bold">{Math.round(uploadProgress)}%</span>
                                     )}
                                 </div>
                                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
                                     <div 
-                                        className="h-full bg-gradient-to-r from-orange-600 to-amber-400 transition-all duration-300 ease-out"
+                                        className="h-full bg-gradient-to-r from-purple-600 to-cyan-400 transition-all duration-300 ease-out"
                                         style={{ width: `${uploadStage === 'uploading' ? uploadProgress : uploadStage === 'saving' ? 100 : 5}%` }}
                                     />
                                 </div>
@@ -567,7 +635,7 @@ export default function NotesUploadPage() {
                         <button
                             type="submit"
                             disabled={loading || !subject}
-                            className="w-full mt-4 bg-white text-black hover:bg-gray-200 disabled:opacity-40 font-black py-5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:scale-[1.02] active:scale-[0.98] transition-all text-lg uppercase tracking-widest overflow-hidden relative group"
+                            className="w-full mt-4 bg-white text-black hover:bg-gray-200 disabled:opacity-40 font-black py-4 sm:py-5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:scale-[1.02] active:scale-[0.98] transition-all text-xs sm:text-sm uppercase tracking-widest overflow-hidden relative group"
                         >
                             <span className="relative z-10">
                                 {uploadStage === 'preparing' ? 'Initializing...' :

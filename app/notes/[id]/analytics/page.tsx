@@ -1,6 +1,7 @@
 import { createClient } from '@/app/lib/supabase/server'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { AnalyticsStats } from './AnalyticsStats'
 
 export default async function NoteAnalyticsPage({
     params,
@@ -67,55 +68,49 @@ export default async function NoteAnalyticsPage({
     const uniqueViewers = Array.from(new Set(validLogs.map(log => log.user_id)))
 
     return (
-        <div className="min-h-screen p-8 text-[#ededed]">
+        <div className="min-h-screen p-4 sm:p-6 md:p-8 pt-20 sm:pt-28 md:pt-32 text-[#ededed]">
             <div className="max-w-4xl mx-auto">
-                <Link href="/notes" className="text-gray-500 hover:text-white transition-all text-sm font-bold uppercase tracking-widest mb-12 inline-block">
-                    ← Back to Notes
+                <Link href="/notes" className="text-gray-400 hover:text-white transition-all text-xs font-bold uppercase tracking-widest mb-8 sm:mb-12 inline-flex items-center gap-1.5 group">
+                    <span className="group-hover:-translate-x-0.5 transition-transform">←</span> Back to Notes
                 </Link>
 
-                <header className="mb-12 flex flex-col gap-4">
+                <header className="mb-8 sm:mb-12 flex flex-col gap-4">
                     <div className="space-y-2">
-                        <p className="text-[10px] font-black tracking-[0.3em] text-purple-500 uppercase">Analytics Core</p>
-                        <h1 className="text-4xl font-black tracking-tighter text-white">{note.title}</h1>
-                        <p className="text-gray-400 text-sm mt-2">{note.description}</p>
+                        <p className="text-[10px] font-black tracking-[0.3em] text-cyan-400 uppercase flex items-center gap-2">
+                            <span className="w-8 h-[1px] bg-gradient-to-r from-purple-500 to-cyan-400 inline-block" />
+                            Analytics Core
+                        </p>
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-white break-words">{note.title}</h1>
+                        <p className="text-gray-400 text-xs sm:text-sm mt-1">{note.description || 'No description provided.'}</p>
                     </div>
 
-                    <div className="flex items-center gap-4 mt-4">
+                    <div className="flex items-center gap-4 mt-2">
                         <a
                             href={note.file_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="glass glass-hover px-8 py-3 rounded-2xl text-blue-400 text-sm font-black uppercase tracking-widest flex items-center gap-3 transition-all hover:scale-105"
+                            className="glass glass-hover px-6 py-2.5 rounded-2xl text-cyan-300 text-xs sm:text-sm font-black uppercase tracking-widest flex items-center gap-2 transition-all hover:scale-105 border-cyan-500/20"
                         >
                             <span>View Document</span>
-                            <span className="text-xl">↗</span>
+                            <span className="text-lg">↗</span>
                         </a>
                     </div>
                 </header>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                    <div className="glass p-8 rounded-3xl flex flex-col items-center justify-center text-center">
-                        <span className="text-5xl font-black text-white">{validLogs.length}</span>
-                        <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-2">Total Views</span>
-                    </div>
-                    <div className="glass p-8 rounded-3xl flex flex-col items-center justify-center text-center">
-                        <span className="text-5xl font-black text-purple-400">{uniqueViewers.length}</span>
-                        <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-2">Unique Viewers</span>
-                    </div>
-                </div>
+                <AnalyticsStats totalViews={validLogs.length} uniqueViewers={uniqueViewers.length} />
 
-                <div className="glass rounded-[2rem] overflow-hidden">
-                    <div className="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
-                        <h2 className="text-sm font-black text-white uppercase tracking-widest">Viewer Log</h2>
+                <div className="glass-card rounded-3xl overflow-hidden border-white/10">
+                    <div className="p-5 sm:p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
+                        <h2 className="text-xs sm:text-sm font-black text-white uppercase tracking-widest">Viewer Log</h2>
                     </div>
-                    <div className="p-2">
+                    <div className="p-2 overflow-x-auto">
                         {validLogs.length > 0 ? (
-                            <table className="w-full text-left border-collapse">
+                            <table className="w-full text-left border-collapse min-w-[500px]">
                                 <thead>
                                     <tr>
-                                        <th className="p-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-white/5">User</th>
-                                        <th className="p-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-white/5">Role</th>
-                                        <th className="p-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-white/5">Viewed At</th>
+                                        <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-white/5">User</th>
+                                        <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-white/5">Role</th>
+                                        <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-white/5">Viewed At</th>
                                     </tr>
                                 </thead>
                                 <tbody>

@@ -207,15 +207,17 @@ export function ContributionsView({ contributions }: Props) {
                 </div>
 
                 {contributions.length === 0 ? (
-                    <div className="glass-card border border-dashed border-white/10 py-20 text-center">
-                        <p className="text-4xl mb-3 grayscale">🌱</p>
-                        <p className="text-gray-500 font-black text-sm uppercase tracking-widest">No contributions yet</p>
-                        <p className="text-gray-600 text-xs font-medium mt-2 max-w-sm mx-auto">
+                    <div className="glass-card border border-white/10 rounded-3xl py-16 sm:py-20 text-center p-6">
+                        <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 text-2xl">
+                            🌱
+                        </div>
+                        <p className="text-white font-bold text-base">No contributions yet</p>
+                        <p className="text-gray-400 text-xs sm:text-sm font-medium mt-2 max-w-sm mx-auto">
                             Apply to project listings! Once the owner accepts your application, it will show up here.
                         </p>
                         <Link
                             href="/projects"
-                            className="mt-6 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all"
+                            className="mt-6 inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(112,0,223,0.3)] hover:scale-105"
                         >
                             Explore Projects
                         </Link>

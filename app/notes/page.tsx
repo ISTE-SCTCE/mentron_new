@@ -55,22 +55,25 @@ export default async function NotesPage({
     }
 
     return (
-        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
+        <div className="min-h-screen p-4 sm:p-6 md:p-8 pt-20 sm:pt-28 md:pt-32 text-[#ededed]">
             <div className="max-w-[1800px] mx-auto">
-                <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0 mb-10 md:mb-16">
+                <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0 mb-8 sm:mb-12">
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
                         <div className="space-y-1">
-                            <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">Knowledge Base</p>
-                            <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white">Academic Notes</h1>
+                            <p className="text-[10px] font-black tracking-[0.3em] text-cyan-400 uppercase flex items-center gap-2">
+                                <span className="w-8 h-[1px] bg-gradient-to-r from-purple-500 to-cyan-400 inline-block" />
+                                Knowledge Base
+                            </p>
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-white">Academic Notes</h1>
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4 md:gap-6 w-full md:w-auto">
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-4 md:gap-6 w-full md:w-auto">
                         <ThemeSwitcher />
                         {(await getPermissions()).can_upload_notes && (
                             <Link
                                 href="/notes/upload"
-                                className="glass glass-hover px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase text-blue-400 border-blue-500/20"
+                                className="glass glass-hover px-5 sm:px-6 py-2.5 rounded-full text-xs font-black tracking-widest uppercase text-cyan-300 border-cyan-500/30 shadow-[0_0_15px_rgba(0,198,255,0.15)] transition-all"
                             >
                                 + Contribute Notes
                             </Link>
@@ -140,9 +143,15 @@ export default async function NotesPage({
                                 </div>
                             ))
                         ) : (
-                            <div className="col-span-full py-32 text-center glass-card border-dashed">
-                                <p className="text-gray-500 text-lg font-bold tracking-widest uppercase mb-4 animate-pulse">No notes found</p>
-                                <Link href="/notes" className="text-blue-500 font-black text-xs uppercase tracking-widest hover:text-white transition-colors">Clear search →</Link>
+                            <div className="col-span-full py-20 sm:py-28 text-center glass-card border-white/10 rounded-3xl p-6">
+                                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 text-gray-500">
+                                    🔍
+                                </div>
+                                <p className="text-gray-300 text-base font-bold mb-2">No notes found</p>
+                                <p className="text-gray-500 text-xs sm:text-sm max-w-sm mx-auto mb-6">We couldn&apos;t find any notes matching your search criteria. Try a different query or filter.</p>
+                                <Link href="/notes" className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-black font-bold text-xs uppercase tracking-widest hover:bg-gray-200 transition-all">
+                                    Clear search →
+                                </Link>
                             </div>
                         )}
                     </div>
@@ -150,27 +159,27 @@ export default async function NotesPage({
                     /* ── Year Cards ── */
                     <div>
                         <div className="mb-8">
-                            <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase flex items-center gap-2">
-                                <span className="w-8 h-[1px] bg-blue-500 inline-block" />
+                            <p className="text-[10px] font-black tracking-[0.3em] text-cyan-400 uppercase flex items-center gap-2">
+                                <span className="w-8 h-[1px] bg-gradient-to-r from-purple-500 to-cyan-400 inline-block" />
                                 Browse by Year
                             </p>
-                            <h2 className="text-3xl font-black text-white tracking-tighter mt-2">Select Your Year</h2>
+                            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tighter mt-2">Select Your Year</h2>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
                             {YEARS.map(({ year, label, sems, emoji, color, border, accent }) => (
                                 <Link
                                     key={year}
                                     href={`/notes/year/${year}`}
-                                    className={`glass-card group bg-gradient-to-br ${color} border ${border} hover:scale-[1.02] transition-all block`}
+                                    className={`glass-card p-6 sm:p-8 rounded-3xl group bg-gradient-to-br ${color} border ${border} hover:scale-[1.02] transition-all block`}
                                 >
                                     <div className="flex justify-between items-start mb-6">
-                                        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-3xl grayscale group-hover:grayscale-0 transition-all">
+                                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl sm:text-3xl grayscale group-hover:grayscale-0 transition-all">
                                             {emoji}
                                         </div>
-                                        <span className={`text-[10px] font-black tracking-widest uppercase ${accent}`}>{sems}</span>
+                                        <span className={`text-[10px] font-black tracking-widest uppercase ${accent} px-2.5 py-1 rounded-lg bg-white/5 border border-white/10`}>{sems}</span>
                                     </div>
-                                    <h2 className="text-3xl font-black text-white group-hover:text-glow transition-all mb-2 tracking-tighter">{label}</h2>
-                                    <p className="text-gray-500 text-sm font-medium mb-6">Browse notes by semester</p>
+                                    <h2 className="text-2xl sm:text-3xl font-black text-white group-hover:text-glow transition-all mb-2 tracking-tighter">{label}</h2>
+                                    <p className="text-gray-400 text-xs sm:text-sm font-medium mb-6">Browse notes by semester</p>
                                     <div className={`flex items-center gap-2 ${accent} text-xs font-black uppercase tracking-widest`}>
                                         <span>Select Semester</span>
                                         <span className="group-hover:translate-x-1 transition-transform">→</span>

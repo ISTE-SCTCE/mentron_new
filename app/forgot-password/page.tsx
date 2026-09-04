@@ -42,18 +42,18 @@ export default function ForgotPasswordPage() {
     }
 
     return (
-        <div className="flex justify-center p-4 pt-16 min-h-screen">
-            <div className="w-full max-w-md space-y-8 glass p-10 rounded-[3rem] shadow-2xl relative z-10 self-start mt-8">
+        <div className="flex justify-center p-4 pt-16 sm:pt-20 min-h-screen">
+            <div className="w-full max-w-md space-y-8 glass p-6 sm:p-10 rounded-3xl sm:rounded-[3rem] shadow-2xl relative z-10 self-start mt-4 sm:mt-8 border-white/10">
 
                 {/* Header */}
                 <div className="text-center space-y-2">
-                    <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">
+                    <p className="text-[10px] font-black tracking-[0.3em] text-cyan-400 uppercase">
                         Account Recovery
                     </p>
-                    <h1 className="text-4xl font-black tracking-tighter text-white">
+                    <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-white">
                         {submitted ? 'Check Your Email' : 'Reset Password'}
                     </h1>
-                    <p className="text-sm text-gray-400 font-medium pt-1">
+                    <p className="text-xs sm:text-sm text-gray-400 font-medium pt-1">
                         {submitted
                             ? "We've sent instructions to your inbox"
                             : 'Enter your email to receive a reset link'}
@@ -129,7 +129,7 @@ export default function ForgotPasswordPage() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                                 disabled={isPending}
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-6 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium disabled:opacity-60"
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-6 py-3.5 sm:py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all font-medium disabled:opacity-60 text-sm sm:text-base"
                             />
                         </div>
 
@@ -137,7 +137,7 @@ export default function ForgotPasswordPage() {
                         <button
                             type="submit"
                             disabled={isPending || !email.trim()}
-                            className="w-full bg-white text-black hover:bg-gray-200 font-black py-5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.15)] hover:scale-[1.02] active:scale-[0.98] transition-all text-sm uppercase tracking-widest disabled:opacity-70 disabled:scale-100 flex items-center justify-center gap-3"
+                            className="w-full bg-white text-black hover:bg-gray-200 font-black py-4 sm:py-5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.15)] hover:scale-[1.02] active:scale-[0.98] transition-all text-xs sm:text-sm uppercase tracking-widest disabled:opacity-70 disabled:scale-100 flex items-center justify-center gap-3"
                         >
                             {isPending ? (
                                 <>
@@ -152,7 +152,7 @@ export default function ForgotPasswordPage() {
                         {/* Back to Login */}
                         <Link
                             href="/login"
-                            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-bold text-gray-400 hover:text-white transition-all text-sm"
+                            className="flex items-center justify-center gap-2 w-full py-3.5 sm:py-4 rounded-2xl font-bold text-gray-400 hover:text-white transition-all text-sm glass-hover"
                             style={{
                                 background: 'rgba(255,255,255,0.03)',
                                 border: '1px solid rgba(255,255,255,0.07)',

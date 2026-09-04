@@ -150,9 +150,9 @@ export default function ResetPasswordPage() {
     // ── Render: Invalid / Expired token ──────────────────────────────
     if (sessionReady === 'invalid') {
         return (
-            <div className="flex justify-center p-4 pt-16 min-h-screen">
+            <div className="flex justify-center p-4 pt-16 sm:pt-20 min-h-screen">
                 <div
-                    className="w-full max-w-md self-start mt-8 p-10 rounded-[3rem] shadow-2xl flex flex-col items-center gap-6 text-center"
+                    className="w-full max-w-md self-start mt-4 sm:mt-8 p-6 sm:p-10 rounded-3xl sm:rounded-[3rem] shadow-2xl flex flex-col items-center gap-6 text-center"
                     style={{
                         background: 'rgba(239, 68, 68, 0.06)',
                         border: '1px solid rgba(239, 68, 68, 0.2)',
@@ -160,22 +160,22 @@ export default function ResetPasswordPage() {
                         animation: 'fadeUp 0.4s ease both',
                     }}
                 >
-                    <ShieldAlert size={52} className="text-red-400" />
+                    <ShieldAlert size={48} className="text-red-400" />
                     <div className="space-y-2">
-                        <h1 className="text-3xl font-black text-white tracking-tight">Link Expired</h1>
-                        <p className="text-sm text-gray-400 leading-relaxed max-w-xs mx-auto">
+                        <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Link Expired</h1>
+                        <p className="text-xs sm:text-sm text-gray-400 leading-relaxed max-w-xs mx-auto">
                             This password reset link is invalid or has expired. Reset links are valid for 60 minutes.
                         </p>
                     </div>
                     <Link
                         href="/forgot-password"
-                        className="w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest text-black bg-white hover:bg-gray-200 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_30px_rgba(255,255,255,0.15)]"
+                        className="w-full py-3.5 sm:py-4 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-widest text-black bg-white hover:bg-gray-200 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_30px_rgba(255,255,255,0.15)]"
                     >
                         Request New Link
                     </Link>
                     <Link
                         href="/login"
-                        className="text-sm text-gray-500 hover:text-white transition-colors font-semibold"
+                        className="text-xs sm:text-sm text-gray-500 hover:text-white transition-colors font-semibold"
                     >
                         Return to Login
                     </Link>
@@ -189,7 +189,7 @@ export default function ResetPasswordPage() {
         return (
             <div className="flex justify-center items-center min-h-screen p-4">
                 <div
-                    className="w-full max-w-md p-12 rounded-[3rem] shadow-2xl flex flex-col items-center gap-6 text-center"
+                    className="w-full max-w-md p-8 sm:p-12 rounded-3xl sm:rounded-[3rem] shadow-2xl flex flex-col items-center gap-6 text-center"
                     style={{
                         background: 'rgba(34, 197, 94, 0.06)',
                         border: '1px solid rgba(34, 197, 94, 0.25)',
@@ -198,12 +198,12 @@ export default function ResetPasswordPage() {
                     }}
                 >
                     <div style={{ animation: 'successPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s both' }}>
-                        <CheckCircle2 size={64} className="text-green-400" />
+                        <CheckCircle2 size={56} className="text-green-400" />
                     </div>
                     <div className="space-y-2">
-                        <h2 className="text-3xl font-black text-white tracking-tight">All Done!</h2>
-                        <p className="text-green-400 font-bold">Password updated successfully</p>
-                        <p className="text-sm text-gray-400 mt-2">Redirecting you to login…</p>
+                        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">All Done!</h2>
+                        <p className="text-green-400 font-bold text-sm sm:text-base">Password updated successfully</p>
+                        <p className="text-xs sm:text-sm text-gray-400 mt-2">Redirecting you to login…</p>
                     </div>
                     <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'rgba(34,197,94,0.15)' }}>
                         <div
@@ -231,7 +231,7 @@ export default function ResetPasswordPage() {
 
     // ── Render: Reset Form ────────────────────────────────────────────
     return (
-        <div className="flex justify-center p-4 pt-16 min-h-screen">
+        <div className="flex justify-center p-4 pt-16 sm:pt-20 min-h-screen">
             <Toaster
                 position="top-center"
                 toastOptions={{
@@ -246,23 +246,23 @@ export default function ResetPasswordPage() {
                 }}
             />
 
-            <div className="w-full max-w-md space-y-8 glass p-10 rounded-[3rem] shadow-2xl relative z-10 self-start mt-8">
+            <div className="w-full max-w-md space-y-8 glass p-6 sm:p-10 rounded-3xl sm:rounded-[3rem] shadow-2xl relative z-10 self-start mt-4 sm:mt-8 border-white/10">
 
                 {/* Header */}
                 <div className="text-center space-y-2">
                     <div className="flex justify-center mb-3">
                         <div
-                            className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                            className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(112,0,223,0.3)]"
                             style={{ background: 'rgba(112,0,223,0.15)', border: '1px solid rgba(112,0,223,0.3)' }}
                         >
                             <Lock size={24} className="text-purple-400" />
                         </div>
                     </div>
-                    <p className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">
+                    <p className="text-[10px] font-black tracking-[0.3em] text-cyan-400 uppercase">
                         Secure Reset
                     </p>
-                    <h1 className="text-4xl font-black tracking-tighter text-white">New Password</h1>
-                    <p className="text-sm text-gray-400 font-medium pt-1">
+                    <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-white">New Password</h1>
+                    <p className="text-xs sm:text-sm text-gray-400 font-medium pt-1">
                         Choose a strong password for your account
                     </p>
                 </div>
@@ -286,7 +286,7 @@ export default function ResetPasswordPage() {
                                 required
                                 disabled={isPending}
                                 autoComplete="new-password"
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium pr-14 disabled:opacity-60"
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-6 py-3.5 sm:py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all font-medium pr-12 sm:pr-14 disabled:opacity-60 text-sm sm:text-base"
                             />
                             <button
                                 type="button"
@@ -318,7 +318,7 @@ export default function ResetPasswordPage() {
                                 required
                                 disabled={isPending}
                                 autoComplete="new-password"
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium pr-14 disabled:opacity-60"
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-6 py-3.5 sm:py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all font-medium pr-12 sm:pr-14 disabled:opacity-60 text-sm sm:text-base"
                                 style={{
                                     borderColor:
                                         confirm && !passwordsMatch
@@ -353,7 +353,7 @@ export default function ResetPasswordPage() {
                     <button
                         type="submit"
                         disabled={isPending || !canSubmit}
-                        className="w-full mt-2 bg-white text-black hover:bg-gray-200 font-black py-5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all text-sm uppercase tracking-widest disabled:opacity-60 disabled:scale-100 flex items-center justify-center gap-3"
+                        className="w-full mt-2 bg-white text-black hover:bg-gray-200 font-black py-4 sm:py-5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all text-xs sm:text-sm uppercase tracking-widest disabled:opacity-60 disabled:scale-100 flex items-center justify-center gap-3"
                     >
                         {isPending ? (
                             <>
@@ -366,9 +366,9 @@ export default function ResetPasswordPage() {
                     </button>
                 </form>
 
-                <p className="text-center text-sm text-gray-500 font-medium">
+                <p className="text-center text-xs sm:text-sm text-gray-500 font-medium">
                     Remember your password?{' '}
-                    <Link href="/login" className="text-blue-500 hover:text-white transition-colors font-bold">
+                    <Link href="/login" className="text-cyan-400 hover:text-cyan-300 transition-colors font-bold">
                         Log in
                     </Link>
                 </p>
