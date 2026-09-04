@@ -67,6 +67,7 @@ class _DashboardCarouselState extends State<DashboardCarousel> {
           );
           
           final matches = cardRegex.allMatches(html);
+          int eventCount = 0;
           for (final m in matches) {
             final status = m.group(1)?.trim() ?? '';
             final title = m.group(2)?.trim() ?? '';
@@ -80,6 +81,8 @@ class _DashboardCarouselState extends State<DashboardCarousel> {
                 'status': status.toUpperCase(),
                 'icon': status.toUpperCase() == 'ONGOING' ? '🔥' : '⏳',
               });
+              eventCount++;
+              if (eventCount >= 3) break;
             }
           }
         }
