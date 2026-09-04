@@ -13,23 +13,34 @@ export default async function OrdersPage() {
     const { data: myPurchases } = await supabase
         .from('marketplace_orders')
         .select(`
-            id, price, status, note, created_at,
-            marketplace_items ( id, title, image_url ),
-            profiles!marketplace_orders_seller_id_fkey ( full_name )
+            id, amount, order_status, utr_number, created_at,
+            marketplace_listings ( id, title, images, seller_id ),
+            profiles!buyer_id ( full_name )
         `)
         .eq('buyer_id', user.id)
         .order('created_at', { ascending: false })
 
-    // Orders Received: orders where I am the seller
-    const { data: ordersReceived } = await supabase
-        .from('marketplace_orders')
-        .select(`
-            id, price, status, note, created_at,
-            marketplace_items ( id, title, image_url ),
-            profiles!marketplace_orders_buyer_id_fkey ( full_name )
-        `)
+    // Find my listing IDs to get orders received for my listings
+    const { data: myListings } = await supabase
+        .from('marketplace_listings')
+        .select('id')
         .eq('seller_id', user.id)
-        .order('created_at', { ascending: false })
+
+    const listingIds = (myListings || []).map((l: any) => l.id)
+
+    let ordersReceived: any[] = []
+    if (listingIds.length > 0) {
+        const { data: received } = await supabase
+            .from('marketplace_orders')
+            .select(`
+                id, amount, order_status, utr_number, created_at,
+                marketplace_listings ( id, title, images, seller_id ),
+                profiles!buyer_id ( full_name )
+            `)
+            .in('listing_id', listingIds)
+            .order('created_at', { ascending: false })
+        ordersReceived = received || []
+    }
 
     return (
         <div className="min-h-screen p-4 sm:p-6 md:p-8 pt-20 sm:pt-28 md:pt-32 text-[#ededed]">

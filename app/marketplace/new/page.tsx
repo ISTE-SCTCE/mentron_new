@@ -3,6 +3,7 @@
 import { createMarketplaceItem } from '../actions'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { MarketplaceTheme } from '../theme'
 
 export default function NewMarketplaceItemPage() {
     const searchParams = useSearchParams()
@@ -38,6 +39,36 @@ export default function NewMarketplaceItemPage() {
                                 />
                             </div>
 
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Category</label>
+                                    <select
+                                        name="category"
+                                        defaultValue="other"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all font-medium text-sm sm:text-base"
+                                    >
+                                        <option value="textbook" className="bg-[#1a192e] text-white">Textbook</option>
+                                        <option value="electronics" className="bg-[#1a192e] text-white">Electronics</option>
+                                        <option value="project_components" className="bg-[#1a192e] text-white">Project Components</option>
+                                        <option value="stationery" className="bg-[#1a192e] text-white">Stationery</option>
+                                        <option value="other" className="bg-[#1a192e] text-white">Other</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Condition</label>
+                                    <select
+                                        name="condition"
+                                        defaultValue="used"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all font-medium text-sm sm:text-base"
+                                    >
+                                        <option value="new" className="bg-[#1a192e] text-white">New</option>
+                                        <option value="like_new" className="bg-[#1a192e] text-white">Like New</option>
+                                        <option value="used" className="bg-[#1a192e] text-white">Used</option>
+                                    </select>
+                                </div>
+                            </div>
+
                             <div>
                                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Description</label>
                                 <textarea
@@ -54,8 +85,8 @@ export default function NewMarketplaceItemPage() {
                                 <input
                                     name="price"
                                     type="number"
-                                    placeholder="0.00"
-                                    step="0.01"
+                                    placeholder="0"
+                                    step="1"
                                     min="0"
                                     required
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all font-mono text-sm sm:text-base"
@@ -69,14 +100,18 @@ export default function NewMarketplaceItemPage() {
                                     type="file"
                                     accept="image/*"
                                     required
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-4 text-xs sm:text-sm text-gray-400 file:mr-4 file:py-2 file:px-5 file:rounded-full file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-gradient-to-r file:from-purple-600 file:to-indigo-600 file:text-white hover:file:from-purple-500 hover:file:to-indigo-500 transition-all cursor-pointer"
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-4 text-xs sm:text-sm text-gray-400 file:mr-4 file:py-2 file:px-5 file:rounded-full file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:text-white transition-all cursor-pointer"
+                                    style={{
+                                        // Use hero gradient for upload pill
+                                    }}
                                 />
                             </div>
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full mt-6 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black py-4 rounded-2xl shadow-[0_0_25px_rgba(112,0,223,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all text-xs sm:text-sm uppercase tracking-widest"
+                            className="w-full mt-6 text-white font-black py-4 rounded-2xl shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all text-xs sm:text-sm uppercase tracking-widest cursor-pointer"
+                            style={{ background: MarketplaceTheme.heroGradient }}
                         >
                             Post Listing
                         </button>

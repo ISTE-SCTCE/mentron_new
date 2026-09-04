@@ -2,13 +2,16 @@
 
 import { createClient } from '@/app/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 
 export async function createMarketplaceItem(formData: FormData) {
     const supabase = await createClient()
 
     const title = formData.get('title') as string
-    const description = formData.get('description') as string
+    const description = (formData.get('description') as string) || ''
     const price = parseFloat(formData.get('price') as string)
+    const category = (formData.get('category') as string) || 'other'
+    const condition = (formData.get('condition') as string) || 'used'
     const image = formData.get('image') as File
 
     if (!image || image.size === 0) {
@@ -22,14 +25,12 @@ export async function createMarketplaceItem(formData: FormData) {
 
     // 1. Prepare and Compress Image
     const buffer = Buffer.from(await image.arrayBuffer())
-    const { compressImage, compressFile } = await import('@/app/lib/utils/compression')
+    const { compressImage } = await import('@/app/lib/utils/compression')
 
-    // Convert to WebP (Keep this for image optimization, it's fast)
     const webpBuffer = await compressImage(buffer)
-
     const fileName = `${Date.now()}-${image.name.split('.')[0]}.webp`
     const { s3Client, BUCKET_NAME } = await import('@/app/lib/s3')
-    const { PutObjectCommand, DeleteObjectCommand } = await import('@aws-sdk/client-s3')
+    const { PutObjectCommand } = await import('@aws-sdk/client-s3')
 
     try {
         await s3Client.send(new PutObjectCommand({
@@ -44,60 +45,41 @@ export async function createMarketplaceItem(formData: FormData) {
         redirect(`/marketplace/new?error=${encodeURIComponent('Storage Error: ' + e.message)}`)
     }
 
-    // 2. Point to our decompression API route
     const fileUrl = `/api/files/marketplace_bucket/${fileName}`
 
-    // 3. Ensure profile exists (Self-healing mechanism)
-    const { data: profile, error: profileCheckError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', user.id)
-        .single()
-
-    if (profileCheckError || !profile) {
-        console.log('Profile missing, attempting self-healing...')
-        const meta = user.user_metadata
-
-        // Generate a unique fallback roll number if metadata is missing to avoid FK/Unique violations
-        const fallbackRoll = `TEMP-${user.id.slice(0, 8)}`
-
-        // Robust Year Parsing: Extract digits from "2nd year", "Year 3", etc.
-        const yearRaw = meta?.year?.toString() || '0'
-        const yearValue = parseInt(yearRaw.replace(/\D/g, '')) || 0
-
-        const { error: healError } = await supabase.from('profiles').insert({
-            id: user.id,
-            full_name: meta?.full_name || 'Anonymous',
-            roll_number: meta?.roll_number || fallbackRoll,
-            department: meta?.department || 'Other',
-            year: yearValue, // Now sending an integer
-            role: meta?.role || 'member'
-        })
-
-        if (healError) {
-            console.error('Profile healing failed:', healError)
-            // If profile healing fails, we must stop and report the error
-            redirect(`/marketplace/new?error=${encodeURIComponent('Profile Sync Error: ' + healError.message)}`)
-        }
-    }
-
-    // 4. Insert record into 'marketplace_items'
+    // 2. Insert record into 'marketplace_listings' (the live table used by Flutter & web)
     const { error: insertError } = await supabase
-        .from('marketplace_items')
+        .from('marketplace_listings')
         .insert({
             title,
             description,
             price,
-            image_url: fileUrl,
-            seller_id: user.id
+            category,
+            condition,
+            images: [fileUrl],
+            seller_id: user.id,
+            status: 'live',
         })
 
     if (insertError) {
         console.error('Marketplace Insert error:', insertError)
-        // Cleanup storage if database insert fails
-        await supabase.storage.from('marketplace_bucket').remove([fileName])
         redirect(`/marketplace/new?error=${encodeURIComponent(insertError.message)}`)
     }
 
+    revalidatePath('/marketplace')
     redirect('/marketplace?success=Listing created successfully')
+}
+
+export async function deleteMarketplaceListing(listingId: string) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+
+    const { error } = await supabase
+        .from('marketplace_listings')
+        .delete()
+        .eq('id', listingId)
+
+    if (error) throw error
+    revalidatePath('/marketplace')
 }
