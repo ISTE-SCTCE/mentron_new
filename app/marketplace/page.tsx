@@ -1,58 +1,61 @@
 import { createClient } from '@/app/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { MarketplaceList } from './MarketplaceList'
 
+export const dynamic = 'force-dynamic'
 
 export default async function MarketplacePage() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect('/login')
 
+    const { data: items } = await supabase
+        .from('marketplace_items')
+        .select('*, profiles(full_name)')
+        .order('created_at', { ascending: false })
+        .limit(50)
+
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, role')
+        .eq('id', user.id)
+        .single()
+
+    const { data: orders } = await supabase
+        .from('marketplace_orders')
+        .select('item_id')
+        .eq('buyer_id', user.id)
+
+    const purchasedIds = (orders || []).map(o => o.item_id)
+
     return (
-        <div className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-[#030305]">
-            
+        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
+            <div className="max-w-7xl mx-auto">
+                <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <p className="text-[10px] font-black tracking-[0.3em] text-purple-500 uppercase mb-2">TradeHub</p>
+                        <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white">Marketplace</h1>
+                        <p className="text-gray-500 text-sm font-medium mt-1">Buy and sell items within the Mentron community.</p>
+                    </div>
+                    <Link
+                        href="/marketplace/orders"
+                        className="glass glass-hover px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest text-purple-400 border border-purple-500/20 transition-all"
+                    >
+                        📦 My Orders
+                    </Link>
+                </header>
 
-            
-            {/* Overlay gradient to ensure text readability */}
-            <div className="absolute inset-0 bg-[#030305]/40 pointer-events-none z-[1]" />
-
-            {/* Content */}
-            <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-lg">
-                {/* Icon */}
-                <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-5xl mb-8 shadow-[0_0_60px_rgba(59,130,246,0.3)]">
-                    🛍️
-                </div>
-
-                {/* Labels */}
-                <p className="text-[10px] font-black tracking-[0.3em] text-blue-400 uppercase mb-4">
-                    Coming Soon
-                </p>
-                <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white mb-4">
-                    Marketplace
-                </h1>
-                <p className="text-gray-400 font-medium leading-relaxed text-base mb-10">
-                    Buy and sell items within the Mentron community. <br className="hidden sm:block" />
-                    We&apos;re putting the finishing touches on it — stay tuned!
-                </p>
-
-                {/* Feature teasers */}
-                <div className="grid grid-cols-3 gap-4 w-full mb-10">
-                    {[
-                        { icon: '📦', label: 'Buy Items' },
-                        { icon: '🏷️', label: 'Sell Stuff' },
-                        { icon: '🤝', label: 'Community Deals' },
-                    ].map(f => (
-                        <div key={f.label} className="glass p-4 rounded-2xl border border-white/5 flex flex-col items-center gap-2">
-                            <span className="text-2xl">{f.icon}</span>
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{f.label}</span>
-                        </div>
-                    ))}
-                </div>
-
-
-
+                <MarketplaceList
+                    items={items || []}
+                    userId={user.id}
+                    userName={profile?.full_name || ''}
+                    userRole={profile?.role || 'member'}
+                    purchasedItemIds={purchasedIds}
+                />
             </div>
         </div>
     )
 }
+
 
