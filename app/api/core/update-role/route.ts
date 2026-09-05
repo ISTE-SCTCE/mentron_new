@@ -39,16 +39,24 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Update the profile role
-    const { error: updateError } = await supabase
+    const { data: updatedRows, error: updateError } = await supabase
         .from('profiles')
         .update({ role: newRole })
         .eq('id', profileId)
+        .select('id')
 
     if (updateError) {
         console.error('Role update error:', updateError)
         return NextResponse.json(
             { error: 'Failed to update role' },
             { status: 500 }
+        )
+    }
+
+    if (!updatedRows || updatedRows.length === 0) {
+        return NextResponse.json(
+            { error: 'Forbidden: No rows were updated. Insufficient permissions or profile not found.' },
+            { status: 403 }
         )
     }
 
