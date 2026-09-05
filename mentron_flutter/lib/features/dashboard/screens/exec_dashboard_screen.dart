@@ -22,7 +22,6 @@ import '../../execom/screens/buyers_list_screen.dart';
 import '../../../core/utils/app_transitions.dart';
 import '../widgets/event_banner_widget.dart';
 import '../../../core/main_scaffold.dart';
-import '../../offenso/screens/offenso_academy_screen.dart';
 
 class ExecDashboardScreen extends StatefulWidget {
   const ExecDashboardScreen({super.key});
@@ -356,19 +355,6 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
             () => Navigator.push(
               context,
               AppTransitions.slideUp(const BuyersListPage()),
-            ),
-            isWide: true,
-          ),
-          const SizedBox(height: 12),
-          _buildBentoItem(
-            'Offenso Academy',
-            'Upload Pre-course Videos & Lectures',
-            Icons.school_rounded,
-            Colors.greenAccent,
-            80,
-            () => Navigator.push(
-              context,
-              AppTransitions.slideUp(const OffensoAcademyScreen()),
             ),
             isWide: true,
           ),
