@@ -236,7 +236,7 @@ class ExecMainScaffoldState extends State<ExecMainScaffold>
     if (!_isExec) return;
     final client = Provider.of<SupabaseService>(context, listen: false).client;
     try {
-      final projects = await client.from('pending_projects').select('id');
+      final projects = await client.from('projects').select('id').eq('is_approved', false);
       if (mounted) {
         setState(() {
           _pendingCount = (projects as List).length;

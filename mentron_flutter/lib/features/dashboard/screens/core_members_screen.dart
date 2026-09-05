@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/services/supabase_service.dart';
@@ -95,8 +97,33 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
 
   Future<void> _deleteMember(Map<String, dynamic> member) async {
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
+    final session = supabase.auth.currentSession;
+    final token = session?.accessToken;
+
     try {
-      await supabase.from('profiles').delete().eq('id', member['id']);
+      const String apiBaseUrl = 'https://mentron.istesctce.in';
+      final response = await http.post(
+        Uri.parse('$apiBaseUrl/api/core/delete-user'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'profileId': member['id'],
+        }),
+      );
+
+      if (response.statusCode >= 400) {
+        String errorMsg = 'Deletion failed';
+        try {
+          final errBody = jsonDecode(response.body);
+          if (errBody is Map && errBody['error'] != null) {
+            errorMsg = errBody['error'];
+          }
+        } catch (_) {}
+        throw Exception(errorMsg);
+      }
+
       setState(() {
         _members.removeWhere((m) => m['id'] == member['id']);
       });

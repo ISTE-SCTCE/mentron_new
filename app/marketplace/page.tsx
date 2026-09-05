@@ -26,7 +26,7 @@ export default async function MarketplacePage() {
         .from('profiles')
         .select('full_name, role')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
 
     return (
         <MarketplaceClient

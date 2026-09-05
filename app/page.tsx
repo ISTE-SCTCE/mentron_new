@@ -20,7 +20,8 @@ export default function Home() {
       const { data } = await supabase
         .from('events')
         .select('*')
-        .single()
+        .limit(1)
+        .maybeSingle()
       setEvent(data)
     }
     fetchEvent()

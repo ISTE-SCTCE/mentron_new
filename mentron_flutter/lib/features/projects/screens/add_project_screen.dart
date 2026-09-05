@@ -46,13 +46,14 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       final user = supabase.currentUser;
       if (user == null) throw Exception('Not logged in');
 
-      await supabase.client.from('pending_projects').insert({
+      await supabase.client.from('projects').insert({
         'title': _titleController.text.trim(),
         'description': _descController.text.trim(),
         'role': _roleController.text.trim().isEmpty ? 'Open' : _roleController.text.trim(),
         'duration': _durationController.text.trim().isEmpty ? 'Flexible' : _durationController.text.trim(),
         'category': _selectedCategory,
         'posted_by': user.id,
+        'is_approved': false,
       });
 
       if (mounted) {

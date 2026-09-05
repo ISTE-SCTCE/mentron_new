@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/marketplace_listing.dart';
@@ -75,7 +74,7 @@ class MarketplaceService {
         .maybeSingle();
 
     if (response == null) return null;
-    return MarketplaceListing.fromJson(response as Map<String, dynamic>);
+    return MarketplaceListing.fromJson(response);
   }
 
   /// Create a new listing. Returns the created listing's ID.
@@ -297,10 +296,14 @@ class MarketplaceService {
         .single();
 
     try {
-      await _client
+      final updated = await _client
           .from('profiles')
           .update({'phone': phoneNumber})
-          .eq('id', buyerId);
+          .eq('id', buyerId)
+          .select('id');
+      if ((updated as List).isEmpty) {
+        debugPrint('[MarketplaceService] Warning: profile phone update affected 0 rows (buyerId: $buyerId)');
+      }
     } catch (e) {
       debugPrint('[MarketplaceService] Failed to update profile phone: $e');
     }

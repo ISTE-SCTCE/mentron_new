@@ -177,33 +177,82 @@ class NotificationManagerService {
 
   // ── Read operations (Regular users — Notification Inbox) ──────────────────
 
-  /// Returns all SENT broadcasts for the user-facing inbox (RLS enforced).
-  Future<List<BroadcastNotification>> getSentNotificationsForInbox() async {
+  /// Returns all notifications for the user-facing inbox (RLS enforced):
+  /// Merges both SENT broadcast notifications from EXECOM AND personal notifications for the user.
+  Future<List<BroadcastNotification>> getSentNotificationsForInbox({String? userId}) async {
+    final uid = userId ?? _supabase.auth.currentUser?.id;
     try {
-      final response = await _supabase
+      final broadcastFuture = _supabase
           .from('broadcast_notifications')
           .select()
           .eq('status', 'SENT')
           .order('sent_at', ascending: false);
 
-      return (response as List)
+      final personalFuture = uid != null
+          ? _supabase
+              .from('notifications')
+              .select()
+              .eq('user_id', uid)
+              .order('created_at', ascending: false)
+          : Future.value([]);
+
+      final results = await Future.wait([broadcastFuture, personalFuture]);
+      final broadcastList = results[0]
           .map((j) => BroadcastNotification.fromJson(j as Map<String, dynamic>))
           .toList();
+
+      final personalList = results[1].map((j) {
+        final map = j as Map<String, dynamic>;
+        final createdAtStr = map['created_at'] as String?;
+        final parsedDate = createdAtStr != null ? DateTime.parse(createdAtStr).toLocal() : DateTime.now();
+        return BroadcastNotification(
+          id: map['id'] as String,
+          title: map['title'] as String? ?? 'Notification',
+          body: map['message'] as String? ?? '',
+          createdBy: map['user_id'] as String? ?? '',
+          createdByName: (map['type'] as String?)?.toUpperCase() ?? 'ISTE NOTIFICATION',
+          status: BroadcastStatus.sent,
+          sentAt: parsedDate,
+          createdAt: parsedDate,
+          updatedAt: parsedDate,
+        );
+      }).toList();
+
+      final merged = [...broadcastList, ...personalList];
+      merged.sort((a, b) {
+        final aTime = a.sentAt ?? a.createdAt;
+        final bTime = b.sentAt ?? b.createdAt;
+        return bTime.compareTo(aTime);
+      });
+      return merged;
     } catch (e) {
       debugPrint('[NotificationManager] getInbox error: $e');
       return [];
     }
   }
 
-  /// Count of SENT notifications sent after [since] — used for bell badge.
-  Future<int> countNewSince(DateTime since) async {
+  /// Count of notifications sent after [since] — used for bell badge.
+  /// Counts both SENT broadcasts AND personal notifications for current user.
+  Future<int> countNewSince(DateTime since, {String? userId}) async {
+    final uid = userId ?? _supabase.auth.currentUser?.id;
     try {
-      final count = await _supabase
+      final broadcastCount = await _supabase
           .from('broadcast_notifications')
           .count()
           .eq('status', 'SENT')
           .gte('sent_at', since.toUtc().toIso8601String());
-      return count;
+
+      int personalCount = 0;
+      if (uid != null) {
+        try {
+          personalCount = await _supabase
+              .from('notifications')
+              .count()
+              .eq('user_id', uid)
+              .gte('created_at', since.toUtc().toIso8601String());
+        } catch (_) {}
+      }
+      return broadcastCount + personalCount;
     } catch (e) {
       return 0;
     }

@@ -15,16 +15,13 @@ export default async function EventsListPage() {
     
     const currentUserRole = profile?.role || user?.user_metadata?.role || 'member'
 
-    // Fetch Official/Local events from both possible tables
-    const [eventsResult, eventCalResult] = await Promise.all([
-        supabase.from('event').select('*').order('created_at', { ascending: false }),
-        supabase.from('event_cal').select('*').order('created_at', { ascending: false })
-    ])
+    // Fetch Official/Local events from event_cal
+    const { data: eventCalData } = await supabase
+        .from('event_cal')
+        .select('*')
+        .order('created_at', { ascending: false })
 
-    const mergedEvents = [
-        ...(eventsResult.data || []),
-        ...(eventCalResult.data || [])
-    ].map(e => ({
+    const mergedEvents = (eventCalData || []).map(e => ({
         id: e.id,
         event_name: e.event_name || e.title || 'Untitled Event',
         venue: e.venue || 'TBA',

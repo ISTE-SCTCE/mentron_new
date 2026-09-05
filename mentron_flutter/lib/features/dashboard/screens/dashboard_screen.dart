@@ -10,8 +10,6 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/illustration_card.dart';
 import '../widgets/real_time_calendar.dart';
 import '../widgets/dashboard_carousel.dart';
-import '../../../widgets/home/offenso_banner_card.dart';
-import '../../../widgets/home/offenso_launch_overlay.dart';
 import '../../home/widgets/events_calendar_widget.dart';
 import '../../notes/screens/notes_by_subject_screen.dart';
 import '../../projects/screens/add_project_screen.dart';

@@ -91,10 +91,10 @@ export async function deleteMarketplaceItem(itemId: string) {
     const supabase = await createClient()
 
     const { data: item } = await supabase
-        .from('marketplace_items')
-        .select('image_url, seller_id')
+        .from('marketplace_listings')
+        .select('images, seller_id')
         .eq('id', itemId)
-        .single()
+        .maybeSingle()
 
     if (!item) return { error: 'Item not found' }
 
@@ -102,23 +102,25 @@ export async function deleteMarketplaceItem(itemId: string) {
     if (!user) return { error: 'Unauthorized' }
 
     // Check if user is author OR an exec
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
     const isExec = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
 
     if (user.id !== item.seller_id && !isExec) return { error: 'Unauthorized' }
 
     try {
-        if (item.image_url) {
-            const match = item.image_url.match(/marketplace_bucket\/(.+)/)
-            if (match && match[1]) {
-                await supabase.storage.from('marketplace_bucket').remove([match[1]])
+        if (Array.isArray(item.images)) {
+            for (const imgUrl of item.images) {
+                const match = imgUrl.match(/marketplace_bucket\/(.+)/)
+                if (match && match[1]) {
+                    await supabase.storage.from('marketplace_bucket').remove([match[1]])
+                }
             }
         }
     } catch (e) {
         console.error("Storage delete error", e)
     }
 
-    const { error } = await supabase.from('marketplace_items').delete().eq('id', itemId)
+    const { error } = await supabase.from('marketplace_listings').delete().eq('id', itemId)
     if (error) return { error: error.message }
 
     revalidatePath('/marketplace')

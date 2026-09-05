@@ -1,26 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/app/lib/supabase/server'
+import { getAuthUser } from '@/app/lib/supabase/server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
 export async function POST(request: NextRequest) {
-    const supabase = await createClient()
+    const { user, supabase } = await getAuthUser(request)
 
     // 1. Verify the caller is authenticated
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
-
     if (!user?.id) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // 2. Verify the caller is an admin (core or exec)
+    // 2. Verify the caller is an admin (core, exec, or admin)
     const { data: profile } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
-        .single()
- 
-    if (profile?.role !== 'core' && profile?.role !== 'exec') {
+        .maybeSingle()
+
+    if (profile?.role !== 'core' && profile?.role !== 'exec' && profile?.role !== 'admin') {
         return NextResponse.json(
             { error: 'Forbidden: Insufficient permissions' },
             { status: 403 }
@@ -44,7 +41,7 @@ export async function POST(request: NextRequest) {
         )
     }
 
-    // Prevent self-deletion if needed (optional safety measure)
+    // Prevent self-deletion
     if (profileId === user.id) {
         return NextResponse.json(
             { error: 'Cannot delete your own account here' },
@@ -52,22 +49,46 @@ export async function POST(request: NextRequest) {
         )
     }
 
-    // 4. Delete the profile (which effectively revokes access to the app)
-    // Note: To completely delete the user from Supabase Auth, you would need
-    // to use the Supabase Service Role Key: supabase.auth.admin.deleteUser(profileId)
-    // Here we perform a profile deletion which relies on RLS logic.
-    const { error: deleteError } = await supabase
+    const adminKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const db = adminKey
+        ? createSupabaseClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ysllolnoyezfdllqocgv.supabase.co',
+            adminKey,
+            { auth: { persistSession: false } }
+        )
+        : supabase
+
+    // 4. Delete the profile and verify affected row count
+    const { data, error: deleteError } = await db
         .from('profiles')
         .delete()
         .eq('id', profileId)
+        .select('id')
 
     if (deleteError) {
         console.error('User deletion error:', deleteError)
         return NextResponse.json(
-            { error: 'Failed to delete user account' },
+            { error: deleteError.message || 'Failed to delete user profile' },
             { status: 500 }
         )
     }
 
-    return NextResponse.json({ success: true, profileId })
+    if (!data || data.length === 0) {
+        return NextResponse.json(
+            { error: 'User not found or deletion not permitted' },
+            { status: 404 }
+        )
+    }
+
+    // 5. If service role client is available, also delete from auth.users
+    if (adminKey) {
+        try {
+            await db.auth.admin.deleteUser(profileId)
+        } catch (authErr) {
+            console.warn('Could not delete auth user (profile already deleted):', authErr)
+        }
+    }
+
+    return NextResponse.json({ success: true, profileId, count: data.length })
 }
+

@@ -10,6 +10,7 @@ interface Notification {
     message: string
     is_read: boolean
     created_at: string
+    is_broadcast?: boolean
 }
 
 export function NotificationBell({ userId }: { userId: string }) {
@@ -22,19 +23,56 @@ export function NotificationBell({ userId }: { userId: string }) {
         if (!userId) return
 
         const fetchNotifications = async () => {
-            const { data } = await supabase
-                .from('notifications')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false })
-                .limit(20)
-            
-            if (data) setNotifications(data)
+            const [personalRes, broadcastRes] = await Promise.all([
+                supabase
+                    .from('notifications')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false })
+                    .limit(20),
+                supabase
+                    .from('broadcast_notifications')
+                    .select('*')
+                    .eq('status', 'SENT')
+                    .order('sent_at', { ascending: false })
+                    .limit(10)
+            ])
+
+            let readBroadcastIds: string[] = []
+            try {
+                readBroadcastIds = JSON.parse(
+                    localStorage.getItem('mentron_read_broadcasts') || '[]'
+                )
+            } catch (_) {}
+
+            const personal = (personalRes.data || []).map((n: any) => ({
+                id: n.id,
+                title: n.title,
+                message: n.message,
+                is_read: n.is_read,
+                created_at: n.created_at,
+                is_broadcast: false
+            }))
+
+            const broadcasts = (broadcastRes.data || []).map((b: any) => ({
+                id: b.id,
+                title: b.title,
+                message: b.body || '',
+                is_read: readBroadcastIds.includes(b.id),
+                created_at: b.sent_at || b.created_at,
+                is_broadcast: true
+            }))
+
+            const merged = [...personal, ...broadcasts].sort(
+                (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            )
+
+            setNotifications(merged)
         }
 
         fetchNotifications()
 
-        const channel = supabase.channel(`notifications:${userId}`)
+        const channel = supabase.channel(`notifications_bridge:${userId}`)
             .on('postgres_changes', { 
                 event: 'INSERT', 
                 schema: 'public', 
@@ -42,6 +80,23 @@ export function NotificationBell({ userId }: { userId: string }) {
                 filter: `user_id=eq.${userId}`
             }, (payload) => {
                 setNotifications(prev => [payload.new as Notification, ...prev])
+            })
+            .on('postgres_changes', { 
+                event: 'INSERT', 
+                schema: 'public', 
+                table: 'broadcast_notifications',
+            }, (payload) => {
+                const b = payload.new as any
+                if (b.status === 'SENT') {
+                    setNotifications(prev => [{
+                        id: b.id,
+                        title: b.title,
+                        message: b.body || '',
+                        is_read: false,
+                        created_at: b.sent_at || b.created_at,
+                        is_broadcast: true
+                    }, ...prev])
+                }
             })
             .subscribe()
 
@@ -63,12 +118,37 @@ export function NotificationBell({ userId }: { userId: string }) {
     const unreadCount = notifications.filter(n => !n.is_read).length
 
     const markAsRead = async (id: string) => {
+        const item = notifications.find(n => n.id === id)
         setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n))
-        await supabase.from('notifications').update({ is_read: true }).eq('id', id)
+        if (item?.is_broadcast) {
+            try {
+                const readBroadcastIds: string[] = JSON.parse(
+                    localStorage.getItem('mentron_read_broadcasts') || '[]'
+                )
+                if (!readBroadcastIds.includes(id)) {
+                    localStorage.setItem(
+                        'mentron_read_broadcasts',
+                        JSON.stringify([...readBroadcastIds, id])
+                    )
+                }
+            } catch (_) {}
+        } else {
+            await supabase.from('notifications').update({ is_read: true }).eq('id', id)
+        }
     }
 
     const markAllAsRead = async () => {
         setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
+        const broadcastIds = notifications.filter(n => n.is_broadcast).map(n => n.id)
+        if (broadcastIds.length > 0) {
+            try {
+                const readBroadcastIds: string[] = JSON.parse(
+                    localStorage.getItem('mentron_read_broadcasts') || '[]'
+                )
+                const combined = Array.from(new Set([...readBroadcastIds, ...broadcastIds]))
+                localStorage.setItem('mentron_read_broadcasts', JSON.stringify(combined))
+            } catch (_) {}
+        }
         await supabase.from('notifications').update({ is_read: true }).eq('user_id', userId).eq('is_read', false)
     }
 
@@ -112,7 +192,14 @@ export function NotificationBell({ userId }: { userId: string }) {
                                     >
                                         <div className="flex justify-between items-start gap-4">
                                             <div className="flex-1">
-                                                <h4 className="text-sm font-black text-white mb-1">{notification.title}</h4>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <h4 className="text-sm font-black text-white">{notification.title}</h4>
+                                                    {notification.is_broadcast && (
+                                                        <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 tracking-wider">
+                                                            Broadcast
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <p className="text-xs text-gray-400 leading-relaxed font-medium">{notification.message}</p>
                                                 <p className="text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-2">
                                                     {new Date(notification.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}

@@ -10,6 +10,7 @@ import '../../../core/utils/department_mapper.dart';
 import '../../../data/models/note_model.dart';
 import 'create_folder_screen.dart';
 import 'note_viewer_screen.dart';
+import 'add_note_screen.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../core/utils/app_transitions.dart';
 import '../../../services/offline_storage_service.dart';
@@ -47,8 +48,6 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
   String? _currentUserIsteId;
   String? _currentUserId;
   String? _currentUserRole;
-  bool _isLeadership = false;
-  Map<String, bool> _permissions = {};
 
   // Offline download state — keyed by note.id
   final _offlineService = OfflineStorageService();
@@ -77,8 +76,6 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
   Future<void> _loadData() async {
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     _currentUserId = supabase.currentUser?.id;
-    _isLeadership = await supabase.isLeadershipPosition();
-    _permissions = await supabase.getPermissions();
 
     if (_currentUserId != null) {
       try {
@@ -579,6 +576,29 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textMain, size: 18),
           onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          if (!_isInFolder)
+            IconButton(
+              icon: const Icon(Icons.create_new_folder_outlined, color: AppTheme.textMain, size: 22),
+              tooltip: 'New Folder',
+              onPressed: _navigateToCreateFolder,
+            ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            AppTransitions.slideRight(const AddNoteScreen()),
+          ).then((_) => _loadData());
+        },
+        backgroundColor: AppTheme.accentSecondary,
+        foregroundColor: Colors.black,
+        icon: const Icon(Icons.upload_file_rounded, size: 20),
+        label: const Text(
+          'UPLOAD NOTE',
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 1),
         ),
       ),
       body: LiquidBackground(

@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/services/supabase_service.dart';
@@ -81,6 +83,9 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
     if (confirm != true) return;
 
     final supabase = Provider.of<SupabaseService>(context, listen: false);
+    final session = supabase.client.auth.currentSession;
+    final token = session?.accessToken;
+
     final currentPerms = Map<String, dynamic>.from(_selectedMember!['permissions'] ?? {
       'can_see_member_info': false,
       'can_delete_account': false,
@@ -90,10 +95,29 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
     currentPerms[permKey] = value;
 
     try {
-      await supabase.client
-          .from('profiles')
-          .update({'permissions': currentPerms})
-          .eq('id', _selectedMember!['id']);
+      const String apiBaseUrl = 'https://mentron.istesctce.in';
+      final response = await http.post(
+        Uri.parse('$apiBaseUrl/api/admin/update-permissions'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'targetUserId': _selectedMember!['id'],
+          'permissions': currentPerms,
+        }),
+      );
+
+      if (response.statusCode >= 400) {
+        String errorMsg = 'Update failed';
+        try {
+          final errBody = jsonDecode(response.body);
+          if (errBody is Map && errBody['error'] != null) {
+            errorMsg = errBody['error'];
+          }
+        } catch (_) {}
+        throw Exception(errorMsg);
+      }
       
       setState(() {
         _selectedMember!['permissions'] = currentPerms;

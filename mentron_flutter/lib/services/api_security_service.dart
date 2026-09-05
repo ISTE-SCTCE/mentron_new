@@ -101,7 +101,6 @@ class ApiSecurityService {
   // ── Convenience Helpers ───────────────────────────────────────────────────
 
   bool isRateLimited(String endpoint) {
-    final now = DateTime.now();
     final window = DateTime.now().subtract(
         const Duration(seconds: MentronConstants.kRateLimitWindowSeconds));
     _requestLog[endpoint] =

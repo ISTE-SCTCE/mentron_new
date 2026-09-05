@@ -79,7 +79,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
       final response = await supabase
-          .from('events')
+          .from('event_cal')
           .select('*')
           .order('event_date', ascending: true);
       
@@ -157,7 +157,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
       await supabaseService.client.from('audit_log').insert({
         'actor_id': actorId,
         'action': action,
-        'target_table': 'events',
+        'target_table': 'event_cal',
         'target_id': targetId,
         'metadata': {
           'before': before,
@@ -175,7 +175,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF0F0F1E),
         title: const Text('Delete Event?', style: TextStyle(color: Colors.white)),
-        content: Text('Are you sure you want to delete "${event['title']}"? This will immediately remove it from the home screen.', style: const TextStyle(color: Colors.white70)),
+        content: Text('Are you sure you want to delete "${event['event_name'] ?? event['title'] ?? 'this event'}"? This will immediately remove it from the home screen.', style: const TextStyle(color: Colors.white70)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -193,7 +193,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
 
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
-      await supabase.from('events').delete().eq('id', event['id']);
+      await supabase.from('event_cal').delete().eq('id', event['id']);
       HapticFeedback.lightImpact();
 
       if (mounted) {
@@ -221,7 +221,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
 
   void _showEventForm({Map<String, dynamic>? event}) {
     final isEdit = event != null;
-    final titleController = TextEditingController(text: event?['title'] ?? '');
+    final titleController = TextEditingController(text: event?['event_name'] ?? event?['title'] ?? '');
     final descController = TextEditingController(text: event?['description'] ?? '');
     final venueController = TextEditingController(text: event?['venue'] ?? '');
     final feeController = TextEditingController(text: event?['registration_fee']?.toString() ?? '0');
@@ -365,17 +365,15 @@ class _EventManagerScreenState extends State<EventManagerScreen>
                           final supabase = Provider.of<SupabaseService>(context, listen: false).client;
                           try {
                             final payload = {
-                              'title': title,
-                              'description': desc,
+                              'event_name': title,
+                              'description': desc.isNotEmpty ? desc : null,
                               'event_date': selectedDateTime.toUtc().toIso8601String(),
                               'venue': venue,
-                              'registration_fee': fee,
-                              'start_date': selectedDateTime.toUtc().toIso8601String(),
-                              'end_date': selectedDateTime.add(const Duration(hours: 3)).toUtc().toIso8601String(),
+                              'registration_required': fee > 0,
                             };
 
                             if (isEdit) {
-                              await supabase.from('events').update(payload).eq('id', event['id']);
+                              await supabase.from('event_cal').update(payload).eq('id', event['id']);
                               await _writeAuditLog(
                                 action: 'UPDATE',
                                 targetId: event['id'],
@@ -383,7 +381,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
                                 after: payload,
                               );
                             } else {
-                              final response = await supabase.from('events').insert(payload).select().single();
+                              final response = await supabase.from('event_cal').insert(payload).select().single();
                               await _writeAuditLog(
                                 action: 'CREATE',
                                 targetId: response['id'],
@@ -435,7 +433,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
 
   Future<void> _exportToCSV() async {
     if (_selectedRsvpEvent == null) return;
-    final title = _selectedRsvpEvent!['title'] ?? 'event';
+    final title = _selectedRsvpEvent!['event_name'] ?? _selectedRsvpEvent!['title'] ?? 'event';
     
     try {
       final tempDir = await getTemporaryDirectory();
@@ -632,7 +630,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                event['title'] ?? 'Untitled Event',
+                                event['event_name'] ?? event['title'] ?? 'Untitled Event',
                                 style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               if (event['description'] != null && event['description'].toString().trim().isNotEmpty) ...[
@@ -712,7 +710,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
                   return DropdownMenuItem<Map<String, dynamic>>(
                     value: e,
                     child: Text(
-                      e['title'] ?? 'Untitled',
+                      e['event_name'] ?? e['title'] ?? 'Untitled',
                       style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   );

@@ -20,7 +20,7 @@ export async function registerForEvent(formData: FormData) {
         .select('*')
         .eq('event_id', eventId)
         .eq('user_id', user.id) // Assuming column is user_id
-        .single()
+        .maybeSingle()
 
     if (existing) {
         redirect(`/events/${eventId}?error=${encodeURIComponent('You are already registered for this event.')}`)
@@ -80,7 +80,7 @@ export async function voteEventConcept(conceptId: string, voteValue: number) {
         .select('*')
         .eq('concept_id', conceptId)
         .eq('user_id', user.id)
-        .single()
+        .maybeSingle()
 
     if (existingVote) {
         if (existingVote.vote_value === voteValue) {

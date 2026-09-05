@@ -11,6 +11,7 @@ import '../widgets/listing_card.dart';
 import '../widgets/featured_listing_card.dart';
 import '../widgets/listing_bottom_sheet.dart';
 import 'add_marketplace_item_screen.dart';
+import 'my_orders_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MarketplaceScreen — Home Feed
@@ -79,6 +80,13 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
     ).then((_) => _loadListings());
   }
 
+  void _openOrders() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MyOrdersScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filtered = _filtered;
@@ -96,6 +104,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
             SliverToBoxAdapter(
               child: MarketplaceGradientHeader(
                 onUploadTap: _openUpload,
+                onOrdersTap: _openOrders,
                 onSearchChanged: (q) => setState(() => _searchQuery = q),
               ),
             ),

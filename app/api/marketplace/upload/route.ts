@@ -55,13 +55,23 @@ export async function POST(request: NextRequest) {
         }
     }
 
-    const { error: insertError } = await supabase.from('marketplace_items').insert({
+    const rawCategory = formData.get('category') as string
+    const validCategories = ['textbook', 'electronics', 'project_components', 'stationery', 'other']
+    const category = validCategories.includes(rawCategory) ? rawCategory : 'other'
+
+    const rawCondition = formData.get('condition') as string
+    const validConditions = ['new', 'like_new', 'used']
+    const condition = validConditions.includes(rawCondition) ? rawCondition : 'used'
+
+    const { error: insertError } = await supabase.from('marketplace_listings').insert({
         title,
-        description,
+        description: description || null,
         price,
-        image_url: imageUrl,
+        category,
+        condition,
+        images: imageUrl ? [imageUrl] : [],
         seller_id: user.id,
-        is_sold: false,
+        status: 'pending_review',
     })
 
     if (insertError) {

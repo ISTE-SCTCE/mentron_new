@@ -10,11 +10,13 @@ import '../../../core/theme/marketplace_theme.dart';
 
 class MarketplaceGradientHeader extends StatelessWidget {
   final VoidCallback onUploadTap;
+  final VoidCallback? onOrdersTap;
   final ValueChanged<String> onSearchChanged;
 
   const MarketplaceGradientHeader({
     super.key,
     required this.onUploadTap,
+    this.onOrdersTap,
     required this.onSearchChanged,
   });
 
@@ -88,6 +90,30 @@ class MarketplaceGradientHeader extends StatelessWidget {
                         ),
                       ),
 
+                      if (onOrdersTap != null) ...[
+                        GestureDetector(
+                          onTap: onOrdersTap,
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withValues(alpha: 0.2),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.4),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.receipt_long_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+
                       // "+" circular button
                       GestureDetector(
                         onTap: onUploadTap,
@@ -96,9 +122,9 @@ class MarketplaceGradientHeader extends StatelessWidget {
                           height: 44,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.4),
+                              color: Colors.white.withValues(alpha: 0.4),
                               width: 1.5,
                             ),
                           ),

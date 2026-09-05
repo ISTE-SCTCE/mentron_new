@@ -149,7 +149,7 @@ export default function NotesUploadPage() {
         setLoadingFolders(true)
         try {
             const supabase = createClient()
-            const { data } = await supabase
+            const { data, error: folderErr } = await supabase
                 .from('note_folders')
                 .select('id, name')
                 .eq('subject', subj)
@@ -157,8 +157,12 @@ export default function NotesUploadPage() {
                 .eq('year', y)
                 .eq('semester', s)
                 .order('created_at', { ascending: true })
+            if (folderErr) throw folderErr
             setFolders(data ?? [])
-        } catch {}
+        } catch (err) {
+            console.error('Failed to load note folders:', err)
+            setSubmitError('Failed to load note folders. Please refresh or try again.')
+        }
         setLoadingFolders(false)
     }, [])
 
