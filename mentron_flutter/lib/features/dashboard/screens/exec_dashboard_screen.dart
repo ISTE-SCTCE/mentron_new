@@ -7,12 +7,8 @@ import '../../../core/theme/exec_theme.dart';
 import '../../../shared/widgets/exec_glass_container.dart';
 import '../../../shared/widgets/exec_liquid_background.dart';
 import '../widgets/real_time_calendar.dart';
-import '../../notes/screens/add_note_screen.dart';
-import '../../projects/screens/add_project_screen.dart';
-import '../../events/screens/event_list_screen.dart';
 import '../../leaderboard/screens/leaderboard_screen.dart';
 import '../../profile/screens/profile_screen.dart';
-import '../../team/screens/team_screen.dart';
 import '../../forum/screens/forum_list_screen.dart';
 import 'core_members_screen.dart';
 import '../../execom/screens/event_manager_screen.dart';
@@ -35,10 +31,10 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
   int totalNotes = 0;
   int totalProjects = 0;
   int userXP = 0;
-  bool _isCoreMember = false;
   String _userRole = 'member'; // 'member', 'exec', 'core'
   Map<String, dynamic>? _profile;
   bool _isExec = false;
+  bool _isLoadingStats = true;
 
   @override
   void initState() {
@@ -55,7 +51,6 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
 
     try {
       final user = supabase.auth.currentUser;
-      String? userDept;
       int fetchedXp = 0;
 
       if (user != null) {
@@ -65,12 +60,10 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
           .eq('id', user.id)
           .maybeSingle();
         if (profileRes != null) {
-          userDept = profileRes['department'] as String?;
           final userRole = (profileRes['role'] as String?) ?? 'member';
           if (mounted) {
             setState(() {
               _userRole = userRole;
-              _isCoreMember = userRole == 'core';
               _isExec = userRole == 'exec' || userRole == 'core';
               _profile = profileRes;
             });
@@ -104,10 +97,11 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
           totalNotes = notesCount;
           totalProjects = projectsCount;
           userXP = fetchedXp;
+          _isLoadingStats = false;
         });
       }
     } catch (e) {
-      if (mounted) setState(() {});
+      if (mounted) setState(() { _isLoadingStats = false; });
     }
   }
 
@@ -162,7 +156,153 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
   }
 
   Widget _buildBentoStats() {
-    return const SizedBox.shrink();
+    if (_isLoadingStats) {
+      return _buildStatsSkeleton();
+    }
+
+    return Row(
+      children: [
+        // Large XP Card
+        Expanded(
+          flex: 3,
+          child: _buildStatCard(
+            'TOTAL XP',
+            userXP >= 1000 ? '${(userXP / 1000).toStringAsFixed(1)}k' : userXP.toString(),
+            Icons.bolt_rounded,
+            const Color(0xFFF59E0B),
+            height: 136,
+          ),
+        ),
+        const SizedBox(width: 12),
+        // Column of 2 smaller cards
+        Expanded(
+          flex: 2,
+          child: Column(
+            children: [
+              _buildStatCard(
+                'MEMBERS',
+                totalMembers.toString(),
+                Icons.people_outline,
+                ExecTheme.accentPrimary,
+                height: 62,
+                compact: true,
+              ),
+              const SizedBox(height: 12),
+              _buildStatCard(
+                'NOTES',
+                totalNotes.toString(),
+                Icons.note_outlined,
+                ExecTheme.accentSecondary,
+                height: 62,
+                compact: true,
+              ),
+            ],
+          ),
+        ),
+      ],
+    ).animate().fadeIn(duration: 350.ms).slideY(begin: 0.05);
+  }
+
+  Widget _buildStatsSkeleton() {
+    return Row(
+      children: [
+        Expanded(
+          flex: 3,
+          child: ExecGlassContainer(
+            height: 136,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 65,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  width: 90,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+              ],
+            ),
+          )
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .fade(begin: 0.35, end: 0.75, duration: 800.ms),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          flex: 2,
+          child: Column(
+            children: [
+              ExecGlassContainer(
+                height: 62,
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 14,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: ExecTheme.accentPrimary.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      width: 48,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+              .animate(onPlay: (c) => c.repeat(reverse: true))
+              .fade(begin: 0.35, end: 0.75, duration: 800.ms),
+              const SizedBox(height: 12),
+              ExecGlassContainer(
+                height: 62,
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 14,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: ExecTheme.accentSecondary.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      width: 48,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+              .animate(onPlay: (c) => c.repeat(reverse: true))
+              .fade(begin: 0.35, end: 0.75, duration: 800.ms),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildStatCard(
@@ -233,7 +373,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
                 'Ranks',
                 'Top XP',
                 Icons.emoji_events_rounded,
-                Colors.amberAccent,
+                const Color(0xFFF59E0B),
                 160,
                 () => Navigator.push(
                   context,
@@ -242,7 +382,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
               ),
             ),
           ],
-        ),
+        ).animate().fadeIn(delay: 100.ms, duration: 350.ms).slideY(begin: 0.06),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -260,7 +400,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
               ),
             ),
           ],
-        ),
+        ).animate().fadeIn(delay: 160.ms, duration: 350.ms).slideY(begin: 0.06),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -270,7 +410,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
                 'Market',
                 'Textbooks',
                 Icons.shopping_bag_outlined,
-                Colors.greenAccent,
+                ExecTheme.accentSecondary,
                 120,
                 () => MainScaffoldState.of(context)?.setIndex(3),
               ),
@@ -282,7 +422,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
                 'Forum',
                 'Ask Anonymously',
                 Icons.forum_rounded,
-                Colors.purpleAccent,
+                ExecTheme.accentPrimary,
                 120,
                 () => Navigator.push(
                   context,
@@ -291,76 +431,76 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
               ),
             ),
           ],
-        ),
+        ).animate().fadeIn(delay: 220.ms, duration: 350.ms).slideY(begin: 0.06),
         if (_isExec) ...[
           const SizedBox(height: 12),
           _buildBentoItem(
             'Manage Members',
             'Leadership Controls',
             Icons.admin_panel_settings_rounded,
-            Colors.purpleAccent,
+            ExecTheme.accentPrimary,
             80,
             () => Navigator.push(
               context,
               AppTransitions.slideUp(const CoreMembersScreen()),
             ),
             isWide: true,
-          ),
+          ).animate().fadeIn(delay: 280.ms, duration: 350.ms).slideY(begin: 0.06),
           const SizedBox(height: 12),
           _buildBentoItem(
             'Event Manager',
             'Publish & Edit Events',
             Icons.event_note_rounded,
-            Colors.cyanAccent,
+            ExecTheme.accentSecondary,
             80,
             () => Navigator.push(
               context,
               AppTransitions.slideUp(const EventManagerScreen()),
             ),
             isWide: true,
-          ),
+          ).animate().fadeIn(delay: 340.ms, duration: 350.ms).slideY(begin: 0.06),
           const SizedBox(height: 12),
           _buildBentoItem(
             'Notification Manager',
             'Broadcast to All Users',
             Icons.campaign_rounded,
-            Colors.amberAccent,
+            const Color(0xFFF59E0B),
             80,
             () => Navigator.push(
               context,
               AppTransitions.slideUp(const NotificationManagerScreen()),
             ),
             isWide: true,
-          ),
+          ).animate().fadeIn(delay: 400.ms, duration: 350.ms).slideY(begin: 0.06),
           const SizedBox(height: 12),
           _buildBentoItem(
             'Payment Management',
             'Verify Payments & Listings',
             Icons.payments_outlined,
-            Colors.greenAccent,
+            const Color(0xFF10B981),
             80,
             () => Navigator.push(
               context,
               AppTransitions.slideUp(const PaymentManagementScreen()),
             ),
             isWide: true,
-          ),
+          ).animate().fadeIn(delay: 460.ms, duration: 350.ms).slideY(begin: 0.06),
           const SizedBox(height: 12),
           _buildBentoItem(
             'Buyers List',
             'View & Export Purchases',
             Icons.people_alt_rounded,
-            Colors.lightBlueAccent,
+            ExecTheme.accentSecondary,
             80,
             () => Navigator.push(
               context,
               AppTransitions.slideUp(const BuyersListPage()),
             ),
             isWide: true,
-          ),
+          ).animate().fadeIn(delay: 520.ms, duration: 350.ms).slideY(begin: 0.06),
         ],
       ],
-    ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1);
+    );
   }
 
   Widget _buildBentoItem(
@@ -518,111 +658,4 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
       ),
     );
   }
-
-  Widget _buildContributeCard() {
-    return ExecGlassContainer(
-      padding: const EdgeInsets.all(20),
-      border: Border.all(color: ExecTheme.accentPrimary.withOpacity(0.3)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: ExecTheme.accentPrimary.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.add_rounded,
-                  color: ExecTheme.accentPrimary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'CONTRIBUTE',
-                    style: TextStyle(
-                      color: ExecTheme.accentSecondary,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                  Text(
-                    'Share with the community',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildContributeButton(
-                  'Post Project',
-                  Icons.rocket_launch_rounded,
-                  ExecTheme.accentPrimary,
-                  () => Navigator.push(
-                    context,
-                    AppTransitions.slideUp(const AddProjectScreen()),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 300.ms);
-  }
-
-  Widget _buildContributeButton(
-    String label,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.25)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 22),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-
 }
-
-
-

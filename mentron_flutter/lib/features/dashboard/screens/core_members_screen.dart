@@ -60,7 +60,22 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
     final newRole = member['role'] == 'exec' ? 'member' : 'exec';
 
     try {
-      await supabase.from('profiles').update({'role': newRole}).eq('id', member['id']);
+      final res = await supabase
+          .from('profiles')
+          .update({'role': newRole})
+          .eq('id', member['id'])
+          .select('id');
+
+      if (res.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Failed to update role: Insufficient permissions or member not found.'),
+          ));
+        }
+        return;
+      }
+
       setState(() {
         final idx = _members.indexWhere((m) => m['id'] == member['id']);
         if (idx != -1) _members[idx]['role'] = newRole;
@@ -201,9 +216,9 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
             // Member list
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: AppTheme.accentSecondary))
+                  ? _buildMembersSkeleton()
                   : filtered.isEmpty
-                      ? const Center(child: Text('No students match filters', style: TextStyle(color: AppTheme.textMuted)))
+                      ? _buildEmptyState()
                       : ListView.builder(
                           padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
                           itemCount: filtered.length,
@@ -256,17 +271,156 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
     );
   }
 
+  Widget _buildMembersSkeleton() {
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
+      itemCount: 4,
+      itemBuilder: (ctx, i) => Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.03),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withOpacity(0.08)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.06),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 130,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Container(
+                              width: 60,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.06),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                            ),
+                            const Spacer(),
+                            Container(
+                              width: 70,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Container(
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.04),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ],
+          ),
+        )
+            .animate(onPlay: (c) => c.repeat())
+            .shimmer(duration: 1200.ms, color: Colors.white.withOpacity(0.06)),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.04),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withOpacity(0.08)),
+            ),
+            child: Icon(
+              Icons.person_search_rounded,
+              size: 44,
+              color: Colors.white.withOpacity(0.35),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No members found',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Try adjusting your search or filters',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.4),
+              fontSize: 13,
+            ),
+          ),
+        ],
+      ).animate().fadeIn().scale(begin: const Offset(0.95, 0.95)),
+    );
+  }
+
   Widget _buildMemberCard(Map<String, dynamic> member, int index) {
     final role = (member['role'] ?? 'member') as String;
     final isCore = role == 'core';
     final isExec = role == 'exec';
     
     // Choose theme colors based on role
-    Color color = isCore
+    final Color color = isCore
         ? Colors.purpleAccent
         : isExec
             ? AppTheme.accentPrimary
             : AppTheme.accentSecondary;
+
+    final name = (member['full_name'] ?? '').toString().trim();
+    final initial = name.isNotEmpty ? name.substring(0, 1).toUpperCase() : 'U';
+    final displayName = name.isNotEmpty ? name : 'Unknown Member';
+    final rollNumber = (member['roll_number'] ?? '').toString().trim();
+    final dept = (member['department'] ?? '').toString().trim();
+    final year = member['year'];
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -284,7 +438,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
                   decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(16)),
                   child: Center(
                     child: Text(
-                      (member['full_name'] ?? 'U').substring(0, 1).toUpperCase(),
+                      initial,
                       style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 22),
                     ),
                   ),
@@ -295,7 +449,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        member['full_name'] ?? 'Unknown',
+                        displayName,
                         style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 16),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -314,7 +468,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
                           const Spacer(),
                           Text(
                             (_permissions['can_see_member_info'] == true) 
-                                ? (member['roll_number'] ?? 'No Roll No')
+                                ? (rollNumber.isNotEmpty ? rollNumber : 'No Roll No')
                                 : '••••••••',
                             style: const TextStyle(color: AppTheme.textMuted, fontSize: 11, fontWeight: FontWeight.w900),
                           ),
@@ -344,7 +498,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
                         children: [
                           const Text('DEPARTMENT', style: TextStyle(color: AppTheme.textMuted, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
                           const SizedBox(height: 4),
-                          Text(member['department'] ?? '—', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.bold)),
+                          Text(dept.isNotEmpty ? dept : '—', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -356,7 +510,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
                         children: [
                           const Text('CLASS YEAR', style: TextStyle(color: AppTheme.textMuted, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
                           const SizedBox(height: 4),
-                          Text(member['year'] != null ? 'Year ${member['year']}' : '—', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.bold)),
+                          Text(year != null && year.toString().isNotEmpty ? 'Year $year' : '—', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -451,29 +605,78 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
             ),
           ],
         ),
-      ).animate().fadeIn(delay: (index * 50).ms).slideY(begin: 0.05, curve: Curves.easeOut),
+      ).animate().fadeIn(delay: (index * 40).ms).slideY(begin: 0.05, curve: Curves.easeOut),
     );
   }
 
   void _showRoleDialog(Map<String, dynamic> member) {
     final isExec = member['role'] == 'exec';
+    final name = (member['full_name'] ?? '').toString().trim();
+    final displayName = name.isNotEmpty ? name : 'this member';
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(isExec ? 'Demote Member?' : 'Promote to Exec?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: (isExec ? Colors.redAccent : Colors.greenAccent).withOpacity(0.3),
+          ),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: (isExec ? Colors.red : Colors.green).withOpacity(0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                isExec ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+                color: isExec ? Colors.redAccent : Colors.greenAccent,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                isExec ? 'Demote Member?' : 'Promote to Exec?',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+          ],
+        ),
         content: Text(
           isExec
-              ? '${member['full_name']} will become a normal member.'
-              : '${member['full_name']} will become an executive member with elevated permissions.',
+              ? '$displayName will become a normal member.'
+              : '$displayName will become an executive member with elevated permissions.',
           style: const TextStyle(color: AppTheme.textMuted, fontSize: 13, height: 1.5),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted))),
           TextButton(
-            onPressed: () { Navigator.pop(ctx); _toggleRole(member); },
-            child: Text(isExec ? 'DEMOTE' : 'PROMOTE', style: TextStyle(color: isExec ? Colors.redAccent : Colors.greenAccent, fontWeight: FontWeight.bold)),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: (isExec ? Colors.red : Colors.green).withOpacity(0.15),
+              foregroundColor: isExec ? Colors.redAccent : Colors.greenAccent,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              _toggleRole(member);
+            },
+            child: Text(
+              isExec ? 'DEMOTE' : 'PROMOTE',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -481,21 +684,65 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
   }
 
   void _showDeleteDialog(Map<String, dynamic> member) {
+    final name = (member['full_name'] ?? '').toString().trim();
+    final displayName = name.isNotEmpty ? name : 'this member';
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Delete Account?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: Colors.redAccent.withOpacity(0.3)),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.delete_forever_rounded,
+                color: Colors.redAccent,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Delete Account?',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+          ],
+        ),
         content: Text(
-          'Are you sure you want to permanently delete ${member['full_name']}? This action cannot be undone and will revoke their access to Mentron.',
+          'Are you sure you want to permanently delete $displayName? This action cannot be undone and will revoke their access to Mentron.',
           style: const TextStyle(color: AppTheme.textMuted, fontSize: 13, height: 1.5),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted))),
           TextButton(
-            onPressed: () { Navigator.pop(ctx); _deleteMember(member); },
-            child: const Text('DELETE', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.withOpacity(0.15),
+              foregroundColor: Colors.redAccent,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              _deleteMember(member);
+            },
+            child: const Text('DELETE', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
