@@ -169,3 +169,90 @@ export async function withdrawApplication(projectId: string) {
     revalidatePath('/projects')
     return { success: true }
 }
+
+export async function deleteGateNote(noteId: string) {
+    const supabase = await createClient()
+
+    const { data: note } = await supabase
+        .from('gate_notes')
+        .select('file_url, profile_id')
+        .eq('id', noteId)
+        .single()
+
+    if (!note) return { error: 'Note not found' }
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Unauthorized' }
+
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    const isExec = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+
+    if (user.id !== note.profile_id && !isExec) return { error: 'Unauthorized' }
+
+    try {
+        if (note.file_url) {
+            const match = note.file_url.match(/notes_bucket\/(.+)/)
+            if (match && match[1]) {
+                const filePath = match[1]
+                await supabase.storage.from('notes_bucket').remove([filePath])
+            }
+        }
+    } catch (e) {
+        console.error("Storage delete error for gate note", e)
+    }
+
+    const { error } = await supabase.from('gate_notes').delete().eq('id', noteId)
+    if (error) return { error: error.message }
+
+    revalidatePath('/gate', 'layout')
+    return { success: true }
+}
+
+export async function deleteGateFolder(folderId: string) {
+    const supabase = await createClient()
+
+    const { data: folder } = await supabase
+        .from('gate_folders')
+        .select('created_by, department_id')
+        .eq('id', folderId)
+        .single()
+
+    if (!folder) return { error: 'Folder not found' }
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Unauthorized' }
+
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    const isExec = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+
+    if (user.id !== folder.created_by && !isExec) return { error: 'Unauthorized' }
+
+    // Find all notes in this folder to clean up storage files
+    const { data: notes } = await supabase
+        .from('gate_notes')
+        .select('file_url')
+        .eq('folder_id', folderId)
+
+    if (notes && notes.length > 0) {
+        const filePaths = notes
+            .map(n => {
+                const match = n.file_url?.match(/notes_bucket\/(.+)/)
+                return match ? match[1] : null
+            })
+            .filter(Boolean) as string[]
+
+        if (filePaths.length > 0) {
+            try {
+                await supabase.storage.from('notes_bucket').remove(filePaths)
+            } catch (e) {
+                console.error("Storage delete error for gate folder notes", e)
+            }
+        }
+    }
+
+    const { error } = await supabase.from('gate_folders').delete().eq('id', folderId)
+    if (error) return { error: error.message }
+
+    revalidatePath('/gate', 'layout')
+    return { success: true }
+}
