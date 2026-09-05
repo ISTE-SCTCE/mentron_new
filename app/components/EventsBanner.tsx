@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, MapPin, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { GatePortalVisual } from './GatePortalVisual'
 
 interface Event {
     id: string
@@ -11,6 +13,7 @@ interface Event {
     date?: string
     description?: string
     external_url?: string
+    internal_url?: string
     image_url?: string
     registration_required?: boolean
 }
@@ -20,6 +23,14 @@ interface Props {
 }
 
 const OFFICIAL_EVENTS: Event[] = [
+    {
+        id: 'off-gate',
+        event_name: 'Mentron Gate Initiative',
+        venue: 'Department Portals',
+        date: 'Live Now',
+        description: 'Direct department-wise access to curated notes and academic materials. Electronics & Communication and Mechanical Engineering portals are live now, with more departments opening over time.',
+        internal_url: '/gate',
+    },
     {
         id: 'off-1',
         event_name: 'Mentron Reloaded',
@@ -177,7 +188,15 @@ export function EventsBanner({ events }: Props) {
                                 transition={{ delay: 0.6 }}
                                 className="pt-4 flex justify-center lg:justify-start min-h-[64px]"
                             >
-                                {(currentEvent.external_url || currentEvent.registration_required) && (
+                                {currentEvent.internal_url ? (
+                                    <Link
+                                        href={currentEvent.internal_url}
+                                        className="inline-flex items-center gap-4 bg-white text-black px-8 py-4 md:px-10 md:py-5 rounded-3xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all group relative z-40 shadow-[0_0_25px_rgba(255,255,255,0.2)]"
+                                    >
+                                        Enter Portal
+                                        <ArrowRight className="group-hover:translate-x-2 transition-transform text-purple-600" />
+                                    </Link>
+                                ) : (currentEvent.external_url || currentEvent.registration_required) ? (
                                     <a 
                                         href={currentEvent.external_url || 'https://istesctce.in/events.html'}
                                         target="_blank"
@@ -187,7 +206,7 @@ export function EventsBanner({ events }: Props) {
                                         Register Online
                                         <ArrowRight className="group-hover:translate-x-2 transition-transform" />
                                     </a>
-                                )}
+                                ) : null}
                             </motion.div>
                         </div>
 
@@ -201,7 +220,9 @@ export function EventsBanner({ events }: Props) {
                                     className="w-full h-full rounded-[2.5rem] md:rounded-[3rem] bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center overflow-hidden relative shadow-2xl"
                                 >
                                     <div className="absolute inset-0 bg-blue-500/5 backdrop-blur-3xl" />
-                                    {currentEvent.image_url ? (
+                                    {currentEvent.id === 'off-gate' ? (
+                                        <GatePortalVisual />
+                                    ) : currentEvent.image_url ? (
                                         <img 
                                             src={currentEvent.image_url} 
                                             alt={currentEvent.event_name}
@@ -209,7 +230,7 @@ export function EventsBanner({ events }: Props) {
                                         />
                                     ) : (
                                         <span className="text-7xl md:text-[12rem] relative z-10 filter drop-shadow-[0_0_50px_rgba(59,130,246,0.5)]">
-                                            {page === 0 ? '🏆' : page === 1 ? '🎓' : page === 2 ? '💻' : '🌐'}
+                                            {currentEvent.id === 'off-1' ? '🏆' : currentEvent.id === 'off-2' ? '🎓' : currentEvent.id === 'off-3' ? '💻' : '🌐'}
                                         </span>
                                     )}
                                 </motion.div>
