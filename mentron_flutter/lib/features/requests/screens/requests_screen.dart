@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -5,6 +6,8 @@ import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
+import '../../../shared/widgets/skeleton_shimmer.dart';
+import '../../../shared/widgets/pressable_scale.dart';
 import '../../../core/utils/error_handler.dart';
 
 class RequestsScreen extends StatefulWidget {
@@ -110,7 +113,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
       ),
       body: LiquidBackground(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: AppTheme.accentSecondary))
+            ? const RequestsSkeletonList()
             : _buildProjectsList(),
       ),
     );
@@ -173,12 +176,12 @@ class _RequestsScreenState extends State<RequestsScreen> {
             ],
           ),
         ]),
-      ).animate().slideX(begin: 0.1, delay: Duration(milliseconds: 50 * index)).fadeIn(),
-    );
+      ),
+    ).animate(delay: (min(index, 8) * 35).ms).fadeIn(duration: 250.ms).slideY(begin: 0.04);
   }
 
   Widget _buildActionBtn(String label, IconData icon, Color color, VoidCallback onTap) {
-    return GestureDetector(
+    return PressableScale(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),

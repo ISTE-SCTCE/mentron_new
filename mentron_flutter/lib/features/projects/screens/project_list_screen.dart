@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -5,6 +6,8 @@ import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
+import '../../../shared/widgets/skeleton_shimmer.dart';
+import '../../../shared/widgets/pressable_scale.dart';
 import '../../../data/models/project_model.dart';
 import 'project_detail_screen.dart';
 import 'project_applications_screen.dart';
@@ -127,7 +130,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
       ),
       body: LiquidBackground(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: AppTheme.accentSecondary))
+            ? const ProjectSkeletonList()
             : RefreshIndicator(
                 onRefresh: _fetchProjects,
                 backgroundColor: AppTheme.surfaceColor, color: AppTheme.accentSecondary,
@@ -188,35 +191,44 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             children: [
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () => Navigator.push(context, AppTransitions.slideLeft(ProjectDetailScreen(project: project))),
-                  icon: const Icon(Icons.rocket_launch_outlined, size: 16),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.accentPrimary.withOpacity(0.08),
-                    foregroundColor: AppTheme.accentPrimary,
-                    side: BorderSide(color: AppTheme.accentPrimary.withOpacity(0.15)),
-                    padding: const EdgeInsets.symmetric(vertical: 13),
+                child: PressableScale(
+                  onTap: () => Navigator.push(context, AppTransitions.slideLeft(ProjectDetailScreen(project: project))),
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.push(context, AppTransitions.slideLeft(ProjectDetailScreen(project: project))),
+                    icon: const Icon(Icons.rocket_launch_outlined, size: 16),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.accentPrimary.withOpacity(0.08),
+                      foregroundColor: AppTheme.accentPrimary,
+                      side: BorderSide(color: AppTheme.accentPrimary.withOpacity(0.15)),
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                    ),
+                    label: const Text('VIEW & APPLY'),
                   ),
-                  label: const Text('VIEW & APPLY'),
                 ),
               ),
               if (project.profileId == _currentUserId || _currentUserRole == 'exec' || _currentUserRole == 'core') ...[
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () => Navigator.push(
+                  child: PressableScale(
+                    onTap: () => Navigator.push(
                       context,
                       AppTransitions.slideRight(ProjectApplicationsScreen(project: project)),
                     ),
-                    icon: const Icon(Icons.people_outline_rounded, size: 16),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.accentSecondary.withOpacity(0.1),
-                      foregroundColor: AppTheme.accentSecondary,
-                      side: const BorderSide(color: AppTheme.accentSecondary),
-                      padding: const EdgeInsets.symmetric(vertical: 13),
+                    child: ElevatedButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        AppTransitions.slideRight(ProjectApplicationsScreen(project: project)),
+                      ),
+                      icon: const Icon(Icons.people_outline_rounded, size: 16),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.accentSecondary.withOpacity(0.1),
+                        foregroundColor: AppTheme.accentSecondary,
+                        side: const BorderSide(color: AppTheme.accentSecondary),
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                      ),
+                      label: const Text('APPLICATIONS'),
                     ),
-                    label: const Text('APPLICATIONS'),
                   ),
                 ),
               ],
@@ -224,7 +236,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
           ),
         ]),
       ),
-    ).animate().fadeIn(delay: (index * 100).ms).slideY(begin: 0.1);
+    ).animate(delay: (min(index, 8) * 35).ms).fadeIn(duration: 250.ms).slideY(begin: 0.04);
   }
 
   Widget _buildInfoItem(IconData icon, String label) {

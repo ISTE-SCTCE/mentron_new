@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,6 +7,7 @@ import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/marketplace_theme.dart';
 import '../../../models/marketplace_order.dart';
 import '../../../services/marketplace_service.dart';
+import '../../../shared/widgets/skeleton_shimmer.dart';
 import '../widgets/order_status_stepper.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -95,8 +97,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           // ── Orders list ─────────────────────────────────────────────────
           Expanded(
             child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF7B6EF6)))
+                ? const OrdersSkeletonList()
                 : _orders.isEmpty
                     ? _buildEmptyState()
                     : RefreshIndicator(
@@ -108,15 +109,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                           separatorBuilder: (_, __) => const SizedBox(height: 12),
                           itemBuilder: (context, i) {
                             final order = _orders[i];
-                            return order.orderStatus.isTerminal
-                                ? _TerminalOrderCard(order: order)
-                                    .animate(delay: Duration(milliseconds: 50 * i))
-                                    .fadeIn()
-                                    .slideY(begin: 0.05)
-                                : _ActiveOrderCard(order: order)
-                                    .animate(delay: Duration(milliseconds: 50 * i))
-                                    .fadeIn()
-                                    .slideY(begin: 0.05);
+                            final delay = (min(i, 8) * 35).ms;
+                            return (order.orderStatus.isTerminal
+                                    ? _TerminalOrderCard(order: order)
+                                    : _ActiveOrderCard(order: order))
+                                .animate(delay: delay)
+                                .fadeIn(duration: 250.ms)
+                                .slideY(begin: 0.04);
                           },
                         ),
                       ),

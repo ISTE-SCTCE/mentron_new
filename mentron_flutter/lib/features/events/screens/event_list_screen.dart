@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -9,6 +10,8 @@ import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import 'event_detail_screen.dart';
 import '../../../core/utils/app_transitions.dart';
+import '../../../shared/widgets/pressable_scale.dart';
+import '../../../shared/widgets/skeleton_shimmer.dart';
 
 
 class EventListScreen extends StatefulWidget {
@@ -294,7 +297,7 @@ class _EventListScreenState extends State<EventListScreen> {
       ),
       body: LiquidBackground(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: AppTheme.accentSecondary))
+            ? const EventSkeletonList()
             : RefreshIndicator(
                 onRefresh: _fetchData,
                 color: AppTheme.accentSecondary,
@@ -305,6 +308,19 @@ class _EventListScreenState extends State<EventListScreen> {
                   child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // --- Upcoming Events Section ---
+                    const Text('UPCOMING EVENTS', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+                    const SizedBox(height: 16),
+                    if (_events.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 24),
+                        child: Text('No upcoming events', style: TextStyle(color: AppTheme.textMuted)),
+                      )
+                    else
+                      ...List.generate(_events.length, (index) => _buildEventCard(_events[index], index)),
+
+                    const SizedBox(height: 32),
+
                     // --- Community Forum Section ---
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -340,11 +356,12 @@ class _EventListScreenState extends State<EventListScreen> {
   }
 
   Widget _buildEventCard(Map<String, dynamic> event, int index) {
+    final eventId = event['id'].toString();
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      child: GestureDetector(
+      child: PressableScale(
         onTap: () => Navigator.push(context, AppTransitions.slideLeft(
-          EventDetailScreen(eventId: event['id'].toString()),
+          EventDetailScreen(eventId: eventId),
         )),
         child: GlassContainer(
           padding: const EdgeInsets.all(28),
@@ -356,7 +373,22 @@ class _EventListScreenState extends State<EventListScreen> {
                 child: const Icon(Icons.event_rounded, color: AppTheme.accentPrimary, size: 24),
               ),
               const SizedBox(width: 16),
-              Expanded(child: Text(event['event_name'] ?? 'Event', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface))),
+              Expanded(
+                child: Hero(
+                  tag: 'event-title-$eventId',
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Text(
+                      event['event_name'] ?? 'Event',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               const Icon(Icons.arrow_forward_ios_rounded, color: AppTheme.textMuted, size: 14),
             ]),
             if (event['venue'] != null) ...[
@@ -374,7 +406,7 @@ class _EventListScreenState extends State<EventListScreen> {
           ]),
         ),
       ),
-    ).animate().fadeIn(delay: (index * 80).ms).slideY(begin: 0.05);
+    ).animate(delay: (min(index, 8) * 35).ms).fadeIn(duration: 250.ms).slideY(begin: 0.04);
   }
 
   Widget _buildConceptCard(Map<String, dynamic> concept) {

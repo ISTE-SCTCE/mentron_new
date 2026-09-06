@@ -8,6 +8,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import '../../admin/screens/permission_management_screen.dart';
+import '../../../core/utils/error_handler.dart';
 
 class CoreMembersScreen extends StatefulWidget {
   const CoreMembersScreen({super.key});
@@ -59,23 +60,47 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
 
   Future<void> _toggleRole(Map<String, dynamic> member) async {
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
+    final session = supabase.auth.currentSession;
+    final token = session?.accessToken;
     final newRole = member['role'] == 'exec' ? 'member' : 'exec';
 
     try {
-      final res = await supabase
-          .from('profiles')
-          .update({'role': newRole})
-          .eq('id', member['id'])
-          .select('id');
-
-      if (res.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Failed to update role: Insufficient permissions or member not found.'),
-          ));
+      bool directUpdated = false;
+      try {
+        final res = await supabase
+            .from('profiles')
+            .update({'role': newRole})
+            .eq('id', member['id'])
+            .select('id');
+        if (res.isNotEmpty) {
+          directUpdated = true;
         }
-        return;
+      } catch (_) {}
+
+      if (!directUpdated) {
+        const String apiBaseUrl = 'https://mentron.istesctce.in';
+        final response = await http.post(
+          Uri.parse('$apiBaseUrl/api/core/update-role'),
+          headers: {
+            'Content-Type': 'application/json',
+            if (token != null) 'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            'profileId': member['id'],
+            'newRole': newRole,
+          }),
+        );
+
+        if (response.statusCode >= 400) {
+          String errorMsg = 'Failed to update role';
+          try {
+            final errBody = jsonDecode(response.body);
+            if (errBody is Map && errBody['error'] != null) {
+              errorMsg = errBody['error'];
+            }
+          } catch (_) {}
+          throw Exception(errorMsg);
+        }
       }
 
       setState(() {
@@ -90,7 +115,14 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(e.toString())));
+        final rawMsg = e.toString().replaceFirst('Exception: ', '');
+        final displayMsg = rawMsg.isNotEmpty && rawMsg != 'null'
+            ? rawMsg
+            : ErrorHandler.friendly(e);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(displayMsg),
+        ));
       }
     }
   }
@@ -101,27 +133,41 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
     final token = session?.accessToken;
 
     try {
-      const String apiBaseUrl = 'https://mentron.istesctce.in';
-      final response = await http.post(
-        Uri.parse('$apiBaseUrl/api/core/delete-user'),
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          'profileId': member['id'],
-        }),
-      );
+      bool directDeleted = false;
+      try {
+        final res = await supabase
+            .from('profiles')
+            .delete()
+            .eq('id', member['id'])
+            .select('id');
+        if (res.isNotEmpty) {
+          directDeleted = true;
+        }
+      } catch (_) {}
 
-      if (response.statusCode >= 400) {
-        String errorMsg = 'Deletion failed';
-        try {
-          final errBody = jsonDecode(response.body);
-          if (errBody is Map && errBody['error'] != null) {
-            errorMsg = errBody['error'];
-          }
-        } catch (_) {}
-        throw Exception(errorMsg);
+      if (!directDeleted) {
+        const String apiBaseUrl = 'https://mentron.istesctce.in';
+        final response = await http.post(
+          Uri.parse('$apiBaseUrl/api/core/delete-user'),
+          headers: {
+            'Content-Type': 'application/json',
+            if (token != null) 'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            'profileId': member['id'],
+          }),
+        );
+
+        if (response.statusCode >= 400) {
+          String errorMsg = 'Deletion failed';
+          try {
+            final errBody = jsonDecode(response.body);
+            if (errBody is Map && errBody['error'] != null) {
+              errorMsg = errBody['error'];
+            }
+          } catch (_) {}
+          throw Exception(errorMsg);
+        }
       }
 
       setState(() {
@@ -129,13 +175,20 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          backgroundColor: Colors.green,
-          content: Text('Account deleted successfully.'),
+          backgroundColor: Colors.red,
+          content: Text('Member deleted successfully'),
         ));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text('Deletion failed: $e')));
+        final rawMsg = e.toString().replaceFirst('Exception: ', '');
+        final displayMsg = rawMsg.isNotEmpty && rawMsg != 'null'
+            ? rawMsg
+            : ErrorHandler.friendly(e);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(displayMsg),
+        ));
       }
     }
   }

@@ -12,6 +12,8 @@ import 'notes_by_subject_screen.dart';
 import '../../../core/utils/app_transitions.dart';
 import '../../../data/models/subject_data.dart';
 import '../../../core/providers/academic_provider.dart';
+import '../../gate/widgets/gate_portal_banner.dart';
+import '../../gate/screens/gate_landing_screen.dart';
 
 class GroupScreen extends StatefulWidget {
   const GroupScreen({super.key});
@@ -107,6 +109,15 @@ class _GroupScreenState extends State<GroupScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(24, 120, 24, 40),
                   children: [
+                  // Gate Initiative Announcement Banner
+                  GatePortalBanner(
+                    onTap: () => Navigator.push(
+                      context,
+                      AppTransitions.slideUp(const GateLandingScreen()),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
                   // Toggle UI
                   Container(
                     margin: const EdgeInsets.only(bottom: 24),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/marketplace_theme.dart';
 import '../../../models/marketplace_listing.dart';
+import '../../../shared/widgets/pressable_scale.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ListingCard — standard 2-column grid card for regular listings
@@ -15,7 +16,7 @@ class ListingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return PressableScale(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
@@ -31,14 +32,17 @@ class ListingCard extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               child: AspectRatio(
                 aspectRatio: 1.1,
-                child: listing.firstImageUrl.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: listing.firstImageUrl,
-                        fit: BoxFit.cover,
-                        placeholder: (_, __) => _imagePlaceholder(),
-                        errorWidget: (_, __, ___) => _imagePlaceholder(),
-                      )
-                    : _imagePlaceholder(),
+                child: Hero(
+                  tag: 'marketplace-image-${listing.id}',
+                  child: listing.firstImageUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: listing.firstImageUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => _imagePlaceholder(),
+                          errorWidget: (_, __, ___) => _imagePlaceholder(),
+                        )
+                      : _imagePlaceholder(),
+                ),
               ),
             ),
 

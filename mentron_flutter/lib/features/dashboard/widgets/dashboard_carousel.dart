@@ -5,7 +5,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:async';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/app_transitions.dart';
+import '../../../shared/widgets/pressable_scale.dart';
 import '../../../shared/widgets/bouncing_balls_loader.dart';
+import '../../gate/screens/gate_landing_screen.dart';
+import '../../events/screens/event_list_screen.dart';
+import '../../notes/screens/notes_by_subject_screen.dart';
 
 class DashboardCarousel extends StatefulWidget {
   const DashboardCarousel({super.key});
@@ -137,6 +142,15 @@ class _DashboardCarouselState extends State<DashboardCarousel> {
         }
       }
 
+      // Prepend Mentron Gate Initiative announcement
+      items.insert(0, {
+        'type': 'gate',
+        'title': 'Mentron Gate Initiative',
+        'desc': 'Direct department-wise access to curated notes and academic materials. ECE and ME portals live now!',
+        'status': 'LIVE NOW',
+        'icon': '✨',
+      });
+
       if (mounted) {
         setState(() {
           _carouselItems = items;
@@ -184,136 +198,182 @@ class _DashboardCarouselState extends State<DashboardCarousel> {
               itemCount: _carouselItems.length,
               itemBuilder: (context, index) {
                 final item = _carouselItems[index];
+                final isGate = item['type'] == 'gate';
                 final isEvent = item['type'] == 'event';
                 
-                final cardColor = isEvent
-                    ? (item['status'] == 'ONGOING' ? AppTheme.accentPrimary : AppTheme.accentTertiary)
-                    : AppTheme.accentSecondary;
+                final cardColor = isGate
+                    ? const Color(0xFF00C6FF)
+                    : (isEvent
+                        ? (item['status'] == 'ONGOING' ? AppTheme.accentPrimary : AppTheme.accentTertiary)
+                        : AppTheme.accentSecondary);
 
                 return AnimatedBuilder(
                   animation: _pageController,
                   builder: (context, child) {
                     return child!;
                   },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(28),
-                      gradient: LinearGradient(
-                        colors: isEvent
-                            ? [
-                                cardColor.withOpacity(0.8),
-                                cardColor.darken(0.3).withOpacity(0.9),
-                              ]
-                            : [
-                                const Color(0xFF6C63FF),
-                                const Color(0xFF3F3D56),
-                              ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                  child: PressableScale(
+                    onTap: () {
+                      if (isGate) {
+                        Navigator.push(context, AppTransitions.slideUp(const GateLandingScreen()));
+                      } else if (isEvent) {
+                        Navigator.push(context, AppTransitions.slideLeft(const EventListScreen()));
+                      } else {
+                        Navigator.push(
+                          context,
+                          AppTransitions.slideLeft(
+                            NotesBySubjectScreen(
+                              subjectName: item['title'] ?? 'General',
+                              color: AppTheme.accentSecondary,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(28),
+                        gradient: LinearGradient(
+                          colors: isGate
+                              ? [
+                                  const Color(0xFF0D0424),
+                                  const Color(0xFF160A38),
+                                  const Color(0xFF081830),
+                                ]
+                              : (isEvent
+                                  ? [
+                                      cardColor.withOpacity(0.8),
+                                      cardColor.darken(0.3).withOpacity(0.9),
+                                    ]
+                                  : [
+                                      const Color(0xFF6C63FF),
+                                      const Color(0xFF3F3D56),
+                                    ]),
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        border: isGate
+                            ? Border.all(
+                                color: const Color(0xFF00C6FF).withOpacity(0.35),
+                                width: 1.5,
+                              )
+                            : null,
+                        boxShadow: [
+                          BoxShadow(
+                            color: cardColor.withOpacity(0.25),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: cardColor.withOpacity(0.25),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      children: [
-                        // Decorative mesh background
-                        Positioned.fill(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(28),
-                            child: Opacity(
-                              opacity: 0.08,
-                              child: GridPaper(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                interval: 30,
-                                subdivisions: 1,
-                                child: Container(),
+                      child: Stack(
+                        children: [
+                          // Decorative mesh background
+                          Positioned.fill(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(28),
+                              child: Opacity(
+                                opacity: 0.08,
+                                child: GridPaper(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  interval: 30,
+                                  subdivisions: 1,
+                                  child: Container(),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        // Corner badge
-                        Positioned(
-                          top: 16,
-                          right: 16,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.white.withOpacity(0.25)),
-                            ),
-                            child: Text(
-                              item['status'],
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontSize: 9,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 1.5,
+                          // Corner badge
+                          Positioned(
+                            top: 16,
+                            right: 16,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: isGate
+                                    ? const Color(0xFF00C6FF).withOpacity(0.15)
+                                    : Colors.white.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: isGate
+                                      ? const Color(0xFF00C6FF).withOpacity(0.4)
+                                      : Colors.white.withOpacity(0.25),
+                                ),
+                              ),
+                              child: Text(
+                                item['status'],
+                                style: TextStyle(
+                                  color: isGate
+                                      ? const Color(0xFF00C6FF)
+                                      : Theme.of(context).colorScheme.onSurface,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.5,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        // Content
-                        Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    item['icon'],
-                                    style: const TextStyle(fontSize: 24),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      isEvent ? 'ISTE EVENT' : 'TRENDING SUBJECT',
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.6),
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w900,
-                                        letterSpacing: 2,
+                          // Content
+                          Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      item['icon'],
+                                      style: const TextStyle(fontSize: 24),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        isGate
+                                            ? 'DIRECT ACADEMIC PORTALS'
+                                            : (isEvent ? 'ISTE EVENT' : 'TRENDING SUBJECT'),
+                                        style: TextStyle(
+                                          color: isGate
+                                              ? const Color(0xFF00C6FF)
+                                              : Colors.white.withOpacity(0.6),
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 2,
+                                        ),
                                       ),
                                     ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  item['title'],
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: -0.5,
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                item['title'],
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: -0.5,
                                 ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                item['desc'],
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  height: 1.4,
+                                const SizedBox(height: 6),
+                                Text(
+                                  item['desc'],
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.8),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.4,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );

@@ -47,6 +47,30 @@ class AppTransitions {
     );
   }
 
+  /// Scale + fade transition (for modal/dialog-style screens and action overlays)
+  /// Starts at 0.95 scale and 0.0 opacity, easing out to 1.0 (~240ms).
+  static PageRouteBuilder<T> scaleFade<T>(
+    Widget page, {
+    Duration duration = const Duration(milliseconds: 240),
+  }) {
+    return PageRouteBuilder<T>(
+      opaque: false, // prevents black background during fade-out on pop
+      transitionDuration: duration,
+      reverseTransitionDuration: duration,
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final curved = CurvedAnimation(parent: animation, curve: _curve);
+        return FadeTransition(
+          opacity: curved,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.95, end: 1.0).animate(curved),
+            child: child,
+          ),
+        );
+      },
+    );
+  }
+
   /// Horizontal slide (for drill-down navigation)
   static PageRouteBuilder<T> slideLeft<T>(Widget page) {
     return PageRouteBuilder<T>(

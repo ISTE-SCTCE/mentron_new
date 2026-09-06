@@ -18,6 +18,7 @@ import '../../execom/screens/buyers_list_screen.dart';
 import '../../../core/utils/app_transitions.dart';
 import '../widgets/event_banner_widget.dart';
 import '../../../core/main_scaffold.dart';
+import '../../../shared/widgets/pressable_scale.dart';
 
 class ExecDashboardScreen extends StatefulWidget {
   const ExecDashboardScreen({super.key});
@@ -512,7 +513,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
     VoidCallback onTap, {
     bool isWide = false,
   }) {
-    return GestureDetector(
+    return PressableScale(
       onTap: onTap,
       child: ExecGlassContainer(
         height: height,

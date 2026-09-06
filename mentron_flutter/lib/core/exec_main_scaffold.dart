@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'package:provider/provider.dart';
@@ -9,8 +10,8 @@ import '../features/projects/screens/project_list_screen.dart';
 import '../features/marketplace/screens/marketplace_screen.dart';
 import '../features/requests/screens/requests_screen.dart';
 import '../core/services/supabase_service.dart';
-import 'theme/exec_theme.dart';
 import 'utils/app_transitions.dart';
+import 'widgets/animated_indexed_stack.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../screens/my_downloads_screen.dart';
 import '../utils/constants.dart';
@@ -29,12 +30,14 @@ class ExecMainScaffoldState extends State<ExecMainScaffold>
 
   void setIndex(int index) {
     if (mounted && index >= 0 && index < _screens.length) {
+      if (_currentIndex != index) {
+        HapticFeedback.selectionClick();
+      }
       setState(() => _currentIndex = index);
     }
   }
   int _currentIndex = 0;
   bool _isNavbarVisible = true;
-  double _lastScrollOffset = 0;
   bool _isExec = false;
   int _pendingCount = 0;
   RealtimeChannel? _roleChannel;
@@ -263,8 +266,6 @@ class ExecMainScaffoldState extends State<ExecMainScaffold>
       } else if (delta < -4 && !_isNavbarVisible) {
         _showNavbar();
       }
-
-      _lastScrollOffset = offset;
     }
     // Show on scroll end / idle
     if (notification is ScrollEndNotification && !_isNavbarVisible) {
@@ -303,7 +304,7 @@ class ExecMainScaffoldState extends State<ExecMainScaffold>
                 _resetIdleTimer(); // scroll also counts as activity
                 return _onScrollNotification(n);
               },
-              child: IndexedStack(
+              child: AnimatedIndexedStack(
                 index: _currentIndex,
                 children: _screens,
               ),
@@ -370,7 +371,12 @@ class ExecMainScaffoldState extends State<ExecMainScaffold>
   Widget _buildNavItem(int index, IconData selectedIcon, IconData unselectedIcon) {
     final bool isSelected = _currentIndex == index;
     return GestureDetector(
-      onTap: () => setState(() => _currentIndex = index),
+      onTap: () {
+        if (_currentIndex != index) {
+          HapticFeedback.selectionClick();
+          setState(() => _currentIndex = index);
+        }
+      },
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),

@@ -77,9 +77,21 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 : SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(24, 100, 24, 100),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      const Text('EVENT', style: TextStyle(color: AppTheme.accentSecondary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 3)).animate().fadeIn(),
-                      const SizedBox(height: 8),
-                      Text(_event!['event_name'] ?? '', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface, height: 1.1)).animate().fadeIn(delay: 100.ms),
+                      Hero(
+                        tag: 'event-title-${widget.eventId}',
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: Text(
+                            _event!['event_name'] ?? '',
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w900,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              height: 1.1,
+                            ),
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 16),
                       if (_event!['venue'] != null)
                         Row(children: [

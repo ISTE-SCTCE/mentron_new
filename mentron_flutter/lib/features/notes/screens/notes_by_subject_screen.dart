@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -6,6 +7,8 @@ import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/liquid_background.dart';
+import '../../../shared/widgets/pressable_scale.dart';
+import '../../../shared/widgets/skeleton_shimmer.dart';
 import '../../../core/utils/department_mapper.dart';
 import '../../../data/models/note_model.dart';
 import 'create_folder_screen.dart';
@@ -443,7 +446,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
     required String subtitle,
     required String type,
   }) {
-    return GestureDetector(
+    return PressableScale(
       onTap: () {
         Navigator.push(
           context,
@@ -480,7 +483,8 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
   }
 
   Widget _buildCustomFolderCard(Map<String, dynamic> folder) {
-    return GestureDetector(
+    final folderId = folder['id'] as String;
+    return PressableScale(
       onTap: () {
         Navigator.push(
           context,
@@ -491,7 +495,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
               year: widget.year,
               semester: widget.semester,
               dept: widget.dept,
-              folderId: folder['id'] as String,
+              folderId: folderId,
               folderName: folder['name'] as String,
             ),
           ),
@@ -518,10 +522,16 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    folder['name'] as String,
-                    style: const TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.w900, fontSize: 13),
-                    overflow: TextOverflow.ellipsis,
+                  Hero(
+                    tag: 'folder-$folderId',
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: Text(
+                        folder['name'] as String,
+                        style: const TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.w900, fontSize: 13),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ),
                   Text(
                     'Custom Folder',
@@ -540,7 +550,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
   void _navigateToCreateFolder() async {
     final result = await Navigator.push(
       context,
-      AppTransitions.slideUp(
+      AppTransitions.scaleFade(
         CreateFolderScreen(
           subjectName: widget.subjectName,
           department: widget.dept ?? '',
@@ -603,7 +613,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       ),
       body: LiquidBackground(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: AppTheme.accentSecondary))
+            ? const NotesSkeletonList()
             : Column(
                 children: [
                   // Subject / Folder header card
@@ -627,7 +637,16 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                         ),
                         const SizedBox(width: 14),
                         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(screenTitle, style: const TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.w900, fontSize: 14, height: 1.3)),
+                          if (_isInFolder && widget.folderId != null)
+                            Hero(
+                              tag: 'folder-${widget.folderId}',
+                              child: Material(
+                                type: MaterialType.transparency,
+                                child: Text(screenTitle, style: const TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.w900, fontSize: 14, height: 1.3)),
+                              ),
+                            )
+                          else
+                            Text(screenTitle, style: const TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.w900, fontSize: 14, height: 1.3)),
                         ])),
                       ]),
                     ).animate().fadeIn(),
@@ -763,7 +782,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                                           const Text('UPLOADED BY', style: TextStyle(color: AppTheme.textMuted, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
                                           Text(note.uploaderName ?? 'Student', style: const TextStyle(color: AppTheme.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
                                         ]),
-                                        GestureDetector(
+                                        PressableScale(
                                           onTap: () => _openNote(note),
                                           child: Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -781,8 +800,8 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                                         ),
                                       ]),
                                     ]),
-                                  ).animate().fadeIn(delay: (i * 60).ms).slideY(begin: 0.04),
-                                );
+                                  ),
+                                ).animate(delay: (min(i, 8) * 35).ms).fadeIn(duration: 250.ms).slideY(begin: 0.04);
                               },
                             ),
                     ),

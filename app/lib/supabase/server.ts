@@ -49,7 +49,7 @@ export async function getAuthUser(request: NextRequest) {
                 }
             }
         )
-        const { data: { user } } = await client.auth.getUser()
+        const { data: { user } } = await client.auth.getUser(token)
         if (user) {
             return { user, supabase: client }
         }

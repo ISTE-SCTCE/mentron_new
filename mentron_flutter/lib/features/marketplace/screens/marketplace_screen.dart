@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
@@ -5,6 +6,7 @@ import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/marketplace_theme.dart';
 import '../../../models/marketplace_listing.dart';
 import '../../../services/marketplace_service.dart';
+import '../../../shared/widgets/skeleton_shimmer.dart';
 import '../widgets/marketplace_gradient_header.dart';
 import '../widgets/category_chip_bar.dart';
 import '../widgets/listing_card.dart';
@@ -138,10 +140,8 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
             const SliverToBoxAdapter(child: SizedBox(height: 12)),
 
             if (_isLoading)
-              const SliverFillRemaining(
-                child: Center(
-                  child: CircularProgressIndicator(color: Color(0xFF7B6EF6)),
-                ),
+              const SliverToBoxAdapter(
+                child: MarketplaceSkeletonGrid(),
               )
             else if (filtered.isEmpty)
               SliverFillRemaining(child: _buildEmptyState())
@@ -154,7 +154,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                     child: FeaturedListingCard(
                       listing: featured,
                       onTap: () => _openDetail(featured),
-                    ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1),
+                    ).animate().fadeIn(duration: 250.ms).slideY(begin: 0.04),
                   ),
                 ),
 
@@ -169,9 +169,9 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                       listing: rest[i],
                       onTap: () => _openDetail(rest[i]),
                     )
-                        .animate(delay: Duration(milliseconds: 60 * i))
-                        .fadeIn(duration: 300.ms)
-                        .slideY(begin: 0.1),
+                        .animate(delay: (min(i, 8) * 35).ms)
+                        .fadeIn(duration: 250.ms)
+                        .slideY(begin: 0.04),
                     childCount: rest.length,
                   ),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

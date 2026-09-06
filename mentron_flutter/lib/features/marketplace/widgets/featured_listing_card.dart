@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/marketplace_theme.dart';
 import '../../../models/marketplace_listing.dart';
+import '../../../shared/widgets/pressable_scale.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // FeaturedListingCard — full-width dark bento card for the featured listing.
@@ -17,7 +18,7 @@ class FeaturedListingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return PressableScale(
       onTap: onTap,
       child: Container(
         height: 160,
@@ -40,14 +41,17 @@ class FeaturedListingCard extends StatelessWidget {
               child: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.42 - 24,
                 height: 160,
-                child: listing.firstImageUrl.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: listing.firstImageUrl,
-                        fit: BoxFit.cover,
-                        placeholder: (_, __) => _imagePlaceholder(),
-                        errorWidget: (_, __, ___) => _imagePlaceholder(),
-                      )
-                    : _imagePlaceholder(),
+                child: Hero(
+                  tag: 'marketplace-image-${listing.id}',
+                  child: listing.firstImageUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: listing.firstImageUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => _imagePlaceholder(),
+                          errorWidget: (_, __, ___) => _imagePlaceholder(),
+                        )
+                      : _imagePlaceholder(),
+                ),
               ),
             ),
 

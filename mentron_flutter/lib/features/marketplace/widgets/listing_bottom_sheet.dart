@@ -303,31 +303,39 @@ class _ListingBottomSheetState extends State<ListingBottomSheet> {
               controller: _pageController,
               itemCount: images.length,
               onPageChanged: (i) => setState(() => _imageIndex = i),
-              itemBuilder: (_, i) => GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => FullScreenImageViewer(
-                        images: images,
-                        initialIndex: i,
-                      ),
-                    ),
-                  );
-                },
-                child: CachedNetworkImage(
+              itemBuilder: (_, i) {
+                final imageChild = CachedNetworkImage(
                   imageUrl: images[i],
                   fit: BoxFit.contain,
                   placeholder: (_, __) => const Center(
-                    child:
-                        CircularProgressIndicator(color: Colors.white54),
+                    child: CircularProgressIndicator(color: Colors.white54),
                   ),
                   errorWidget: (_, __, ___) => const Center(
                     child: Icon(Icons.image_outlined,
                         color: Colors.white38, size: 60),
                   ),
-                ),
-              ),
+                );
+
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => FullScreenImageViewer(
+                          images: images,
+                          initialIndex: i,
+                        ),
+                      ),
+                    );
+                  },
+                  child: i == 0
+                      ? Hero(
+                          tag: 'marketplace-image-${widget.listing.id}',
+                          child: imageChild,
+                        )
+                      : imageChild,
+                );
+              },
             )
           else
             const Center(

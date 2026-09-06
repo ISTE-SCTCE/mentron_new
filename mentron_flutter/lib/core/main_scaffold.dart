@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'package:provider/provider.dart';
@@ -15,6 +16,7 @@ import '../core/services/supabase_service.dart';
 import '../services/notification_manager_service.dart';
 import 'theme/app_theme.dart';
 import 'utils/app_transitions.dart';
+import 'widgets/animated_indexed_stack.dart';
 import '../features/auth/screens/login_screen.dart';
 
 class MainScaffold extends StatefulWidget {
@@ -31,6 +33,9 @@ class MainScaffoldState extends State<MainScaffold>
 
   void setIndex(int index) {
     if (mounted && index >= 0 && index < _screens.length) {
+      if (_currentIndex != index) {
+        HapticFeedback.selectionClick();
+      }
       setState(() => _currentIndex = index);
     }
   }
@@ -265,7 +270,7 @@ class MainScaffoldState extends State<MainScaffold>
           // ── Full-screen content ──────────────────────────────────
           NotificationListener<ScrollNotification>(
             onNotification: _onScrollNotification,
-            child: IndexedStack(
+            child: AnimatedIndexedStack(
               index: _currentIndex,
               children: _screens,
             ),
@@ -319,8 +324,8 @@ class MainScaffoldState extends State<MainScaffold>
                 _buildNavItem(2, Icons.assignment_rounded, Icons.assignment_outlined),
                 _buildNavItem(3, Icons.shopping_bag_rounded, Icons.shopping_bag_outlined),
                 _buildNavItem(4, Icons.download_done_rounded, Icons.download_for_offline_outlined),
-                // Exec-only requests bell
-                if (_isExec) _buildBellItem(),
+                // Exec-only requests bell / member notification bell
+                if (_isExec) _buildBellItem() else _buildNotifInboxBell(),
               ],
             ),
           ),
@@ -332,7 +337,12 @@ class MainScaffoldState extends State<MainScaffold>
   Widget _buildNavItem(int index, IconData selectedIcon, IconData unselectedIcon) {
     final bool isSelected = _currentIndex == index;
     return GestureDetector(
-      onTap: () => setState(() => _currentIndex = index),
+      onTap: () {
+        if (_currentIndex != index) {
+          HapticFeedback.selectionClick();
+          setState(() => _currentIndex = index);
+        }
+      },
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
