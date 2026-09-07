@@ -60,6 +60,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
   final Set<String> _downloaded = {};
 
   bool get _isInFolder => widget.folderId != null;
+  bool _canUploadNotes = false;
   RealtimeChannel? _notesSubscription;
   RealtimeChannel? _foldersSubscription;
 
@@ -109,6 +110,17 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       _loadNotes(supabase),
       if (!_isInFolder) _loadFolders(supabase),
     ]);
+
+    try {
+      final isLeadership = await supabase.isLeadershipPosition();
+      final perms = await supabase.getPermissions();
+      if (mounted) {
+        setState(() {
+          _canUploadNotes = isLeadership || perms['can_upload_notes'] == true;
+        });
+      }
+    } catch (_) {}
+
     _setupRealtime(supabase);
   }
 
@@ -588,7 +600,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          if (!_isInFolder)
+          if (!_isInFolder && _canUploadNotes)
             IconButton(
               icon: const Icon(Icons.create_new_folder_outlined, color: AppTheme.textMain, size: 22),
               tooltip: 'New Folder',
@@ -596,21 +608,23 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
             ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            AppTransitions.slideRight(const AddNoteScreen()),
-          ).then((_) => _loadData());
-        },
-        backgroundColor: AppTheme.accentSecondary,
-        foregroundColor: Colors.black,
-        icon: const Icon(Icons.upload_file_rounded, size: 20),
-        label: const Text(
-          'UPLOAD NOTE',
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 1),
-        ),
-      ),
+      floatingActionButton: _canUploadNotes
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  AppTransitions.slideRight(const AddNoteScreen()),
+                ).then((_) => _loadData());
+              },
+              backgroundColor: AppTheme.accentSecondary,
+              foregroundColor: Colors.black,
+              icon: const Icon(Icons.upload_file_rounded, size: 20),
+              label: const Text(
+                'UPLOAD NOTE',
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 1),
+              ),
+            )
+          : null,
       body: LiquidBackground(
         child: _isLoading
             ? const NotesSkeletonList()

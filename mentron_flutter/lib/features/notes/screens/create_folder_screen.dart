@@ -30,6 +30,32 @@ class _CreateFolderScreenState extends State<CreateFolderScreen> {
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    _checkPermission();
+  }
+
+  Future<void> _checkPermission() async {
+    final supabase = Provider.of<SupabaseService>(context, listen: false);
+    final isLeadership = await supabase.isLeadershipPosition();
+    final perms = await supabase.getPermissions();
+
+    if (!isLeadership && perms['can_upload_notes'] != true) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              'Access Restricted: Only executive members can manage folders.',
+            ),
+          ),
+        );
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     super.dispose();

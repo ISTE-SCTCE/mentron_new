@@ -86,7 +86,7 @@ class SupabaseService {
     
     final response = await client
         .from('profiles')
-        .select('permissions, iste_position')
+        .select('permissions, iste_position, role')
         .eq('id', userId)
         .maybeSingle();
     
@@ -98,10 +98,16 @@ class SupabaseService {
         'can_see_member_info': true,
         'can_delete_account': true,
         'can_upload_notes': true,
+        'can_promote_demote': true,
       };
     }
 
+    final role = response['role'];
+    final isExecOrCore = role == 'core' || role == 'exec' || role == 'admin';
+
     final Map<String, dynamic> rawPerms = response['permissions'] ?? {};
-    return rawPerms.map((key, value) => MapEntry(key, value == true));
+    final mapped = rawPerms.map((key, value) => MapEntry(key, value == true));
+    mapped['can_upload_notes'] = isExecOrCore ? (mapped['can_upload_notes'] ?? true) : false;
+    return mapped;
   }
 }
