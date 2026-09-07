@@ -44,6 +44,21 @@ export async function POST(request: NextRequest) {
         process.env.SUPABASE_SERVICE_ROLE_KEY || ''
     )
 
+    // Verify that user has executive upload permissions
+    const { data: profile } = await db
+        .from('profiles')
+        .select('role, permissions, iste_position')
+        .eq('id', userId)
+        .single()
+
+    const isExecOrCore = profile?.role === 'core' || profile?.role === 'exec' || profile?.role === 'admin'
+    const isLeadership = profile?.iste_position === 'Chairman' || profile?.iste_position === 'Vice Chairman'
+    const canUpload = (isLeadership || isExecOrCore) && (profile?.permissions?.can_upload_notes ?? true)
+
+    if (!canUpload) {
+        return NextResponse.json({ error: 'Forbidden: Only executive members are permitted to upload notes.' }, { status: 403 })
+    }
+
 
     let formData: FormData
     try {

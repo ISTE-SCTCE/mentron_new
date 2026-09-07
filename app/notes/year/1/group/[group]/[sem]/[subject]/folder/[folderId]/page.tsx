@@ -6,6 +6,7 @@ import { InteractionTracker } from '@/app/components/InteractionTracker'
 import { DeleteButton } from '@/app/components/DeleteButton'
 import { deleteNote } from '@/app/lib/actions/deleteActions'
 import { NoteAccessGate } from '@/app/components/NoteAccessGate'
+import { getPermissions } from '@/app/lib/utils/coreAuth'
 
 const GROUP_COLORS: Record<GroupKey, { color: string; border: string; accent: string }> = {
     A: { color: 'from-blue-500/20 to-cyan-500/10', border: 'border-blue-500/20', accent: 'text-blue-400' },
@@ -39,6 +40,8 @@ export default async function Year1FolderNotesPage({
         .select('id, role, iste_id')
         .eq('id', user?.id ?? '')
         .single()
+
+    const permissions = await getPermissions()
 
     const { data: folder } = await supabase
         .from('note_folders')
@@ -91,12 +94,14 @@ export default async function Year1FolderNotesPage({
                                 <p className="text-gray-500 text-xs mt-1 font-bold">Custom Folder</p>
                             </div>
                         </div>
-                        <Link
-                            href={uploadUrl}
-                            className={`glass glass-hover px-6 py-3 rounded-full text-xs font-black tracking-widest uppercase ${style.accent} border ${style.border} hover:scale-105 transition-all self-center`}
-                        >
-                            + Upload to this Folder
-                        </Link>
+                        {permissions.can_upload_notes && (
+                            <Link
+                                href={uploadUrl}
+                                className={`glass glass-hover px-6 py-3 rounded-full text-xs font-black tracking-widest uppercase ${style.accent} border ${style.border} hover:scale-105 transition-all self-center`}
+                            >
+                                + Upload to this Folder
+                            </Link>
+                        )}
                     </div>
                 </div>
 
@@ -138,9 +143,11 @@ export default async function Year1FolderNotesPage({
                         <p className="text-gray-600 font-bold uppercase text-xs tracking-widest mb-6">
                             No notes in this folder yet
                         </p>
-                        <Link href={uploadUrl} className={`${style.accent} font-black text-xs uppercase tracking-widest hover:text-white transition-colors`}>
-                            Upload to this folder →
-                        </Link>
+                        {permissions.can_upload_notes && (
+                            <Link href={uploadUrl} className={`${style.accent} font-black text-xs uppercase tracking-widest hover:text-white transition-colors`}>
+                                Upload to this folder →
+                            </Link>
+                        )}
                     </div>
                 )}
             </div>

@@ -10,7 +10,7 @@ export async function getPermissionsClient(): Promise<Record<string, boolean>> {
     
     const { data: profile } = await supabase
         .from('profiles')
-        .select('permissions, iste_position')
+        .select('permissions, iste_position, role')
         .eq('id', user.id)
         .single()
     
@@ -19,9 +19,17 @@ export async function getPermissionsClient(): Promise<Record<string, boolean>> {
         return {
             "can_see_member_info": true,
             "can_delete_account": true,
-            "can_upload_notes": true
+            "can_upload_notes": true,
+            "can_promote_demote": true
         }
     }
 
-    return profile?.permissions || {}
+    const perms = profile?.permissions || {}
+    const isExecOrCore = profile?.role === 'core' || profile?.role === 'exec' || profile?.role === 'admin'
+
+    return {
+        ...perms,
+        // Force can_upload_notes to false for normal members, true for core/exec/admin by default
+        can_upload_notes: isExecOrCore ? (perms.can_upload_notes ?? true) : false
+    }
 }

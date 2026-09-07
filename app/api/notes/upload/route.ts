@@ -9,6 +9,20 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'You must be logged in to upload notes.' }, { status: 401 })
     }
 
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, permissions, iste_position')
+        .eq('id', user.id)
+        .single()
+
+    const isExecOrCore = profile?.role === 'core' || profile?.role === 'exec' || profile?.role === 'admin'
+    const isLeadership = profile?.iste_position === 'Chairman' || profile?.iste_position === 'Vice Chairman'
+    const canUpload = (isLeadership || isExecOrCore) && (profile?.permissions?.can_upload_notes ?? true)
+
+    if (!canUpload) {
+        return NextResponse.json({ error: 'Forbidden: Only executive members are permitted to upload notes.' }, { status: 403 })
+    }
+
     const contentType = request.headers.get('content-type') || ''
     let title: string
     let description: string

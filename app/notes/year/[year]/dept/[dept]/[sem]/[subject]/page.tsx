@@ -257,9 +257,11 @@ export default async function SubjectNotesPage({
                             <p className="text-gray-600 font-bold uppercase text-xs tracking-widest mb-6">
                                 {isSubfolder ? 'No notes uploaded here yet' : 'No notes without a folder yet'}
                             </p>
-                            <Link href={uploadUrl} className={`${style.accent} font-black text-xs uppercase tracking-widest hover:text-white transition-colors`}>
-                                Be the first to contribute →
-                            </Link>
+                            {permissions.can_upload_notes && (
+                                <Link href={uploadUrl} className={`${style.accent} font-black text-xs uppercase tracking-widest hover:text-white transition-colors`}>
+                                    Be the first to contribute →
+                                </Link>
+                            )}
                         </div>
                     )}
                 </div>

@@ -368,6 +368,20 @@ export default function NotesUploadPage() {
             }
     }
 
+    if (isAuthorized === null) {
+        return (
+            <div className="min-h-screen pt-32 flex items-center justify-center">
+                <div className="text-gray-500 font-bold text-xs uppercase tracking-widest animate-pulse">
+                    Verifying upload permissions...
+                </div>
+            </div>
+        )
+    }
+
+    if (!isAuthorized) {
+        return null
+    }
+
     return (
         <div className="min-h-screen pt-20 sm:pt-28 md:pt-32 p-4 sm:p-6 md:p-8 text-[#ededed]">
             <div className="max-w-2xl mx-auto">

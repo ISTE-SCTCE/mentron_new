@@ -147,12 +147,14 @@ export default async function Year1SubjectNotesPage({
                                 )}
                             </div>
                         </div>
-                        <Link
-                            href={uploadUrl}
-                            className={`glass glass-hover px-6 py-3 rounded-full text-xs font-black tracking-widest uppercase ${style.accent} border ${style.border} hover:scale-105 transition-all self-center`}
-                        >
-                            + Upload for this Subject
-                        </Link>
+                        {permissions.can_upload_notes && (
+                            <Link
+                                href={uploadUrl}
+                                className={`glass glass-hover px-6 py-3 rounded-full text-xs font-black tracking-widest uppercase ${style.accent} border ${style.border} hover:scale-105 transition-all self-center`}
+                            >
+                                + Upload for this Subject
+                            </Link>
+                        )}
                     </div>
                 </div>
 
@@ -236,9 +238,11 @@ export default async function Year1SubjectNotesPage({
                     <div className="glass-card text-center py-20 border-dashed">
                         <p className="text-4xl mb-4">📂</p>
                         <p className="text-gray-600 font-bold uppercase text-xs tracking-widest mb-6">No notes for this subject yet</p>
-                        <Link href={uploadUrl} className={`${style.accent} font-black text-xs uppercase tracking-widest hover:text-white transition-colors`}>
-                            Be the first to contribute →
-                        </Link>
+                        {permissions.can_upload_notes && (
+                            <Link href={uploadUrl} className={`${style.accent} font-black text-xs uppercase tracking-widest hover:text-white transition-colors`}>
+                                Be the first to contribute →
+                            </Link>
+                        )}
                     </div>
                 )}
             </div>

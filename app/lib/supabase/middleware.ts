@@ -64,9 +64,29 @@ export async function updateSession(request: NextRequest) {
             .eq('id', user.id)
             .single()
 
-        if (profile?.role !== 'exec' && profile?.role !== 'core') {
+        if (profile?.role !== 'exec' && profile?.role !== 'core' && profile?.role !== 'admin') {
             const url = request.nextUrl.clone()
             url.pathname = '/dashboard'
+            return NextResponse.redirect(url)
+        }
+    }
+
+    if (request.nextUrl.pathname.startsWith('/notes/upload') && user) {
+        // Only exec / core / admin / leadership can access note upload
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role, iste_position, permissions')
+            .eq('id', user.id)
+            .single()
+
+        const isExecOrCore = profile?.role === 'core' || profile?.role === 'exec' || profile?.role === 'admin'
+        const isLeadership = profile?.iste_position === 'Chairman' || profile?.iste_position === 'Vice Chairman'
+        const canUpload = (isLeadership || isExecOrCore) && (profile?.permissions?.can_upload_notes ?? true)
+
+        if (!canUpload) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/notes'
+            url.searchParams.set('error', 'Only executive members are permitted to upload notes.')
             return NextResponse.redirect(url)
         }
     }

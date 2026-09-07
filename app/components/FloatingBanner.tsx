@@ -44,7 +44,7 @@ export function FloatingBanner() {
                     </h2>
 
                     <p className="text-gray-400 text-sm max-w-xl font-medium leading-relaxed">
-                        Upload your study materials or share your latest open-source project. Top contributors get featured next week and earn exclusive server roles.
+                        Share your latest open-source project and collaborate with peers. Top contributors get featured next week and earn exclusive server roles.
                     </p>
                 </div>
 

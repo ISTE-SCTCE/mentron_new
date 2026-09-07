@@ -61,11 +61,11 @@ export async function getPermissions(): Promise<Record<string, boolean>> {
     }
 
     const perms = profile?.permissions || {}
-    const isExecOrCore = profile?.role === 'core' || profile?.role === 'exec'
+    const isExecOrCore = profile?.role === 'core' || profile?.role === 'exec' || profile?.role === 'admin'
 
     return {
         ...perms,
-        // Force can_upload_notes to false for normal members, true for core/exec by default
+        // Force can_upload_notes to false for normal members, true for core/exec/admin by default
         can_upload_notes: isExecOrCore ? (perms.can_upload_notes ?? true) : false
     }
 }

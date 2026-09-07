@@ -5,6 +5,7 @@ import { DEPARTMENTS, DeptKey, SemKey } from '@/app/lib/data/subjects'
 import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
 import { SubjectFoldersClient } from '@/app/notes/SubjectFoldersClient'
 import { SubjectRowClient } from '@/app/notes/SubjectRowClient'
+import { getPermissions } from '@/app/lib/utils/coreAuth'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,6 +53,7 @@ export default async function DeptSubjectsPage({
         .single()
 
     const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+    const permissions = await getPermissions()
     const detectedDept = getDepartmentFromRollNumber(profile?.roll_number)
     const userDept = (detectedDept !== 'Other' ? detectedDept : profile?.department) ?? ''
     const isDifferentDept = !isPrivileged && userDept && userDept.toUpperCase() !== deptKey
@@ -129,9 +131,11 @@ export default async function DeptSubjectsPage({
                                 <p className={`text-xs sm:text-sm font-bold mt-1 ${style.accent}`}>{deptKey}</p>
                             </div>
                         </div>
-                        <Link href={uploadUrl} className={`glass glass-hover px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest ${style.accent} border ${style.border} text-center shrink-0`}>
-                            + Contribute Notes
-                        </Link>
+                        {permissions.can_upload_notes && (
+                            <Link href={uploadUrl} className={`glass glass-hover px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest ${style.accent} border ${style.border} text-center shrink-0`}>
+                                + Contribute Notes
+                            </Link>
+                        )}
                     </div>
                 </div>
 

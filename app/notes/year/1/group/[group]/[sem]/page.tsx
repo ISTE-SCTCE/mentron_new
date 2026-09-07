@@ -5,6 +5,7 @@ import { FIRST_YEAR_GROUPS, GroupKey } from '@/app/lib/data/subjects'
 import { getDepartmentFromRollNumber, getGroupFromDepartment } from '@/app/lib/utils/departmentMapper'
 import { SubjectFoldersClient } from '@/app/notes/SubjectFoldersClient'
 import { SubjectRowClient } from '@/app/notes/SubjectRowClient'
+import { getPermissions } from '@/app/lib/utils/coreAuth'
 
 const VALID_GROUPS: GroupKey[] = ['A', 'B', 'C', 'D']
 const VALID_SEMS = ['S1', 'S2']
@@ -38,6 +39,7 @@ export default async function Year1SubjectsPage({
 
     // Group-based access control for Year 1 students
     const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+    const permissions = await getPermissions()
     const detectedDept = getDepartmentFromRollNumber(profile?.roll_number)
     const resolvedDept = detectedDept !== 'Other' ? detectedDept : (profile?.department ?? '')
     const userGroup = getGroupFromDepartment(resolvedDept)
@@ -114,9 +116,11 @@ export default async function Year1SubjectsPage({
                                 <p className={`text-xs sm:text-sm font-bold mt-1 ${style.accent}`}>{groupMeta.streams}</p>
                             </div>
                         </div>
-                        <Link href="/notes/upload" className={`glass glass-hover px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest ${style.accent} border ${style.border} text-center shrink-0`}>
-                            + Contribute Notes
-                        </Link>
+                        {permissions.can_upload_notes && (
+                            <Link href="/notes/upload" className={`glass glass-hover px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest ${style.accent} border ${style.border} text-center shrink-0`}>
+                                + Contribute Notes
+                            </Link>
+                        )}
                     </div>
                 </div>
 
