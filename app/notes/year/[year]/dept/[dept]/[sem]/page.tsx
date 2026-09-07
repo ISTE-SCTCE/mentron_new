@@ -51,30 +51,10 @@ export default async function DeptSubjectsPage({
         .eq('id', user?.id ?? '')
         .single()
 
-  const isPrivileged = profile?.role === 'exec' || profile?.role === 'core'
-    if (!isPrivileged) {
-        const detectedDept = getDepartmentFromRollNumber(profile?.roll_number)
-        const userDept = (detectedDept !== 'Other' ? detectedDept : profile?.department) ?? ''
-        if (userDept && userDept.toUpperCase() !== deptKey) {
-            // Show restricted page instead of redirect — keeps breadcrumb intact
-            return (
-                <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed] flex items-center justify-center">
-                    <div className="glass-card max-w-md text-center border-red-500/20 bg-red-500/5">
-                        <div className="text-5xl mb-4">🔒</div>
-                        <h2 className="text-2xl font-black text-white mb-2">Access Restricted</h2>
-                        <p className="text-gray-400 text-sm mb-6">
-                            These notes are for <strong className="text-white">{deptKey}</strong> students.
-                            Your department is <strong className="text-white">{userDept}</strong>.
-                        </p>
-                        <Link href={`/notes/year/${yearNum}/semester/${semKey}/${userDept.toUpperCase()}`}
-                            className="glass glass-hover px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest text-blue-400 border-blue-500/20">
-                            Go to My Department →
-                        </Link>
-                    </div>
-                </div>
-            )
-        }
-    }
+    const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+    const detectedDept = getDepartmentFromRollNumber(profile?.roll_number)
+    const userDept = (detectedDept !== 'Other' ? detectedDept : profile?.department) ?? ''
+    const isDifferentDept = !isPrivileged && userDept && userDept.toUpperCase() !== deptKey
 
     // Hardcoded subjects string array map is REMOVED.
     // Fetch custom "root" folders which ACT as subjects now.
@@ -119,6 +99,24 @@ export default async function DeptSubjectsPage({
                     <span className="text-gray-700">/</span>
                     <span className={`${style.accent} uppercase tracking-widest`}>{deptKey}</span>
                 </div>
+
+                {/* Department Info Banner (Non-blocking) */}
+                {isDifferentDept && (
+                    <div className="mb-6 p-4 rounded-2xl glass border border-blue-500/20 bg-blue-500/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                        <div className="flex items-center gap-2.5 text-gray-300">
+                            <span>ℹ️</span>
+                            <span>
+                                You are viewing <strong className="text-white">{deptKey}</strong> notes. Your enrolled department is <strong className="text-white">{userDept}</strong>.
+                            </span>
+                        </div>
+                        <Link
+                            href={`/notes/year/${yearNum}/dept/${userDept.toUpperCase()}/${semKey}`}
+                            className="glass glass-hover px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-blue-400 border border-blue-500/30 text-center shrink-0"
+                        >
+                            Go to {userDept.toUpperCase()} →
+                        </Link>
+                    </div>
+                )}
 
                 {/* Header card */}
                 <div className={`glass-card p-6 sm:p-8 rounded-3xl mb-8 sm:mb-12 bg-gradient-to-br ${style.color} border ${style.border}`}>

@@ -66,16 +66,9 @@ export default async function YearPage({
                 {/* Semester Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-10 mb-16">
                     {sems.map(({ sem, label }: { sem: string; label: string }) => {
-                        let href = ''
-                        if (yearNum === 1) {
-                            if (!isPrivileged && assignedGroup) {
-                                href = `/notes/year/1/group/${assignedGroup}/${sem}`
-                            } else {
-                                href = `/notes/year/1/semester/${sem}`
-                            }
-                        } else {
-                           href = `/notes/year/${yearNum}/semester/${sem}`
-                        }
+                        const href = yearNum === 1
+                            ? `/notes/year/1/semester/${sem}`
+                            : `/notes/year/${yearNum}/semester/${sem}`
 
                         return (
                             <Link

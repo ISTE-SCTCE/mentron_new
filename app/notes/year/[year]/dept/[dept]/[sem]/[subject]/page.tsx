@@ -63,25 +63,31 @@ export default async function SubjectNotesPage({
     const isSubfolder = subjectName.startsWith('PYQ - ') || subjectName.startsWith('Video - ')
 
     // Fetch notes filtered by year + dept + semester + subject (only those without a folder)
+    const dashAltSubject = subjectName.includes('–') 
+        ? subjectName.replace(/–/g, '-') 
+        : subjectName.replace(/-/g, '–')
+
     const { data: notes } = await supabase
         .from('notes')
         .select('*, profiles!notes_profile_id_fkey(full_name)')
         .eq('year', yearNum)
         .eq('semester', semKey)
-        .eq('subject', subjectName)
-        .eq('department', deptKey.toUpperCase())
+        .or(`subject.eq."${subjectName}",subject.eq."${dashAltSubject}"`)
+        .ilike('department', `%${deptKey}%`)
         .is('folder_id', null)
         .order('created_at', { ascending: false })
 
     let finalNotes = notes ?? []
 
-    // ── FALLBACK: If folder is empty, search by semester + Year broad match ──
+    // ── FALLBACK: If empty, search by subject and semester (handling dash or inter-dept variations) ──
     if (finalNotes.length === 0) {
+        const cleanSub = subjectName.replace(/[\u2013\u2014-]/g, '%')
         const { data: fallbackNotes } = await supabase
             .from('notes')
             .select('*, profiles!notes_profile_id_fkey(full_name)')
             .eq('year', yearNum)
             .eq('semester', semKey)
+            .ilike('subject', `%${cleanSub}%`)
             .order('created_at', { ascending: false })
             .limit(20)
         finalNotes = fallbackNotes ?? []
@@ -214,16 +220,16 @@ export default async function SubjectNotesPage({
                         <span className="w-6 h-[1px] bg-current inline-block" />
                         {isSubfolder ? 'All Notes' : 'Notes (No Folder)'}
                     </p>
-                    {notes && notes.length > 0 ? (
+                    {finalNotes && finalNotes.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {notes.map((note: any) => (
+                            {finalNotes.map((note: any) => (
                                 <div key={note.id} className="glass-card flex flex-col group">
                                     <h3 className="text-lg font-black text-white group-hover:text-glow transition-all mb-2 line-clamp-2">{note.title}</h3>
                                     <p className="text-gray-500 text-xs font-medium mb-4 line-clamp-2">{note.description || 'No description.'}</p>
                                     <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
                                         <span className="text-[10px] text-gray-600 font-bold">{note.profiles?.full_name || 'Anonymous'}</span>
                                         <div className="flex gap-3 items-center">
-                                            {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'core') && (
+                                            {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin') && (
                                                 <DeleteButton onDelete={deleteNote.bind(null, note.id)} itemName="note" />
                                             )}
                                             <NoteAccessGate 

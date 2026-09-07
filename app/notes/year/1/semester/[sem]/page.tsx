@@ -33,10 +33,7 @@ export default async function GroupPickerPage({
     const assignedGroup = userDept ? DEPT_TO_GROUP[userDept] : null
 
     const allGroups = Object.entries(FIRST_YEAR_GROUPS) as [GroupKey, typeof FIRST_YEAR_GROUPS[GroupKey]][]
-    const groups = allGroups.filter(([key]) => {
-        if (isPrivileged || !assignedGroup) return true
-        return key === assignedGroup
-    })
+    const groups = allGroups
 
     return (
         <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
@@ -64,19 +61,27 @@ export default async function GroupPickerPage({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
                     {groups.map(([key, group]) => {
                         const style = GROUP_COLORS[key]
+                        const isEnrolledGroup = assignedGroup === key
                         return (
                             <Link
                                 key={key}
                                 href={`/notes/year/1/group/${key}/${sem}`}
-                                className={`glass-card group bg-gradient-to-br ${style.color} border ${style.border} hover:scale-[1.02] transition-all block`}
+                                className={`glass-card group bg-gradient-to-br ${style.color} border ${style.border} hover:scale-[1.02] transition-all block relative`}
                             >
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-3xl grayscale group-hover:grayscale-0 transition-all">
                                         {group.emoji}
                                     </div>
-                                    <span className={`text-[10px] font-black tracking-widest uppercase ${style.accent} border ${style.border} px-3 py-1 rounded-full glass`}>
-                                        Group {key}
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        {isEnrolledGroup && (
+                                            <span className="text-[9px] font-black tracking-widest uppercase bg-green-500/20 text-green-400 border border-green-500/30 px-2.5 py-1 rounded-full">
+                                                Your Group
+                                            </span>
+                                        )}
+                                        <span className={`text-[10px] font-black tracking-widest uppercase ${style.accent} border ${style.border} px-3 py-1 rounded-full glass`}>
+                                            Group {key}
+                                        </span>
+                                    </div>
                                 </div>
                                 <h2 className="text-3xl font-black text-white group-hover:text-glow transition-all mb-1 tracking-tighter">{group.label}</h2>
                                 <p className={`text-sm font-bold mb-2 ${style.accent}`}>{group.streams}</p>

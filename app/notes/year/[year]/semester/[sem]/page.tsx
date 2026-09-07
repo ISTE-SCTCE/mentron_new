@@ -45,11 +45,7 @@ export default async function DeptPickerPage({
 
     const semKey = sem.toUpperCase()
     const yearMeta = YEAR_META[yearNum]
-    const allDepts = (Object.entries(DEPARTMENTS) as [DeptKey, typeof DEPARTMENTS[DeptKey]][])
-    const deptList = allDepts.filter(([code]) => {
-        if (isPrivileged || !userDept) return true
-        return code === userDept
-    })
+    const deptList = (Object.entries(DEPARTMENTS) as [DeptKey, typeof DEPARTMENTS[DeptKey]][])
 
     return (
         <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
@@ -77,19 +73,27 @@ export default async function DeptPickerPage({
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {deptList.map(([code, dept]: [DeptKey, any]) => {
                         const style = DEPT_COLORS[code]
+                        const isEnrolledDept = userDept === code
                         return (
                             <Link
                                 key={code}
                                 href={`/notes/year/${yearNum}/dept/${code}/${semKey}`}
-                                className={`glass-card group bg-gradient-to-br ${style.color} border ${style.border} hover:scale-[1.02] transition-all block`}
+                                className={`glass-card group bg-gradient-to-br ${style.color} border ${style.border} hover:scale-[1.02] transition-all block relative`}
                             >
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-3xl grayscale group-hover:grayscale-0 transition-all">
                                         {dept.emoji}
                                     </div>
-                                    <span className={`text-[10px] font-black tracking-widest uppercase ${style.accent} glass border ${style.border} px-3 py-1 rounded-full`}>
-                                        {code}
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        {isEnrolledDept && (
+                                            <span className="text-[9px] font-black tracking-widest uppercase bg-green-500/20 text-green-400 border border-green-500/30 px-2.5 py-1 rounded-full">
+                                                Your Stream
+                                            </span>
+                                        )}
+                                        <span className={`text-[10px] font-black tracking-widest uppercase ${style.accent} glass border ${style.border} px-3 py-1 rounded-full`}>
+                                            {code}
+                                        </span>
+                                    </div>
                                 </div>
                                 <h2 className="text-xl font-black text-white group-hover:text-glow transition-all mb-1 tracking-tight leading-snug">{dept.name}</h2>
                                 <p className="text-gray-500 text-sm font-medium mb-6">View {semKey} subjects &amp; notes</p>

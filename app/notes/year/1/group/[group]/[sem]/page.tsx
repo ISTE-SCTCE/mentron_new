@@ -37,30 +37,11 @@ export default async function Year1SubjectsPage({
         .single()
 
     // Group-based access control for Year 1 students
-    const isPrivileged = profile?.role === 'exec' || profile?.role === 'core'
-    if (!isPrivileged) {
-        const detectedDept = getDepartmentFromRollNumber(profile?.roll_number)
-        const resolvedDept = detectedDept !== 'Other' ? detectedDept : (profile?.department ?? '')
-        const userGroup = getGroupFromDepartment(resolvedDept)
-        if (userGroup !== groupKey) {
-            return (
-                <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed] flex items-center justify-center">
-                    <div className="glass-card max-w-md text-center border-red-500/20 bg-red-500/5">
-                        <div className="text-5xl mb-4">🔒</div>
-                        <h2 className="text-2xl font-black text-white mb-2">Access Restricted</h2>
-                        <p className="text-gray-400 text-sm mb-6">
-                            You belong to <strong className="text-white">Group {userGroup}</strong>.
-                            Group {groupKey} notes are available only to students in that stream.
-                        </p>
-                        <Link href={`/notes/year/1/group/${userGroup}/${sem}`}
-                            className="glass glass-hover px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest text-blue-400 border-blue-500/20">
-                            Go to My Group →
-                        </Link>
-                    </div>
-                </div>
-            )
-        }
-    }
+    const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+    const detectedDept = getDepartmentFromRollNumber(profile?.roll_number)
+    const resolvedDept = detectedDept !== 'Other' ? detectedDept : (profile?.department ?? '')
+    const userGroup = getGroupFromDepartment(resolvedDept)
+    const isDifferentGroup = !isPrivileged && userGroup && userGroup !== groupKey
 
     // Fetch all notes for this group+sem with subject
     const { data: allNotes } = await supabase
@@ -103,6 +84,24 @@ export default async function Year1SubjectsPage({
                     <span className="text-gray-700">/</span>
                     <span className={`${style.accent} uppercase tracking-widest`}>Group {groupKey}</span>
                 </div>
+
+                {/* Group Info Banner (Non-blocking) */}
+                {isDifferentGroup && (
+                    <div className="mb-6 p-4 rounded-2xl glass border border-blue-500/20 bg-blue-500/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                        <div className="flex items-center gap-2.5 text-gray-300">
+                            <span>ℹ️</span>
+                            <span>
+                                You are viewing <strong className="text-white">Group {groupKey}</strong> notes. Your stream is <strong className="text-white">Group {userGroup}</strong>.
+                            </span>
+                        </div>
+                        <Link
+                            href={`/notes/year/1/group/${userGroup}/${sem}`}
+                            className="glass glass-hover px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-blue-400 border border-blue-500/30 text-center shrink-0"
+                        >
+                            Go to Group {userGroup} →
+                        </Link>
+                    </div>
+                )}
 
                 {/* Header */}
                 <div className={`glass-card p-6 sm:p-8 rounded-3xl mb-8 sm:mb-12 bg-gradient-to-br ${style.color} border ${style.border}`}>

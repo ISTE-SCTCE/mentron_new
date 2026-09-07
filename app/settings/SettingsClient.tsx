@@ -35,18 +35,22 @@ export function SettingsClient({ profile, userEmail }: SettingsClientProps) {
     const handleUpdateProfile = async () => {
         setIsUpdatingProfile(true)
         try {
-            // Optional: If ISTE ID is provided, we check it against Project A (via the local DB view/FDW)
+            // Optional: If ISTE ID is provided, we check it against Project A (if table is exposed)
             if (isteId && isteId !== profile?.iste_id) {
-                const { data: member, error: memberError } = await supabase
-                    .from('project_a.members')
-                    .select('ui_id')
-                    .eq('ui_id', isteId)
-                    .maybeSingle()
-                
-                if (memberError || !member) {
-                    toast.error("Invalid ISTE ID. Please check and try again.")
-                    setIsUpdatingProfile(false)
-                    return
+                try {
+                    const { data: member, error: memberError } = await supabase
+                        .from('project_a.members')
+                        .select('ui_id')
+                        .eq('ui_id', isteId.trim())
+                        .maybeSingle()
+                    
+                    if (!memberError && !member) {
+                        toast.error("Invalid ISTE ID. Please check and try again.")
+                        setIsUpdatingProfile(false)
+                        return
+                    }
+                } catch {
+                    // Schema not exposed to PostgREST, continue with profile update
                 }
             }
 

@@ -50,15 +50,36 @@ export default async function Year1SubjectNotesPage({
     const canCreateFolder = isPrivileged || permissions.can_upload_notes === true
 
     // Fetch notes for this specific group + sem + subject
+    const dashAltSubject = subjectName.includes('–') 
+        ? subjectName.replace(/–/g, '-') 
+        : subjectName.replace(/-/g, '–')
+
     const { data: notes } = await supabase
         .from('notes')
         .select('*, profiles!notes_profile_id_fkey(full_name)')
         .eq('year', 1)
         .eq('department', groupKey)
         .eq('semester', sem)
-        .eq('subject', subjectName)
+        .or(`subject.eq."${subjectName}",subject.eq."${dashAltSubject}"`)
         .is('folder_id', null)
         .order('created_at', { ascending: false })
+
+    let finalNotes = notes ?? []
+
+    // ── FALLBACK: If empty for this specific group, check if notes exist for this subject in other Year 1 groups ──
+    if (finalNotes.length === 0) {
+        const cleanSub = subjectName.replace(/[\u2013\u2014-]/g, '%')
+        const { data: fallbackNotes } = await supabase
+            .from('notes')
+            .select('*, profiles!notes_profile_id_fkey(full_name)')
+            .eq('year', 1)
+            .eq('semester', sem)
+            .ilike('subject', `%${cleanSub}%`)
+            .is('folder_id', null)
+            .order('created_at', { ascending: false })
+
+        finalNotes = fallbackNotes ?? []
+    }
 
     const uploadUrl = `/notes/upload?year=1&dept=${groupKey}&sem=${sem}&subject=${encodeURIComponent(subjectName)}`
 
@@ -180,16 +201,16 @@ export default async function Year1SubjectNotesPage({
                 )}
 
                 {/* Notes */}
-                {notes && notes.length > 0 ? (
+                {finalNotes && finalNotes.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {notes.map((note: any) => (
+                        {finalNotes.map((note: any) => (
                             <div key={note.id} className="glass-card flex flex-col group">
                                 <h3 className="text-lg font-black text-white group-hover:text-glow transition-all mb-2 line-clamp-2">{note.title}</h3>
                                 <p className="text-gray-500 text-xs font-medium mb-4 line-clamp-2">{note.description || 'No description.'}</p>
                                 <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
                                     <span className="text-[10px] text-gray-600 font-bold">{note.profiles?.full_name || 'Anonymous'}</span>
                                     <div className="flex gap-3 items-center">
-                                        {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'core') && (
+                                        {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin') && (
                                             <DeleteButton onDelete={deleteNote.bind(null, note.id)} itemName="note" />
                                         )}
                                         <NoteAccessGate 
