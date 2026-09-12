@@ -71,6 +71,27 @@ export default function ResetPasswordPage() {
     useEffect(() => {
         const supabase = createClient()
 
+        // 1. Check for PKCE code in URL search params and exchange it for a session
+        const exchangeCode = async () => {
+            if (typeof window !== 'undefined') {
+                const params = new URLSearchParams(window.location.search)
+                const code = params.get('code')
+                if (code) {
+                    try {
+                        const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+                        if (!error && data?.session) {
+                            setSessionReady('valid')
+                            setTimeout(() => passwordRef.current?.focus(), 100)
+                            return true
+                        }
+                    } catch (err) {
+                        console.error('Error exchanging recovery code:', err)
+                    }
+                }
+            }
+            return false
+        }
+
         // Supabase fires PASSWORD_RECOVERY event when URL contains recovery token
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'PASSWORD_RECOVERY') {
@@ -85,6 +106,9 @@ export default function ResetPasswordPage() {
 
         // Fallback: check for existing session (token already exchanged)
         const checkSession = async () => {
+            const exchanged = await exchangeCode()
+            if (exchanged) return
+
             const { data: { session } } = await supabase.auth.getSession()
             if (session) {
                 setSessionReady('valid')

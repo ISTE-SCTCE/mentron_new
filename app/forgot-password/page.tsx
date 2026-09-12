@@ -29,13 +29,17 @@ export default function ForgotPasswordPage() {
             
             if (error) {
                 console.error('Supabase Reset Error:', error.message, error.status)
-                // We still setSubmitted(true) for security, but now we can see the error in dev tools
+                if (error.status === 429) {
+                    setError('Too many reset requests. Please wait a few minutes before trying again.')
+                } else {
+                    setError(error.message || 'Failed to send reset link. Please check the email address.')
+                }
+            } else {
+                setSubmitted(true)
             }
-            
-            setSubmitted(true)
-        } catch (err) {
+        } catch (err: any) {
             console.error('Unexpected Reset Error:', err)
-            setSubmitted(true)
+            setError(err?.message || 'An unexpected error occurred. Please try again.')
         } finally {
             setIsPending(false)
         }
