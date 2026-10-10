@@ -1,3 +1,4 @@
+import '../platform/file_headers.dart';
 // lib/widgets/secure_video_player_widget.dart
 //
 // Video player widget that:
@@ -77,7 +78,7 @@ class _SecureVideoPlayerWidgetState extends State<SecureVideoPlayerWidget>
     try {
       if (widget.networkUrl != null) {
         _controller = VideoPlayerController.networkUrl(
-            Uri.parse(widget.networkUrl!));
+            Uri.parse(platformFileUrl(widget.networkUrl!)), httpHeaders: platformFileHeaders(widget.networkUrl!));
       } else {
         _controller =
             VideoPlayerController.contentUri(Uri.file(widget.localFilePath!));

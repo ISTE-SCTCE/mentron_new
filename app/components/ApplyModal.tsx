@@ -55,22 +55,8 @@ export function ApplyModal({ projectId, projectTitle, cvRequired = true, userNam
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) { setError('You must be signed in to apply.'); setUploading(false); return }
 
-        // Self-heal: ensure profile row exists (prevents FK violation on applicant_id)
-        const meta = user.user_metadata
-        const { error: profileErr } = await supabase.from('profiles').upsert({
-            id: user.id,
-            full_name: name.trim() || meta?.full_name || 'Anonymous',
-            roll_number: meta?.roll_number || `TEMP-${user.id.slice(0, 8)}`,
-            department: meta?.department || 'Other',
-            year: parseInt(String(meta?.year ?? '0').replace(/\D/g, '')) || 0,
-            role: meta?.role || 'member',
-        }, { onConflict: 'id', ignoreDuplicates: true })
-
-        if (profileErr) {
-            setError(`Profile sync failed: ${profileErr.message}`)
-            setUploading(false)
-            return
-        }
+        const { error: profileError } = await supabase.from('profiles').select('id').eq('id',user.id).single()
+        if(profileError) { setError('Please finish joining Mentron before applying.');setUploading(false);return }
 
         let finalCvUrl = null
 
@@ -95,11 +81,8 @@ export function ApplyModal({ projectId, projectTitle, cvRequired = true, userNam
             }
 
             setUploadProgress(100)
-            const { data: { publicUrl } } = supabase.storage
-                .from('cv_bucket')
-                .getPublicUrl(filePath)
-            
-            finalCvUrl = publicUrl
+            // Private CVs are accessed through the authenticated file endpoint.
+            finalCvUrl = '/api/files/cv_bucket/' + filePath
         }
 
         setUploading(false)

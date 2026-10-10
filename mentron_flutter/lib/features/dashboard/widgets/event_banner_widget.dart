@@ -66,7 +66,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
       final supabase = Provider.of<SupabaseService>(context, listen: false);
       final userId = supabase.currentUser?.id;
       if (userId == null) return;
-      final profile = await supabase.client.from('profiles').select('role, roll_number').eq('id', userId).maybeSingle();
+      final profile = await supabase.client.schema('mentron').from('profiles').select('role, roll_number').eq('id', userId).maybeSingle();
       final role = profile?['role'] as String? ?? '';
       final roll = profile?['roll_number'] as String?;
       final dept = DepartmentMapper.getDepartmentFromRoll(roll);
@@ -84,7 +84,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
       final supabase = Provider.of<SupabaseService>(context, listen: false).client;
       final now = DateTime.now().toIso8601String().substring(0, 10);
       final response = await supabase
-          .from('event_cal')
+          .schema('mentron').from('event_cal')
           .select('id, event_name, event_date, venue, description, department')
           .gte('event_date', now)
           .or('department.eq.General,department.eq.$_userDept')
@@ -273,7 +273,7 @@ class _EventBannerWidgetState extends State<EventBannerWidget> {
                     try {
                       final supabase = Provider.of<SupabaseService>(context, listen: false).client;
                       final eventDate = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, 12, 0, 0);
-                      await supabase.from('event_cal').insert({
+                      await supabase.schema('mentron').from('event_cal').insert({
                         'event_name': name,
                         'event_date': eventDate.toIso8601String(),
                         'venue': venueCtrl.text.trim().isEmpty ? 'TBA' : venueCtrl.text.trim(),

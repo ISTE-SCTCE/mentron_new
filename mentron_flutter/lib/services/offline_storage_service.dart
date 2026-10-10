@@ -1,3 +1,4 @@
+import '../platform/file_headers.dart';
 // lib/services/offline_storage_service.dart
 //
 // Netflix-style offline storage for Mentron.
@@ -191,8 +192,9 @@ class OfflineStorageService {
       // Stream-download into a temp file first
       final tempPath = '${dir.path}/$contentId.tmp';
       await dio.download(
-        url,
+        platformFileUrl(url),
         tempPath,
+        options: Options(headers: platformFileHeaders(url), followRedirects: false),
         onReceiveProgress: (received, total) {
           if (total > 0 && onProgress != null) {
             onProgress(received / total);
@@ -380,7 +382,7 @@ class OfflineStorageService {
   }) async {
     try {
       final userId = _client.auth.currentUser?.id;
-      await _client.from('access_logs').insert({
+      await _client.schema('mentron').from('access_logs').insert({
         'user_id': userId,
         'content_id': contentId,
         'action': action,

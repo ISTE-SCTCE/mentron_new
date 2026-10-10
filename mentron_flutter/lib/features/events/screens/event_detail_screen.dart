@@ -30,10 +30,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     final userId = supabase.currentUser?.id;
     try {
-      final event = await supabase.client.from('event_cal').select('*').eq('id', widget.eventId).maybeSingle();
+      final event = await supabase.client.schema('mentron').from('event_cal').select('*').eq('id', widget.eventId).maybeSingle();
       bool registered = false;
       if (userId != null) {
-        final reg = await supabase.client.from('registrations').select('*').eq('event_id', widget.eventId).eq('user_id', userId).maybeSingle();
+        final reg = await supabase.client.schema('mentron').from('registrations').select('*').eq('event_id', widget.eventId).eq('user_id', userId).maybeSingle();
         registered = reg != null;
       }
       if (mounted) setState(() { _event = event; _isRegistered = registered; _isLoading = false; });
@@ -48,7 +48,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final userId = supabase.currentUser?.id;
     if (userId == null) return;
     try {
-      await supabase.client.from('registrations').insert({'event_id': widget.eventId, 'user_id': userId});
+      await supabase.client.schema('mentron').from('registrations').insert({'event_id': widget.eventId, 'user_id': userId});
       if (mounted) {
         setState(() { _isRegistered = true; _isRegistering = false; });
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text("You're registered! We'll see you there 🎉")));

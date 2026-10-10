@@ -38,29 +38,6 @@ export function GlassNav() {
         return () => { document.body.style.overflow = '' }
     }, [mobileOpen])
 
-    // Back-button intercept on dashboard
-    useEffect(() => {
-        if (!pathname.startsWith('/dashboard')) return
-
-        const onPopState = (e: PopStateEvent) => {
-            e.preventDefault()
-            const confirmed = window.confirm('Going back will log you out. Are you sure?')
-            if (confirmed) {
-                supabase.auth.signOut().then(() => {
-                    window.location.href = '/'
-                })
-            } else {
-                // Push state back so the browser doesn't navigate away
-                window.history.pushState(null, '', pathname)
-            }
-        }
-
-        // Push a state so there IS a back step to intercept
-        window.history.pushState(null, '', pathname)
-        window.addEventListener('popstate', onPopState)
-        return () => window.removeEventListener('popstate', onPopState)
-    }, [pathname, supabase])
-
     const handleLogout = async () => {
         const confirmed = window.confirm('Are you sure you want to logout?')
         if (!confirmed) return
@@ -69,22 +46,22 @@ export function GlassNav() {
     }
 
     const navItems = [
-        { href: '/dashboard', icon: LayoutGrid, label: 'Dashboard' },
-        { href: '/events', icon: Zap, label: 'Events' },
-        { href: '/notes', icon: BookOpen, label: 'Notes' },
-        { href: '/projects', icon: FlaskConical, label: 'Projects' },
-        { href: '/marketplace', icon: ShoppingBag, label: 'Marketplace' },
-        { href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
-        { href: '/societies', icon: Users, label: 'Societies' },
+        { href: '/mentron/dashboard', icon: LayoutGrid, label: 'Dashboard' },
+        { href: '/mentron/events', icon: Zap, label: 'Events' },
+        { href: '/mentron/notes', icon: BookOpen, label: 'Notes' },
+        { href: '/mentron/projects', icon: FlaskConical, label: 'Projects' },
+        { href: '/mentron/marketplace', icon: ShoppingBag, label: 'Marketplace' },
+        { href: '/mentron/leaderboard', icon: Trophy, label: 'Leaderboard' },
+        { href: '/mentron/societies', icon: Users, label: 'Societies' },
     ]
 
     return (
         <>
             {/* ─── DESKTOP NAV (hidden on mobile) ─── */}
-            <header className="fixed top-4 md:top-8 left-1/2 -translate-x-1/2 z-[1000] hidden md:flex items-center gap-4 transition-all duration-300 pointer-events-auto">
+            <header className="fixed top-20 md:top-24 left-1/2 -translate-x-1/2 z-[1000] hidden md:flex items-center gap-4 transition-all duration-300 pointer-events-auto">
 
                 {/* Logo */}
-                <Link href="/dashboard" className="flex items-center justify-center w-14 h-14 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 p-2 shrink-0 transition-all hover:bg-white/10 hover:border-[#7000df] hover:shadow-[0_0_20px_rgba(112,0,223,0.25)]">
+                <Link href="/mentron/dashboard" className="flex items-center justify-center w-14 h-14 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 p-2 shrink-0 transition-all hover:bg-white/10 hover:border-[#7000df] hover:shadow-[0_0_20px_rgba(112,0,223,0.25)]">
                     <span className="font-display font-black text-2xl tracking-tighter text-white">M</span>
                 </Link>
 
@@ -121,12 +98,12 @@ export function GlassNav() {
 
                     {/* Settings Button */}
                     <Link
-                        href="/settings"
+                        href="/mentron/settings"
                         title="Settings"
                         className={`
                             group relative flex items-center gap-0 p-2 rounded-full overflow-hidden whitespace-nowrap
                             transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
-                            ${pathname === '/settings' ? 'bg-white/10 backdrop-blur-md border border-white/20 text-white pr-4 gap-2' : 'text-[#8b9bb4] hover:bg-white/10 hover:backdrop-blur-md hover:border-white/20 hover:text-white hover:pr-4 hover:gap-2'}
+                            ${pathname === '/mentron/settings' ? 'bg-white/10 backdrop-blur-md border border-white/20 text-white pr-4 gap-2' : 'text-[#8b9bb4] hover:bg-white/10 hover:backdrop-blur-md hover:border-white/20 hover:text-white hover:pr-4 hover:gap-2'}
                         `}
                     >
                         <Settings size={20} className="shrink-0 opacity-80 group-hover:opacity-100 group-hover:rotate-90 transition-all duration-500" />
@@ -151,10 +128,10 @@ export function GlassNav() {
 
             {/* ─── MOBILE: Bubble Navigation ─── */}
             <div className="fixed top-4 left-0 right-0 z-[1000] md:hidden flex items-center justify-between px-4 pointer-events-none">
-                
+
                 {/* Mobile Logo Pill */}
-                <Link 
-                    href="/dashboard" 
+                <Link
+                    href="/mentron/dashboard"
                     className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] pointer-events-auto transition-all active:scale-95"
                 >
                     <div className="w-8 h-8 rounded-full bg-white/10 border border-white/10 flex items-center justify-center shadow-inner">
@@ -196,7 +173,7 @@ export function GlassNav() {
                     style={{ background: 'radial-gradient(circle, rgba(0,198,255,0.12) 0%, transparent 70%)', filter: 'blur(40px)' }} />
 
                 <div className="flex-1 overflow-y-auto pt-20 pb-8 px-6 flex flex-col">
-                    
+
                     {/* Nav Links */}
                     <nav className="flex flex-col gap-2 flex-1">
                         {navItems.map((item, i) => {
@@ -231,10 +208,10 @@ export function GlassNav() {
 
                         {/* Settings link (mobile) */}
                         <Link
-                            href="/settings"
+                            href="/mentron/settings"
                             className={`
                                 flex items-center gap-4 px-5 py-4 rounded-2xl font-semibold text-base transition-all duration-200
-                                ${pathname === '/settings'
+                                ${pathname === '/mentron/settings'
                                     ? 'bg-[#7000df]/20 border border-[#7000df]/40 text-white'
                                     : 'text-[#8b9bb4] border border-white/5 hover:bg-white/5 hover:text-white hover:border-white/10'
                                 }
@@ -245,8 +222,8 @@ export function GlassNav() {
                                 transition: `transform 0.3s ease ${navItems.length * 40}ms, opacity 0.3s ease ${navItems.length * 40}ms`
                             }}
                         >
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${pathname === '/settings' ? 'bg-[#7000df]/30' : 'bg-white/5'}`}>
-                                <Settings size={20} className={pathname === '/settings' ? 'text-[#a855f7]' : 'text-[#8b9bb4]'} />
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${pathname === '/mentron/settings' ? 'bg-[#7000df]/30' : 'bg-white/5'}`}>
+                                <Settings size={20} className={pathname === '/mentron/settings' ? 'text-[#a855f7]' : 'text-[#8b9bb4]'} />
                             </div>
                             <span>Settings</span>
                         </Link>

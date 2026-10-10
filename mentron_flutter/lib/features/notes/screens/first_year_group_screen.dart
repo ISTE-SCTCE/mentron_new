@@ -35,7 +35,7 @@ class _FirstYearGroupScreenState extends State<FirstYearGroupScreen> {
 
     try {
       final profile = await supabase.client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('department, role')
           .eq('id', user.id)
           .maybeSingle();

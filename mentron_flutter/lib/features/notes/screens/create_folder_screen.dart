@@ -79,7 +79,7 @@ class _CreateFolderScreenState extends State<CreateFolderScreen> {
 
       // Check if folder with same name already exists for this subject
       final existing = await supabase.client
-          .from('note_folders')
+          .schema('mentron').from('note_folders')
           .select('id')
           .eq('subject', widget.subjectName)
           .eq('department', widget.department)
@@ -100,7 +100,7 @@ class _CreateFolderScreenState extends State<CreateFolderScreen> {
         return;
       }
 
-      await supabase.client.from('note_folders').insert({
+      await supabase.client.schema('mentron').from('note_folders').insert({
         'name': name,
         'subject': widget.subjectName,
         'department': widget.department,

@@ -55,7 +55,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
     if (_currentUserId != null) {
       try {
         final profile = await supabase.client
-            .from('profiles')
+            .schema('mentron').from('profiles')
             .select('role')
             .eq('id', _currentUserId!)
             .maybeSingle();
@@ -84,7 +84,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
 
       // Fetch ALL notes for this filter (root notes outside folders)
       final response = await supabase
-          .from('notes')
+          .schema('mentron').from('notes')
           .select('*, profiles!notes_profile_id_fkey(full_name)')
           .eq('department', deptFilter)
           .eq('year', yearNum)
@@ -148,13 +148,13 @@ class _NoteListScreenState extends State<NoteListScreen> {
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     try {
       // Delete from database
-      await supabase.client.from('notes').delete().eq('id', note.id);
+      await supabase.client.schema('mentron').from('notes').delete().eq('id', note.id);
       
       // Try to delete the file from storage too (Legacy support only, new uploads shouldn't fail if we can't delete)
       try {
         if (note.fileUrl.contains('notes_bucket')) {
           final filePath = note.fileUrl.split('notes_bucket/').last;
-          await supabase.client.storage.from('notes_bucket').remove([filePath]);
+          await supabase.client.storage.from('mentron-notes_bucket').remove([filePath]);
         }
       } catch (_) {
         // Ignore storage delete errors for Cloudflare R2 migrated files

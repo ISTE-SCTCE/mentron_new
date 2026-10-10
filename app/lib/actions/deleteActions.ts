@@ -39,7 +39,7 @@ export async function deleteNote(noteId: string) {
     const { error } = await supabase.from('notes').delete().eq('id', noteId)
     if (error) return { error: error.message }
 
-    revalidatePath('/notes')
+    revalidatePath('/mentron/notes')
     return { success: true }
 }
 
@@ -83,7 +83,7 @@ export async function deleteProject(projectId: string) {
     const { error } = await supabase.from('projects').delete().eq('id', projectId)
     if (error) return { error: error.message }
 
-    revalidatePath('/projects')
+    revalidatePath('/mentron/projects')
     return { success: true }
 }
 
@@ -123,7 +123,7 @@ export async function deleteMarketplaceItem(itemId: string) {
     const { error } = await supabase.from('marketplace_listings').delete().eq('id', itemId)
     if (error) return { error: error.message }
 
-    revalidatePath('/marketplace')
+    revalidatePath('/mentron/marketplace')
     return { success: true }
 }
 
@@ -168,7 +168,7 @@ export async function withdrawApplication(projectId: string) {
 
     if (deleteError) return { error: deleteError.message }
 
-    revalidatePath('/projects')
+    revalidatePath('/mentron/projects')
     return { success: true }
 }
 
@@ -206,7 +206,7 @@ export async function deleteGateNote(noteId: string) {
     const { error } = await supabase.from('gate_notes').delete().eq('id', noteId)
     if (error) return { error: error.message }
 
-    revalidatePath('/gate', 'layout')
+    revalidatePath('/mentron/gate', 'layout')
     return { success: true }
 }
 
@@ -255,6 +255,6 @@ export async function deleteGateFolder(folderId: string) {
     const { error } = await supabase.from('gate_folders').delete().eq('id', folderId)
     if (error) return { error: error.message }
 
-    revalidatePath('/gate', 'layout')
+    revalidatePath('/mentron/gate', 'layout')
     return { success: true }
 }

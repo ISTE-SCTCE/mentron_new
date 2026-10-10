@@ -59,7 +59,7 @@ class _EventBannerBottomSheetState extends State<EventBannerBottomSheet> {
     try {
       final eventIds = widget.events.map((e) => e['id'].toString()).toList();
       final response = await supabaseService.client
-          .from('registrations')
+          .schema('mentron').from('registrations')
           .select('event_id')
           .eq('user_id', userId)
           .inFilter('event_id', eventIds);
@@ -103,7 +103,7 @@ class _EventBannerBottomSheetState extends State<EventBannerBottomSheet> {
     _inactivityTimer?.cancel(); // Freeze timer during active transaction
 
     try {
-      await supabaseService.client.from('registrations').insert({
+      await supabaseService.client.schema('mentron').from('registrations').insert({
         'event_id': eventId,
         'user_id': userId,
       });

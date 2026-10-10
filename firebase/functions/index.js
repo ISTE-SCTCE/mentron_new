@@ -12,24 +12,19 @@
  *    when "Send Now" is tapped. Broadcasts immediately to `all_users` topic.
  *
  * ── Setup ──────────────────────────────────────────────────────────────────
- * Before deploying, set these Firebase Functions config values:
- *
- *   firebase functions:config:set \
- *     supabase.url="https://ysllolnoyezfdllqocgv.supabase.co" \
- *     supabase.service_key="your-supabase-service-role-key"
- *
- * Then deploy:
- *   cd firebase/functions && npm install
- *   firebase deploy --only functions
+ * Bind PLATFORM_SUPABASE_SERVICE_ROLE_KEY using Firebase Secret Manager.
+ * PLATFORM_SUPABASE_URL must identify ISTE-admin; product data uses the mentron schema.
+ * See docs/PERSON3_CUTOVER.md before releasing the merged clients or these functions.
  *
  * The Cloud Scheduler job for processScheduledBroadcasts is created
  * automatically when you deploy a pubsub.schedule function.
  * ──────────────────────────────────────────────────────────────────────────
  */
 
-const functions = require('firebase-functions');
+const functions = require('firebase-functions/v1');
 const admin = require('firebase-admin');
 const { createClient } = require('@supabase/supabase-js');
+const { isActiveExecutive,requireExecutive } = require('./platform-auth.cjs');
 
 admin.initializeApp();
 
@@ -39,9 +34,12 @@ admin.initializeApp();
 
 /** Create a Supabase admin client (bypasses RLS) using the service role key. */
 function getSupabaseAdmin() {
-  const url = functions.config().supabase.url;
-  const serviceKey = functions.config().supabase.service_key;
+  const url = process.env.PLATFORM_SUPABASE_URL || 'https://vwxbgklgkcbwrvtwypfs.supabase.co';
+  if(url !== 'https://vwxbgklgkcbwrvtwypfs.supabase.co') throw new Error('Unexpected platform database');
+  const serviceKey = process.env.PLATFORM_SUPABASE_SERVICE_ROLE_KEY;
+  if(!serviceKey) throw new Error('Platform server secret is not configured');
   return createClient(url, serviceKey, {
+    db: {schema:'mentron'},
     auth: { persistSession: false },
   });
 }
@@ -100,6 +98,7 @@ exports.processScheduledBroadcasts = functions
   .runWith({
     timeoutSeconds: 60,
     memory: '256MB',
+    secrets:['PLATFORM_SUPABASE_SERVICE_ROLE_KEY'],
   })
   .pubsub.schedule('* * * * *')  // every 1 minute — exact timing
   .timeZone('Asia/Kolkata')      // IST — update if your org uses a different TZ
@@ -112,7 +111,7 @@ exports.processScheduledBroadcasts = functions
     // ── 1. Fetch all due SCHEDULED notifications ───────────────────────────
     const { data: notifications, error: fetchError } = await supabase
       .from('broadcast_notifications')
-      .select('id, title, body')
+      .select('id, title, body, created_by')
       .eq('status', 'SCHEDULED')
       .lte('scheduled_for', now);
 
@@ -132,6 +131,11 @@ exports.processScheduledBroadcasts = functions
     const results = await Promise.allSettled(
       notifications.map(async (notif) => {
         try {
+          const {data:author,error:authorError}=await supabase.schema('public').from('profiles')
+            .select('role,status,suspended_until,is_mentron_user').eq('id',notif.created_by).single();
+          if(authorError || !isActiveExecutive(author)) {
+            throw new Error('Broadcast author needs current executive approval');
+          }
           // a) Send via FCM
           const messageId = await sendFcmToAllUsers(notif.id, notif.title, notif.body);
           functions.logger.info(`[processScheduledBroadcasts] Sent ${notif.id}, FCM msgId: ${messageId}`);
@@ -182,7 +186,7 @@ exports.processScheduledBroadcasts = functions
 //               "supabaseToken": "jwt-for-auth-check" } }
 // ─────────────────────────────────────────────────────────────────────────────
 exports.sendBroadcastNow = functions
-  .runWith({ timeoutSeconds: 30, memory: '128MB' })
+  .runWith({ timeoutSeconds: 30, memory: '128MB', secrets:['PLATFORM_SUPABASE_SERVICE_ROLE_KEY'] })
   .https.onCall(async (data, context) => {
     // ── Auth guard ────────────────────────────────────────────────────────
     // Firebase callable auth: context.auth is populated when the app is
@@ -197,28 +201,16 @@ exports.sendBroadcastNow = functions
       );
     }
 
-    // Validate the Supabase JWT by checking the notification record
-    // (RLS ensures only exec/core/admin can access it)
-    if (supabaseToken) {
-      const supabase = getSupabaseAdmin();
-      const { data: record, error } = await supabase
-        .from('broadcast_notifications')
-        .select('id')
-        .eq('id', notificationId)
-        .single();
-
-      if (error || !record) {
-        functions.logger.warn('[sendBroadcastNow] Notification not found or RLS denied:', error);
-        throw new functions.https.HttpsError(
-          'not-found',
-          'Notification record not found or access denied.'
-        );
-      }
-    }
+    const supabase = getSupabaseAdmin();
+    try { await requireExecutive(supabase,supabaseToken); }
+    catch { throw new functions.https.HttpsError('permission-denied','Active executive authentication required.'); }
+    const {data:record,error:recordError}=await supabase.from('broadcast_notifications')
+      .select('id,title,body').eq('id',notificationId).single();
+    if(recordError || !record) throw new functions.https.HttpsError('not-found','Notification unavailable.');
 
     // ── Send FCM ──────────────────────────────────────────────────────────
     try {
-      const messageId = await sendFcmToAllUsers(notificationId, title, body);
+      const messageId = await sendFcmToAllUsers(notificationId, record.title, record.body);
       functions.logger.info(`[sendBroadcastNow] Sent ${notificationId}, FCM msgId: ${messageId}`);
       return { success: true, messageId };
     } catch (e) {
@@ -259,7 +251,7 @@ async function sendFcmToToken(token, title, body, data = {}) {
 // and sends an FCM alert to every EXECOM admin.
 // ─────────────────────────────────────────────────────────────────────────────
 exports.checkOverdueMarketplaceOrders = functions
-  .runWith({ timeoutSeconds: 60, memory: '128MB' })
+  .runWith({ timeoutSeconds: 60, memory: '128MB', secrets:['PLATFORM_SUPABASE_SERVICE_ROLE_KEY'] })
   .pubsub.schedule('0 * * * *')  // every hour
   .timeZone('Asia/Kolkata')
   .onRun(async (_context) => {
@@ -325,7 +317,7 @@ exports.checkOverdueMarketplaceOrders = functions
 // Expected data: { orderId: string, supabaseToken: string }
 // ─────────────────────────────────────────────────────────────────────────────
 exports.confirmMarketplacePayment = functions
-  .runWith({ timeoutSeconds: 30, memory: '128MB' })
+  .runWith({ timeoutSeconds: 30, memory: '128MB', secrets:['PLATFORM_SUPABASE_SERVICE_ROLE_KEY'] })
   .https.onCall(async (data, _context) => {
     const { orderId } = data;
     if (!orderId) {
@@ -333,6 +325,9 @@ exports.confirmMarketplacePayment = functions
     }
 
     const supabase = getSupabaseAdmin();
+    try { await requireExecutive(supabase,data.supabaseToken); }
+    catch { throw new functions.https.HttpsError('permission-denied','Active executive authentication required.'); }
+
 
     // ── Fetch order + listing + buyer profile ──────────────────────────────
     const { data: order, error: fetchError } = await supabase
@@ -397,7 +392,7 @@ exports.confirmMarketplacePayment = functions
 // Expected data: { orderId: string }
 // ─────────────────────────────────────────────────────────────────────────────
 exports.rejectMarketplacePayment = functions
-  .runWith({ timeoutSeconds: 30, memory: '128MB' })
+  .runWith({ timeoutSeconds: 30, memory: '128MB', secrets:['PLATFORM_SUPABASE_SERVICE_ROLE_KEY'] })
   .https.onCall(async (data, _context) => {
     const { orderId } = data;
     if (!orderId) {
@@ -405,6 +400,9 @@ exports.rejectMarketplacePayment = functions
     }
 
     const supabase = getSupabaseAdmin();
+    try { await requireExecutive(supabase,data.supabaseToken); }
+    catch { throw new functions.https.HttpsError('permission-denied','Active executive authentication required.'); }
+
 
     // Fetch order + buyer FCM token
     const { data: order, error: fetchError } = await supabase

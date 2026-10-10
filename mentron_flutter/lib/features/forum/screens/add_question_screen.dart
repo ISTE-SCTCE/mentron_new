@@ -61,7 +61,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
       final userId = supabase.auth.currentUser?.id;
       if (userId == null) throw Exception('User not logged in');
 
-      await supabase.from('forum_questions').insert({
+      await supabase.schema('mentron').from('forum_questions').insert({
         'author_id': userId,
         'title': title,
         'content': content,

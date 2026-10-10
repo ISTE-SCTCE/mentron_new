@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'platform/platform_config.dart';
+import 'platform/product_host.dart';
+import 'platform/product_analytics.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -52,10 +56,8 @@ void main() async {
   // ── Phase 1: Supabase + Auth Security ─────────────────────────────────────
   final supabaseService = SupabaseService();
   await supabaseService.initialize(
-    url: dotenv.maybeGet('SUPABASE_URL') ??
-        'https://ysllolnoyezfdllqocgv.supabase.co',
-    anonKey: dotenv.maybeGet('SUPABASE_ANON_KEY') ??
-        'sb_publishable_FwJxMntZ8Hiqze7RUK0gcQ_L_0DGAbs',
+    url: PlatformConfig.url,
+    anonKey: PlatformConfig.publishableKey,
   );
   AuthSecurityService().initialize();
 
@@ -93,7 +95,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AcademicProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: const MentronApp(),
+      child: const ProductHost(),
     ),
   );
 }
@@ -106,6 +108,7 @@ class MentronApp extends StatefulWidget {
 }
 
 class _MentronAppState extends State<MentronApp> {
+  StreamSubscription<AuthState>? _authSubscription;
   bool _isExec = false;
   bool _isLoadingRole = true;
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
@@ -118,7 +121,7 @@ class _MentronAppState extends State<MentronApp> {
     FCMService.navigatorKey = _navigatorKey;
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     _checkRole(supabase.client.auth.currentSession?.user.id);
-    supabase.authStateChanges.listen((event) {
+    _authSubscription = supabase.authStateChanges.listen((event) {
       _checkRole(event.session?.user.id);
       // Subscribe / unsubscribe from FCM topic on auth state change
       if (event.session != null) {
@@ -138,6 +141,13 @@ class _MentronAppState extends State<MentronApp> {
     }
   }
 
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    FCMService.navigatorKey = null;
+    super.dispose();
+  }
+
   Future<void> _checkRole(String? userId) async {
     if (userId == null) {
       if (mounted) {
@@ -154,7 +164,7 @@ class _MentronAppState extends State<MentronApp> {
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     try {
       final profile = await supabase.client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('role, admission_year, admission_month')
           .eq('id', userId)
           .maybeSingle();
@@ -186,6 +196,7 @@ class _MentronAppState extends State<MentronApp> {
       title: 'Mentron',
       debugShowCheckedModeBanner: false,
       navigatorKey: _navigatorKey,
+      navigatorObservers:[ProductRouteObserver('mentron')],
       theme: themeProvider.isExecMode ? ExecTheme.darkTheme : AppTheme.darkTheme,
       scrollBehavior: const _AndroidScrollBehavior(),
       routes: {

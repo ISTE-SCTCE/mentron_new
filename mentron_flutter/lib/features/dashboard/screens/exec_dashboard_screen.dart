@@ -56,7 +56,7 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
 
       if (user != null) {
         final profileRes = await supabase
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('department, xp, role, full_name')
           .eq('id', user.id)
           .maybeSingle();
@@ -77,19 +77,19 @@ class _ExecDashboardScreenState extends State<ExecDashboardScreen> {
 
       // Sync logic with Web: Filter for 'member' role only
       final membersRes = await supabase
-        .from('profiles')
+        .schema('mentron').from('profiles')
         .count(CountOption.exact)
         .eq('role', 'member');
       final membersCount = membersRes;
 
       // Global notes count (matching Web)
       final notesCount = await supabase
-        .from('notes')
+        .schema('mentron').from('notes')
         .count(CountOption.exact);
 
       // Total projects count
       final projectsCount = await supabase
-        .from('projects')
+        .schema('mentron').from('projects')
         .count(CountOption.exact);
 
       if (mounted) {

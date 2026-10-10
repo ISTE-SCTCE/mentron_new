@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { proposeEventConcept, voteEventConcept, deleteEventConcept } from '@/app/events/actions'
+import { proposeEventConcept, voteEventConcept, deleteEventConcept } from '@/app/mentron/events/actions'
 import { ArrowBigUp, ArrowBigDown, MessagesSquare, Clock, User, Trash2 } from 'lucide-react'
 
 interface Vote {

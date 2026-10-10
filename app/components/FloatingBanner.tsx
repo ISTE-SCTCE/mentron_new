@@ -50,7 +50,7 @@ export function FloatingBanner() {
 
                 {/* Right Side: CTA Button */}
                 <div className="shrink-0">
-                    <Link href="/projects"
+                    <Link href="/mentron/projects"
                         className="relative group/btn inline-flex items-center justify-center overflow-hidden rounded-2xl bg-white/5 p-1 transition-all hover:bg-white/10">
                         {/* Button Glow aura */}
                         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/40 to-blue-500/40 opacity-0 group-hover/btn:opacity-100 blur transition-opacity duration-300" />

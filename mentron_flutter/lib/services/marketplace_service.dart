@@ -17,9 +17,9 @@ class MarketplaceService {
   MarketplaceService(this._client);
 
   // ── Storage bucket names ───────────────────────────────────────────────────
-  static const String _imagesBucket       = 'marketplace-images';
-  static const String _proofsBucket       = 'marketplace-payment-proofs';
-  static const String _qrBucket          = 'marketplace-qr';
+  static const String _imagesBucket       = 'mentron-marketplace-images';
+  static const String _proofsBucket       = 'mentron-marketplace-payment-proofs';
+  static const String _qrBucket          = 'mentron-marketplace-qr';
 
   // ══════════════════════════════════════════════════════════════════════════
   // LISTINGS — Buyer
@@ -32,7 +32,7 @@ class MarketplaceService {
     int limit = 40,
   }) async {
     var query = _client
-        .from('marketplace_listings')
+        .schema('mentron').from('marketplace_listings')
         .select('*, profiles(full_name, department, admission_year)')
         .eq('status', 'live');
 
@@ -55,7 +55,7 @@ class MarketplaceService {
   /// Fetch the current user's own listings (all statuses).
   Future<List<MarketplaceListing>> fetchMyListings(String userId) async {
     final response = await _client
-        .from('marketplace_listings')
+        .schema('mentron').from('marketplace_listings')
         .select('*, profiles(full_name, department, admission_year)')
         .eq('seller_id', userId)
         .order('created_at', ascending: false);
@@ -68,7 +68,7 @@ class MarketplaceService {
   /// Fetch a single listing by ID.
   Future<MarketplaceListing?> fetchListing(String listingId) async {
     final response = await _client
-        .from('marketplace_listings')
+        .schema('mentron').from('marketplace_listings')
         .select('*, profiles(full_name, department, admission_year)')
         .eq('id', listingId)
         .maybeSingle();
@@ -88,7 +88,7 @@ class MarketplaceService {
     required List<String> imageUrls,
   }) async {
     final response = await _client
-        .from('marketplace_listings')
+        .schema('mentron').from('marketplace_listings')
         .insert({
           'seller_id':   sellerId,
           'title':       title,
@@ -107,7 +107,7 @@ class MarketplaceService {
 
   /// Delete a listing from the database.
   Future<void> deleteListing(String listingId) async {
-    await _client.from('marketplace_listings').delete().eq('id', listingId);
+    await _client.schema('mentron').from('marketplace_listings').delete().eq('id', listingId);
   }
 
   /// Upload one or more images to Supabase storage.
@@ -139,7 +139,7 @@ class MarketplaceService {
   /// a new row — ON CONFLICT DO NOTHING is the intended behaviour.
   Future<void> logView(String listingId, String viewerId) async {
     try {
-      await _client.from('marketplace_listing_views').upsert(
+      await _client.schema('mentron').from('marketplace_listing_views').upsert(
         {
           'listing_id': listingId,
           'viewer_id':  viewerId,
@@ -158,7 +158,7 @@ class MarketplaceService {
   /// Fetch all view rows for a listing (for Ad Activity analytics).
   Future<List<MarketplaceListingView>> fetchListingViews(String listingId) async {
     final response = await _client
-        .from('marketplace_listing_views')
+        .schema('mentron').from('marketplace_listing_views')
         .select('*, profiles(full_name, department, admission_year)')
         .eq('listing_id', listingId)
         .order('viewed_at', ascending: false);
@@ -175,7 +175,7 @@ class MarketplaceService {
   /// Fetch the current buyer's orders, most recent first.
   Future<List<MarketplaceOrder>> fetchMyOrders(String buyerId) async {
     final response = await _client
-        .from('marketplace_orders')
+        .schema('mentron').from('marketplace_orders')
         .select(
           '*, marketplace_listings(title, images), profiles!buyer_id(full_name, department, admission_year)',
         )
@@ -281,7 +281,7 @@ class MarketplaceService {
     }
 
     final response = await _client
-        .from('marketplace_orders')
+        .schema('mentron').from('marketplace_orders')
         .insert({
           'listing_id':             listingId,
           'buyer_id':               buyerId,
@@ -297,7 +297,7 @@ class MarketplaceService {
 
     try {
       final updated = await _client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .update({'phone': phoneNumber})
           .eq('id', buyerId)
           .select('id');
@@ -319,7 +319,7 @@ class MarketplaceService {
   }) async {
     try {
       final response = await _client
-          .from('marketplace_orders')
+          .schema('mentron').from('marketplace_orders')
           .select('id')
           .eq('listing_id', listingId)
           .eq('buyer_id', buyerId)
@@ -339,7 +339,7 @@ class MarketplaceService {
   /// Fetch the single payment settings row.
   Future<Map<String, String?>> fetchPaymentSettings() async {
     final response = await _client
-        .from('payment_settings')
+        .schema('mentron').from('payment_settings')
         .select('qr_image_url, upi_id')
         .limit(1)
         .maybeSingle();
@@ -370,11 +370,11 @@ class MarketplaceService {
     if (qrImageUrl != null) updates['qr_image_url'] = qrImageUrl;
     if (upiId != null)      updates['upi_id']        = upiId;
 
-    final row = await _client.from('payment_settings').select('id').limit(1).maybeSingle();
+    final row = await _client.schema('mentron').from('payment_settings').select('id').limit(1).maybeSingle();
     if (row != null) {
-      await _client.from('payment_settings').update(updates).eq('id', row['id']);
+      await _client.schema('mentron').from('payment_settings').update(updates).eq('id', row['id']);
     } else {
-      await _client.from('payment_settings').insert(updates);
+      await _client.schema('mentron').from('payment_settings').insert(updates);
     }
   }
 
@@ -385,7 +385,7 @@ class MarketplaceService {
   /// Fetch orders pending payment verification, oldest first.
   Future<List<MarketplaceOrder>> fetchPendingOrders() async {
     final response = await _client
-        .from('marketplace_orders')
+        .schema('mentron').from('marketplace_orders')
         .select(
           '*, marketplace_listings(title, images), profiles!buyer_id(full_name, department, admission_year)',
         )
@@ -409,7 +409,7 @@ class MarketplaceService {
     // .stream() returns a broadcast stream; filter client-side because the
     // Supabase Dart SDK's stream() does not support .eq() filtering.
     return _client
-        .from('marketplace_orders')
+        .schema('mentron').from('marketplace_orders')
         .stream(primaryKey: ['id'])
         .asyncMap((rows) async {
           // Fetch full data (with joins) for only the pending rows.
@@ -425,7 +425,7 @@ class MarketplaceService {
   /// Fetch orders that are payment_confirmed (active deliveries).
   Future<List<MarketplaceOrder>> fetchActiveDeliveries() async {
     final response = await _client
-        .from('marketplace_orders')
+        .schema('mentron').from('marketplace_orders')
         .select(
           '*, marketplace_listings(title, images), profiles!buyer_id(full_name, department, admission_year)',
         )
@@ -439,7 +439,7 @@ class MarketplaceService {
 
   /// Confirm a payment (EXECOM only).
   Future<void> confirmOrder(String orderId, String adminId) async {
-    final response = await _client.from('marketplace_orders').update({
+    final response = await _client.schema('mentron').from('marketplace_orders').update({
       'order_status': 'payment_confirmed',
       'verified_by':  adminId,
       'verified_at':  DateTime.now().toIso8601String(),
@@ -453,13 +453,13 @@ class MarketplaceService {
 
       // 1. Mark the listing as sold so it's removed from the marketplace
       await _client
-          .from('marketplace_listings')
+          .schema('mentron').from('marketplace_listings')
           .update({'status': 'sold'})
           .eq('id', listingId);
 
       // 2. Insert in-app notification for the buyer
       if (buyerId != null) {
-        await _client.from('notifications').insert({
+        await _client.schema('mentron').from('notifications').insert({
           'user_id': buyerId,
           'title': 'Purchase Verified 🎉',
           'message': "Your purchase of '$listingTitle' has been verified! You will be contacted soon.",
@@ -471,21 +471,21 @@ class MarketplaceService {
 
   /// Reject a payment (EXECOM only).
   Future<void> rejectOrder(String orderId) async {
-    await _client.from('marketplace_orders').update({
+    await _client.schema('mentron').from('marketplace_orders').update({
       'order_status': 'cancelled',
     }).eq('id', orderId);
   }
 
   /// Mark an order as delivered (EXECOM only).
   Future<void> markDelivered(String orderId) async {
-    await _client.from('marketplace_orders').update({
+    await _client.schema('mentron').from('marketplace_orders').update({
       'order_status': 'delivered',
     }).eq('id', orderId);
   }
 
   /// Mark an order as refunded (EXECOM only).
   Future<void> markRefunded(String orderId) async {
-    await _client.from('marketplace_orders').update({
+    await _client.schema('mentron').from('marketplace_orders').update({
       'order_status': 'refunded',
     }).eq('id', orderId);
   }
@@ -497,7 +497,7 @@ class MarketplaceService {
   /// Fetch listings pending EXECOM review.
   Future<List<MarketplaceListing>> fetchPendingListings() async {
     final response = await _client
-        .from('marketplace_listings')
+        .schema('mentron').from('marketplace_listings')
         .select('*, profiles(full_name, department, admission_year)')
         .eq('status', 'pending_review')
         .order('created_at', ascending: true);
@@ -510,7 +510,7 @@ class MarketplaceService {
   /// Stream pending listings for real-time updates in the Payment Manager.
   Stream<List<MarketplaceListing>> streamPendingListings() {
     return _client
-        .from('marketplace_listings')
+        .schema('mentron').from('marketplace_listings')
         .stream(primaryKey: ['id'])
         .asyncMap((rows) async {
           try {
@@ -523,14 +523,14 @@ class MarketplaceService {
 
   /// Approve a listing (set status to live).
   Future<void> approveListing(String listingId) async {
-    await _client.from('marketplace_listings').update({
+    await _client.schema('mentron').from('marketplace_listings').update({
       'status': 'live',
     }).eq('id', listingId);
   }
 
   /// Reject a listing (set status to removed).
   Future<void> rejectListing(String listingId) async {
-    await _client.from('marketplace_listings').update({
+    await _client.schema('mentron').from('marketplace_listings').update({
       'status': 'removed',
     }).eq('id', listingId);
   }

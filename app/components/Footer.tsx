@@ -55,7 +55,7 @@ export function Footer() {
                         <div className="space-y-6">
                             <h3 className="text-base font-black text-white tracking-wide">More</h3>
                             <ul className="space-y-4">
-                                <li><Link href="/dashboard" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Mentron Forums</Link></li>
+                                <li><Link href="/mentron/dashboard" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Mentron Forums</Link></li>
                                 <li><a href="mailto:istesctce@gmail.com" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Contact</a></li>
                                 <li><a href="https://istesctce.in/membership" className="text-gray-500 hover:text-white text-sm font-medium transition-colors">Join ISTE</a></li>
                             </ul>

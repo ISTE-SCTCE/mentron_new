@@ -104,7 +104,7 @@ class MainScaffoldState extends State<MainScaffold>
         .channel('role-watch-$userId')
         .onPostgresChanges(
           event: PostgresChangeEvent.update,
-          schema: 'public',
+          schema: 'mentron',
           table: 'profiles',
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
@@ -167,7 +167,7 @@ class MainScaffoldState extends State<MainScaffold>
     if (userId == null) return;
     try {
       final profile = await supabase.client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('role')
           .eq('id', userId)
           .maybeSingle();
@@ -190,7 +190,7 @@ class MainScaffoldState extends State<MainScaffold>
     if (!_isExec) return;
     final client = Provider.of<SupabaseService>(context, listen: false).client;
     try {
-      final projects = await client.from('projects').select('id').eq('is_approved', false);
+      final projects = await client.schema('mentron').from('projects').select('id').eq('is_approved', false);
       if (mounted) {
         setState(() {
           _pendingCount = (projects as List).length;

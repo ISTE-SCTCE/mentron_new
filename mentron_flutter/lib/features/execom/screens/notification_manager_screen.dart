@@ -76,7 +76,7 @@ class _NotificationManagerScreenState extends State<NotificationManagerScreen>
       final userId = supabase.currentUser?.id;
       if (userId == null) return;
       final profile = await supabase.client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('full_name')
           .eq('id', userId)
           .maybeSingle();
@@ -301,7 +301,7 @@ class _NotificationManagerScreenState extends State<NotificationManagerScreen>
 
     try {
       final supabase = Provider.of<SupabaseService>(context, listen: false);
-      await supabase.client.from('broadcast_notifications').delete().eq('id', n.id);
+      await supabase.client.schema('mentron').from('broadcast_notifications').delete().eq('id', n.id);
       _showSnack('Notification deleted successfully.');
       _fetchHistory();
     } catch (e) {

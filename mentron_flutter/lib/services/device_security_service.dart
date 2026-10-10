@@ -206,7 +206,7 @@ class DeviceSecurityService {
         }
       } catch (_) {}
 
-      await client.from('audit_log').insert({
+      await client.schema('mentron').from('audit_log').insert({
         'user_id': userId,
         'action': 'compromised_device_detected',
         'entity': 'device_security',

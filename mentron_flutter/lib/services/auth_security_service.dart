@@ -151,7 +151,7 @@ class AuthSecurityService {
       final deviceId = await _getDeviceId();
       final deviceName = await _getDeviceName();
 
-      await _client.from('user_sessions').upsert({
+      await _client.schema('mentron').from('user_sessions').upsert({
         'user_id': session.user.id,
         'device_id': deviceId,
         'device_name': deviceName,
@@ -171,7 +171,7 @@ class AuthSecurityService {
       if (userId == null) return;
       final deviceId = await _getDeviceId();
       await _client
-          .from('user_sessions')
+          .schema('mentron').from('user_sessions')
           .update({'last_activity': DateTime.now().toIso8601String()})
           .eq('user_id', userId)
           .eq('device_id', deviceId);
@@ -185,7 +185,7 @@ class AuthSecurityService {
       if (userId == null) return;
       final deviceId = await _getDeviceId();
       await _client
-          .from('user_sessions')
+          .schema('mentron').from('user_sessions')
           .update({'is_active': false})
           .eq('user_id', userId)
           .eq('device_id', deviceId);

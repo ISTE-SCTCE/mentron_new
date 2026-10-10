@@ -9,6 +9,7 @@ import { Eye, EyeOff } from 'lucide-react'
 export default function SignupPage() {
     const searchParams = useSearchParams()
     const error = searchParams.get('error')
+    const product = searchParams.get('product') === 'mlynq' ? 'mlynq' : 'mentron'
     const [showPassword, setShowPassword] = useState(false)
 
     return (
@@ -16,7 +17,7 @@ export default function SignupPage() {
             <div className="w-full max-w-lg space-y-8 sm:space-y-10 glass p-6 sm:p-10 rounded-3xl sm:rounded-[3rem] shadow-2xl relative z-10 border-white/10">
                 <div className="text-center space-y-2">
                     <p className="text-[10px] font-black tracking-[0.3em] text-cyan-400 uppercase">Step into Innovation</p>
-                    <h1 className="text-3xl sm:text-5xl font-black tracking-tighter text-white">Join Mentron</h1>
+                    <h1 className="text-3xl sm:text-5xl font-black tracking-tighter text-white">Join {product === 'mlynq' ? 'Mlynq' : 'Mentron'}</h1>
                     <p className="text-gray-400 text-xs sm:text-sm font-medium">Create your verified student profile</p>
                 </div>
 
@@ -27,6 +28,7 @@ export default function SignupPage() {
                 )}
 
                 <form action={signup} className="space-y-5 sm:space-y-6">
+                    <input type="hidden" name="product" value={product} />
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <input

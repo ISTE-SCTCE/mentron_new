@@ -122,15 +122,15 @@ export async function POST(request: NextRequest) {
         }))
         const { error } = await supabase.from('notes').insert(payloads)
         insertError = error
-        redirectUrl = `/notes/year/1/group/${groups[0]}/${semester}`
+        redirectUrl = `/mentron/notes/year/1/group/${groups[0]}/${semester}`
     } else {
         // Insert for single department
         basePayload.department = isFirstYear ? deptCode : cleanDept
         const { error } = await supabase.from('notes').insert(basePayload)
         insertError = error
         redirectUrl = isFirstYear
-            ? `/notes/year/1/group/${deptCode}/${semester}`
-            : `/notes/year/${yearNum}/dept/${cleanDept}/${semester}`
+            ? `/mentron/notes/year/1/group/${deptCode}/${semester}`
+            : `/mentron/notes/year/${yearNum}/dept/${cleanDept}/${semester}`
     }
 
     if (insertError) {
@@ -138,11 +138,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Purge cache for all affected pages
-    revalidatePath('/notes', 'layout')
-    revalidatePath('/dashboard', 'page')
+    revalidatePath('/mentron/notes', 'layout')
+    revalidatePath('/mentron/dashboard', 'page')
     if (isFirstYear && groups.length > 0) {
         groups.forEach(g => {
-            revalidatePath(`/notes/year/1/group/${g}/${semester}`, 'page')
+            revalidatePath(`/mentron/notes/year/1/group/${g}/${semester}`, 'page')
         })
     } else {
         revalidatePath(redirectUrl, 'page')

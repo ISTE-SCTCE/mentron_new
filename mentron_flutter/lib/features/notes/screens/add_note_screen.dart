@@ -104,7 +104,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       final user = supabase.currentUser;
       if (user == null) return;
       final profile = await supabase.client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('department, roll_number, year')
           .eq('id', user.id)
           .maybeSingle();
@@ -159,7 +159,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     try {
       final supabase = Provider.of<SupabaseService>(context, listen: false);
       final response = await supabase.client
-          .from('note_folders')
+          .schema('mentron').from('note_folders')
           .select('id, name')
           .eq('subject', _selectedSubject)
           .eq('department', _selectedDeptOrGroup)

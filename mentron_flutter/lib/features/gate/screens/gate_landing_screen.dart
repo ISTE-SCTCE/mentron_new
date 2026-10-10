@@ -73,7 +73,7 @@ class _GateLandingScreenState extends State<GateLandingScreen> {
       bool privileged = false;
       if (userId != null) {
         final profile = await supa.client
-            .from('profiles')
+            .schema('mentron').from('profiles')
             .select('role')
             .eq('id', userId)
             .maybeSingle();

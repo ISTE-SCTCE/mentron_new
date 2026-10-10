@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
-/// Apple Liquid Glass GÇö correct implementation per official guidelines.
+/// Apple Liquid Glass GÃ‡Ã¶ correct implementation per official guidelines.
 ///
 /// KEY PRINCIPLE from Apple docs:
-///   "Liquid Glass applies to the TOPMOST LAYER GÇö nav/tab bars.
-///    Avoid overusing GÇö don't apply to every card.
+///   "Liquid Glass applies to the TOPMOST LAYER GÃ‡Ã¶ nav/tab bars.
+///    Avoid overusing GÃ‡Ã¶ don't apply to every card.
 ///    Let CONTENT peek through from beneath the glass layer."
 ///
 /// This widget provides the CONTENT-LAYER card treatment:
-///   GÇó Vibrancy tint (not a full blur GÇö that's only for nav bars)
-///   GÇó Subtle specular highlight at top edge ("glass sheen")
-///   GÇó Concentric corner radii matching device hardware curves
-///   GÇó Legibility preserved GÇö content is always readable
+///   GÃ‡Ã³ Vibrancy tint (not a full blur GÃ‡Ã¶ that's only for nav bars)
+///   GÃ‡Ã³ Subtle specular highlight at top edge ("glass sheen")
+///   GÃ‡Ã³ Concentric corner radii matching device hardware curves
+///   GÃ‡Ã³ Legibility preserved GÃ‡Ã¶ content is always readable
 class GlassContainer extends StatelessWidget {
   final Widget child;
   final double? width;
@@ -26,7 +26,7 @@ class GlassContainer extends StatelessWidget {
   final BoxBorder? border;
 
   /// Set true ONLY for nav-layer elements (bottom bar, app bar, sheet headers).
-  /// Per Apple: "Apply Liquid Glass sparingly GÇö limit to most important functional elements."
+  /// Per Apple: "Apply Liquid Glass sparingly GÃ‡Ã¶ limit to most important functional elements."
   final bool isNavElement;
 
   const GlassContainer({
@@ -49,7 +49,7 @@ class GlassContainer extends StatelessWidget {
     final baseColor = color ?? Colors.white;
 
     if (isNavElement) {
-      // FULL LIQUID GLASS GÇö only for nav/tab bars per Apple guidelines
+      // FULL LIQUID GLASS GÃ‡Ã¶ only for nav/tab bars per Apple guidelines
       return Container(
         width: width,
         height: height,
@@ -87,7 +87,7 @@ class GlassContainer extends StatelessWidget {
               ),
               child: Stack(
                 children: [
-                  // Apple-style specular GÇö top highlight streak
+                  // Apple-style specular GÃ‡Ã¶ top highlight streak
                   Positioned(
                     top: 0, left: 0, right: 0,
                     child: Container(
@@ -117,7 +117,7 @@ class GlassContainer extends StatelessWidget {
       );
     }
 
-    // CONTENT-LAYER CARD GÇö vibrancy tint, NO BackdropFilter
+    // CONTENT-LAYER CARD GÃ‡Ã¶ vibrancy tint, NO BackdropFilter
     // Per Apple: cards are in the content layer, not the Liquid Glass layer
     return Container(
       width: width,
@@ -158,7 +158,7 @@ class GlassContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         child: Stack(
           children: [
-            // Specular highlight GÇö glass sheen
+            // Specular highlight GÃ‡Ã¶ glass sheen
             Positioned(
               top: 0, left: 0, right: 0,
               child: Container(

@@ -48,7 +48,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
       final res = await supabase
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('id, full_name, roll_number, role, department, year')
           .not('role', 'in', '("core", "exec")')
           .order('full_name');
@@ -68,7 +68,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
       bool directUpdated = false;
       try {
         final res = await supabase
-            .from('profiles')
+            .schema('mentron').from('profiles')
             .update({'role': newRole})
             .eq('id', member['id'])
             .select('id');
@@ -136,7 +136,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
       bool directDeleted = false;
       try {
         final res = await supabase
-            .from('profiles')
+            .schema('mentron').from('profiles')
             .delete()
             .eq('id', member['id'])
             .select('id');

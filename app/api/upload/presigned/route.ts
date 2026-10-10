@@ -20,8 +20,13 @@ export async function POST(request: NextRequest) {
 
         // Default folder to notes_bucket if not specified
         const folder = bucketFolder || 'notes_bucket'
+        if(!['notes_bucket','cv_bucket','marketplace-images','profile-photos','academy-lectures'].includes(folder)) {
+            return NextResponse.json({error:'Unsupported upload folder'},{status:400})
+        }
+        const {data:enrolled}=await supabase.schema('public').rpc('platform_product_access',{p_product:'mentron'})
+        if(!enrolled) return NextResponse.json({error:'Mentron access required'},{status:403})
 
-        if (folder === 'notes_bucket') {
+        if (folder === 'notes_bucket' || folder === 'academy-lectures') {
             const { data: profile } = await supabase
                 .from('profiles')
                 .select('role, permissions, iste_position')
@@ -39,7 +44,7 @@ export async function POST(request: NextRequest) {
         
         // Clean filename: remove non-alphanumeric chars (except . and -) and replace spaces with underscores
         const cleanName = fileName.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9.\-_]/g, '')
-        const key = `${folder}/${Date.now()}-${cleanName}`
+        const key = `${folder}/${user.id}/${Date.now()}-${cleanName}`
 
         const command = new PutObjectCommand({
             Bucket: BUCKET_NAME,

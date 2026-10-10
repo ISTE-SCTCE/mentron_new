@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createClient as createServerClient } from '@/app/lib/supabase/server'
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { getDepartmentFromRollNumber } from '@/app/lib/utils/departmentMapper'
 
 export const dynamic = 'force-dynamic'
@@ -24,10 +23,7 @@ export async function GET() {
     }
 
     // ── Service-role client bypasses RLS for all queries ──
-    const db = createSupabaseClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ysllolnoyezfdllqocgv.supabase.co',
-        process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-    )
+    const db = authClient
 
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
@@ -63,14 +59,14 @@ export async function GET() {
     const { count: viewCount } = await db
         .from('interaction_logs')
         .select('id', { count: 'exact', head: true })
-        .in('user_id', memberIds.length > 0 ? memberIds : ['__none__'])
+        .in('user_id', memberIds.length > 0 ? memberIds : ['00000000-0000-0000-0000-000000000000'])
 
     // Weekly activity sparkline — filter to member interactions only
     const { data: recentInteractions } = await db
         .from('interaction_logs')
         .select('created_at, user_id')
         .gte('created_at', sevenDaysAgo.toISOString())
-        .in('user_id', memberIds.length > 0 ? memberIds : ['__none__'])
+        .in('user_id', memberIds.length > 0 ? memberIds : ['00000000-0000-0000-0000-000000000000'])
 
     const weeklyActivity = [0, 0, 0, 0, 0, 0, 0]
     const now = new Date()

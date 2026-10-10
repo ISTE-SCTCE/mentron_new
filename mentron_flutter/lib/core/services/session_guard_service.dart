@@ -47,7 +47,7 @@ class SessionGuardService {
 
     try {
       await _client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .update({'session_token': token}).eq('id', userId);
     } catch (_) {
       // Non-critical — if the update fails (e.g. offline), the mismatch will
@@ -71,7 +71,7 @@ class SessionGuardService {
 
     try {
       final response = await _client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('session_token')
           .eq('id', userId)
           .maybeSingle();
@@ -99,7 +99,7 @@ class SessionGuardService {
     if (userId == null) return;
     try {
       await _client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .update({'session_token': null}).eq('id', userId);
     } catch (_) {}
   }

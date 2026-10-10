@@ -40,67 +40,27 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() => _isLoading = true);
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     final email = _emailController.text.trim();
-    final roll = _rollNumberController.text.trim().toUpperCase();
 
     try {
-      // 1. Pre-check profiles table for duplicate roll number
-      final existing = await supabase.client
-          .from('profiles')
-          .select('id, roll_number')
-          .eq('roll_number', roll)
-          .maybeSingle();
-
-      if (existing != null) {
-        throw Exception('This roll number is already registered.');
-      }
-
       final response = await supabase.client.auth.signUp(
         email: email,
         password: _passwordController.text.trim(),
         data: {
+          'name': _fullNameController.text.trim(),
           'full_name': _fullNameController.text.trim(),
           'roll_number': _rollNumberController.text.trim().toUpperCase(),
           'admission_year': int.tryParse(_selectedAdmissionYear!) ?? DateTime.now().year,
           'admission_month': 8,
-          'role': 'member',
+          'branch': _selectedDept,
           'department': _selectedDept,
-          'iste_id': _isteIdController.text.trim().isEmpty
-              ? null
-              : _isteIdController.text.trim(),
         },
       );
 
       if (response.user != null && mounted) {
-        // Fetch existing profile to prevent role downgrade
-        final existing = await supabase.client
-            .from('profiles')
-            .select('role')
-            .eq('id', response.user!.id)
-            .maybeSingle();
-
-        String newRole = 'member';
-        if (existing != null) {
-          final oldRole = existing['role'] as String?;
-          if (oldRole == 'core' || oldRole == 'exec') {
-            newRole = oldRole!;
-          }
+        // Only the trusted trigger creates the shared profile.
+        if(response.session != null) {
+          await supabase.client.rpc('enroll_current_user',params:{'p_product':'mentron'});
         }
-
-        await supabase.client.from('profiles').upsert({
-          'id': response.user!.id,
-          'full_name': _fullNameController.text.trim(),
-          'roll_number': _rollNumberController.text.trim().toUpperCase(),
-          'admission_year': int.tryParse(_selectedAdmissionYear!) ?? DateTime.now().year,
-          'admission_month': 8,
-          'role': newRole,
-          'department': _selectedDept,
-          'xp': 0,
-          'email': email,
-          'iste_id': _isteIdController.text.trim().isEmpty
-              ? null
-              : _isteIdController.text.trim(),
-        });
-
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

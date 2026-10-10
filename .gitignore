@@ -43,4 +43,6 @@ next-env.d.ts
 # Agent folder
 .agent/
 .agents/
+.person3/
+mentron_flutter/.person3-*
 

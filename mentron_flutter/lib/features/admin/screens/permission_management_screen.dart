@@ -32,7 +32,7 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     try {
       final response = await supabase.client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('id, full_name, roll_number, department, role, iste_position, permissions')
           .inFilter('role', ['core', 'exec'])
           .order('full_name');

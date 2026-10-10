@@ -79,7 +79,7 @@ export function LiveActivityTicker({ items, type, title }: { items: any[], type:
                     {displayFeed.map((item, i) => (
                         <Link
                             key={`${item.id}-${i}`}
-                            href={isProject ? '/projects' : '/marketplace'}
+                            href={isProject ? '/mentron/projects' : '/mentron/marketplace'}
                             className="group block relative overflow-hidden shrink-0 rounded-2xl p-4 transition-all duration-300"
                             style={{
                                 background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)',

@@ -2,60 +2,35 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextRequest } from 'next/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ysllolnoyezfdllqocgv.supabase.co'
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_FwJxMntZ8Hiqze7RUK0gcQ_L_0DGAbs'
+import { PLATFORM_URL, PLATFORM_PUBLISHABLE_KEY } from '../platform/config'
+import { withMentronStorage } from '../platform/storage'
 
 export async function createClient() {
     const cookieStore = await cookies()
-
-    return createServerClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY,
-        {
-            cookies: {
-                getAll() {
-                    return cookieStore.getAll()
-                },
-                setAll(cookiesToSet) {
-                    try {
-                        cookiesToSet.forEach(({ name, value, options }) =>
-                            cookieStore.set(name, value, options)
-                        )
-                    } catch {
-                        // The `setAll` method was called from a Server Component.
-                        // This can be ignored if you have middleware refreshing
-                        // user sessions.
-                    }
-                },
-            },
-        }
-    )
-}
-
-export async function getAuthUser(request: NextRequest) {
-    const authHeader = request.headers.get('Authorization')
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.split(' ')[1]
-        const client = createSupabaseClient(
-            SUPABASE_URL,
-            SUPABASE_ANON_KEY,
-            {
-                auth: { persistSession: false },
-                global: {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
+    return withMentronStorage(createServerClient(PLATFORM_URL, PLATFORM_PUBLISHABLE_KEY, {
+        db:{schema:'mentron'},
+        cookies:{
+            getAll:() => cookieStore.getAll(),
+            setAll(cookiesToSet) {
+                try { cookiesToSet.forEach(({name,value,options}) => cookieStore.set(name,value,options)) }
+                catch { /* Middleware refreshes cookies for Server Components. */ }
             }
-        )
-        const { data: { user } } = await client.auth.getUser(token)
-        if (user) {
-            return { user, supabase: client }
         }
+    }))
+}
+export async function getAuthUser(request: NextRequest) {
+    const header = request.headers.get('Authorization') ?? request.headers.get('x-supabase-auth')
+    if(header?.startsWith('Bearer ')) {
+        const token = header.slice(7)
+        const client = withMentronStorage(createSupabaseClient(PLATFORM_URL, PLATFORM_PUBLISHABLE_KEY,{
+            db:{schema:'mentron'},
+            auth:{persistSession:false,autoRefreshToken:false},
+            global:{headers:{Authorization:header}}
+        }))
+        const {data:{user},error} = await client.auth.getUser(token)
+        return {user:error ? null : user,supabase:client}
     }
-
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    return { user, supabase }
+    const {data:{user},error} = await supabase.auth.getUser()
+    return {user:error ? null : user,supabase}
 }

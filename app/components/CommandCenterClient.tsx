@@ -113,11 +113,11 @@ function RecentActivityFeed() {
         fetchActivity()
 
         const notesSub = supabase.channel('member-notes-activity')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'notes' }, fetchActivity)
+            .on('postgres_changes', { event: '*', schema: 'mentron', table: 'notes' }, fetchActivity)
             .subscribe()
 
         const projectsSub = supabase.channel('member-projects-activity')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, fetchActivity)
+            .on('postgres_changes', { event: '*', schema: 'mentron', table: 'projects' }, fetchActivity)
             .subscribe()
 
         const poll = setInterval(fetchActivity, 30000)
@@ -190,12 +190,12 @@ function RecentActivityFeed() {
                                     const yearNum = item.year ?? 1
                                     const subSegment = item.subject ? `/${encodeURIComponent(item.subject)}` : ''
                                     if (yearNum === 1) {
-                                        router.push(`/notes/year/1/group/${item.department}/${item.semester}${subSegment}`)
+                                        router.push(`/mentron/notes/year/1/group/${item.department}/${item.semester}${subSegment}`)
                                     } else {
-                                        router.push(`/notes/year/${yearNum}/dept/${item.department}/${item.semester}${subSegment}`)
+                                        router.push(`/mentron/notes/year/${yearNum}/dept/${item.department}/${item.semester}${subSegment}`)
                                     }
                                 } else {
-                                    router.push(`/projects/${item.id}`)
+                                    router.push(`/mentron/projects/${item.id}`)
                                 }
                             }}
                             className="flex gap-4 relative group cursor-pointer"
@@ -299,7 +299,7 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
                         </div>
 
                         {/* Notes Quick Access */}
-                        <Link href="/notes" className="xl:col-span-1 glass-card group flex flex-col justify-between hover:bg-white/[0.04] transition-all relative overflow-hidden">
+                        <Link href="/mentron/notes" className="xl:col-span-1 glass-card group flex flex-col justify-between hover:bg-white/[0.04] transition-all relative overflow-hidden">
                             <div className="absolute -top-12 -right-12 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/10 transition-colors" />
                             <div className="flex justify-between items-start mb-4 relative z-10">
                                 <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-xl grayscale group-hover:grayscale-0 transition-all group-hover:scale-110">📚</div>
@@ -312,7 +312,7 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
                         </Link>
 
                         {/* Leaderboard */}
-                        <Link href="/leaderboard" className="xl:col-span-1 glass-card group flex flex-col justify-between hover:bg-white/[0.04] transition-all bg-purple-500/5">
+                        <Link href="/mentron/leaderboard" className="xl:col-span-1 glass-card group flex flex-col justify-between hover:bg-white/[0.04] transition-all bg-purple-500/5">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-xl grayscale group-hover:grayscale-0 transition-all group-hover:scale-110">👑</div>
                                 <span className="text-[9px] font-black tracking-widest text-purple-400 uppercase">Rankings</span>
@@ -333,13 +333,13 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
                                     <span className="text-xl grayscale group-hover:grayscale-0 transition-all">⚙️</span>
                                 </div>
                                 <div className="flex gap-2">
-                                    <Link href="/admin/notes" className="flex-1 glass glass-hover py-3 rounded-xl text-[10px] font-black text-cyan-300 text-center uppercase tracking-wider transition-all">Upload</Link>
-                                    <Link href="/admin/projects" className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 py-3 rounded-xl text-[10px] font-black text-white text-center uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(112,0,223,0.3)]">Manage</Link>
+                                    <Link href="/mentron/admin/notes" className="flex-1 glass glass-hover py-3 rounded-xl text-[10px] font-black text-cyan-300 text-center uppercase tracking-wider transition-all">Upload</Link>
+                                    <Link href="/mentron/admin/projects" className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 py-3 rounded-xl text-[10px] font-black text-white text-center uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(112,0,223,0.3)]">Manage</Link>
                                 </div>
                             </div>
 
                             {coreMember && (
-                                <Link href="/core/members" className="glass-card flex-1 bg-purple-500/5 hover:bg-purple-500/10 transition-all group border-purple-500/10">
+                                <Link href="/mentron/core/members" className="glass-card flex-1 bg-purple-500/5 hover:bg-purple-500/10 transition-all group border-purple-500/10">
                                     <div className="flex justify-between items-center">
                                         <p className="text-sm font-black text-white group-hover:text-cyan-300 transition-all">Manage Members</p>
                                         <span className="text-xl">🔐</span>
@@ -382,7 +382,7 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
                     </div>
 
                     {/* Notes */}
-                    <Link href="/notes" className="xl:col-span-2 glass-card group flex flex-col justify-between hover:bg-white/[0.04] transition-all relative overflow-hidden p-6 sm:p-8">
+                    <Link href="/mentron/notes" className="xl:col-span-2 glass-card group flex flex-col justify-between hover:bg-white/[0.04] transition-all relative overflow-hidden p-6 sm:p-8">
                         <div className="absolute -top-12 -right-12 w-48 h-48 bg-cyan-500/5 rounded-full blur-3xl group-hover:bg-cyan-500/10 transition-colors" />
                         <div className="flex justify-between items-start mb-4 relative z-10">
                             <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-xl grayscale group-hover:grayscale-0 transition-all group-hover:scale-110">📚</div>
@@ -395,7 +395,7 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
                     </Link>
 
                     {/* Leaderboard */}
-                    <Link href="/leaderboard" className="xl:col-span-1 glass-card group flex flex-col justify-between hover:bg-white/[0.04] transition-all bg-purple-500/5 p-6 sm:p-8">
+                    <Link href="/mentron/leaderboard" className="xl:col-span-1 glass-card group flex flex-col justify-between hover:bg-white/[0.04] transition-all bg-purple-500/5 p-6 sm:p-8">
                         <div className="flex justify-between items-start mb-4">
                             <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-xl grayscale group-hover:grayscale-0 transition-all group-hover:scale-110">👑</div>
                             <span className="text-[9px] font-black tracking-widest text-purple-400 uppercase">Rankings</span>

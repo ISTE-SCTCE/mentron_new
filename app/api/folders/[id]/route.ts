@@ -70,7 +70,7 @@ export async function PUT(
             }
         }
 
-        revalidatePath('/notes', 'layout')
+        revalidatePath('/mentron/notes', 'layout')
         
         return NextResponse.json({ success: true })
     } catch (err: any) {
@@ -124,7 +124,7 @@ export async function DELETE(
 
         if (error) throw error
 
-        revalidatePath('/notes', 'layout')
+        revalidatePath('/mentron/notes', 'layout')
 
         return NextResponse.json({ success: true })
     } catch (err: any) {

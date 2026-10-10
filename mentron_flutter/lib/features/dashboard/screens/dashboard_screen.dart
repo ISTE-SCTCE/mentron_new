@@ -82,7 +82,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       if (user != null) {
         final profileRes = await supabase
-            .from('profiles')
+            .schema('mentron').from('profiles')
             .select('department, year, admission_year, admission_month, roll_number, xp, role, full_name')
             .eq('id', user.id)
             .maybeSingle();
@@ -108,13 +108,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
 
       final membersCount = await supabase
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .count(CountOption.exact)
           .eq('role', 'member');
 
-      final notesCount = await supabase.from('notes').count(CountOption.exact);
+      final notesCount = await supabase.schema('mentron').from('notes').count(CountOption.exact);
       final projectsCount = await supabase
-          .from('projects')
+          .schema('mentron').from('projects')
           .count(CountOption.exact);
 
       if (mounted) {
@@ -964,7 +964,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     try {
       final response = await supabase
-          .from('events')
+          .schema('mentron').from('events')
           .select('*')
           .lte('start_date', now)
           .gte('end_date', now)

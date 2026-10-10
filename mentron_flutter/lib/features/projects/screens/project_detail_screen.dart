@@ -36,7 +36,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
 
     try {
       final response = await supabase.client
-          .from('project_applications')
+          .schema('mentron').from('project_applications')
           .select('id')
           .eq('project_id', widget.project.id)
           .eq('profile_id', _currentUserId!)
@@ -71,11 +71,11 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
       final path = '$_currentUserId/${widget.project.id}/$fileName';
 
       // 2. Upload to storage bucket
-      await supabase.storage.from('cv_bucket').upload(path, file);
-      final publicUrl = supabase.storage.from('cv_bucket').getPublicUrl(path);
+      await supabase.storage.from('mentron-cv_bucket').upload(path, file);
+      final publicUrl = supabase.storage.from('mentron-cv_bucket').getPublicUrl(path);
 
       // 3. Insert project application row
-      await supabase.from('project_applications').insert({
+      await supabase.schema('mentron').from('project_applications').insert({
         'project_id': widget.project.id,
         'profile_id': _currentUserId,
         'cv_url': publicUrl,

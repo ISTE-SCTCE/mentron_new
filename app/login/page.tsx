@@ -6,10 +6,13 @@ import { useState, useRef, useEffect } from 'react'
 import { Eye, EyeOff, Loader2, Mail, Lock, ArrowRight, Sparkles, Users, Award, Compass } from 'lucide-react'
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from 'framer-motion'
 import { login } from './actions'
+import { OtpLogin } from '@/app/components/platform/OtpLogin'
 
 export default function LoginPage() {
     const searchParams = useSearchParams()
     const error = searchParams.get('error')
+    const product = searchParams.get('product') === 'mlynq' ? 'mlynq' : 'mentron'
+    const message = searchParams.get('message')
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -196,7 +199,7 @@ export default function LoginPage() {
                                     Welcome Back
                                 </h1>
                                 <p className="text-xs sm:text-sm text-gray-400 font-medium">
-                                    Sign in to your Mentron community account
+                                    Sign in to your shared ISTE account
                                 </p>
                             </div>
 
@@ -236,6 +239,8 @@ export default function LoginPage() {
                                 onSubmit={() => setIsPending(true)}
                                 className="space-y-4"
                             >
+                                <input type="hidden" name="product" value={product} />
+                                {message && <p role="status" className="text-cyan-300 text-sm">{message}</p>}
                                 {/* Floating Label Input 1: Email */}
                                 <div className="relative pt-3 group">
                                     <div className="relative rounded-2xl bg-white/[0.04] border border-white/10 transition-all duration-200 focus-within:border-cyan-400/80 focus-within:bg-white/[0.07] focus-within:ring-4 focus-within:ring-cyan-400/15">
@@ -354,7 +359,7 @@ export default function LoginPage() {
                                             </>
                                         ) : (
                                             <>
-                                                <span>Sign In to Mentron</span>
+                                                <span>Sign In to {product === 'mlynq' ? 'Mlynq' : 'Mentron'}</span>
                                                 <motion.span
                                                     animate={isHoveringSubmit ? { x: 4 } : { x: 0 }}
                                                     transition={{ type: 'spring', stiffness: 300, damping: 15 }}
@@ -366,12 +371,13 @@ export default function LoginPage() {
                                     </span>
                                 </button>
                             </form>
+                            <OtpLogin product={product} />
 
                             {/* Sign-up Invitation */}
                             <div className="pt-1 text-center text-xs sm:text-sm font-medium text-gray-400">
                                 Not part of the community yet?{' '}
                                 <Link
-                                    href="/signup"
+                                    href={'/signup?product=' + product}
                                     className="text-cyan-400 hover:text-cyan-300 font-bold underline underline-offset-4 decoration-purple-500/40 hover:decoration-cyan-400 transition-colors ml-1"
                                 >
                                     Join the tribe →

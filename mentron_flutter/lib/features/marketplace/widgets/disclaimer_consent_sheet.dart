@@ -84,7 +84,7 @@ class _DisclaimerConsentSheetState extends State<DisclaimerConsentSheet> {
       final user = supa.currentUser;
       if (user != null) {
         final res = await supa.client
-            .from('profiles')
+            .schema('mentron').from('profiles')
             .select('phone')
             .eq('id', user.id)
             .maybeSingle();
