@@ -1,6 +1,6 @@
 # Person 3: shared Mlynq and Mentron platform
 
-Status on 10 October 2026: implementation and isolated checks complete; production schema, account/content transfer, Firebase deployment and client release pending. Automatic approval review rejected the broad production migration and the account export. Do not use the CLI to bypass either rejection.
+Status on 10 October 2026: production schema and the explicitly approved account/content/file transfer are complete. Both integration migrations and the helper hardening migration are applied. All 346 accounts mapped (96 existing matches, 250 new identities), feature-table counts reconciled and 22 files passed byte verification; source data was preserved. See the admin repository's `supabase/PERSON3_TRANSFER_20261010.md` for evidence. Client/Firebase deployment and actual mailbox login testing remain pending. The earlier approval-review rejection was resolved by explicit user approval; no workaround bypass was used.
 
 ## Delivered behavior
 
@@ -14,8 +14,8 @@ Private migrated files use `/api/files/...`, which verifies shared authenticatio
 
 Use the separate `ISTE-SCTCE/admin_copy` change with:
 
-- `supabase/migrations/20261010070611_integrate_mentron_product_schema.sql`
-- `supabase/migrations/20261010072945_verified_mentron_identity_import.sql`
+- `supabase/migrations/20261010133336_integrate_mentron_product_schema.sql`
+- `supabase/migrations/20261010133414_verified_mentron_identity_import.sql`
 - `supabase/scripts/migrate-mentron.mjs`, `mentron-transfer.mjs` and `mentron-catalog.json`
 - `supabase/tests/person3_schema.test.mjs` and `mentron-transfer.test.mjs`
 
@@ -52,7 +52,7 @@ Source administrator claims, self-asserted ISTE membership, device sessions and 
 
 The Next production build and TypeScript checks passed. Anonymous browser checks covered both product landings, shared login, protected-route redirects and no horizontal overflow at 390px/1366px. Flutter product/access and private-file-header tests passed; a debug Android APK builds. Database checks run in isolated PGlite against a fixture and cover enrollment, RLS, protected fields, verified matching, new UUIDs, password preservation, mailbox-proof gating and imported history. Transfer mapping and Firebase canonical-authority tests passed.
 
-Production authentication, live migration, real file transfer, deployment and device testing remain pending approval. This work does not complete the separate certificate lifecycle migration or authorize deleting the remaining legacy attendance tables.
+Live migrations and the real account/content/file transfer are complete. Production email/password login, deployment and device testing remain release steps. The user requested ending backend work here and using Astra for the UI phase. Source clients still write to the old backend, so refresh/reconcile deltas before a later cutover. This work does not complete the separate certificate lifecycle migration or authorize deleting the remaining legacy attendance tables.
 
 ## Final UI phase requested by the user
 
