@@ -1379,3 +1379,5 @@
     font-size: 12px;
   }
 }
+
+.studio .s-otp-form label{display:block;font-size:12px;font-weight:500}.studio .s-otp-form button{min-height:48px;border-radius:8px;background:var(--s-solid);color:var(--s-on);font-size:12px}.studio .s-otp-form button[type=button]{background:transparent;color:var(--s-accent)}.studio .s-otp-form [role=alert]{color:#e37386}.studio-mlynq .s-otp-form [role=alert]{color:#a33045}.studio .s-otp-form [role=status]{font-size:12px;color:var(--s-muted)}

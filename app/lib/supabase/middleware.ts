@@ -17,6 +17,8 @@ export async function updateSession(request: NextRequest) {
     })
     const {data:{user}} = await client.auth.getUser()
     const path = request.nextUrl.pathname.replace(/\/$/,'')
+    const loginProduct = path === '/mlynq/login' ? 'mlynq' : path === '/login'
+        ? (request.nextUrl.searchParams.get('product') === 'mlynq' ? 'mlynq' : 'mentron') : null
     const product = path.startsWith('/mlynq/') ? 'mlynq' : path.startsWith('/mentron/') ? 'mentron' : null
     const isProtected = product && !['/mlynq/login','/mentron/privacy'].includes(path)
     function go(destination: string) {
@@ -26,6 +28,13 @@ export async function updateSession(request: NextRequest) {
         return redirect
     }
     if(isProtected && !user) return go('/login?product=' + product)
+    // Product login methods differ; a verified active session is shared.
+    if(user && loginProduct) {
+        const {data:profile,error} = await client.from('profiles')
+            .select('status,suspended_until,is_mlynq_user,is_mentron_user').eq('id',user.id).maybeSingle()
+        if(!error && isActiveProfile(profile)) return go(canOpenProduct(profile,loginProduct)
+            ? productHome(loginProduct) : '/join?product='+loginProduct)
+    }
     if(isProtected && user && product) {
         const {data:profile,error} = await client.from('profiles')
             .select('status,suspended_until,is_mlynq_user,is_mentron_user,role,permissions')

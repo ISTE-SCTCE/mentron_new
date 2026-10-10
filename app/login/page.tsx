@@ -103,7 +103,11 @@ export default function LoginPage() {
         <section className="s-auth-card" aria-labelledby="welcome-title">
           <p className="s-eyebrow">GOOD TO SEE YOU</p>
           <h2 id="welcome-title">Welcome back.</h2>
-          <p className="s-auth-intro">Sign in to your shared ISTE account.</p>
+          <p className="s-auth-intro">
+            {product === "mlynq"
+              ? "We’ll email you a sign-in code. No password needed."
+              : "Sign in with your Mentron password."}
+          </p>
           {error && (
             <p role="alert" className="s-auth-error">
               {error}
@@ -114,11 +118,14 @@ export default function LoginPage() {
               {message}
             </p>
           )}
-          <form action={login}>
-            <input type="hidden" name="product" value={product} />
-            <LoginFields brand={brand} />
-          </form>
-          <OtpLogin product={product} />
+          {product === "mlynq" ? (
+            <OtpLogin product="mlynq" primary />
+          ) : (
+            <form action={login}>
+              <input type="hidden" name="product" value="mentron" />
+              <LoginFields brand={brand} />
+            </form>
+          )}
           <p className="s-auth-signup">
             New around here?{" "}
             <Link href={"/signup?product=" + product}>

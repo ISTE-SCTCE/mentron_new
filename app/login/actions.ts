@@ -6,6 +6,7 @@ export async function login(formData: FormData) {
     const client = await createClient()
     const intent = formData.get('product')
     const product = isProduct(intent) ? intent : 'mentron'
+    if(product === 'mlynq') redirect('/login?product=mlynq')
     const email = String(formData.get('email')??'').trim().toLowerCase()
     const password = String(formData.get('password')??'')
     const {data:{user},error} = await client.auth.signInWithPassword({email,password})
