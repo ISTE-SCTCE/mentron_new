@@ -28,7 +28,7 @@ export default function HomePage() {
   const [category, setCategory] = useState('All');
   const [isLoading, setIsLoading] = useState(true);
 
-  const avatarUrl = name ? `https://api.dicebear.com/7.x/notionists/png?seed=${encodeURIComponent(name)}` : null;
+
 
   useEffect(() => {
     const load = async () => {
@@ -71,52 +71,9 @@ export default function HomePage() {
       <div className="page-inner">
 
         {/* â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-          <div>
-            <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 26, fontWeight: 700, color: '#111', lineHeight: 1.2 }}>
-              Hi, {name?.split(' ')[0] || 'Member'} ðŸ‘‹
-            </h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: isMembershipValid ? '#48BB78' : '#E53E3E' }} />
-              <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, color: '#5F85A2', fontWeight: 500 }}>
-                {isMembershipValid ? 'Active Member' : 'Guest Account'}
-              </span>
-            </div>
-          </div>
-          <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: 3, textDecoration: 'none' }}>
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="avatar" style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', border: '3px solid #D3E3F0' }} />
-            ) : (
-              <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#D3E3F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <User size={22} color="#5F85A2" />
-              </div>
-            )}
-          </Link>
-        </div>
+        <header className="m-home-heading"><div><p>YOUR CAMPUS COMPANION</p><h1>Hello, {name?.split(' ')[0] || 'Member'}.</h1><span>A little more connected. A little more you.</span></div><Link to="/profile" aria-label="Open your profile"><User size={24}/></Link></header>
+        <section className="m-home-hero"><div><p className="m-kicker">ISTE SCTCE · YOUR CAMPUS PASS</p><h2>Good things happen<br/>when you show up.</h2><p>Keep your attendance QR close. Your next campus moment is waiting.</p><Link to="/qr">Open my attendance QR <QrCode size={20}/></Link></div><div className="m-pass-status"><span className="m-pass-orbit" aria-hidden="true"><QrCode size={58} strokeWidth={1}/></span><strong>{isMembershipValid ? 'Active member' : 'Guest account'}</strong><span>{membershipId || 'Your ISTE community'}</span></div></section>
 
-        {/* â”€â”€ Attendance QR Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-        <div style={{
-          background: 'linear-gradient(135deg, #181824 0%, #121218 100%)',
-          borderRadius: 24, padding: '18px 24px', marginBottom: 24,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: 14,
-          boxShadow: '0 8px 24px rgba(0,0,0,0.15)', border: '1px solid rgba(255,255,255,0.1)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{ width: 46, height: 46, borderRadius: 14, background: 'rgba(58,175,169,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <QrCode size={24} color="#3AAFA9" />
-            </div>
-            <div>
-              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#fff' }}>Event Attendance QR</div>
-              <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, color: 'rgba(211,227,240,0.6)', marginTop: 2 }}>Dynamic AES-256-GCM token â€¢ Present to coordinator</div>
-            </div>
-          </div>
-          <Link to="/qr" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 20, background: '#fff', color: '#111', textDecoration: 'none', fontFamily: "'Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-            Show My QR <ChevronRight size={16} />
-          </Link>
-        </div>
-
-        {/* â”€â”€ Quick Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div className="stat-grid">
           {[
             { icon: <Calendar size={20} color="#5F85A2" />, value: upcomingEvents.length, label: 'Upcoming Events', bg: '#D9E9F9', to: '/events' },
@@ -143,7 +100,7 @@ export default function HomePage() {
             {/* Category pills */}
             <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, marginBottom: 20, scrollbarWidth: 'none' }}>
               {CATEGORY_PILLS.map(c => (
-                <button key={c} onClick={() => setCategory(c)} className="interactive-lift"
+                <button key={c} aria-pressed={category === c} onClick={() => setCategory(c)} className="interactive-lift"
                   style={{ flexShrink: 0, padding: '8px 16px', borderRadius: 20, border: '2px solid', borderColor: category === c ? '#111' : '#D3E3F0', background: category === c ? '#111' : '#fff', color: category === c ? '#fff' : '#5F85A2', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Space Grotesk',sans-serif", whiteSpace: 'nowrap' }}>
                   {c}
                 </button>

@@ -13,11 +13,12 @@ import { ProductAnalytics } from './ProductAnalytics'
 export function ProductShell({children}: {children: React.ReactNode}) {
     const pathname = usePathname()
     const mlynq = pathname.startsWith('/mlynq')
+    const productPage = mlynq || pathname.startsWith('/mentron')
     return <LoadingProvider>
         {!mlynq && <><LiquidBackground/><SidebarWrapper/><LoadingOverlay/>
             <NavigationInterceptor/><NavigationEventsWrapper/></>}
         <ProductSwitcher/><ProductAnalytics/>
-        <div className={mlynq ? 'mlynq-surface platform-product' : 'relative z-10 w-full platform-product'}>
+        <div className={(mlynq ? 'mlynq-surface' : 'relative z-10 w-full') + (productPage ? ' platform-product' : '')}>
             {mlynq ? children : <PageTransition>{children}</PageTransition>}
         </div>
     </LoadingProvider>

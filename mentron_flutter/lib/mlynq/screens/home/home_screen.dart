@@ -1,5 +1,4 @@
-import 'dart:ui';
-import 'dart:io';
+import '../../../design/campus_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,19 +17,27 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   final _supabase = Supabase.instance.client;
-  int _selectedIndex = 0;
   List<Map<String, dynamic>> _ongoingEvents = [];
   List<Map<String, dynamic>> _upcomingEvents = [];
   List<Map<String, dynamic>> _pastEvents = [];
   List<Map<String, dynamic>> _announcements = [];
   bool _isLoading = true;
+  bool _loadFailed = false;
   String _selectedCategory = 'All';
 
   // Cached section widgets — rebuilt only when data or category changes
   List<Widget>? _cachedSections;
   String? _cachedSectionsCategory;
 
-  final List<String> _categories = ['All', 'Announcements', 'Workshops', 'Tech Talks', 'Hackathons', 'Meetups', 'Seminars'];
+  final List<String> _categories = [
+    'All',
+    'Announcements',
+    'Workshops',
+    'Tech Talks',
+    'Hackathons',
+    'Meetups',
+    'Seminars',
+  ];
 
   @override
   void initState() {
@@ -39,13 +46,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _loadData() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadFailed = false;
+      _cachedSections = null;
+    });
     try {
       final auth = ref.read(authProvider);
       final futures = await Future.wait([
         _supabase
             .from('events')
-            .select('id, title, date, location, type, description, poster_url, is_paid, member_price')
+            .select(
+              'id, title, date, location, type, description, poster_url, is_paid, member_price',
+            )
             .order('date', ascending: true),
         _supabase
             .from('announcements')
@@ -64,7 +77,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         final upcoming = <Map<String, dynamic>>[];
         final past = <Map<String, dynamic>>[];
 
-        final todayStr = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+        final todayStr =
+            "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
 
         for (var e in allEvents) {
           final eventDate = e['date'] as String? ?? '';
@@ -89,6 +103,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         });
       }
     } catch (e) {
+      _loadFailed = true;
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -101,7 +116,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
-    final firstName = auth.name.isNotEmpty ? auth.name.split(' ').first : 'Member';
+    final firstName = auth.name.isNotEmpty
+        ? auth.name.split(' ').first
+        : 'Member';
     final membershipValid = auth.isMembershipValid;
 
     return Scaffold(
@@ -126,113 +143,74 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
-                // Top Custom Header (Avatar + Greetings)
+                SliverToBoxAdapter(
+                  child: CampusHeader(
+                    name: firstName,
+                    product: 'Mlynq',
+                    subtitle: 'Your people. Your moments. Your campus.',
+                    onProfile: () => context.push('/membership'),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: CampusSpotlight(
+                    learning: false,
+                    status: membershipValid
+                        ? 'Active ISTE member'
+                        : 'Guest account',
+                    onOpen: () => context.push('/qr'),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: CampusActionGrid(
+                    children: [
+                      CampusActionCard(
+                        title: 'Show up.',
+                        subtitle: 'Explore campus events',
+                        icon: Icons.calendar_month_outlined,
+                        tint: MemberTheme.mPastelBlue,
+                        onTap: () => context.push('/events'),
+                      ),
+                      CampusActionCard(
+                        title: 'Make it count.',
+                        subtitle: 'Your earned certificates',
+                        icon: Icons.workspace_premium_outlined,
+                        tint: MemberTheme.mPastelPeach,
+                        onTap: () => context.push('/certificates'),
+                      ),
+                    ],
+                  ),
+                ),
+                const SliverToBoxAdapter(
+                  child: CampusSectionHeading('Around your campus'),
+                ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Greetings & Avatar Row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  firstName,
-                                  style: GoogleFonts.spaceGrotesk(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w700,
-                                    color: MemberTheme.mDarkCharcoal,
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 8,
-                                      height: 8,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.green,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      membershipValid ? 'Basic Plan' : 'Expired Plan',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        color: MemberTheme.mDarkCharcoal.withOpacity(0.5),
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-
-                            // User Avatar Profile Picture
-                            GestureDetector(
-                              onTap: () => context.push('/membership'),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: MemberTheme.mDarkCharcoal, width: 2),
-                                ),
-                                child: CircleAvatar(
-                                  radius: 22,
-                                  backgroundColor: MemberTheme.mLightSlate,
-                                  backgroundImage: Platform.environment.containsKey('FLUTTER_TEST')
-                                      ? null
-                                      : NetworkImage('https://api.dicebear.com/7.x/notionists/png?seed=${auth.name.isNotEmpty ? auth.name : "Member"}') as ImageProvider,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 28),
-
-                        // "What would you like to explore today?" title
-                        Text(
-                          'What would you like\nto explore today?',
-                          style: GoogleFonts.spaceGrotesk(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w700,
-                            color: MemberTheme.mDarkCharcoal,
-                            height: 1.15,
-                          ),
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // Horizontal category pill row
-                        _buildCategoryRow(),
-
-                        const SizedBox(height: 28),
-                      ],
-                    ),
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+                    child: _buildCategoryRow(),
                   ),
                 ),
 
                 // Main Card Illustration List
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
-                  sliver: Builder(builder: (context) {
-                    // Rebuild sections only when category changes or data reloads
-                    if (_cachedSections == null || _cachedSectionsCategory != _selectedCategory) {
-                      _cachedSections = _buildSections();
-                      _cachedSectionsCategory = _selectedCategory;
-                    }
-                    final sections = _cachedSections!;
-                    return SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) => index < sections.length ? sections[index] : null,
-                        childCount: sections.length,
-                      ),
-                    );
-                  }),
+                  sliver: Builder(
+                    builder: (context) {
+                      // Rebuild sections only when category changes or data reloads
+                      if (_cachedSections == null ||
+                          _cachedSectionsCategory != _selectedCategory) {
+                        _cachedSections = _buildSections();
+                        _cachedSectionsCategory = _selectedCategory;
+                      }
+                      final sections = _cachedSections!;
+                      return SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) =>
+                              index < sections.length ? sections[index] : null,
+                          childCount: sections.length,
+                        ),
+                      );
+                    },
+                  ),
                 ),
                 // Spacer for Bottom Nav padding
                 const SliverToBoxAdapter(child: SizedBox(height: 120)),
@@ -242,7 +220,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
           // Floating capsule navigation bar
           Positioned(
-            bottom: 20,
+            bottom: MediaQuery.paddingOf(context).bottom + 12,
             left: 24,
             right: 24,
             child: _buildFloatingBottomNav(),
@@ -253,8 +231,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   List<Widget> _buildSections() {
+    if (_loadFailed) {
+      return [
+        Column(
+          children: [
+            const Text('We couldn’t load your campus updates.'),
+            TextButton(onPressed: _loadData, child: const Text('Try again')),
+          ],
+        ),
+      ];
+    }
     if (_isLoading) {
-      return [const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()))];
+      return [
+        const Center(
+          child: Padding(
+            padding: EdgeInsets.all(32),
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      ];
     }
 
     final styles = [
@@ -263,74 +258,99 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         'text': Colors.white,
         'btn': Colors.white,
         'btnText': MemberTheme.mDarkCharcoal,
-        'illustration': const MlynqDeskIllustration(baseColor: Color(0xFFFBE4D5)),
+        'illustration': const MlynqDeskIllustration(
+          baseColor: Color(0xFFFBE4D5),
+        ),
       },
       {
         'bg': MemberTheme.mPastelLavender,
         'text': MemberTheme.mDarkCharcoal,
         'btn': MemberTheme.mDarkCharcoal,
         'btnText': Colors.white,
-        'illustration': const MlynqDeskIllustration(baseColor: MemberTheme.mSlate),
+        'illustration': const MlynqDeskIllustration(
+          baseColor: MemberTheme.mSlate,
+        ),
       },
       {
         'bg': MemberTheme.mPastelPeach,
         'text': MemberTheme.mDarkCharcoal,
         'btn': MemberTheme.mDarkCharcoal,
         'btnText': Colors.white,
-        'illustration': const MlynqDeskIllustration(baseColor: Colors.orangeAccent),
+        'illustration': const MlynqDeskIllustration(
+          baseColor: Colors.orangeAccent,
+        ),
       },
     ];
 
     List<Widget> widgets = [];
     int styleIdx = 0;
 
-    void addEventList(String title, List<Map<String, dynamic>> items, bool isAnnouncement) {
+    void addEventList(
+      String title,
+      List<Map<String, dynamic>> items,
+      bool isAnnouncement,
+    ) {
       final filtered = _selectedCategory == 'All'
           ? items
           : (isAnnouncement
-              ? (_selectedCategory == 'Announcements' ? items : [])
-              : items.where((e) => e['type'] == _selectedCategory || (e['type'] as String?)?.toLowerCase() == _selectedCategory.toLowerCase()).toList());
+                ? (_selectedCategory == 'Announcements' ? items : [])
+                : items
+                      .where(
+                        (e) =>
+                            e['type'] == _selectedCategory ||
+                            (e['type'] as String?)?.toLowerCase() ==
+                                _selectedCategory.toLowerCase(),
+                      )
+                      .toList());
 
       if (filtered.isEmpty) return;
 
-      widgets.add(Padding(
-        padding: const EdgeInsets.only(top: 12, bottom: 16),
-        child: Text(
-          title,
-          style: GoogleFonts.spaceGrotesk(fontSize: 20, fontWeight: FontWeight.bold, color: MemberTheme.mDarkCharcoal),
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 12, bottom: 16),
+          child: Text(
+            title,
+            style: GoogleFonts.spaceGrotesk(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: MemberTheme.mDarkCharcoal,
+            ),
+          ),
         ),
-      ));
+      );
 
       for (var e in filtered) {
         final s = styles[styleIdx % styles.length];
         styleIdx++;
 
-        widgets.add(Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: isAnnouncement
-              ? _buildPromoCard(
-                  title: e['title'] ?? 'Announcement',
-                  subtitle: e['content'] ?? 'Updates & Info',
-                  backgroundColor: s['bg'] as Color,
-                  textColor: s['text'] as Color,
-                  btnLabel: 'View Details',
-                  btnColor: s['btn'] as Color,
-                  btnTextColor: s['btnText'] as Color,
-                  illustration: s['illustration'] as Widget,
-                  onTap: () {},
-                )
-              : _buildEventPromoCard(
-                  title: e['title'] ?? 'Event',
-                  subtitle: e['type'] ?? 'General Event',
-                  backgroundColor: s['bg'] as Color,
-                  textColor: s['text'] as Color,
-                  illustration: s['illustration'] as Widget,
-                  onMoreDetails: () => context.push('/events/${e['id']}'),
-                  // Register Now navigates to the same detail screen
-                  // where the user can see registration options
-                  onRegister: () => context.push('/events/${e['id']}'),
-                ),
-        ));
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: isAnnouncement
+                ? _buildPromoCard(
+                    title: e['title'] ?? 'Announcement',
+                    subtitle: e['content'] ?? 'Updates & Info',
+                    backgroundColor: s['bg'] as Color,
+                    textColor: s['text'] as Color,
+                    btnLabel: 'View Details',
+                    btnColor: s['btn'] as Color,
+                    btnTextColor: s['btnText'] as Color,
+                    illustration: s['illustration'] as Widget,
+                    onTap: () {},
+                  )
+                : _buildEventPromoCard(
+                    title: e['title'] ?? 'Event',
+                    subtitle: e['type'] ?? 'General Event',
+                    backgroundColor: s['bg'] as Color,
+                    textColor: s['text'] as Color,
+                    illustration: s['illustration'] as Widget,
+                    onMoreDetails: () => context.push('/events/${e['id']}'),
+                    // Register Now navigates to the same detail screen
+                    // where the user can see registration options
+                    onRegister: () => context.push('/events/${e['id']}'),
+                  ),
+          ),
+        );
       }
     }
 
@@ -345,14 +365,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     if (widgets.isEmpty) {
-      widgets.add(Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Text('No events found for $_selectedCategory', style: GoogleFonts.inter(color: Colors.grey)),
+      return [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Column(
+            children: [
+              const Icon(Icons.event_available_outlined, size: 32),
+              const SizedBox(height: 12),
+              const Text('Nothing here just yet.'),
+              const SizedBox(height: 6),
+              const Text('Try another category or check back soon.'),
+              TextButton(
+                onPressed: _loadData,
+                child: const Text('Refresh updates'),
+              ),
+            ],
+          ),
         ),
-      ));
+      ];
     }
-
     return widgets;
   }
 
@@ -375,7 +406,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: isSelected ? MemberTheme.mWhite : Colors.transparent,
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(
-                  color: isSelected ? MemberTheme.mDarkCharcoal : MemberTheme.mDarkCharcoal.withOpacity(0.08),
+                  color: isSelected
+                      ? MemberTheme.mDarkCharcoal
+                      : MemberTheme.mDarkCharcoal.withOpacity(0.08),
                   width: isSelected ? 1.8 : 1,
                 ),
                 boxShadow: isSelected
@@ -384,7 +417,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           color: MemberTheme.mDarkCharcoal.withOpacity(0.06),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
-                        )
+                        ),
                       ]
                     : null,
               ),
@@ -426,15 +459,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: [
           // Illustration alignment
           Positioned(
-            bottom: 20,
+            bottom: MediaQuery.paddingOf(context).bottom + 12,
             right: 14,
             child: Opacity(
               opacity: 0.8,
-              child: SizedBox(
-                width: 140,
-                height: 140,
-                child: illustration,
-              ),
+              child: SizedBox(width: 140, height: 140, child: illustration),
             ),
           ),
 
@@ -484,7 +513,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: MemberTheme.mDarkCharcoal, width: 1.5),
+                            border: Border.all(
+                              color: MemberTheme.mDarkCharcoal,
+                              width: 1.5,
+                            ),
                           ),
                           child: Center(
                             child: Text(
@@ -508,7 +540,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           decoration: BoxDecoration(
                             color: MemberTheme.mDarkCharcoal,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: MemberTheme.mDarkCharcoal, width: 1.5),
+                            border: Border.all(
+                              color: MemberTheme.mDarkCharcoal,
+                              width: 1.5,
+                            ),
                           ),
                           child: Center(
                             child: Text(
@@ -556,7 +591,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: [
           // Illustration alignment
           Positioned(
-            bottom: 20,
+            bottom: MediaQuery.paddingOf(context).bottom + 12,
             right: 14,
             child: illustration,
           ),
@@ -599,11 +634,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     GestureDetector(
                       onTap: onTap,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 22,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: btnColor,
                           borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: MemberTheme.mDarkCharcoal, width: 1.5),
+                          border: Border.all(
+                            color: MemberTheme.mDarkCharcoal,
+                            width: 1.5,
+                          ),
                         ),
                         child: Text(
                           btnLabel,
@@ -644,73 +685,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildFloatingBottomNav() {
-    final items = [
-      _BottomNavItem(Icons.home_filled, 'Home', '/home'),
-      _BottomNavItem(Icons.calendar_month_rounded, 'Schedule', '/events'),
-      _BottomNavItem(Icons.qr_code_2_rounded, 'QR Code', '/qr'),
-      _BottomNavItem(Icons.workspace_premium_rounded, 'Certificates', '/certificates'),
-    ];
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(32),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          height: 74,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.85),
-            borderRadius: BorderRadius.circular(32),
-            border: Border.all(color: MemberTheme.mDarkCharcoal.withOpacity(0.12), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: MemberTheme.mDarkCharcoal.withOpacity(0.08),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              )
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: items.asMap().entries.map((entry) {
-                final idx = entry.key;
-                final item = entry.value;
-                final isSelected = _selectedIndex == idx;
-
-                return GestureDetector(
-                  onTap: () {
-                    setState(() => _selectedIndex = idx);
-                    if (item.route != '/home') {
-                      context.push(item.route);
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: isSelected ? MemberTheme.mDarkCharcoal : Colors.transparent,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      item.icon,
-                      size: 24,
-                      color: isSelected ? Colors.white : MemberTheme.mDarkCharcoal.withOpacity(0.5),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _BottomNavItem {
-  final IconData icon;
-  final String label;
-  final String route;
-  const _BottomNavItem(this.icon, this.label, this.route);
+  Widget _buildFloatingBottomNav() => CampusBottomNav(
+    selected: 0,
+    onSelected: (index) {
+      const routes = ['/home', '/events', '/qr', '/certificates'];
+      if (index != 0) context.push(routes[index]);
+    },
+    items: const [
+      CampusNavItem('Home', Icons.home_outlined),
+      CampusNavItem('Events', Icons.calendar_month_outlined),
+      CampusNavItem('My QR', Icons.qr_code_2),
+      CampusNavItem('Awards', Icons.workspace_premium_outlined),
+    ],
+  );
 }

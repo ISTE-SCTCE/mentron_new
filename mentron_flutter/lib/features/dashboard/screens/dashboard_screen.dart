@@ -1,3 +1,4 @@
+import '../../../design/campus_widgets.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,7 +38,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int totalNotes = 0;
   int totalProjects = 0;
   int userXP = 0;
-  bool _isCoreMember = false;
   String _userRole = 'member';
   Map<String, dynamic>? _profile;
   bool _isExec = false;
@@ -62,7 +62,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ? DateTime.fromMillisecondsSinceEpoch(lastSeenMs)
           : DateTime.now().subtract(const Duration(days: 30));
 
-      final supabase = Provider.of<SupabaseService>(context, listen: false).client;
+      final supabase = Provider.of<SupabaseService>(
+        context,
+        listen: false,
+      ).client;
       final svc = NotificationManagerService(supabase);
       final count = await svc.countNewSince(since);
 
@@ -82,8 +85,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       if (user != null) {
         final profileRes = await supabase
-            .schema('mentron').from('profiles')
-            .select('department, year, admission_year, admission_month, roll_number, xp, role, full_name')
+            .schema('mentron')
+            .from('profiles')
+            .select(
+              'department, year, admission_year, admission_month, roll_number, xp, role, full_name',
+            )
             .eq('id', user.id)
             .maybeSingle();
         if (profileRes != null) {
@@ -91,15 +97,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
           if (mounted) {
             setState(() {
               _userRole = userRole;
-              _isCoreMember = userRole == 'core';
               _isExec = userRole == 'exec' || userRole == 'core';
               _profile = profileRes;
             });
-            
+
             // Re-initialize academic provider to sync semester updates
-            final admissionYear = profileRes['admission_year'] as int? ?? DateTime.now().year;
+            final admissionYear =
+                profileRes['admission_year'] as int? ?? DateTime.now().year;
             final admissionMonth = profileRes['admission_month'] as int? ?? 8;
-            Provider.of<AcademicProvider>(context, listen: false).initialize(admissionYear, admissionMonth);
+            Provider.of<AcademicProvider>(
+              context,
+              listen: false,
+            ).initialize(admissionYear, admissionMonth);
           }
           if (profileRes['xp'] != null) {
             fetchedXp = int.tryParse(profileRes['xp'].toString()) ?? 0;
@@ -108,13 +117,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
 
       final membersCount = await supabase
-          .schema('mentron').from('profiles')
+          .schema('mentron')
+          .from('profiles')
           .count(CountOption.exact)
           .eq('role', 'member');
 
-      final notesCount = await supabase.schema('mentron').from('notes').count(CountOption.exact);
+      final notesCount = await supabase
+          .schema('mentron')
+          .from('notes')
+          .count(CountOption.exact);
       final projectsCount = await supabase
-          .schema('mentron').from('projects')
+          .schema('mentron')
+          .from('projects')
           .count(CountOption.exact);
 
       if (mounted) {
@@ -183,21 +197,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
           physics: const ClampingScrollPhysics(),
           slivers: [
             // ── App Bar ───────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: _buildHeader(firstName),
-            ),
+            SliverToBoxAdapter(child: _buildHeader(firstName)),
             // ── Greeting + Headline ───────────────────────────────
-            SliverToBoxAdapter(
-              child: _buildHeadlineSection(firstName),
-            ),
+            SliverToBoxAdapter(child: _buildHeadlineSection(firstName)),
+            SliverToBoxAdapter(child: _buildSectionLabel('Quick Actions')),
+            SliverToBoxAdapter(child: _buildQuickActionsGrid()),
             // ── Dashboard Event & Trending Subject Carousel ──────
-            const SliverToBoxAdapter(
-              child: DashboardCarousel(),
-            ),
+            const SliverToBoxAdapter(child: DashboardCarousel()),
             // ── Events Calendar ──────────────────────────────────
-            const SliverToBoxAdapter(
-              child: EventsCalendarWidget(),
-            ),
+            const SliverToBoxAdapter(child: EventsCalendarWidget()),
             // ── Course Cards ──────────────────────────────────────────────────────────
             SliverToBoxAdapter(
               child: _buildSectionLabel(
@@ -205,9 +213,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onSeeAll: () => MainScaffoldState.of(context)?.setIndex(1),
               ),
             ),
-            SliverToBoxAdapter(
-              child: _buildCourseCards(),
-            ),
+            SliverToBoxAdapter(child: _buildCourseCards()),
             // ── Subject Scrollable Cards ──────────────────────────────────────────────
             if (!_isExec) ...[
               SliverToBoxAdapter(
@@ -216,21 +222,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onSeeAll: () => MainScaffoldState.of(context)?.setIndex(1),
                 ),
               ),
-              SliverToBoxAdapter(
-                child: _buildSubjectCards(),
-              ),
+              SliverToBoxAdapter(child: _buildSubjectCards()),
             ],
             // ── Quick Actions Grid ────────────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: _buildSectionLabel('Quick Actions'),
-            ),
-            SliverToBoxAdapter(
-              child: _buildQuickActionsGrid(),
-            ),
             // ── Calendar ─────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: _buildSectionLabel('Calendar'),
-            ),
+            SliverToBoxAdapter(child: _buildSectionLabel('Calendar')),
             const SliverToBoxAdapter(child: RealTimeCalendar()),
             // Bottom padding for navbar
             const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
@@ -244,214 +240,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Header
   // ─────────────────────────────────────────────────────────────────────────
 
-  Widget _buildHeader(String firstName) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-      child: Row(
-        children: [
-          // Avatar
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                AppTransitions.slideUp(const ProfileScreen()),
-              );
-            },
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                gradient: AppTheme.card1Gradient,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.accentPrimary.withOpacity(0.25),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  firstName.isNotEmpty ? firstName[0].toUpperCase() : 'S',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Name + plan
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Hi, $firstName 👋',
-                  style: const TextStyle(
-                    color: AppTheme.textMain,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    height: 1,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.accentSecondary.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  child: Text(
-                    _userRole == 'core'
-                        ? 'Core'
-                        : (_userRole == 'exec'
-                            ? 'Execom'
-                            : (_userRole == 'admin' ? 'Admin' : 'Member')),
-                    style: const TextStyle(
-                      color: AppTheme.accentSecondary,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Forum button
-          _buildHeaderAction(
-            icon: Icons.forum_rounded,
-            onTap: () => Navigator.push(
-              context,
-              AppTransitions.slideUp(const ForumListScreen()),
-            ),
-          ),
-          const SizedBox(width: 8),
-          // Notification
-          GestureDetector(
-            onTap: () async {
-              await Navigator.push(
-                context,
-                AppTransitions.slideUp(const NotificationsInboxScreen()),
-              );
-              _loadNotifBadge();
-            },
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                _buildHeaderAction(
-                  icon: Icons.notifications_none_rounded,
-                  onTap: () async {
-                    await Navigator.push(
-                      context,
-                      AppTransitions.slideUp(const NotificationsInboxScreen()),
-                    );
-                    _loadNotifBadge();
-                  },
-                ),
-                if (_notifBadgeCount > 0)
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.redAccent,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        _notifBadgeCount > 9 ? '9+' : '$_notifBadgeCount',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1, curve: Curves.easeOut);
-  }
+  Widget _buildHeader(String firstName) => CampusHeader(
+    name: firstName,
+    product: 'Mentron',
+    subtitle:
+        '${_userRole == 'core'
+            ? 'Core member'
+            : _userRole == 'exec'
+            ? 'Executive member'
+            : 'Your study space'} · Your next possibility.',
+    onProfile: () =>
+        Navigator.push(context, AppTransitions.slideUp(const ProfileScreen())),
+    onCommunity: () => Navigator.push(
+      context,
+      AppTransitions.slideUp(const ForumListScreen()),
+    ),
+    unread: _notifBadgeCount,
+    onNotifications: () async {
+      await Navigator.push(
+        context,
+        AppTransitions.slideUp(const NotificationsInboxScreen()),
+      );
+      _loadNotifBadge();
+    },
+  );
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Headline
-  // ─────────────────────────────────────────────────────────────────────────
-
-  Widget _buildHeadlineSection(String firstName) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'What would you like\nto learn today?',
-            style: TextStyle(
-              color: AppTheme.textMain,
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
-              height: 1.2,
-            ),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Pick up right where you left off.',
-            style: TextStyle(
-              color: AppTheme.textMuted,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.08, curve: Curves.easeOut);
-  }
-
-  Widget _buildHeaderAction({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.onSurface,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.accentPrimary.withOpacity(0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(icon, color: AppTheme.textMuted, size: 20),
-      ),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Subject Chips
-  // ─────────────────────────────────────────────────────────────────────────
-
-
-
-
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Course Cards
-  // ─────────────────────────────────────────────────────────────────────────
+  Widget _buildHeadlineSection(String firstName) => CampusSpotlight(
+    learning: true,
+    notesCount: totalNotes,
+    xp: userXP,
+    onOpen: () => MainScaffoldState.of(context)?.setIndex(1),
+  );
 
   Widget _buildCourseCards() {
     final academic = Provider.of<AcademicProvider>(context);
@@ -460,15 +279,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final sem = 'S$semNum';
     final dept = (_profile?['department']?.toString() ?? 'CSE').toUpperCase();
     final courseSubjects = _getTopSubjects();
-    
+
     // Pick the first subject from their course, or fallback to Basic Science
-    final importantSubject = courseSubjects.isNotEmpty 
-        ? courseSubjects.first 
+    final importantSubject = courseSubjects.isNotEmpty
+        ? courseSubjects.first
         : 'Basic Science';
 
     // Format the subject name nicely with newlines if it's long
-    final displayTitle = importantSubject.length > 20 && !importantSubject.contains('\n')
-        ? importantSubject.replaceFirst(' for ', '\nfor ').replaceFirst(' and ', '\nand ').replaceFirst(' & ', '\n& ')
+    final displayTitle =
+        importantSubject.length > 20 && !importantSubject.contains('\n')
+        ? importantSubject
+              .replaceFirst(' for ', '\nfor ')
+              .replaceFirst(' and ', '\nand ')
+              .replaceFirst(' & ', '\n& ')
         : importantSubject;
 
     return Padding(
@@ -486,7 +309,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 14),
           IllustrationCard(
             title: displayTitle,
-            subtitle: 'Study notes, resources, and question papers for $importantSubject',
+            subtitle:
+                'Study notes, resources, and question papers for $importantSubject',
             imagePath: 'assets/images/geometry_card.png',
             gradient: AppTheme.card2Gradient,
             buttonLabel: 'Start Learning',
@@ -541,39 +365,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ];
 
     return SizedBox(
-      height: 172,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        physics: const BouncingScrollPhysics(),
-        itemCount: subjects.length,
-        separatorBuilder: (_, i) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          final color = colors[index % colors.length];
-          final bg = bgColors[index % bgColors.length];
-          return _buildSubjectCard(
-            subject: subjects[index],
-            color: color,
-            bgColor: bg,
-            icon: icons[index % icons.length],
-            onTap: () {
-              Navigator.push(
-                context,
-                AppTransitions.slideRight(
-                  NotesBySubjectScreen(
-                    subjectName: subjects[index],
-                    color: color,
-                    year: year.toString(),
-                    semester: sem,
-                    dept: dept,
-                  ),
-                ),
+          height: 172,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            physics: const BouncingScrollPhysics(),
+            itemCount: subjects.length,
+            separatorBuilder: (_, i) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final color = colors[index % colors.length];
+              final bg = bgColors[index % bgColors.length];
+              return _buildSubjectCard(
+                subject: subjects[index],
+                color: color,
+                bgColor: bg,
+                icon: icons[index % icons.length],
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    AppTransitions.slideRight(
+                      NotesBySubjectScreen(
+                        subjectName: subjects[index],
+                        color: color,
+                        year: year.toString(),
+                        semester: sem,
+                        dept: dept,
+                      ),
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
-    ).animate().fadeIn(delay: 220.ms).slideX(begin: 0.08, curve: Curves.easeOut);
+          ),
+        )
+        .animate()
+        .fadeIn(delay: 220.ms)
+        .slideX(begin: 0.08, curve: Curves.easeOut);
   }
 
   Widget _buildSubjectCard({
@@ -712,87 +539,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
     ];
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: items.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.12,
-        ),
-        itemBuilder: (context, index) => _buildQuickActionCard(items[index]),
-      ),
-    ).animate().fadeIn(delay: 240.ms).slideY(begin: 0.08, curve: Curves.easeOut);
-  }
-
-  Widget _buildQuickActionCard(_QuickAction action) {
-    return GestureDetector(
-      onTap: action.onTap,
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: action.color.withOpacity(0.10),
-              blurRadius: 18,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                color: action.bgColor,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(action.icon, color: action.color, size: 22),
-            ),
-            const Spacer(),
-            Text(
-              action.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: AppTheme.textMain,
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 3),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    action.subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppTheme.textMuted,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_rounded,
-                  color: action.color,
-                  size: 16,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+    return CampusActionGrid(
+      children: [
+        for (final item in items)
+          CampusActionCard(
+            title: item.title,
+            subtitle: item.subtitle,
+            icon: item.icon,
+            tint: item.bgColor,
+            onTap: item.onTap,
+          ),
+      ],
     );
   }
 
@@ -923,48 +680,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Helpers
   // ─────────────────────────────────────────────────────────────────────────
 
-  Widget _buildSectionLabel(String label, {VoidCallback? onSeeAll}) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 26, 20, 0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppTheme.textMain,
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          if (onSeeAll != null)
-            GestureDetector(
-              onTap: onSeeAll,
-              child: const Text(
-                'See all',
-                style: TextStyle(
-                  color: AppTheme.accentPrimary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+  Widget _buildSectionLabel(String title, {VoidCallback? onSeeAll}) =>
+      CampusSectionHeading(title, onSeeAll: onSeeAll);
 
   Future<void> _showActiveEventsBottomSheetIfNeeded() async {
     // Show only ~30% of the time to avoid annoying the user
     if (Random().nextDouble() > 0.3) return;
 
-    final supabaseService = Provider.of<SupabaseService>(context, listen: false);
+    final supabaseService = Provider.of<SupabaseService>(
+      context,
+      listen: false,
+    );
     final supabase = supabaseService.client;
     final now = DateTime.now().toUtc().toIso8601String();
 
     try {
       final response = await supabase
-          .schema('mentron').from('events')
+          .schema('mentron')
+          .from('events')
           .select('*')
           .lte('start_date', now)
           .gte('end_date', now)
@@ -1006,4 +739,3 @@ class _QuickAction {
     required this.onTap,
   });
 }
-

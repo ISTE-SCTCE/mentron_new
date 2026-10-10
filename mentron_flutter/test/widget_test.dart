@@ -1,30 +1,31 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:mentron_flutter/main.dart';
+import 'package:mentron_flutter/design/campus_widgets.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MentronApp());
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('Header keeps profile, community and unread inbox accessible', (
+    tester,
+  ) async {
+    var profile = 0, community = 0, inbox = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CampusHeader(
+            name: 'Alex',
+            product: 'Mentron',
+            subtitle: 'Your study space',
+            unread: 3,
+            onProfile: () => profile++,
+            onCommunity: () => community++,
+            onNotifications: () => inbox++,
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.byTooltip('Your profile'));
+    await tester.tap(find.byTooltip('Community discussions'));
+    await tester.tap(find.byTooltip('Notifications, 3 unread'));
+    expect([profile, community, inbox], [1, 1, 1]);
+    expect(tester.takeException(), isNull);
   });
 }

@@ -110,7 +110,7 @@ class MemberTheme {
           borderRadius: BorderRadius.circular(18),
           borderSide: const BorderSide(color: mSlate, width: 2.0),
         ),
-        hintStyle: GoogleFonts.inter(color: mDarkCharcoal.withOpacity(0.3), fontSize: 14),
+        hintStyle: GoogleFonts.inter(color: mDarkCharcoal.withOpacity(0.6), fontSize: 14),
         labelStyle: GoogleFonts.inter(color: mDarkCharcoal.withOpacity(0.7)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),

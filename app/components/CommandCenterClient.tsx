@@ -7,7 +7,7 @@ import { AnalyticsDashboard } from '@/app/components/AnalyticsDashboard'
 import { ProfileCard } from '@/app/components/ProfileCard'
 import { getDepartmentFromRollNumber, getYearString } from '@/app/lib/utils/departmentMapper'
 import { createClient } from '@/app/lib/supabase/client'
-import { Upload, GitBranch, Clock, ArrowUpRight } from 'lucide-react'
+import { Upload, GitBranch, Clock, ArrowUpRight, BookOpen, CalendarDays, Layers3 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { shimmerVariant, staggerContainer, fadeInUp } from '@/app/lib/animations'
@@ -238,12 +238,12 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
     const canViewAnalytics = analyticsData !== null
 
     return (
-        <div className="w-full">
+        <div className="w-full studio-workspace">
             {/* ── GREETING HEADER (top, above everything) ── */}
             <div className="mb-8 md:mb-10">
                 <div className="flex items-center gap-2 mb-2">
                     <span className="w-8 h-[1px] bg-gradient-to-r from-purple-500 to-cyan-400" />
-                    <p className="text-[10px] font-black tracking-[0.3em] text-cyan-400 uppercase">System Overview</p>
+                    <p className="text-[10px] font-black tracking-[0.3em] text-cyan-400 uppercase">YOUR STUDY SPACE</p>
                 </div>
                 <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tighter text-white">
                     {greeting},{' '}
@@ -262,6 +262,26 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
             {/* ════════════════════════════════════════════════
                 EXEC / CORE DASHBOARD LAYOUT
                 ═══════════════════════════════════════════════ */}
+            <section className="s-work-hero" aria-label="Explore Mentron">
+                <div className="s-work-feature">
+                    <BookOpen size={28}/>
+                    <h2>A little focus.<br/>A lot of possibility.</h2>
+                    <p>Find a fresh perspective in your notes, or make something worth sharing.</p>
+                    <Link href="/mentron/notes">Open your study library <ArrowUpRight size={20}/></Link>
+                </div>
+                <div className="s-work-shortcuts">
+                    <Link href="/mentron/projects">
+                        <Layers3 size={27}/>
+                        <span><strong>Ideas, in motion.</strong><small>Discover projects from your community</small></span>
+                        <ArrowUpRight size={20}/>
+                    </Link>
+                    <Link href="/mentron/events">
+                        <CalendarDays size={27}/>
+                        <span><strong>Something to show up for.</strong><small>Explore the campus calendar</small></span>
+                        <ArrowUpRight size={20}/>
+                    </Link>
+                </div>
+            </section>
             {isExecOrCore && (
                 <div className="space-y-6 animate-in slide-in-from-bottom-4 fade-in duration-700">
 
@@ -333,7 +353,7 @@ export function CommandCenterClient({ dashboardData, analyticsData }: Props) {
                                     <span className="text-xl grayscale group-hover:grayscale-0 transition-all">⚙️</span>
                                 </div>
                                 <div className="flex gap-2">
-                                    <Link href="/mentron/admin/notes" className="flex-1 glass glass-hover py-3 rounded-xl text-[10px] font-black text-cyan-300 text-center uppercase tracking-wider transition-all">Upload</Link>
+                                    <Link href="/mentron/notes/upload" className="flex-1 glass glass-hover py-3 rounded-xl text-[10px] font-black text-cyan-300 text-center uppercase tracking-wider transition-all">Upload</Link>
                                     <Link href="/mentron/admin/projects" className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 py-3 rounded-xl text-[10px] font-black text-white text-center uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(112,0,223,0.3)]">Manage</Link>
                                 </div>
                             </div>

@@ -17,7 +17,7 @@ class AppTheme {
 
   // ── Text Colors ────────────────────────────────────────────────────────────
   static const Color textMain = Color(0xFF2D2845);
-  static const Color textMuted = Color(0xFF8B85A8);
+  static const Color textMuted = Color(0xFF6D6880);
   static const Color textLight = Color(0xFFB8B4D0);
 
   // ── Card Tinted Backgrounds ────────────────────────────────────────────────

@@ -1,19 +1,65 @@
-import Link from 'next/link'
+import Link from "next/link";
+import { ArrowUpRight, Layers3, Compass } from "lucide-react";
+import { OrbitArtwork } from "./components/platform/ProductLanding";
 export default function PlatformHome() {
-    return <main className="mx-auto flex min-h-screen max-w-5xl flex-col justify-center gap-8 px-6 py-16">
-        <div><p className="mb-3 text-sm font-semibold tracking-widest text-cyan-300">ISTE SCTCE</p>
-            <h1 className="text-4xl font-bold sm:text-6xl">One community.<br/>Two ways to connect.</h1>
-            <p className="mt-5 max-w-xl text-lg text-gray-300">Your membership, events and certificates in Mlynq. Notes, projects and learning in Mentron. One account for both.</p>
+  return (
+    <main className="studio">
+      <div className="s-gateway">
+        <p className="s-eyebrow">
+          <span />
+          ISTE SCTCE · MADE FOR YOUR NEXT CHAPTER
+        </p>
+        <h1>
+          One community.
+          <br />
+          <span style={{ color: "#b6a0ff" }}>A world of possibility.</span>
+        </h1>
+        <p>
+          A place for your ideas. A place for your people. Explore both with one
+          ISTE account.
+        </p>
+        <div className="s-worlds">
+          {(["mentron", "mlynq"] as const).map((product) => (
+            <Link
+              href={"/" + product}
+              key={product}
+              className={"s-world " + product}
+            >
+              <div className="s-world-title">
+                <span className="s-world-label">
+                  {product === "mentron"
+                    ? "LEARN · BUILD · SHARE"
+                    : "CONNECT · SHOW UP · BELONG"}
+                </span>
+                {product === "mentron" ? (
+                  <Layers3 size={22} />
+                ) : (
+                  <Compass size={22} />
+                )}
+              </div>
+              <OrbitArtwork product={product} />
+              <div className="s-world-title">
+                <h2>{product === "mentron" ? "Mentron" : "Mlynq"}</h2>
+                <ArrowUpRight size={28} />
+              </div>
+              <p>
+                {product === "mentron"
+                  ? "Your study space, project workshop and community of curious minds."
+                  : "Your campus companion for events, membership and every milestone."}
+              </p>
+              <span className="s-text-link">
+                Explore {product === "mentron" ? "Mentron" : "Mlynq"}{" "}
+                <ArrowUpRight size={17} />
+              </span>
+            </Link>
+          ))}
         </div>
-        <div className="grid gap-5 sm:grid-cols-2">
-            <Link href="/mlynq" className="rounded-3xl bg-[#ebf3fc] p-8 text-[#111] transition-transform hover:-translate-y-1 focus-visible:outline focus-visible:outline-cyan-300">
-                <span className="text-3xl">✦</span><h2 className="mt-5 text-3xl font-bold">Mlynq</h2>
-                <p className="mt-3 text-[#3a5c7a]">ISTE membership, attendance, events and certificates.</p><p className="mt-8 font-semibold">Explore Mlynq →</p>
-            </Link>
-            <Link href="/mentron" className="rounded-3xl border border-purple-400/30 bg-purple-500/10 p-8 transition-transform hover:-translate-y-1 focus-visible:outline focus-visible:outline-cyan-300">
-                <span className="text-3xl text-purple-300">◈</span><h2 className="mt-5 text-3xl font-bold">Mentron</h2>
-                <p className="mt-3 text-gray-300">Study materials, projects, marketplace and academic tools.</p><p className="mt-8 font-semibold text-cyan-300">Explore Mentron →</p>
-            </Link>
-        </div><Link className="text-gray-300 underline" href="/login">Sign in to your shared account</Link>
+        <div className="s-hero-actions">
+          <Link className="s-button s-secondary" href="/login">
+            Already part of the community? Sign in <ArrowUpRight size={18} />
+          </Link>
+        </div>
+      </div>
     </main>
+  );
 }

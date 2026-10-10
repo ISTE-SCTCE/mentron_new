@@ -2,7 +2,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { GraduationCap, Home, Calendar, Award, Bell, User, LogOut, Menu, X, History, QrCode } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import StudentQrModal from './StudentQrModal';
 
 const navItems = [
@@ -22,6 +22,25 @@ export default function DashboardLayout({ children }) {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [qrModalOpen, setQrModalOpen] = useState(false);
+  const drawerRef = useRef(null);
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const previous = document.activeElement;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    drawerRef.current?.querySelector('button')?.focus();
+    const keyboard = (event) => {
+      if (event.key === 'Escape') setMobileOpen(false);
+      if (event.key !== 'Tab') return;
+      const controls = drawerRef.current?.querySelectorAll('button, a[href]');
+      if (!controls?.length) return;
+      const first = controls[0], last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', keyboard);
+    return () => { document.body.style.overflow = overflow; document.removeEventListener('keydown', keyboard); previous?.focus(); };
+  }, [mobileOpen]);
 
   const avatarUrl = name ? `https://api.dicebear.com/7.x/notionists/png?seed=${encodeURIComponent(name)}` : null;
 
@@ -35,7 +54,7 @@ export default function DashboardLayout({ children }) {
           <GraduationCap size={20} color="#fff" />
         </div>
         <div>
-          <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 17, color: '#111', lineHeight: 1.2 }}>M-Lynq</div>
+          <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 17, color: '#111', lineHeight: 1.2 }}>Mlynq</div>
           <div style={{ fontSize: 11, color: '#5F85A2', fontWeight: 500 }}>ISTE Portal</div>
         </div>
       </div>
@@ -118,14 +137,14 @@ export default function DashboardLayout({ children }) {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#EBF3FC' }}>
       {/* Desktop Sidebar */}
-      <aside style={{ width: 240, background: '#fff', borderRight: '1.5px solid #D3E3F0', position: 'fixed', top: 72, left: 0, height: '100vh', overflowY: 'auto', zIndex: 40, display: 'none' }} className="desktop-sidebar">
+      <aside style={{ width: 240, background: '#fff', borderRight: '1.5px solid #D3E3F0', position: 'fixed', top: 72, left: 0, height: 'calc(100dvh - 72px)', overflowY: 'auto', zIndex: 40, display: 'none' }} className="desktop-sidebar">
         <SidebarContent />
       </aside>
 
       {/* Mobile overlay sidebar with smooth slide-in and backdrop fade */}
       <AnimatePresence>
         {mobileOpen && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 60 }}>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 2100 }}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -135,12 +154,14 @@ export default function DashboardLayout({ children }) {
               onClick={() => setMobileOpen(false)}
             />
             <motion.aside
+              ref={drawerRef} role="dialog" aria-modal="true" aria-label="Mlynq navigation"
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: 'spring', damping: 28, stiffness: 300 }}
               style={{ position: 'absolute', left: 0, top: 0, width: 260, height: '100%', background: '#fff', overflowY: 'auto', boxShadow: '4px 0 24px rgba(0,0,0,0.15)' }}
             >
+              <button onClick={() => setMobileOpen(false)} aria-label="Close navigation" style={{display:'flex',alignItems:'center',gap:8,margin:'16px 16px 0',padding:8,color:'#184d46'}}><X size={20}/> Close</button>
               <SidebarContent />
             </motion.aside>
           </div>
@@ -153,7 +174,7 @@ export default function DashboardLayout({ children }) {
           <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg,#5F85A2,#3a5c7a)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <GraduationCap size={18} color="#fff" />
           </div>
-          <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 16, color: '#111' }}>M-Lynq</span>
+          <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 16, color: '#111' }}>Mlynq</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button
@@ -176,14 +197,14 @@ export default function DashboardLayout({ children }) {
             <QrCode size={14} color="#3AAFA9" />
             <span>QR</span>
           </button>
-          <button onClick={() => setMobileOpen(!mobileOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5F85A2', padding: 6 }}>
+          <button aria-label="Open navigation" aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5F85A2', padding: 6, minWidth:44 }}>
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </div>
 
       {/* Main content */}
-      <main className="dashboard-main" style={{ flex: 1, paddingTop: 0 }}>
+      <main className="dashboard-main" style={{ flex: 1 }}>
         {children}
       </main>
 

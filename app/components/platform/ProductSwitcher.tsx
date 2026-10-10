@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
+import {Compass, Layers3} from 'lucide-react'
 import { getPlatformClient } from '@/app/lib/platform/browser'
 import { productHome, type Product } from '@/app/lib/platform/config'
 import { canOpenProduct, isActiveProfile } from '@/app/lib/platform/access.mjs'
@@ -48,7 +49,7 @@ export function ProductSwitcher() {
             {(['mlynq','mentron'] as Product[]).map(product =>
                 <button type="button" key={product} aria-pressed={current===product}
                     disabled={busy} onClick={() => switchTo(product)}>
-                    <span aria-hidden="true">{product==='mlynq' ? '✦' : '◈'}</span>
+                    <span aria-hidden="true">{product==='mlynq' ? <Compass size={16}/> : <Layers3 size={16}/>}</span>
                     {product==='mlynq' ? 'Mlynq' : 'Mentron'}
                 </button>)}
         </div>

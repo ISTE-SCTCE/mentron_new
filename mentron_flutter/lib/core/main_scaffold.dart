@@ -1,6 +1,6 @@
+import '../design/campus_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui';
 import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,7 +44,7 @@ class MainScaffoldState extends State<MainScaffold>
   bool _isNavbarVisible = true;
   bool _isExec = false;
   int _pendingCount = 0;
-  int _notifBadgeCount = 0;   // unread broadcast notifications for all users
+  int _notifBadgeCount = 0; // unread broadcast notifications for all users
   RealtimeChannel? _roleChannel;
   Timer? _sessionCheckTimer;
   bool _isCheckingSession = false;
@@ -69,12 +69,13 @@ class MainScaffoldState extends State<MainScaffold>
       vsync: this,
       duration: const Duration(milliseconds: 280),
     );
-    _navbarSlideAnim = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0, 2.0),
-    ).animate(
-      CurvedAnimation(parent: _navbarAnimController, curve: Curves.easeInOut),
-    );
+    _navbarSlideAnim =
+        Tween<Offset>(begin: Offset.zero, end: const Offset(0, 2.0)).animate(
+          CurvedAnimation(
+            parent: _navbarAnimController,
+            curve: Curves.easeInOut,
+          ),
+        );
 
     _checkUserRole();
     _subscribeToRoleChanges();
@@ -167,7 +168,8 @@ class MainScaffoldState extends State<MainScaffold>
     if (userId == null) return;
     try {
       final profile = await supabase.client
-          .schema('mentron').from('profiles')
+          .schema('mentron')
+          .from('profiles')
           .select('role')
           .eq('id', userId)
           .maybeSingle();
@@ -190,7 +192,11 @@ class MainScaffoldState extends State<MainScaffold>
     if (!_isExec) return;
     final client = Provider.of<SupabaseService>(context, listen: false).client;
     try {
-      final projects = await client.schema('mentron').from('projects').select('id').eq('is_approved', false);
+      final projects = await client
+          .schema('mentron')
+          .from('projects')
+          .select('id')
+          .eq('is_approved', false);
       if (mounted) {
         setState(() {
           _pendingCount = (projects as List).length;
@@ -204,14 +210,12 @@ class MainScaffoldState extends State<MainScaffold>
   Future<void> _loadNotifBadge() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final lastSeenMs =
-          prefs.getInt(NotificationsInboxScreen.lastSeenPrefKey);
+      final lastSeenMs = prefs.getInt(NotificationsInboxScreen.lastSeenPrefKey);
       final since = lastSeenMs != null
           ? DateTime.fromMillisecondsSinceEpoch(lastSeenMs)
           : DateTime.now().subtract(const Duration(days: 30));
 
-      final supabase =
-          Provider.of<SupabaseService>(context, listen: false);
+      final supabase = Provider.of<SupabaseService>(context, listen: false);
       final svc = NotificationManagerService(supabase.client);
       final count = await svc.countNewSince(since);
 
@@ -220,7 +224,8 @@ class MainScaffoldState extends State<MainScaffold>
   }
 
   bool _onScrollNotification(ScrollNotification notification) {
-    if (notification.depth != 0 || notification.metrics.axis != Axis.vertical) return false;
+    if (notification.depth != 0 || notification.metrics.axis != Axis.vertical)
+      return false;
 
     if (notification is ScrollUpdateNotification) {
       final delta = notification.scrollDelta ?? 0;
@@ -265,215 +270,74 @@ class MainScaffoldState extends State<MainScaffold>
       },
       child: Scaffold(
         backgroundColor: AppTheme.bgColor,
-      body: Stack(
-        children: [
-          // ── Full-screen content ──────────────────────────────────
-          NotificationListener<ScrollNotification>(
-            onNotification: _onScrollNotification,
-            child: AnimatedIndexedStack(
-              index: _currentIndex,
-              children: _screens,
+        body: Stack(
+          children: [
+            // ── Full-screen content ──────────────────────────────────
+            NotificationListener<ScrollNotification>(
+              onNotification: _onScrollNotification,
+              child: AnimatedIndexedStack(
+                index: _currentIndex,
+                children: _screens,
+              ),
             ),
-          ),
-          // ── Bottom Navigation Bar ────────────────────────────────
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: SlideTransition(
-              position: _navbarSlideAnim,
-              child: _buildNavbar(),
+            // ── Bottom Navigation Bar ────────────────────────────────
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: SlideTransition(
+                position: _navbarSlideAnim,
+                child: _buildNavbar(),
+              ),
             ),
-          ),
-        ],
-      ),
-    ));
-  }
-
-  Widget _buildNavbar() {
-    return Container(
-      margin: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        bottom: MediaQuery.of(context).padding.bottom > 0 ? 12 : 24,
-      ),
-      height: 72,
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.85),
-        borderRadius: BorderRadius.circular(36),
-        border: Border.all(color: Colors.white.withOpacity(0.5), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(36),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(0, Icons.home_rounded, Icons.home_outlined),
-                _buildNavItem(1, Icons.menu_book_rounded, Icons.menu_book_outlined),
-                _buildNavItem(2, Icons.assignment_rounded, Icons.assignment_outlined),
-                _buildNavItem(3, Icons.shopping_bag_rounded, Icons.shopping_bag_outlined),
-                _buildNavItem(4, Icons.download_done_rounded, Icons.download_for_offline_outlined),
-                // Exec-only requests bell / member notification bell
-                if (_isExec) _buildBellItem() else _buildNotifInboxBell(),
-              ],
-            ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildNavItem(int index, IconData selectedIcon, IconData unselectedIcon) {
-    final bool isSelected = _currentIndex == index;
-    return GestureDetector(
-      onTap: () {
-        if (_currentIndex != index) {
-          HapticFeedback.selectionClick();
-          setState(() => _currentIndex = index);
+  Widget _buildNavbar() => Padding(
+    padding: EdgeInsets.fromLTRB(
+      8,
+      0,
+      8,
+      MediaQuery.paddingOf(context).bottom + 12,
+    ),
+    child: CampusBottomNav(
+      learning: true,
+      selected: _currentIndex,
+      items: [
+        const CampusNavItem('Home', Icons.home_outlined),
+        const CampusNavItem('Study', Icons.menu_book_outlined),
+        const CampusNavItem('Projects', Icons.assignment_outlined),
+        const CampusNavItem('Shop', Icons.shopping_bag_outlined),
+        const CampusNavItem('Saved', Icons.download_for_offline_outlined),
+        CampusNavItem(
+          _isExec ? 'Requests' : 'Inbox',
+          Icons.notifications_outlined,
+          badge: _isExec ? _pendingCount : _notifBadgeCount,
+        ),
+      ],
+      onSelected: (index) async {
+        if (index < 5) {
+          if (_currentIndex != index) {
+            HapticFeedback.selectionClick();
+            setState(() => _currentIndex = index);
+          }
+        } else if (_isExec) {
+          await Navigator.push(
+            context,
+            AppTransitions.slideUp(const RequestsScreen()),
+          );
+          _fetchPendingCount();
+        } else {
+          await Navigator.push(
+            context,
+            AppTransitions.slideUp(const NotificationsInboxScreen()),
+          );
+          _loadNotifBadge();
         }
       },
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOut,
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1E2238) : Colors.transparent,
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: Icon(
-            isSelected ? selectedIcon : unselectedIcon,
-            color: isSelected ? Colors.white : const Color(0xFF8E90A6),
-            size: 22,
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Notification inbox bell — shown for ALL signed-in users.
-  /// Badge = number of unread broadcast notifications.
-  Widget _buildNotifInboxBell() {
-    return GestureDetector(
-      onTap: () async {
-        await Navigator.push(
-          context,
-          AppTransitions.slideUp(const NotificationsInboxScreen()),
-        );
-        // Refresh badge after returning (user may have marked as read)
-        _loadNotifBadge();
-      },
-      behavior: HitTestBehavior.opaque,
-      child: Stack(
-        alignment: Alignment.center,
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: const BoxDecoration(
-              color: Colors.transparent,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.notifications_outlined,
-              color: Color(0xFF8E90A6),
-              size: 22,
-            ),
-          ),
-          if (_notifBadgeCount > 0)
-            Positioned(
-              top: 8,
-              right: 8,
-              child: Container(
-                padding: const EdgeInsets.all(3),
-                constraints:
-                    const BoxConstraints(minWidth: 16, minHeight: 16),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF6D28D9),
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  _notifBadgeCount > 99 ? '99+' : '$_notifBadgeCount',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 8,
-                    fontWeight: FontWeight.w900,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  /// Exec-only bell icon with pending project-approval badge
-  Widget _buildBellItem() {
-    return GestureDetector(
-      onTap: () async {
-        await Navigator.push(
-          context,
-          AppTransitions.slideUp(const RequestsScreen()),
-        );
-        _fetchPendingCount();
-      },
-      behavior: HitTestBehavior.opaque,
-      child: Stack(
-        alignment: Alignment.center,
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: const BoxDecoration(
-              color: Colors.transparent,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.notifications_outlined,
-              color: Color(0xFF8E90A6),
-              size: 22,
-            ),
-          ),
-          if (_pendingCount > 0)
-            Positioned(
-              top: 8,
-              right: 8,
-              child: Container(
-                padding: const EdgeInsets.all(3),
-                constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFF6B6B),
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  _pendingCount > 99 ? '99+' : '$_pendingCount',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 8,
-                    fontWeight: FontWeight.w900,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+    ),
+  );
 }
