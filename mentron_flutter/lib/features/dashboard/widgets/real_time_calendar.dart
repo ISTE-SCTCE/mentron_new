@@ -43,7 +43,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
     if (userId != null) {
       try {
         final profile = await supabase.client
-            .from('profiles')
+            .schema('mentron').from('profiles')
             .select('role, roll_number')
             .eq('id', userId)
             .maybeSingle();
@@ -67,7 +67,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
     ).client;
     try {
       final response = await supabase
-          .from('event_cal')
+          .schema('mentron').from('event_cal')
           .select('id, event_name, event_date, venue, department')
           .or('department.eq.General,department.eq.$_userDept');
 
@@ -110,7 +110,7 @@ class _RealTimeCalendarState extends State<RealTimeCalendar> {
         0, // Noon to avoid timezone issues
       );
 
-      await supabase.from('event_cal').insert({
+      await supabase.schema('mentron').from('event_cal').insert({
         'event_name': _eventNameController.text.trim(),
         'venue': _venueController.text.trim().isEmpty
             ? 'TBA'

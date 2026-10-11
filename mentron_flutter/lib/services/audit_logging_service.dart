@@ -35,7 +35,7 @@ class AuditLoggingService {
       final userId = _client.auth.currentUser?.id;
       final deviceInfo = await _getDeviceInfo();
 
-      await _client.from('access_logs').insert({
+      await _client.schema('mentron').from('access_logs').insert({
         'user_id': userId,
         'content_id': contentId,
         'action': action,
@@ -54,7 +54,7 @@ class AuditLoggingService {
   Future<List<AuditLog>> getLogsForContent(String contentId) async {
     try {
       final data = await _client
-          .from('access_logs')
+          .schema('mentron').from('access_logs')
           .select()
           .eq('content_id', contentId)
           .order('timestamp', ascending: false)
@@ -77,7 +77,7 @@ class AuditLoggingService {
   }) async {
     try {
       var query = _client
-          .from('access_logs')
+          .schema('mentron').from('access_logs')
           .select()
           .eq('user_id', userId);
 
@@ -113,7 +113,7 @@ class AuditLoggingService {
           Duration(minutes: MentronConstants.kAnomalyWindowMinutes));
 
       final data = await _client
-          .from('access_logs')
+          .schema('mentron').from('access_logs')
           .select('user_id, content_id, timestamp')
           .eq('action', 'downloaded')
           .gte('timestamp', since.toIso8601String());
@@ -159,7 +159,7 @@ class AuditLoggingService {
       // Supabase doesn't support GROUP BY directly in the client SDK,
       // so we fetch recent download logs and aggregate client-side.
       final data = await _client
-          .from('access_logs')
+          .schema('mentron').from('access_logs')
           .select('content_id')
           .eq('action', 'downloaded')
           .limit(5000);

@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -561,7 +562,7 @@ class _BuyersListPageState extends State<BuyersListPage> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: StudioCorners.card,
                 border: Border.all(color: Colors.white.withOpacity(0.08)),
               ),
               child: Row(
@@ -611,7 +612,7 @@ class _BuyersListPageState extends State<BuyersListPage> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: StudioCorners.card,
                 border: Border.all(color: Colors.white.withOpacity(0.08)),
               ),
               child: Row(
@@ -664,7 +665,7 @@ class _BuyersListPageState extends State<BuyersListPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.red.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: StudioCorners.card,
                 ),
                 child: Text(
                   'Clear Filters',

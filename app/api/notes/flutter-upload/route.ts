@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/app/lib/supabase/server'
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { getAuthUser } from '@/app/lib/supabase/server'
 import { s3Client, BUCKET_NAME } from '@/app/lib/s3'
 import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { revalidatePath } from 'next/cache'
@@ -9,40 +8,9 @@ import { randomUUID } from 'crypto'
 export const maxDuration = 60 // Allow up to 60s for large file uploads
 
 export async function POST(request: NextRequest) {
-    // ── AUTH: Support both cookie-based (web) and Bearer token (Flutter) ──
-    let userId: string | null = null
-
-    const authHeader = request.headers.get('authorization') || request.headers.get('x-supabase-auth')
-    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : authHeader
-
-    if (bearerToken) {
-        // Flutter path: validate the access token directly
-        const anonClient = createSupabaseClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ysllolnoyezfdllqocgv.supabase.co',
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_FwJxMntZ8Hiqze7RUK0gcQ_L_0DGAbs'
-        )
-        const { data: { user }, error } = await anonClient.auth.getUser(bearerToken)
-        if (!error && user) {
-            userId = user.id
-        }
-    }
-
-    if (!userId) {
-        // Fallback: cookie-based auth (web)
-        const supabase = await createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-        if (user) userId = user.id
-    }
-
-    if (!userId) {
-        return NextResponse.json({ error: 'You must be logged in to upload notes.' }, { status: 401 })
-    }
-
-    // Use anon client with service role for DB insert (bypasses RLS issues with token auth)
-    const db = createSupabaseClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ysllolnoyezfdllqocgv.supabase.co',
-        process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-    )
+    const { user, supabase: db } = await getAuthUser(request)
+    if (!user) return NextResponse.json({error:'Unauthorized'},{status:401})
+    const userId = user.id
 
     // Verify that user has executive upload permissions
     const { data: profile } = await db
@@ -129,12 +97,12 @@ export async function POST(request: NextRequest) {
 
     // ── STEP 3: Revalidate caches ──
     const yearNum = parseInt(year)
-    revalidatePath('/notes', 'layout')
-    revalidatePath('/dashboard', 'page')
+    revalidatePath('/mentron/notes', 'layout')
+    revalidatePath('/mentron/dashboard', 'page')
     if (yearNum === 1) {
-        revalidatePath(`/notes/year/1/group/${department}/${semester}`, 'page')
+        revalidatePath(`/mentron/notes/year/1/group/${department}/${semester}`, 'page')
     } else {
-        revalidatePath(`/notes/year/${yearNum}/dept/${department}/${semester}`, 'page')
+        revalidatePath(`/mentron/notes/year/${yearNum}/dept/${department}/${semester}`, 'page')
     }
 
     return NextResponse.json({ success: true, message: 'Note uploaded successfully.' })

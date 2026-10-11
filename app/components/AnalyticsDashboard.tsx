@@ -137,24 +137,24 @@ export function AnalyticsDashboard({ initialStats }: Props) {
         fetchRecentActivity()
 
         const profileSub = supabase.channel('analytics-profiles')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => fetchStats())
+            .on('postgres_changes', { event: '*', schema: 'mentron', table: 'profiles' }, () => fetchStats())
             .subscribe()
 
         const notesSub = supabase.channel('analytics-notes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'notes' }, () => {
+            .on('postgres_changes', { event: '*', schema: 'mentron', table: 'notes' }, () => {
                 fetchStats()
                 fetchRecentActivity()
             })
             .subscribe()
 
         const projectsSub = supabase.channel('analytics-projects')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => {
+            .on('postgres_changes', { event: '*', schema: 'mentron', table: 'projects' }, () => {
                 fetchRecentActivity()
             })
             .subscribe()
 
         const logsSub = supabase.channel('analytics-logs')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'interaction_logs' }, () => fetchStats())
+            .on('postgres_changes', { event: '*', schema: 'mentron', table: 'interaction_logs' }, () => fetchStats())
             .subscribe()
 
         // Polling fallback every 30 seconds
@@ -359,12 +359,12 @@ export function AnalyticsDashboard({ initialStats }: Props) {
                                         const subSegment = item.subject ? `/${encodeURIComponent(item.subject)}` : ''
                                         if (yearNum === 1) {
                                             // Year 1 uses group codes (A/B/C/D), not dept
-                                            router.push(`/notes/year/1/group/${item.department}/${item.semester}${subSegment}`)
+                                            router.push(`/mentron/notes/year/1/group/${item.department}/${item.semester}${subSegment}`)
                                         } else {
-                                            router.push(`/notes/year/${yearNum}/dept/${item.department}/${item.semester}${subSegment}`)
+                                            router.push(`/mentron/notes/year/${yearNum}/dept/${item.department}/${item.semester}${subSegment}`)
                                         }
                                     } else {
-                                        router.push(`/projects/${item.id}`)
+                                        router.push(`/mentron/projects/${item.id}`)
                                     }
                                 }}
                                 className="flex gap-4 relative group cursor-pointer"

@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -45,7 +46,7 @@ class _GateDeptFoldersScreenState extends State<GateDeptFoldersScreen> {
       bool canCreate = false;
       if (userId != null) {
         final profile = await supa.client
-            .from('profiles')
+            .schema('mentron').from('profiles')
             .select('role, permissions')
             .eq('id', userId)
             .maybeSingle();
@@ -89,7 +90,7 @@ class _GateDeptFoldersScreenState extends State<GateDeptFoldersScreen> {
         builder: (ctx, setDialogState) => AlertDialog(
           backgroundColor: const Color(0xFF0F172A),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: StudioCorners.card,
             side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           title: const Row(
@@ -189,7 +190,7 @@ class _GateDeptFoldersScreenState extends State<GateDeptFoldersScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF0F172A),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: StudioCorners.card,
           side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
         ),
         title: const Text('Delete Folder?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),

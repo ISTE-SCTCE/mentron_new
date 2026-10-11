@@ -1,0 +1,251 @@
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { createClient } from '@/app/lib/supabase/server'
+import { FIRST_YEAR_GROUPS, GroupKey } from '@/app/lib/data/subjects'
+import { InteractionTracker } from '@/app/components/InteractionTracker'
+import { DeleteButton } from '@/app/components/DeleteButton'
+import { deleteNote } from '@/app/lib/actions/deleteActions'
+import { NoteAccessGate } from '@/app/components/NoteAccessGate'
+import { VirtualFolderAuthToggle } from '@/app/components/VirtualFolderAuthToggle'
+import { SubjectFoldersClient } from '@/app/mentron/notes/SubjectFoldersClient'
+import { getPermissions } from '@/app/lib/utils/coreAuth'
+
+const VALID_GROUPS: GroupKey[] = ['A', 'B', 'C', 'D']
+const VALID_SEMS = ['S1', 'S2']
+
+const GROUP_COLORS: Record<GroupKey, { color: string; border: string; accent: string }> = {
+    A: { color: 'from-blue-500/20 to-cyan-500/10', border: 'border-blue-500/20', accent: 'text-blue-400' },
+    B: { color: 'from-yellow-500/20 to-amber-500/10', border: 'border-yellow-500/20', accent: 'text-yellow-400' },
+    C: { color: 'from-orange-500/20 to-red-500/10', border: 'border-orange-500/20', accent: 'text-orange-400' },
+    D: { color: 'from-green-500/20 to-emerald-500/10', border: 'border-green-500/20', accent: 'text-green-400' },
+}
+
+export default async function Year1SubjectNotesPage({
+    params,
+}: {
+    params: Promise<{ group: string; sem: string; subject: string }>
+}) {
+    const { group, sem, subject } = await params
+    const groupKey = group.toUpperCase() as GroupKey
+    const subjectName = decodeURIComponent(subject)
+
+    if (!VALID_GROUPS.includes(groupKey) || !VALID_SEMS.includes(sem)) notFound()
+
+    const groupMeta = FIRST_YEAR_GROUPS[groupKey]
+    const style = GROUP_COLORS[groupKey]
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('id, role, iste_id')
+        .eq('id', user?.id ?? '')
+        .single()
+
+    const isPrivileged = profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin'
+
+    const isSubfolder = subjectName.startsWith('PYQ - ') || subjectName.startsWith('Video - ')
+
+    const permissions = await getPermissions()
+    const canCreateFolder = isPrivileged || permissions.can_upload_notes === true
+
+    // Fetch notes for this specific group + sem + subject
+    const dashAltSubject = subjectName.includes('–') 
+        ? subjectName.replace(/–/g, '-') 
+        : subjectName.replace(/-/g, '–')
+
+    const { data: notes } = await supabase
+        .from('notes')
+        .select('*, profiles!notes_profile_id_fkey(full_name)')
+        .eq('year', 1)
+        .eq('department', groupKey)
+        .eq('semester', sem)
+        .or(`subject.eq."${subjectName}",subject.eq."${dashAltSubject}"`)
+        .is('folder_id', null)
+        .order('created_at', { ascending: false })
+
+    let finalNotes = notes ?? []
+
+    // ── FALLBACK: If empty for this specific group, check if notes exist for this subject in other Year 1 groups ──
+    if (finalNotes.length === 0) {
+        const cleanSub = subjectName.replace(/[\u2013\u2014-]/g, '%')
+        const { data: fallbackNotes } = await supabase
+            .from('notes')
+            .select('*, profiles!notes_profile_id_fkey(full_name)')
+            .eq('year', 1)
+            .eq('semester', sem)
+            .ilike('subject', `%${cleanSub}%`)
+            .is('folder_id', null)
+            .order('created_at', { ascending: false })
+
+        finalNotes = fallbackNotes ?? []
+    }
+
+    const uploadUrl = `/mentron/notes/upload?year=1&dept=${groupKey}&sem=${sem}&subject=${encodeURIComponent(subjectName)}`
+
+    // Fetch custom folders for this subject (skip for PYQ/Video sub-folders)
+    let folders: { id: string; name: string }[] = []
+    if (!isSubfolder) {
+        const { data: foldersData } = await supabase
+            .from('note_folders')
+            .select('id, name')
+            .eq('subject', subjectName)
+            .eq('department', groupKey)
+            .eq('year', '1')
+            .eq('semester', sem)
+            .order('created_at', { ascending: true })
+
+        folders = foldersData ?? []
+    }
+
+    let virtualSettings = null
+    if (isSubfolder) {
+        const { data } = await supabase
+            .from('note_folders')
+            .select('requires_auth')
+            .eq('subject', subjectName)
+            .eq('department', groupKey)
+            .eq('year', '1')
+            .eq('semester', sem)
+            .eq('name', 'Virtual Settings')
+            .maybeSingle()
+        virtualSettings = data
+    }
+
+    return (
+        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-32 text-[#ededed]">
+            <div className="max-w-4xl mx-auto">
+                {/* Breadcrumb */}
+                <div className="flex items-center gap-2 flex-wrap mb-12 text-sm font-bold">
+                    <Link href="/mentron/notes" className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">Notes</Link>
+                    <span className="text-gray-700">/</span>
+                    <Link href="/mentron/notes/year/1" className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">1st Year</Link>
+                    <span className="text-gray-700">/</span>
+                    <Link href={`/mentron/notes/year/1/group/${sem}`} className="text-gray-500 hover:text-white transition-all uppercase tracking-widest">{sem}</Link>
+                    <span className="text-gray-700">/</span>
+                    <Link href={`/mentron/notes/year/1/group/${groupKey}/${sem}`} className={`${style.accent} uppercase tracking-widest hover:text-white transition-all`}>Group {groupKey}</Link>
+                    <span className="text-gray-700">/</span>
+                    <span className="text-white font-black truncate max-w-[200px]">{subjectName}</span>
+                </div>
+
+                {/* Subject Header */}
+                <div className={`glass-card mb-10 bg-gradient-to-br ${style.color} border ${style.border}`}>
+                    <div className="flex items-start justify-between gap-6 flex-wrap">
+                        <div className="flex items-center gap-6">
+                            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-3xl">{groupMeta.emoji}</div>
+                            <div>
+                                <p className={`text-[10px] font-black tracking-[0.3em] uppercase ${style.accent}`}>1st Year · {sem} · {groupMeta.label}</p>
+                                <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white mt-1">{subjectName}</h1>
+                                {isSubfolder && isPrivileged && (
+                                    <VirtualFolderAuthToggle
+                                        subjectName={subjectName}
+                                        department={groupKey}
+                                        year="1"
+                                        semester={sem}
+                                        initialRequiresAuth={virtualSettings?.requires_auth ?? false}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                        {permissions.can_upload_notes && (
+                            <Link
+                                href={uploadUrl}
+                                className={`glass glass-hover px-6 py-3 rounded-full text-xs font-black tracking-widest uppercase ${style.accent} border ${style.border} hover:scale-105 transition-all self-center`}
+                            >
+                                + Upload for this Subject
+                            </Link>
+                        )}
+                    </div>
+                </div>
+
+                {/* Virtual Folders */}
+                {!isSubfolder && (
+                    <div className="grid grid-cols-2 gap-6 mb-10">
+                        <Link
+                            href={`/mentron/notes/year/1/group/${groupKey}/${sem}/${encodeURIComponent('PYQ - ' + subjectName)}`}
+                            className="glass-card hover:bg-white/5 transition-all flex items-center gap-4 group cursor-pointer"
+                        >
+                            <div className="text-3xl group-hover:scale-110 transition-transform">📂</div>
+                            <div>
+                                <h3 className="text-lg font-black text-white">PYQs</h3>
+                                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Past Year Questions</p>
+                            </div>
+                        </Link>
+                        <Link
+                            href={`/mentron/notes/year/1/group/${groupKey}/${sem}/${encodeURIComponent('Video - ' + subjectName)}`}
+                            className="glass-card hover:bg-white/5 transition-all flex items-center gap-4 group cursor-pointer"
+                        >
+                            <div className="text-3xl group-hover:scale-110 transition-transform">🎬</div>
+                            <div>
+                                <h3 className="text-lg font-black text-white">Video Lectures</h3>
+                                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Tutorials & Guides</p>
+                            </div>
+                        </Link>
+                    </div>
+                )}
+
+                {/* Custom Folders (client component for interactivity) */}
+                {!isSubfolder && (
+                    <SubjectFoldersClient
+                        subjectName={subjectName}
+                        department={groupKey}
+                        year="1"
+                        semester={sem}
+                        initialFolders={folders}
+                        canCreateFolder={canCreateFolder}
+                        styleAccent={style.accent}
+                        styleBorder={style.border}
+                        yearNum={1}
+                        deptKey={groupKey}
+                        semKey={sem}
+                        isPrivileged={isPrivileged}
+                    />
+                )}
+
+                {/* Notes */}
+                {finalNotes && finalNotes.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {finalNotes.map((note: any) => (
+                            <div key={note.id} className="glass-card flex flex-col group">
+                                <h3 className="text-lg font-black text-white group-hover:text-glow transition-all mb-2 line-clamp-2">{note.title}</h3>
+                                <p className="text-gray-500 text-xs font-medium mb-4 line-clamp-2">{note.description || 'No description.'}</p>
+                                <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
+                                    <span className="text-[10px] text-gray-600 font-bold">{note.profiles?.full_name || 'Anonymous'}</span>
+                                    <div className="flex gap-3 items-center">
+                                        {(profile?.id === note.profile_id || profile?.role === 'exec' || profile?.role === 'core' || profile?.role === 'admin') && (
+                                            <DeleteButton onDelete={deleteNote.bind(null, note.id)} itemName="note" />
+                                        )}
+                                        <NoteAccessGate 
+                                            noteUrl={note.file_url} 
+                                            userId={profile?.id} 
+                                            userIsteId={profile?.iste_id} 
+                                            userRole={profile?.role}
+                                            title={note.title}
+                                            requiresAuth={isSubfolder ? (virtualSettings?.requires_auth ?? false) : false}
+                                        >
+                                            <InteractionTracker itemType="note" itemId={note.id} interactionType="view" trigger="click">
+                                                <button className="glass glass-hover px-4 py-2 rounded-xl text-blue-400 text-xs font-black uppercase tracking-widest transition-all">
+                                                    View Note
+                                                </button>
+                                            </InteractionTracker>
+                                        </NoteAccessGate>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="glass-card text-center py-20 border-dashed">
+                        <p className="text-4xl mb-4">📂</p>
+                        <p className="text-gray-600 font-bold uppercase text-xs tracking-widest mb-6">No notes for this subject yet</p>
+                        {permissions.can_upload_notes && (
+                            <Link href={uploadUrl} className={`${style.accent} font-black text-xs uppercase tracking-widest hover:text-white transition-colors`}>
+                                Be the first to contribute →
+                            </Link>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}

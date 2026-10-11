@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -30,10 +31,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     final userId = supabase.currentUser?.id;
     try {
-      final event = await supabase.client.from('event_cal').select('*').eq('id', widget.eventId).maybeSingle();
+      final event = await supabase.client.schema('mentron').from('event_cal').select('*').eq('id', widget.eventId).maybeSingle();
       bool registered = false;
       if (userId != null) {
-        final reg = await supabase.client.from('registrations').select('*').eq('event_id', widget.eventId).eq('user_id', userId).maybeSingle();
+        final reg = await supabase.client.schema('mentron').from('registrations').select('*').eq('event_id', widget.eventId).eq('user_id', userId).maybeSingle();
         registered = reg != null;
       }
       if (mounted) setState(() { _event = event; _isRegistered = registered; _isLoading = false; });
@@ -48,7 +49,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final userId = supabase.currentUser?.id;
     if (userId == null) return;
     try {
-      await supabase.client.from('registrations').insert({'event_id': widget.eventId, 'user_id': userId});
+      await supabase.client.schema('mentron').from('registrations').insert({'event_id': widget.eventId, 'user_id': userId});
       if (mounted) {
         setState(() { _isRegistered = true; _isRegistering = false; });
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text("You're registered! We'll see you there 🎉")));
@@ -121,7 +122,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                 const SizedBox(height: 8),
                                 const Text('You have successfully registered.\nWe look forward to seeing you there!', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.textMuted, height: 1.6)),
                                 const SizedBox(height: 16),
-                                Container(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8), decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.green.withOpacity(0.2))),
+                                Container(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8), decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: StudioCorners.card, border: Border.all(color: Colors.green.withOpacity(0.2))),
                                   child: const Text('STATUS: CONFIRMED', style: TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2))),
                               ])
                             : Column(children: [

@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -43,7 +44,7 @@ class _DeptPickerScreenState extends State<DeptPickerScreen> {
     if (user == null) return;
     try {
       final profile = await supabase.client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('department, role')
           .eq('id', user.id)
           .maybeSingle();
@@ -61,7 +62,7 @@ class _DeptPickerScreenState extends State<DeptPickerScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: StudioCorners.card),
         title: Row(children: [
           const Icon(Icons.lock_rounded, color: Colors.amber, size: 20),
           const SizedBox(width: 10),
@@ -146,7 +147,7 @@ class _DeptPickerScreenState extends State<DeptPickerScreen> {
                       )),
                     );
                   },
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: StudioCorners.card,
                   child: Opacity(
                     opacity: isUnlocked ? 1.0 : 0.4,
                     child: GlassContainer(

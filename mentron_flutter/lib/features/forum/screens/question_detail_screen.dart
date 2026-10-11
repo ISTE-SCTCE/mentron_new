@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -43,7 +44,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     if (_currentUserId != null) {
       try {
         final profile = await supabase.client
-            .from('profiles')
+            .schema('mentron').from('profiles')
             .select('role')
             .eq('id', _currentUserId!)
             .maybeSingle();
@@ -65,7 +66,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     ).client;
     try {
       final response = await supabase
-          .from('forum_questions')
+          .schema('mentron').from('forum_questions')
           .select('*, profiles(full_name)')
           .eq('id', widget.questionId)
           .single();
@@ -80,7 +81,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     ).client;
     try {
       final response = await supabase
-          .from('forum_answers')
+          .schema('mentron').from('forum_answers')
           .select('*, profiles(full_name)')
           .eq('question_id', widget.questionId)
           .order('is_best_answer', ascending: false)
@@ -91,7 +92,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
       List<String> upvotedIds = [];
       if (_currentUserId != null) {
         final votesRes = await supabase
-            .from('forum_votes')
+            .schema('mentron').from('forum_votes')
             .select('answer_id')
             .eq('user_id', _currentUserId!)
             .eq('vote_type', 1);
@@ -148,7 +149,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     ).client;
 
     try {
-      await supabase.from('forum_answers').insert({
+      await supabase.schema('mentron').from('forum_answers').insert({
         'question_id': widget.questionId,
         'author_id': _currentUserId,
         'content': content,
@@ -194,7 +195,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
 
     try {
       // Use the RPC to safely handle atomicity
-      await supabase.rpc(
+      await supabase.schema('mentron').rpc(
         'handle_forum_vote',
         params: {
           'p_answer_id': answer.id,
@@ -224,7 +225,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: StudioCorners.card),
         title: Text(
           'Mark as Best Answer?',
           style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
@@ -263,17 +264,17 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     try {
       // 1. Unmark all other answers
       await supabase
-          .from('forum_answers')
+          .schema('mentron').from('forum_answers')
           .update({'is_best_answer': false})
           .eq('question_id', widget.questionId);
       // 2. Mark this answer
       await supabase
-          .from('forum_answers')
+          .schema('mentron').from('forum_answers')
           .update({'is_best_answer': true})
           .eq('id', answer.id);
       // 3. Resolve the question
       await supabase
-          .from('forum_questions')
+          .schema('mentron').from('forum_questions')
           .update({'resolved': true})
           .eq('id', widget.questionId);
 
@@ -365,7 +366,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                   builder: (ctx) => AlertDialog(
                     backgroundColor: AppTheme.surfaceColor,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: StudioCorners.card,
                     ),
                     title: Text(
                       'Delete Question?',
@@ -406,7 +407,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                       listen: false,
                     ).client;
                     await supabase
-                        .from('forum_questions')
+                        .schema('mentron').from('forum_questions')
                         .delete()
                         .eq('id', q.id);
                     if (mounted) Navigator.pop(context);
@@ -728,7 +729,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                                                   listen: false,
                                                 ).client;
                                             await supabase
-                                                .from('forum_answers')
+                                                .schema('mentron').from('forum_answers')
                                                 .delete()
                                                 .eq('id', ans.id);
                                           },
@@ -882,7 +883,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.05),
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: StudioCorners.card,
                               border: Border.all(
                                 color: Colors.white.withOpacity(0.1),
                               ),

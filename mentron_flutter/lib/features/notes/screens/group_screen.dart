@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -41,7 +42,7 @@ class _GroupScreenState extends State<GroupScreen> {
 
     try {
       final profile = await supabase.client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('department, roll_number, year, admission_year, admission_month')
           .eq('id', user.id)
           .maybeSingle();
@@ -384,7 +385,7 @@ class _GroupScreenState extends State<GroupScreen> {
   Widget _buildYearBrowseCard(_YearCard y, int index) {
     return InkWell(
       onTap: () => Navigator.push(context, AppTransitions.slideUp(SemesterScreen(year: y.year))),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: StudioCorners.card,
       child: GlassContainer(
         padding: const EdgeInsets.all(18),
         border: Border.all(color: y.color.withOpacity(0.3)),

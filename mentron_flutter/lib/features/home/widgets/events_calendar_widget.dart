@@ -40,7 +40,7 @@ class _EventsCalendarWidgetState extends State<EventsCalendarWidget> {
     try {
       // 1. Fetch all events with dates
       final eventsResponse = await supabase
-          .from('events')
+          .schema('mentron').from('events')
           .select('*')
           .not('event_date', 'is', null)
           .order('event_date', ascending: true);
@@ -49,7 +49,7 @@ class _EventsCalendarWidgetState extends State<EventsCalendarWidget> {
       final Set<String> registeredIds = {};
       if (userId != null) {
         final regResponse = await supabase
-            .from('registrations')
+            .schema('mentron').from('registrations')
             .select('event_id')
             .eq('user_id', userId);
         
@@ -112,7 +112,7 @@ class _EventsCalendarWidgetState extends State<EventsCalendarWidget> {
     });
 
     try {
-      await supabase.from('registrations').insert({
+      await supabase.schema('mentron').from('registrations').insert({
         'event_id': event['id'],
         'user_id': userId,
       });

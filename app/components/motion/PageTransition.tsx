@@ -1,23 +1,15 @@
-'use client'
+"use client";
 
-import { ReactNode } from 'react'
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { pageTransition } from '@/app/lib/animations'
+import { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 
 export function PageTransition({ children }: { children: ReactNode }) {
-  const prefersReduced = useReducedMotion()
-
-  if (prefersReduced) {
-    return <>{children}</>
-  }
-
+  // Keep the server and client tree identical. CSS handles the motion preference
+  // without removing a wrapper during hydration.
+  const pathname = usePathname();
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={pageTransition}
-    >
+    <div key={pathname} className="mentron-page-transition creative-page-enter">
       {children}
-    </motion.div>
-  )
+    </div>
+  );
 }

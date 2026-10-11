@@ -22,16 +22,16 @@ import {
 import { useState } from 'react'
 
 const navItems = [
-    { href: '/dashboard', icon: LayoutGrid, label: 'Dashboard' },
-    { href: '/team', icon: Users, label: 'Team' },
-    { href: '/core', icon: ShieldAlert, label: 'Core' },
-    { href: '/notes', icon: BookOpen, label: 'Notes' },
-    { href: '/events', icon: Zap, label: 'Events' },
-    { href: '/marketplace', icon: ShoppingBag, label: 'Market' },
-    { href: '/projects', icon: FlaskConical, label: 'Projects' },
-    { href: '/leaderboard', icon: Trophy, label: 'Rankings' },
-    { href: '/societies', icon: Dna, label: 'Societies' },
-    { href: '/settings', icon: Settings, label: 'Settings' },
+    { href: '/mentron/dashboard', icon: LayoutGrid, label: 'Dashboard' },
+    { href: '/mentron/team', icon: Users, label: 'Team' },
+    { href: '/mentron/core', icon: ShieldAlert, label: 'Core' },
+    { href: '/mentron/notes', icon: BookOpen, label: 'Notes' },
+    { href: '/mentron/events', icon: Zap, label: 'Events' },
+    { href: '/mentron/marketplace', icon: ShoppingBag, label: 'Market' },
+    { href: '/mentron/projects', icon: FlaskConical, label: 'Projects' },
+    { href: '/mentron/leaderboard', icon: Trophy, label: 'Rankings' },
+    { href: '/mentron/societies', icon: Dna, label: 'Societies' },
+    { href: '/mentron/settings', icon: Settings, label: 'Settings' },
 ]
 
 export function Sidebar() {
@@ -51,7 +51,7 @@ export function Sidebar() {
             }}
         >
             <div className="mb-10 relative">
-                <Link href="/dashboard" className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20 hover:scale-110 active:scale-95 transition-all duration-300 group overflow-hidden">
+                <Link href="/mentron/dashboard" className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20 hover:scale-110 active:scale-95 transition-all duration-300 group overflow-hidden">
                     <div className="absolute inset-0 bg-white/20 translate-y-12 group-hover:translate-y-0 transition-transform duration-500" />
                     <span className="text-xl font-black relative z-10">M</span>
                 </Link>
@@ -60,7 +60,7 @@ export function Sidebar() {
             {/* Navigation Items - NO TERMINAL HERE */}
             <nav className="flex flex-col items-center gap-4 flex-1 w-full px-3">
                 {navItems.map((item) => {
-                    const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname?.startsWith(item.href + '/'))
+                    const isActive = pathname === item.href || (item.href !== '/mentron/dashboard' && pathname?.startsWith(item.href + '/'))
                     const Icon = item.icon
 
                     return (

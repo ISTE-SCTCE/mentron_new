@@ -73,17 +73,17 @@ export function NotificationBell({ userId }: { userId: string }) {
         fetchNotifications()
 
         const channel = supabase.channel(`notifications_bridge:${userId}`)
-            .on('postgres_changes', { 
-                event: 'INSERT', 
-                schema: 'public', 
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'mentron',
                 table: 'notifications',
                 filter: `user_id=eq.${userId}`
             }, (payload) => {
                 setNotifications(prev => [payload.new as Notification, ...prev])
             })
-            .on('postgres_changes', { 
-                event: 'INSERT', 
-                schema: 'public', 
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'mentron',
                 table: 'broadcast_notifications',
             }, (payload) => {
                 const b = payload.new as any
@@ -154,7 +154,7 @@ export function NotificationBell({ userId }: { userId: string }) {
 
     return (
         <div className="relative" ref={popoverRef}>
-            <button 
+            <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="relative w-10 h-10 rounded-full glass bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all active:scale-95"
             >
@@ -176,7 +176,7 @@ export function NotificationBell({ userId }: { userId: string }) {
                             </button>
                         )}
                     </div>
-                    
+
                     <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
                         {notifications.length === 0 ? (
                             <div className="p-8 text-center text-gray-500 text-xs font-bold uppercase tracking-widest">
@@ -186,8 +186,8 @@ export function NotificationBell({ userId }: { userId: string }) {
                         ) : (
                             <div className="flex flex-col">
                                 {notifications.map(notification => (
-                                    <div 
-                                        key={notification.id} 
+                                    <div
+                                        key={notification.id}
                                         className={`p-4 border-b border-white/5 last:border-0 transition-all ${notification.is_read ? 'opacity-60 hover:opacity-100' : 'bg-blue-500/5'}`}
                                     >
                                         <div className="flex justify-between items-start gap-4">
@@ -206,7 +206,7 @@ export function NotificationBell({ userId }: { userId: string }) {
                                                 </p>
                                             </div>
                                             {!notification.is_read && (
-                                                <button 
+                                                <button
                                                     onClick={() => markAsRead(notification.id)}
                                                     className="w-6 h-6 rounded-full glass bg-white/5 flex items-center justify-center text-blue-400 hover:bg-blue-500 hover:text-white transition-colors"
                                                     title="Mark as read"

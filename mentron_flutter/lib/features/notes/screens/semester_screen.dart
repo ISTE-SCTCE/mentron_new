@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -46,7 +47,7 @@ class _SemesterScreenState extends State<SemesterScreen> {
     if (mounted) setState(() => _isLoadingProfile = true);
     try {
       final profile = await supabase.client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('department, role')
           .eq('id', user.id)
           .maybeSingle();
@@ -142,7 +143,7 @@ class _SemesterScreenState extends State<SemesterScreen> {
                       Navigator.push(context, AppTransitions.slideUp(DeptPickerScreen(year: widget.year, sem: sem)));
                     }
                   },
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: StudioCorners.card,
                   child: GlassContainer(
                     padding: const EdgeInsets.all(24),
                     border: Border.all(color: color.withOpacity(0.3)),

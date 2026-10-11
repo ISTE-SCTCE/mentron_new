@@ -1,3 +1,4 @@
+import '../../../platform/file_headers.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -89,7 +90,8 @@ class _NoteViewerScreenState extends State<NoteViewerScreen>
             VideoPlayerController.contentUri(Uri.file(widget.url));
       } else {
         _videoPlayerController =
-            VideoPlayerController.networkUrl(Uri.parse(widget.url));
+            VideoPlayerController.networkUrl(Uri.parse(platformFileUrl(widget.url)),
+                httpHeaders: {...?widget.headers, ...platformFileHeaders(widget.url)});
       }
       await _videoPlayerController!.initialize();
       _chewieController = ChewieController(
@@ -253,8 +255,8 @@ class _NoteViewerScreenState extends State<NoteViewerScreen>
         autoSpacing: false,
         pageFling: false,
       ).cachedFromUrl(
-        widget.url,
-        headers: widget.headers,
+        platformFileUrl(widget.url),
+        headers: {...?widget.headers, ...platformFileHeaders(widget.url)},
         placeholder: (progress) => Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -304,8 +306,8 @@ class _NoteViewerScreenState extends State<NoteViewerScreen>
           minScale: 1.0,
           maxScale: 5.0,
           child: CachedNetworkImage(
-            imageUrl: widget.url,
-            httpHeaders: widget.headers,
+            imageUrl: platformFileUrl(widget.url),
+            httpHeaders: {...?widget.headers, ...platformFileHeaders(widget.url)},
             placeholder: (context, url) => const BouncingBallsLoader(),
             errorWidget: (context, url, error) => const Column(
               mainAxisSize: MainAxisSize.min,

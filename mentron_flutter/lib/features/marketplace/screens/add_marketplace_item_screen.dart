@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -453,7 +454,7 @@ class _AddMarketplaceItemScreenState extends State<AddMarketplaceItemScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: StudioCorners.card,
         boxShadow: MarketplaceTheme.cardShadow,
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
@@ -618,7 +619,7 @@ class _MyListingRow extends StatelessWidget {
                       horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: statusBg,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: StudioCorners.card,
                   ),
                   child: Text(
                     listing.status.displayName,

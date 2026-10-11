@@ -57,7 +57,7 @@ class _EventListScreenState extends State<EventListScreen> {
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
       final response = await supabase
-          .from('event_cal')
+          .schema('mentron').from('event_cal')
           .select('*')
           .order('created_at', ascending: false);
       _events = List<Map<String, dynamic>>.from(response);
@@ -70,7 +70,7 @@ class _EventListScreenState extends State<EventListScreen> {
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
       final response = await supabase
-          .from('event_concepts')
+          .schema('mentron').from('event_concepts')
           .select('*, profiles(full_name), event_concept_votes(vote_value, user_id)')
           .order('created_at', ascending: false);
       
@@ -131,7 +131,7 @@ class _EventListScreenState extends State<EventListScreen> {
     try {
       // Check for existing vote
       final existingVote = await supabase
-          .from('event_concept_votes')
+          .schema('mentron').from('event_concept_votes')
           .select('*')
           .eq('concept_id', conceptId)
           .eq('user_id', userId)
@@ -140,14 +140,14 @@ class _EventListScreenState extends State<EventListScreen> {
       if (existingVote != null) {
         if (existingVote['vote_value'] == value) {
           // Toggle off
-          await supabase.from('event_concept_votes').delete().eq('id', existingVote['id']);
+          await supabase.schema('mentron').from('event_concept_votes').delete().eq('id', existingVote['id']);
         } else {
           // Switch direction
-          await supabase.from('event_concept_votes').update({'vote_value': value}).eq('id', existingVote['id']);
+          await supabase.schema('mentron').from('event_concept_votes').update({'vote_value': value}).eq('id', existingVote['id']);
         }
       } else {
         // New vote
-        await supabase.from('event_concept_votes').insert({
+        await supabase.schema('mentron').from('event_concept_votes').insert({
           'concept_id': conceptId,
           'user_id': userId,
           'vote_value': value,
@@ -183,7 +183,7 @@ class _EventListScreenState extends State<EventListScreen> {
 
     try {
       final supabase = Provider.of<SupabaseService>(context, listen: false).client;
-      await supabase.from('event_concepts').delete().eq('id', conceptId);
+      await supabase.schema('mentron').from('event_concepts').delete().eq('id', conceptId);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to delete: $e')));
       _fetchConcepts(); // Revert
@@ -250,7 +250,7 @@ class _EventListScreenState extends State<EventListScreen> {
                       
                       final supabaseService = Provider.of<SupabaseService>(context, listen: false);
                       try {
-                        await supabaseService.client.from('event_concepts').insert({
+                        await supabaseService.client.schema('mentron').from('event_concepts').insert({
                           'user_id': supabaseService.currentUser?.id,
                           'title': titleController.text,
                           'description': descController.text,

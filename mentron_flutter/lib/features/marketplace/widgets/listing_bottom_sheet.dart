@@ -75,7 +75,7 @@ class _ListingBottomSheetState extends State<ListingBottomSheet> {
       }
 
       final res = await supa.client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('role')
           .eq('id', user.id)
           .maybeSingle();

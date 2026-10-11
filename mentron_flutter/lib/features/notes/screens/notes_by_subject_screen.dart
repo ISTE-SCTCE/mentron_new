@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -84,7 +85,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
     if (_currentUserId != null) {
       try {
         final profile = await supabase.client
-            .from('profiles')
+            .schema('mentron').from('profiles')
             .select('role, iste_id')
             .eq('id', _currentUserId!)
             .maybeSingle();
@@ -139,7 +140,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
     try {
       final supabaseClient = supabase.client;
       var query = supabaseClient
-          .from('notes')
+          .schema('mentron').from('notes')
           .select('*, profiles!notes_profile_id_fkey(full_name)')
           .eq('subject', widget.subjectName);
 
@@ -181,7 +182,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
   Future<void> _loadFolders(SupabaseService supabase) async {
     try {
       var query = supabase.client
-          .from('note_folders')
+          .schema('mentron').from('note_folders')
           .select('*')
           .eq('subject', widget.subjectName);
 
@@ -217,7 +218,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: StudioCorners.card),
         title: const Text('Delete Note?', style: TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.bold)),
         content: Text('Delete "${note.title}"?', style: const TextStyle(color: AppTheme.textMuted, fontSize: 14)),
         actions: [
@@ -228,7 +229,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
     );
     if (confirm != true) return;
     final supabase = Provider.of<SupabaseService>(context, listen: false);
-    await supabase.client.from('notes').delete().eq('id', note.id);
+    await supabase.client.schema('mentron').from('notes').delete().eq('id', note.id);
     setState(() => _notes.removeWhere((n) => n.id == note.id));
   }
 
@@ -324,7 +325,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
             builder: (ctx, setDialogState) {
               return AlertDialog(
                 backgroundColor: AppTheme.surfaceColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(borderRadius: StudioCorners.card),
                 title: const Text('ISTE Membership Required', style: TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.bold, fontSize: 18)),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -363,13 +364,13 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
                       try {
                         final supabase = Provider.of<SupabaseService>(context, listen: false);
                         final member = await supabase.client
-                            .from('project_a.members')
+                            .schema('mentron').from('project_a.members')
                             .select('ui_id')
                             .eq('ui_id', id)
                             .maybeSingle();
                         if (member != null) {
                           await supabase.client
-                              .from('profiles')
+                              .schema('mentron').from('profiles')
                               .update({'iste_id': id})
                               .eq('id', _currentUserId!);
                           if (mounted) {
@@ -407,7 +408,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
     try {
       final supabase = Provider.of<SupabaseService>(context, listen: false);
       try {
-        await supabase.client.rpc('increment_note_views', params: {'target_note_id': note.id});
+        await supabase.client.schema('mentron').rpc('increment_note_views', params: {'target_note_id': note.id});
       } catch (_) {}
 
       final isDownloaded = _downloaded.contains(note.id);

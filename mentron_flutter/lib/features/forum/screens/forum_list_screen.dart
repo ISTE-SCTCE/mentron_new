@@ -53,7 +53,7 @@ class _ForumListScreenState extends State<ForumListScreen> {
     ).client;
     try {
       var query = supabase
-          .from('forum_questions')
+          .schema('mentron').from('forum_questions')
           .select('*, profiles(full_name), forum_answers!question_id(count)');
 
       if (_selectedTopic != 'All') {

@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -48,7 +49,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
       final res = await supabase
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('id, full_name, roll_number, role, department, year')
           .not('role', 'in', '("core", "exec")')
           .order('full_name');
@@ -68,7 +69,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
       bool directUpdated = false;
       try {
         final res = await supabase
-            .from('profiles')
+            .schema('mentron').from('profiles')
             .update({'role': newRole})
             .eq('id', member['id'])
             .select('id');
@@ -136,7 +137,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
       bool directDeleted = false;
       try {
         final res = await supabase
-            .from('profiles')
+            .schema('mentron').from('profiles')
             .delete()
             .eq('id', member['id'])
             .select('id');
@@ -361,7 +362,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.03),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: StudioCorners.card,
             border: Border.all(color: Colors.white.withOpacity(0.08)),
           ),
           child: Column(
@@ -699,7 +700,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
         backgroundColor: AppTheme.surfaceColor,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: StudioCorners.card,
           side: BorderSide(
             color: (isExec ? Colors.redAccent : Colors.greenAccent).withOpacity(0.3),
           ),
@@ -772,7 +773,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
         backgroundColor: AppTheme.surfaceColor,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: StudioCorners.card,
           side: BorderSide(color: Colors.redAccent.withOpacity(0.3)),
         ),
         title: Row(

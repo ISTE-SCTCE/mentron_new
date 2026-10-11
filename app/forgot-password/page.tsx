@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Mail, Loader2, CheckCircle2 } from 'lucide-react'
-import { createClient } from '@/app/lib/supabase/client'
+import { getPlatformClient } from '@/app/lib/platform/browser'
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('')
@@ -22,9 +22,9 @@ export default function ForgotPasswordPage() {
         setIsPending(true)
 
         try {
-            const supabase = createClient()
+            const supabase = getPlatformClient()
             const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-                redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://mentron.istesctce.in'}/reset-password`,
+                redirectTo: `${window.location.origin}/reset-password`,
             })
             
             if (error) {

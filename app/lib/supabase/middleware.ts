@@ -1,138 +1,56 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { PLATFORM_URL, PLATFORM_PUBLISHABLE_KEY, productHome } from '../platform/config'
+import { canOpenProduct, isActiveProfile } from '../platform/access.mjs'
 
 export async function updateSession(request: NextRequest) {
-    let response = NextResponse.next({
-        request: {
-            headers: request.headers,
-        },
-    })
-
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ysllolnoyezfdllqocgv.supabase.co'
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_FwJxMntZ8Hiqze7RUK0gcQ_L_0DGAbs'
-
-    const supabase = createServerClient(
-        url,
-        anonKey,
-        {
-            cookies: {
-                getAll() {
-                    return request.cookies.getAll()
-                },
-                setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) =>
-                        request.cookies.set(name, value)
-                    )
-                    response = NextResponse.next({
-                        request: {
-                            headers: request.headers,
-                        },
-                    })
-                    cookiesToSet.forEach(({ name, value, options }) =>
-                        response.cookies.set(name, value, options)
-                    )
-                },
-            },
-        }
-    )
-
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
-
-    // Protected routes logic
-    const isProtectedPath =
-        request.nextUrl.pathname.startsWith('/dashboard') ||
-        request.nextUrl.pathname.startsWith('/admin') ||
-        request.nextUrl.pathname.startsWith('/notes') ||
-        request.nextUrl.pathname.startsWith('/projects') ||
-        request.nextUrl.pathname.startsWith('/marketplace') ||
-        request.nextUrl.pathname.startsWith('/events')
-    const isAdminPath = request.nextUrl.pathname.startsWith('/admin')
-
-    if (isProtectedPath && !user) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/login'
-        return NextResponse.redirect(url)
-    }
-
-    if (isAdminPath && user) {
-        // Check role for admin
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single()
-
-        if (profile?.role !== 'exec' && profile?.role !== 'core' && profile?.role !== 'admin') {
-            const url = request.nextUrl.clone()
-            url.pathname = '/dashboard'
-            return NextResponse.redirect(url)
-        }
-    }
-
-    if (request.nextUrl.pathname.startsWith('/notes/upload') && user) {
-        // Only exec / core / admin / leadership can access note upload
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role, iste_position, permissions')
-            .eq('id', user.id)
-            .single()
-
-        const isExecOrCore = profile?.role === 'core' || profile?.role === 'exec' || profile?.role === 'admin'
-        const isLeadership = profile?.iste_position === 'Chairman' || profile?.iste_position === 'Vice Chairman'
-        const canUpload = (isLeadership || isExecOrCore) && (profile?.permissions?.can_upload_notes ?? true)
-
-        if (!canUpload) {
-            const url = request.nextUrl.clone()
-            url.pathname = '/notes'
-            url.searchParams.set('error', 'Only executive members are permitted to upload notes.')
-            return NextResponse.redirect(url)
-        }
-    }
-
-    // ── TWO-DEVICE SECURITY GATE ──
-    if (user && isProtectedPath) {
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('current_session_id')
-            .eq('id', user.id)
-            .single()
-
-        if (profile?.current_session_id) {
-            const clientSid = request.cookies.get('mentron_sid')?.value
-
-            if (!clientSid) {
-                // HEAL: User is valid but cookie is missing (e.g. following a redirect)
-                // We sync it now so the Dashboard/Page doesn't see a mismatch
-                response.cookies.set('mentron_sid', profile.current_session_id, {
-                    path: '/',
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'lax',
-                    maxAge: 60 * 60 * 24 * 7 // 1 week
-                })
-            } else if (clientSid !== profile.current_session_id) {
-                // KICK: Cookie exists but doesn't match DB (Device B kicked Device A)
-                
-                // 1. Log out the user by clearing their Supabase session
-                // We do this by creating a redirect response that clears the cookies
-                const url = request.nextUrl.clone()
-                url.pathname = '/login'
-                url.searchParams.set('error', 'Logged in from another device')
-                
-                const redirectResponse = NextResponse.redirect(url)
-                
-                // Clear the mismatching side cookie
-                redirectResponse.cookies.delete('mentron_sid')
-                
-                // NOTE: Supabase session is handled by the redirect to /login 
-                // but we can also manually clear the cookie patterns if needed.
-                // Redirecting to /login is the safest way to reset the state.
-                return redirectResponse
+    let response = NextResponse.next({request})
+    const client = createServerClient(PLATFORM_URL,PLATFORM_PUBLISHABLE_KEY,{
+        cookies:{
+            getAll:() => request.cookies.getAll(),
+            setAll(cookiesToSet) {
+                cookiesToSet.forEach(({name,value}) => request.cookies.set(name,value))
+                response = NextResponse.next({request})
+                cookiesToSet.forEach(({name,value,options}) => response.cookies.set(name,value,options))
             }
         }
+    })
+    const {data:{user}} = await client.auth.getUser()
+    const path = request.nextUrl.pathname.replace(/\/$/,'')
+    const loginProduct = path === '/mlynq/login' ? 'mlynq' : path === '/login'
+        ? (request.nextUrl.searchParams.get('product') === 'mlynq' ? 'mlynq' : 'mentron') : null
+    const product = path.startsWith('/mlynq/') ? 'mlynq' : path.startsWith('/mentron/') ? 'mentron' : null
+    const isProtected = product && !['/mlynq/login','/mentron/privacy'].includes(path)
+    function go(destination: string) {
+        const url = new URL(destination,request.url)
+        const redirect = NextResponse.redirect(url)
+        response.cookies.getAll().forEach(cookie => redirect.cookies.set(cookie))
+        return redirect
     }
-
+    if(isProtected && !user) return go('/login?product=' + product)
+    // Product login methods differ; a verified active session is shared.
+    if(user && loginProduct) {
+        const {data:profile,error} = await client.from('profiles')
+            .select('status,suspended_until,is_mlynq_user,is_mentron_user').eq('id',user.id).maybeSingle()
+        if(!error && isActiveProfile(profile)) return go(canOpenProduct(profile,loginProduct)
+            ? productHome(loginProduct) : '/join?product='+loginProduct)
+    }
+    if(isProtected && user && product) {
+        const {data:profile,error} = await client.from('profiles')
+            .select('status,suspended_until,is_mlynq_user,is_mentron_user,role,permissions')
+            .eq('id',user.id).maybeSingle()
+        if(error || !isActiveProfile(profile)) {
+            return go('/login?error=' + encodeURIComponent('Your account is unavailable. Please contact ISTE.'))
+        }
+        if(!canOpenProduct(profile,product)) return go('/join?product='+product)
+        if(product==='mentron' && (path.startsWith('/mentron/admin') || path.startsWith('/mentron/core') || path.startsWith('/mentron/analytics'))) {
+            const {data:allowed} = await client.schema('mentron').rpc('is_execom')
+            if(!allowed) return go(productHome(product))
+        }
+        if(path.startsWith('/mentron/notes/upload')) {
+            const {data:allowed} = await client.schema('mentron').rpc('is_execom')
+            if(!allowed || profile?.permissions?.can_upload_notes===false) return go('/mentron/notes')
+        }
+    }
     return response
 }

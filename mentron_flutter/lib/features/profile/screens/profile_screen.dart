@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -38,7 +39,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     try {
       final response = await supabase.client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('*')
           .eq('id', userId)
           .maybeSingle();
@@ -88,8 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final storagePath = 'avatars/$userId.jpg';
 
       // Upload (upsert so re-uploads overwrite the previous file)
-      await supabase.client.storage
-          .from('profile-photos')
+      await supabase.client.storage.from('mentron-profile-photos')
           .uploadBinary(
             storagePath,
             bytes,
@@ -100,8 +100,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           );
 
       // Get the public URL
-      final publicUrl = supabase.client.storage
-          .from('profile-photos')
+      final publicUrl = supabase.client.storage.from('mentron-profile-photos')
           .getPublicUrl(storagePath);
 
       // Cache-bust by appending a timestamp
@@ -109,7 +108,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       // Persist to profiles table
       await supabase.client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .update({'avatar_url': publicUrl})
           .eq('id', userId);
 
@@ -156,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return AlertDialog(
             backgroundColor: AppTheme.surfaceColor,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: StudioCorners.card,
             ),
             title: const Text(
               'Change Password',
@@ -321,7 +320,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final rollController = TextEditingController(text: _profile?['roll_number']);
     final deptController = TextEditingController(text: _profile?['department']);
     final yearController = TextEditingController(text: _profile?['year']?.toString());
-    final isteIdController = TextEditingController(text: _profile?['iste_id']);
     bool isSaving = false;
 
     await showDialog(
@@ -331,7 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (context, setDialogState) {
           return AlertDialog(
             backgroundColor: AppTheme.surfaceColor,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape: RoundedRectangleBorder(borderRadius: StudioCorners.card),
             title: const Text('Edit Profile', style: TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.bold)),
             content: SingleChildScrollView(
               child: Column(
@@ -345,7 +343,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 16),
                   _buildLabeledField('Academic Year (1–4', yearController, icon: Icons.calendar_today_rounded, keyboardType: TextInputType.number),
                   const SizedBox(height: 16),
-                  _buildLabeledField('ISTE ID (Optional)', isteIdController, icon: Icons.card_membership_rounded),
+                  const Text('ISTE membership is verified separately in Mlynq.'),
                 ],
               ),
             ),
@@ -353,43 +351,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
               TextButton(onPressed: isSaving ? null : () => Navigator.pop(context), child: const Text('Cancel', style: TextStyle(color: AppTheme.textMuted))),
               ElevatedButton(
                 onPressed: isSaving ? null : () async {
-                  final newIsteId = isteIdController.text.trim();
                   
                   setDialogState(() => isSaving = true);
                   try {
                     final supabase = Provider.of<SupabaseService>(context, listen: false);
                     
-                    // Validate ISTE ID if provided and changed
-                    if (newIsteId.isNotEmpty && newIsteId != _profile?['iste_id']) {
-                      final response = await supabase.client
-                          .from('project_a.members')
-                          .select('ui_id')
-                          .eq('ui_id', newIsteId)
-                          .maybeSingle();
-                      
-                      if (response == null) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              backgroundColor: Colors.redAccent,
-                              content: Text('Invalid ISTE ID. Access to notes will be restricted.'),
-                            ),
-                          );
-                        }
-                        setDialogState(() => isSaving = false);
-                        return;
-                      }
-                    }
-
                     final updates = {
                       'full_name': nameController.text.trim(),
                       'roll_number': rollController.text.trim().toUpperCase(),
                       'department': deptController.text.trim(),
                       'year': int.tryParse(yearController.text.trim()) ?? 1,
-                      'iste_id': newIsteId.isEmpty ? null : newIsteId,
                     };
 
-                    await supabase.client.from('profiles').update(updates).eq('id', _profile!['id']);
+                    await supabase.client.schema('mentron').from('profiles').update(updates).eq('id', _profile!['id']);
                     
                     if (mounted) {
                       setState(() {

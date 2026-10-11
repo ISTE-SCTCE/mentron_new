@@ -84,5 +84,5 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: insertError.message }, { status: 500 })
     }
 
-    return NextResponse.json({ redirect: '/marketplace' })
+    return NextResponse.json({ redirect: '/mentron/marketplace' })
 }

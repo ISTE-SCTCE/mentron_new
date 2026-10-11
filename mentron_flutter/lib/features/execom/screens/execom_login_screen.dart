@@ -41,7 +41,7 @@ class _ExecomLoginScreenState extends State<ExecomLoginScreen> {
         // 2. Server-side role check — role is ALWAYS verified from DB,
         //    never trusted from client-side cache or local state.
         final profile = await supabase.client
-            .from('profiles')
+            .schema('mentron').from('profiles')
             .select('role')
             .eq('id', response.user!.id)
             .single();
@@ -52,7 +52,7 @@ class _ExecomLoginScreenState extends State<ExecomLoginScreen> {
         // Both 'exec' and 'execom' are valid (historical naming inconsistency fixed).
         if (MentronConstants.kExecomRoles.contains(role)) {
           // Log successful EXECOM login to the security audit trail
-          await supabase.client.from('audit_log').insert({
+          await supabase.client.schema('mentron').from('audit_log').insert({
             'user_id': response.user!.id,
             'action': 'execom_login',
             'entity': 'auth',
@@ -71,7 +71,7 @@ class _ExecomLoginScreenState extends State<ExecomLoginScreen> {
         } else {
           // Unauthorized role — log the escalation attempt and sign out immediately.
           // Never leave a non-EXECOM session open after a failed elevation attempt.
-          await supabase.client.from('audit_log').insert({
+          await supabase.client.schema('mentron').from('audit_log').insert({
             'user_id': response.user!.id,
             'action': 'execom_login_denied',
             'entity': 'auth',

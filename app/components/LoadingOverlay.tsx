@@ -11,16 +11,16 @@ interface RouteConfig {
 }
 
 const ROUTE_MAP: Record<string, RouteConfig> = {
-    '/dashboard':   { label: 'Dashboard',   sub: 'System Overview',      ballColor: '#6366f1', shadowColor: 'rgba(99,102,241,0.4)',   glowColor: 'rgba(99,102,241,0.15)' },
-    '/analytics':   { label: 'Analytics',   sub: 'Performance Metrics',  ballColor: '#818cf8', shadowColor: 'rgba(129,140,248,0.4)',  glowColor: 'rgba(129,140,248,0.15)' },
-    '/notes':       { label: 'Notes',       sub: 'Academic Resources',   ballColor: '#34d399', shadowColor: 'rgba(52,211,153,0.4)',   glowColor: 'rgba(52,211,153,0.12)' },
-    '/events':      { label: 'Events',      sub: 'Upcoming Activities',  ballColor: '#a78bfa', shadowColor: 'rgba(167,139,250,0.4)',  glowColor: 'rgba(167,139,250,0.12)' },
-    '/marketplace': { label: 'Marketplace', sub: 'Trade Hub',            ballColor: '#fbbf24', shadowColor: 'rgba(251,191,36,0.4)',   glowColor: 'rgba(251,191,36,0.10)' },
-    '/projects':    { label: 'Projects',    sub: 'Innovation Lab',       ballColor: '#22d3ee', shadowColor: 'rgba(34,211,238,0.4)',   glowColor: 'rgba(34,211,238,0.12)' },
-    '/leaderboard': { label: 'Leaderboard', sub: 'Top Contributors',     ballColor: '#facc15', shadowColor: 'rgba(250,204,21,0.4)',   glowColor: 'rgba(250,204,21,0.10)' },
-    '/societies':   { label: 'Societies',   sub: 'Chapters & Clubs',     ballColor: '#f472b6', shadowColor: 'rgba(244,114,182,0.4)',  glowColor: 'rgba(244,114,182,0.12)' },
-    '/team':        { label: 'Team',        sub: 'Executive Committee',  ballColor: '#94a3b8', shadowColor: 'rgba(148,163,184,0.4)',  glowColor: 'rgba(148,163,184,0.10)' },
-    '/settings':    { label: 'Settings',    sub: 'Preferences',          ballColor: '#7000df', shadowColor: 'rgba(112,0,223,0.4)',   glowColor: 'rgba(112,0,223,0.12)' },
+    '/mentron/dashboard':   { label: 'Dashboard',   sub: 'System Overview',      ballColor: '#6366f1', shadowColor: 'rgba(99,102,241,0.4)',   glowColor: 'rgba(99,102,241,0.15)' },
+    '/mentron/analytics':   { label: 'Analytics',   sub: 'Performance Metrics',  ballColor: '#818cf8', shadowColor: 'rgba(129,140,248,0.4)',  glowColor: 'rgba(129,140,248,0.15)' },
+    '/mentron/notes':       { label: 'Notes',       sub: 'Academic Resources',   ballColor: '#34d399', shadowColor: 'rgba(52,211,153,0.4)',   glowColor: 'rgba(52,211,153,0.12)' },
+    '/mentron/events':      { label: 'Events',      sub: 'Upcoming Activities',  ballColor: '#a78bfa', shadowColor: 'rgba(167,139,250,0.4)',  glowColor: 'rgba(167,139,250,0.12)' },
+    '/mentron/marketplace': { label: 'Marketplace', sub: 'Trade Hub',            ballColor: '#fbbf24', shadowColor: 'rgba(251,191,36,0.4)',   glowColor: 'rgba(251,191,36,0.10)' },
+    '/mentron/projects':    { label: 'Projects',    sub: 'Innovation Lab',       ballColor: '#22d3ee', shadowColor: 'rgba(34,211,238,0.4)',   glowColor: 'rgba(34,211,238,0.12)' },
+    '/mentron/leaderboard': { label: 'Leaderboard', sub: 'Top Contributors',     ballColor: '#facc15', shadowColor: 'rgba(250,204,21,0.4)',   glowColor: 'rgba(250,204,21,0.10)' },
+    '/mentron/societies':   { label: 'Societies',   sub: 'Chapters & Clubs',     ballColor: '#f472b6', shadowColor: 'rgba(244,114,182,0.4)',  glowColor: 'rgba(244,114,182,0.12)' },
+    '/mentron/team':        { label: 'Team',        sub: 'Executive Committee',  ballColor: '#94a3b8', shadowColor: 'rgba(148,163,184,0.4)',  glowColor: 'rgba(148,163,184,0.10)' },
+    '/mentron/settings':    { label: 'Settings',    sub: 'Preferences',          ballColor: '#7000df', shadowColor: 'rgba(112,0,223,0.4)',   glowColor: 'rgba(112,0,223,0.12)' },
 }
 
 const DEFAULT_CONFIG: RouteConfig = {

@@ -146,7 +146,7 @@ class FCMService {
       final token = await FirebaseMessaging.instance.getToken();
       if (token == null) return;
       await client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .update({'fcm_token': token})
           .eq('id', userId);
       debugPrint('[FCM] Token stored for user $userId');

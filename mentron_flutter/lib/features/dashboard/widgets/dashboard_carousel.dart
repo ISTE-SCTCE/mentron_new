@@ -119,7 +119,7 @@ class _DashboardCarouselState extends State<DashboardCarousel> {
       if (mounted) {
         try {
           final supabase = Provider.of<SupabaseService>(context, listen: false).client;
-          final res = await supabase.rpc('get_most_viewed_subject');
+          final res = await supabase.schema('mentron').rpc('get_most_viewed_subject');
           
           if (res != null && (res as List).isNotEmpty) {
             final first = res[0] as Map<String, dynamic>;

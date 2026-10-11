@@ -40,7 +40,7 @@ class VersionService {
   Future<VersionCheckResult> checkVersion() async {
     try {
       final configRes = await _supabaseClient
-          .from('app_config')
+          .schema('mentron').from('app_config')
           .select()
           .order('updated_at', ascending: false)
           .limit(1)

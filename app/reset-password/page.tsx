@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, Loader2, CheckCircle2, ShieldAlert, Lock } from 'lucide-react'
-import { createClient } from '@/app/lib/supabase/client'
+import { getPlatformClient } from '@/app/lib/platform/browser'
+import { establishRecoverySession } from '@/app/lib/platform/recovery.mjs'
 import toast, { Toaster } from 'react-hot-toast'
 
 // ── Password rule helpers ──────────────────────────────────────────────
@@ -66,67 +67,23 @@ export default function ResetPasswordPage() {
     const [isPending, setIsPending] = useState(false)
     const [success, setSuccess] = useState(false)
     const passwordRef = useRef<HTMLInputElement>(null)
+    const recoveryExchange = useRef<Promise<boolean> | null>(null)
 
-    // ── Detect Supabase recovery session ─────────────────────────────
+    // One exchange survives Strict Mode remounts. Both app-generated implicit
+    // links and web PKCE/token-hash links use ISTE-admin's shared Auth client.
     useEffect(() => {
-        const supabase = createClient()
-
-        // 1. Check for PKCE code in URL search params and exchange it for a session
-        const exchangeCode = async () => {
-            if (typeof window !== 'undefined') {
-                const params = new URLSearchParams(window.location.search)
-                const code = params.get('code')
-                if (code) {
-                    try {
-                        const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-                        if (!error && data?.session) {
-                            setSessionReady('valid')
-                            setTimeout(() => passwordRef.current?.focus(), 100)
-                            return true
-                        }
-                    } catch (err) {
-                        console.error('Error exchanging recovery code:', err)
-                    }
-                }
+        let cancelled = false
+        recoveryExchange.current ??= establishRecoverySession(getPlatformClient().auth, window.location.href)
+        recoveryExchange.current.then(valid => {
+            if(cancelled) return
+            setSessionReady(valid ? 'valid' : 'invalid')
+            if(valid) {
+                // Remove short-lived credentials from the address bar/history.
+                window.history.replaceState(null, '', '/reset-password')
+                passwordRef.current?.focus()
             }
-            return false
-        }
-
-        // Supabase fires PASSWORD_RECOVERY event when URL contains recovery token
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'PASSWORD_RECOVERY') {
-                setSessionReady('valid')
-                setTimeout(() => passwordRef.current?.focus(), 100)
-            } else if (event === 'SIGNED_IN' && session) {
-                // Already signed in — still allow reset
-                setSessionReady('valid')
-                setTimeout(() => passwordRef.current?.focus(), 100)
-            }
-        })
-
-        // Fallback: check for existing session (token already exchanged)
-        const checkSession = async () => {
-            const exchanged = await exchangeCode()
-            if (exchanged) return
-
-            const { data: { session } } = await supabase.auth.getSession()
-            if (session) {
-                setSessionReady('valid')
-                setTimeout(() => passwordRef.current?.focus(), 100)
-            } else {
-                // Give auth state change a moment to fire first
-                setTimeout(() => {
-                    setSessionReady((prev) => {
-                        if (prev === 'loading') return 'invalid'
-                        return prev
-                    })
-                }, 2500)
-            }
-        }
-
-        checkSession()
-
-        return () => subscription.unsubscribe()
+        }).catch(() => { if(!cancelled) setSessionReady('invalid') })
+        return () => { cancelled = true }
     }, [])
 
     // ── Validation ────────────────────────────────────────────────────
@@ -141,7 +98,7 @@ export default function ResetPasswordPage() {
 
         setIsPending(true)
         try {
-            const supabase = createClient()
+            const supabase = getPlatformClient()
             const { error } = await supabase.auth.updateUser({ password })
 
             if (error) {
@@ -150,7 +107,7 @@ export default function ResetPasswordPage() {
                 setSuccess(true)
                 // Sign out so they log in fresh with the new password
                 await supabase.auth.signOut()
-                setTimeout(() => router.push('/login'), 2500)
+                setTimeout(() => router.push('/login?product=mentron'), 2500)
             }
         } catch {
             toast.error('Something went wrong. Please try again.')
@@ -188,7 +145,7 @@ export default function ResetPasswordPage() {
                     <div className="space-y-2">
                         <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Link Expired</h1>
                         <p className="text-xs sm:text-sm text-gray-400 leading-relaxed max-w-xs mx-auto">
-                            This password reset link is invalid or has expired. Reset links are valid for 60 minutes.
+                            This password reset link is invalid or has expired. Request a new link and open the most recent email.
                         </p>
                     </div>
                     <Link

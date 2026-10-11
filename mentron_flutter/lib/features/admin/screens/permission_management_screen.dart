@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -32,7 +33,7 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     try {
       final response = await supabase.client
-          .from('profiles')
+          .schema('mentron').from('profiles')
           .select('id, full_name, roll_number, department, role, iste_position, permissions')
           .inFilter('role', ['core', 'exec'])
           .order('full_name');
@@ -263,7 +264,7 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: StudioCorners.card,
         border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: Column(

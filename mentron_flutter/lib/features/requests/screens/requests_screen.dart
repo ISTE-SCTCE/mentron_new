@@ -32,7 +32,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
     final client = Provider.of<SupabaseService>(context, listen: false).client;
     try {
       final projects = await client
-          .from('projects')
+          .schema('mentron').from('projects')
           .select()
           .eq('is_approved', false)
           .order('created_at', ascending: false);
@@ -52,7 +52,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
     final client = Provider.of<SupabaseService>(context, listen: false).client;
     try {
       await client
-          .from('projects')
+          .schema('mentron').from('projects')
           .update({'is_approved': true})
           .eq('id', item['id']);
       if (mounted) {
@@ -78,7 +78,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
   Future<void> _rejectProject(String id) async {
     final client = Provider.of<SupabaseService>(context, listen: false).client;
     try {
-      await client.from('projects').delete().eq('id', id);
+      await client.schema('mentron').from('projects').delete().eq('id', id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(backgroundColor: Colors.redAccent, content: Text('🗑️ Project rejected and removed.')),

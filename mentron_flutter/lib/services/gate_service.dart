@@ -140,7 +140,7 @@ class GateService {
   /// Fetch all gate departments with their folder count
   Future<List<GateDepartment>> fetchDepartments() async {
     final res = await client
-        .from('gate_departments')
+        .schema('mentron').from('gate_departments')
         .select('*, gate_folders(id)')
         .order('created_at', ascending: true);
 
@@ -150,7 +150,7 @@ class GateService {
   /// Fetch department by key
   Future<GateDepartment?> fetchDepartmentByKey(String key) async {
     final res = await client
-        .from('gate_departments')
+        .schema('mentron').from('gate_departments')
         .select('*, gate_folders(id)')
         .eq('key', key.toUpperCase())
         .maybeSingle();
@@ -167,7 +167,7 @@ class GateService {
     String color = 'cyan',
   }) async {
     final res = await client
-        .from('gate_departments')
+        .schema('mentron').from('gate_departments')
         .insert({
           'key': key.trim().toUpperCase(),
           'label': label.trim(),
@@ -183,7 +183,7 @@ class GateService {
   /// Fetch folders for a department
   Future<List<GateFolder>> fetchFolders(String departmentId) async {
     final res = await client
-        .from('gate_folders')
+        .schema('mentron').from('gate_folders')
         .select('*, profiles(full_name), gate_notes(id)')
         .eq('department_id', departmentId)
         .order('name', ascending: true);
@@ -200,7 +200,7 @@ class GateService {
     if (user == null) throw Exception('User not logged in');
 
     final res = await client
-        .from('gate_folders')
+        .schema('mentron').from('gate_folders')
         .insert({
           'department_id': departmentId,
           'name': name.trim(),
@@ -214,13 +214,13 @@ class GateService {
 
   /// Delete a folder
   Future<void> deleteFolder(String folderId) async {
-    await client.from('gate_folders').delete().eq('id', folderId);
+    await client.schema('mentron').from('gate_folders').delete().eq('id', folderId);
   }
 
   /// Fetch notes inside a subject folder
   Future<List<GateNote>> fetchNotes(String folderId) async {
     final res = await client
-        .from('gate_notes')
+        .schema('mentron').from('gate_notes')
         .select('*, profiles(full_name)')
         .eq('folder_id', folderId)
         .order('created_at', ascending: false);
@@ -230,7 +230,7 @@ class GateService {
 
   /// Delete a note
   Future<void> deleteNote(String noteId) async {
-    await client.from('gate_notes').delete().eq('id', noteId);
+    await client.schema('mentron').from('gate_notes').delete().eq('id', noteId);
   }
 
   /// Upload a note file to R2 via presigned URL and insert gate_notes record
@@ -303,7 +303,7 @@ class GateService {
     // Step 3: Insert gate_notes record in Supabase
     final fileUrl = '/api/files/$fileKey';
     final res = await client
-        .from('gate_notes')
+        .schema('mentron').from('gate_notes')
         .insert({
           'folder_id': folderId,
           'title': title.trim(),

@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -39,7 +40,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
     _currentUserId = supabase.currentUser?.id;
     if (_currentUserId != null) {
       try {
-        final profile = await supabase.client.from('profiles').select('role').eq('id', _currentUserId!).maybeSingle();
+        final profile = await supabase.client.schema('mentron').from('profiles').select('role').eq('id', _currentUserId!).maybeSingle();
         if (mounted && profile != null) setState(() => _currentUserRole = profile['role']);
       } catch (_) {}
     }
@@ -50,7 +51,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   Future<void> _fetchProjects() async {
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
-      final response = await supabase.from('projects').select().order('created_at', ascending: false);
+      final response = await supabase.schema('mentron').from('projects').select().order('created_at', ascending: false);
       if (mounted) {
         setState(() {
           _projects = (response as List).map((json) => Project.fromJson(json)).toList();
@@ -77,7 +78,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: StudioCorners.card),
         title: const Text('Delete Project?', style: TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.bold)),
         content: Text('Delete "${project.title}"? This will also remove all applications.', style: const TextStyle(color: AppTheme.textMuted)),
         actions: [
@@ -91,8 +92,8 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
     final supabase = Provider.of<SupabaseService>(context, listen: false);
     try {
       // Delete applications first, then the project
-      await supabase.client.from('project_applications').delete().eq('project_id', project.id);
-      await supabase.client.from('projects').delete().eq('id', project.id);
+      await supabase.client.schema('mentron').from('project_applications').delete().eq('project_id', project.id);
+      await supabase.client.schema('mentron').from('projects').delete().eq('id', project.id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.green, content: Text('Project deleted')));
         setState(() => _projects.removeWhere((p) => p.id == project.id));

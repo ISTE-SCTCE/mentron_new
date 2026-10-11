@@ -60,15 +60,15 @@ export function RealTimeStats({ initialStats }: Props) {
         fetchStats()
 
         const profilesChannel = supabase.channel('profiles_changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => fetchStats())
+            .on('postgres_changes', { event: '*', schema: 'mentron', table: 'profiles' }, () => fetchStats())
             .subscribe()
 
         const notesChannel = supabase.channel('notes_changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'notes' }, () => fetchStats())
+            .on('postgres_changes', { event: '*', schema: 'mentron', table: 'notes' }, () => fetchStats())
             .subscribe()
 
         const logsChannel = supabase.channel('logs_changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'interaction_logs' }, () => fetchStats())
+            .on('postgres_changes', { event: '*', schema: 'mentron', table: 'interaction_logs' }, () => fetchStats())
             .subscribe()
 
         return () => {

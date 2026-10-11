@@ -79,7 +79,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
       final response = await supabase
-          .from('event_cal')
+          .schema('mentron').from('event_cal')
           .select('*')
           .order('event_date', ascending: true);
       
@@ -122,7 +122,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
       final response = await supabase
-          .from('registrations')
+          .schema('mentron').from('registrations')
           .select('*, profiles(full_name, department, roll_number)')
           .eq('event_id', event['id'])
           .order('created_at', ascending: false);
@@ -154,7 +154,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
     if (actorId == null) return;
 
     try {
-      await supabaseService.client.from('audit_log').insert({
+      await supabaseService.client.schema('mentron').from('audit_log').insert({
         'actor_id': actorId,
         'action': action,
         'target_table': 'event_cal',
@@ -193,7 +193,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
 
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
-      await supabase.from('event_cal').delete().eq('id', event['id']);
+      await supabase.schema('mentron').from('event_cal').delete().eq('id', event['id']);
       HapticFeedback.lightImpact();
 
       if (mounted) {
@@ -373,7 +373,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
                             };
 
                             if (isEdit) {
-                              await supabase.from('event_cal').update(payload).eq('id', event['id']);
+                              await supabase.schema('mentron').from('event_cal').update(payload).eq('id', event['id']);
                               await _writeAuditLog(
                                 action: 'UPDATE',
                                 targetId: event['id'],
@@ -381,7 +381,7 @@ class _EventManagerScreenState extends State<EventManagerScreen>
                                 after: payload,
                               );
                             } else {
-                              final response = await supabase.from('event_cal').insert(payload).select().single();
+                              final response = await supabase.schema('mentron').from('event_cal').insert(payload).select().single();
                               await _writeAuditLog(
                                 action: 'CREATE',
                                 targetId: response['id'],

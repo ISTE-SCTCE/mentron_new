@@ -32,8 +32,17 @@ class GlassContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(borderRadius);
-    final shadowColor = AppTheme.accentPrimary.withOpacity(isNavElement ? 0.10 : 0.06);
+    final radius = isNavElement
+        ? BorderRadius.circular(borderRadius)
+        : BorderRadius.only(
+            topLeft: const Radius.circular(6),
+            topRight: Radius.circular(borderRadius),
+            bottomLeft: Radius.circular(borderRadius),
+            bottomRight: const Radius.circular(6),
+          );
+    final shadowColor = AppTheme.accentPrimary.withOpacity(
+      isNavElement ? 0.10 : 0.06,
+    );
 
     final decoration = BoxDecoration(
       color: color ?? Colors.white,
@@ -43,8 +52,8 @@ class GlassContainer extends StatelessWidget {
       boxShadow: [
         BoxShadow(
           color: shadowColor,
-          blurRadius: isNavElement ? 20 : 16,
-          offset: Offset(0, isNavElement ? 8 : 6),
+          blurRadius: isNavElement ? 20 : 0,
+          offset: Offset(isNavElement ? 0 : 4, isNavElement ? 8 : 4),
         ),
       ],
     );
@@ -65,7 +74,9 @@ class GlassContainer extends StatelessWidget {
               child: Container(
                 height: borderRadius * 0.55,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(borderRadius)),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(borderRadius),
+                  ),
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -94,4 +105,3 @@ class GlassContainer extends StatelessWidget {
     );
   }
 }
-

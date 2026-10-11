@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+.platform-product { padding-top: 72px; min-height: 100dvh; }
+.platform-switcher { position: fixed; top: 0; left: 0; right: 0; min-height: 64px; padding: 10px 16px; z-index: 2000; background: #10121e; border-bottom: 1px solid #ffffff1f; }
+.platform-switcher > div { display: flex; width: min(100%, 360px); margin: auto; padding: 4px; gap: 6px; border-radius: 18px; background: #ffffff0d; }
+.platform-switcher button { display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1; min-height: 40px; border-radius: 14px; font-weight: 700; color: #aab3cb; cursor: pointer; }
+.platform-switcher button[aria-pressed="true"] { background: #ebf3fc; color: #111; box-shadow: 0 2px 10px #0003; }
+.platform-switcher button:focus-visible { outline: 2px solid #00c6ff; outline-offset: 2px; }
+.platform-switcher button:disabled { cursor: progress; opacity: .6; }
+.platform-switcher p { max-width: 540px; margin: 6px auto; color: #ffb4b4; font-size: 13px; }
+
 :root {
   --bg-deep: #030305;
   --bg-surface: #0a0a0f;

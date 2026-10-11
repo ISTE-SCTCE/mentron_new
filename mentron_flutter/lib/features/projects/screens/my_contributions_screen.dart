@@ -36,7 +36,7 @@ class _MyContributionsScreenState extends State<MyContributionsScreen> {
 
     try {
       final response = await supabase.client
-          .from('project_applications')
+          .schema('mentron').from('project_applications')
           .select('*, projects(*, profiles(full_name))')
           .eq('profile_id', userId)
           .eq('status', 'approved')

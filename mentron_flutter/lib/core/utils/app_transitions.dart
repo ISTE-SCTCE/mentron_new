@@ -1,120 +1,52 @@
 import 'package:flutter/material.dart';
 
-/// Shared page transition utilities for smooth 60fps navigation.
-/// All transitions are 250ms with hardware-accelerated curves.
+/// Consistent directional movement for drill-downs and a paper lift for overlays.
 class AppTransitions {
   AppTransitions._();
-
-  static const Duration _duration = Duration(milliseconds: 250);
-  static const Curve _curve = Curves.easeOutCubic;
-
-  /// Fade + slide up transition (default for most screens)
-  static PageRouteBuilder<T> slideUp<T>(Widget page) {
-    return PageRouteBuilder<T>(
-      opaque: false, // ← prevents black background during fade-out on pop
-      transitionDuration: _duration,
-      reverseTransitionDuration: _duration,
-      pageBuilder: (context, animation, secondaryAnimation) => page,
-      transitionsBuilder: (_, animation, secondaryAnimation, child) {
-        final curved = CurvedAnimation(parent: animation, curve: _curve);
-        return FadeTransition(
-          opacity: curved,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0.0, 0.06),
-              end: Offset.zero,
-            ).animate(curved),
-            child: child,
-          ),
-        );
-      },
-    );
-  }
-
-  /// Pure fade transition (for modal-style screens)
-  static PageRouteBuilder<T> fade<T>(Widget page) {
-    return PageRouteBuilder<T>(
-      opaque: false, // ← prevents black background during fade-out on pop
-      transitionDuration: _duration,
-      reverseTransitionDuration: _duration,
-      pageBuilder: (context, animation, secondaryAnimation) => page,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return FadeTransition(
-          opacity: CurvedAnimation(parent: animation, curve: _curve),
-          child: child,
-        );
-      },
-    );
-  }
-
-  /// Scale + fade transition (for modal/dialog-style screens and action overlays)
-  /// Starts at 0.95 scale and 0.0 opacity, easing out to 1.0 (~240ms).
-  static PageRouteBuilder<T> scaleFade<T>(
-    Widget page, {
-    Duration duration = const Duration(milliseconds: 240),
+  static PageRouteBuilder<T> _route<T>(
+    Widget page,
+    Offset offset, {
+    bool scale = false,
+    Duration duration = const Duration(milliseconds: 360),
   }) {
     return PageRouteBuilder<T>(
-      opaque: false, // prevents black background during fade-out on pop
+      opaque: false,
       transitionDuration: duration,
-      reverseTransitionDuration: duration,
+      reverseTransitionDuration: const Duration(milliseconds: 220),
       pageBuilder: (context, animation, secondaryAnimation) => page,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final curved = CurvedAnimation(parent: animation, curve: _curve);
+        if (MediaQuery.disableAnimationsOf(context)) return child;
+        final progress = animation.drive(
+          CurveTween(curve: Curves.easeOutCubic),
+        );
         return FadeTransition(
-          opacity: curved,
-          child: ScaleTransition(
-            scale: Tween<double>(begin: 0.95, end: 1.0).animate(curved),
-            child: child,
+          opacity: progress,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: offset,
+              end: Offset.zero,
+            ).animate(progress),
+            child: scale
+                ? ScaleTransition(
+                    scale: Tween<double>(begin: .97, end: 1).animate(progress),
+                    child: child,
+                  )
+                : child,
           ),
         );
       },
     );
   }
 
-  /// Horizontal slide (for drill-down navigation)
-  static PageRouteBuilder<T> slideLeft<T>(Widget page) {
-    return PageRouteBuilder<T>(
-      opaque: false, // ← prevents black background during fade-out on pop
-      transitionDuration: _duration,
-      reverseTransitionDuration: _duration,
-      pageBuilder: (context, animation, secondaryAnimation) => page,
-      transitionsBuilder: (_, animation, secondaryAnimation, child) {
-        final curved = CurvedAnimation(parent: animation, curve: _curve);
-        return FadeTransition(
-          opacity: curved,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0.08, 0.0),
-              end: Offset.zero,
-            ).animate(curved),
-            child: child,
-          ),
-        );
-      },
-    );
-  }
-
-  /// Horizontal slide from right to left (inverse of slideLeft)
-  static PageRouteBuilder<T> slideRight<T>(Widget page) {
-    return PageRouteBuilder<T>(
-      opaque: false, // ← prevents black background during fade-out on pop
-      transitionDuration: _duration,
-      reverseTransitionDuration: _duration,
-      pageBuilder: (context, animation, secondaryAnimation) => page,
-      transitionsBuilder: (_, animation, secondaryAnimation, child) {
-        final curved = CurvedAnimation(parent: animation, curve: _curve);
-        return FadeTransition(
-          opacity: curved,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(-0.08, 0.0),
-              end: Offset.zero,
-            ).animate(curved),
-            child: child,
-          ),
-        );
-      },
-    );
-  }
+  static PageRouteBuilder<T> slideUp<T>(Widget page) =>
+      _route(page, const Offset(0, .045));
+  static PageRouteBuilder<T> slideLeft<T>(Widget page) =>
+      _route(page, const Offset(.06, 0));
+  static PageRouteBuilder<T> slideRight<T>(Widget page) =>
+      _route(page, const Offset(-.06, 0));
+  static PageRouteBuilder<T> fade<T>(Widget page) => _route(page, Offset.zero);
+  static PageRouteBuilder<T> scaleFade<T>(
+    Widget page, {
+    Duration duration = const Duration(milliseconds: 280),
+  }) => _route(page, const Offset(0, .02), scale: true, duration: duration);
 }
-

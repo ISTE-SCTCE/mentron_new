@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleLogin() async {
     final email = _emailController.text.trim().toLowerCase();
-    final password = _passwordController.text.trim();
+    final password = _passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Your Academic Companion',
+                      'A space for your next big idea.',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ).animate().fadeIn(delay: 600.ms),
                     const SizedBox(height: 48),
@@ -130,12 +130,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                            'SIGN IN',
+                            'Welcome to the studio.',
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(
-                                  letterSpacing: 4,
-                                  fontSize: 14,
-                                  color: AppTheme.accentSecondary,
+                                  letterSpacing: -0.6,
+                                  fontSize: 24,
+                                  color: AppTheme.textMain,
                                 ),
                             textAlign: TextAlign.center,
                           ),
@@ -165,7 +165,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: Text(
                                 'Forgot Password?',
                                 style: TextStyle(
-                                  color: AppTheme.accentSecondary.withOpacity(0.7,
+                                  color: AppTheme.accentSecondary.withOpacity(
+                                    0.7,
                                   ),
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -185,7 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       color: Colors.black,
                                     ),
                                   )
-                                : const Text('ENTER SYSTEM'),
+                                : const Text('Step into Mentron'),
                           ).animate().shimmer(
                             delay: 1.seconds,
                             duration: 2.seconds,
@@ -252,9 +253,7 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFFBF9FF),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppTheme.accentPrimary.withOpacity(0.12),
-        ),
+        border: Border.all(color: AppTheme.accentPrimary.withOpacity(0.12)),
       ),
       child: TextField(
         controller: controller,
@@ -267,9 +266,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(
-            color: AppTheme.textMuted.withOpacity(0.72),
-          ),
+          hintStyle: TextStyle(color: AppTheme.textMuted.withOpacity(0.72)),
           prefixIcon: Icon(icon, color: AppTheme.textMuted, size: 20),
           suffixIcon: isPassword
               ? IconButton(
@@ -296,4 +293,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-

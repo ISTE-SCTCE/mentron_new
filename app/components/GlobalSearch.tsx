@@ -77,9 +77,9 @@ export function GlobalSearch() {
         setIsOpen(false)
         setQuery('')
         if (item.type === 'project') {
-            router.push(`/projects/${item.id}`)
+            router.push(`/mentron/projects/${item.id}`)
         } else {
-            router.push(`/notes?q=${encodeURIComponent(item.title)}`)
+            router.push(`/mentron/notes?q=${encodeURIComponent(item.title)}`)
         }
     }
 

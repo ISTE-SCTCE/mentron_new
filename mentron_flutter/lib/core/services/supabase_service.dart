@@ -57,7 +57,7 @@ class SupabaseService {
     final channel = client.channel('public:$table');
     channel.onPostgresChanges(
       event: PostgresChangeEvent.all,
-      schema: 'public',
+      schema: 'mentron',
       table: table,
       callback: (payload) => onUpdate(payload),
     ).subscribe();
@@ -70,7 +70,7 @@ class SupabaseService {
     if (userId == null) return false;
     
     final response = await client
-        .from('profiles')
+        .schema('mentron').from('profiles')
         .select('iste_position')
         .eq('id', userId)
         .maybeSingle();
@@ -85,7 +85,7 @@ class SupabaseService {
     if (userId == null) return {};
     
     final response = await client
-        .from('profiles')
+        .schema('mentron').from('profiles')
         .select('permissions, iste_position, role')
         .eq('id', userId)
         .maybeSingle();

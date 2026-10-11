@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -163,7 +164,7 @@ class _ActiveOrderCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: StudioCorners.card,
         boxShadow: MarketplaceTheme.cardShadow,
       ),
       child: Column(

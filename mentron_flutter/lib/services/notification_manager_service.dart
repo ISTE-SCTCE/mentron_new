@@ -35,7 +35,7 @@ class NotificationManagerService {
     final Map<String, dynamic> row;
     try {
       row = await _supabase
-          .from('broadcast_notifications')
+          .schema('mentron').from('broadcast_notifications')
           .insert({
             'title': title,
             'body': body,
@@ -81,7 +81,7 @@ class NotificationManagerService {
     final Map<String, dynamic> row;
     try {
       row = await _supabase
-          .from('broadcast_notifications')
+          .schema('mentron').from('broadcast_notifications')
           .insert({
             'title': title,
             'body': body,
@@ -110,7 +110,7 @@ class NotificationManagerService {
   Future<bool> cancelScheduledNotification(String id) async {
     try {
       await _supabase
-          .from('broadcast_notifications')
+          .schema('mentron').from('broadcast_notifications')
           .update({
             'status': 'CANCELLED',
             'updated_at': DateTime.now().toUtc().toIso8601String(),
@@ -136,7 +136,7 @@ class NotificationManagerService {
   }) async {
     try {
       await _supabase
-          .from('broadcast_notifications')
+          .schema('mentron').from('broadcast_notifications')
           .update({
             'title': title,
             'body': body,
@@ -162,7 +162,7 @@ class NotificationManagerService {
   Future<List<BroadcastNotification>> getNotificationHistory() async {
     try {
       final response = await _supabase
-          .from('broadcast_notifications')
+          .schema('mentron').from('broadcast_notifications')
           .select()
           .order('created_at', ascending: false);
 
@@ -183,14 +183,14 @@ class NotificationManagerService {
     final uid = userId ?? _supabase.auth.currentUser?.id;
     try {
       final broadcastFuture = _supabase
-          .from('broadcast_notifications')
+          .schema('mentron').from('broadcast_notifications')
           .select()
           .eq('status', 'SENT')
           .order('sent_at', ascending: false);
 
       final personalFuture = uid != null
           ? _supabase
-              .from('notifications')
+              .schema('mentron').from('notifications')
               .select()
               .eq('user_id', uid)
               .order('created_at', ascending: false)
@@ -237,7 +237,7 @@ class NotificationManagerService {
     final uid = userId ?? _supabase.auth.currentUser?.id;
     try {
       final broadcastCount = await _supabase
-          .from('broadcast_notifications')
+          .schema('mentron').from('broadcast_notifications')
           .count()
           .eq('status', 'SENT')
           .gte('sent_at', since.toUtc().toIso8601String());
@@ -246,7 +246,7 @@ class NotificationManagerService {
       if (uid != null) {
         try {
           personalCount = await _supabase
-              .from('notifications')
+              .schema('mentron').from('notifications')
               .count()
               .eq('user_id', uid)
               .gte('created_at', since.toUtc().toIso8601String());
@@ -303,7 +303,7 @@ class NotificationManagerService {
     Map<String, dynamic>? extra,
   }) async {
     try {
-      await _supabase.from('audit_log').insert({
+      await _supabase.schema('mentron').from('audit_log').insert({
         'actor_id': _supabase.auth.currentUser?.id,
         'action': action,
         'target_table': 'broadcast_notifications',

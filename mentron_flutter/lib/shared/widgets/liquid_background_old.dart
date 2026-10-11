@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Deep Space Navy background GÇö the premium sweet spot between pure black and colored.
+/// Deep Space Navy background GÃ‡Ã¶ the premium sweet spot between pure black and colored.
 /// Color: #080B14 (dark navy) with rich purple/cyan orbs.
 ///
 /// Why navy beats pure black for glassmorphism:
@@ -17,13 +17,13 @@ class LiquidBackground extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      // Deep space navy GÇö the signature color
+      // Deep space navy GÃ‡Ã¶ the signature color
       color: const Color(0xFF080B14),
       child: RepaintBoundary(
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Rich purple nebula GÇö top left (larger, more saturated)
+            // Rich purple nebula GÃ‡Ã¶ top left (larger, more saturated)
             Positioned(
               top: -100,
               left: -100,
@@ -43,7 +43,7 @@ class LiquidBackground extends StatelessWidget {
                 ),
               ),
             ),
-            // Electric cyan GÇö bottom right
+            // Electric cyan GÃ‡Ã¶ bottom right
             Positioned(
               bottom: -80,
               right: -80,

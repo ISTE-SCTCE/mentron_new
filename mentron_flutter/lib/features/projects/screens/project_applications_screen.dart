@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -34,7 +35,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
     try {
       // Fetch applications with FULL profile info joined
       final response = await supabase
-          .from('project_applications')
+          .schema('mentron').from('project_applications')
           .select('*, profiles!project_applications_applicant_id_fkey(full_name, department, roll_number, year, role)')
           .eq('project_id', widget.project.id)
           .order('created_at', ascending: false);
@@ -63,7 +64,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
       await supabase
-          .from('project_applications')
+          .schema('mentron').from('project_applications')
           .update({'status': status})
           .eq('id', app['id']);
 
@@ -74,7 +75,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
             ? 'Your application for "${widget.project.title}" is accepted.'
             : 'Your application for "${widget.project.title}" is rejected.';
 
-        await supabase.from('notifications').insert({
+        await supabase.schema('mentron').from('notifications').insert({
           'user_id': applicantId,
           'title': title,
           'message': message,
@@ -119,7 +120,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
         margin: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppTheme.surfaceColor,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: StudioCorners.card,
           border: Border.all(color: Colors.white.withOpacity(0.1)),
         ),
         child: Padding(
@@ -158,7 +159,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppTheme.accentPrimary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: StudioCorners.card,
                   border: Border.all(color: AppTheme.accentPrimary.withOpacity(0.3)),
                 ),
                 child: Text(role.toUpperCase(), style: const TextStyle(color: AppTheme.accentPrimary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
@@ -373,7 +374,7 @@ class _ProjectApplicationsScreenState extends State<ProjectApplicationsScreen> {
                           }
                         } else {
                           final supabase = Provider.of<SupabaseService>(context, listen: false).client;
-                          finalUrl = await supabase.storage.from('cv_bucket').createSignedUrl(path, 60 * 60 * 24);
+                          finalUrl = await supabase.storage.from('mentron-cv_bucket').createSignedUrl(path, 60 * 60 * 24);
                         }
                       }
                     }

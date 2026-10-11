@@ -26,7 +26,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     final supabase = Provider.of<SupabaseService>(context, listen: false).client;
     try {
       final response = await supabase
-          .from('leaderboard_view')
+          .schema('mentron').from('leaderboard_view')
           .select('full_name, xp, roll_number, department')
           .order('xp', ascending: false)
           .limit(20);

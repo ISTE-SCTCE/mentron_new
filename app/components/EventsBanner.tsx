@@ -29,7 +29,7 @@ const OFFICIAL_EVENTS: Event[] = [
         venue: 'Department Portals',
         date: 'Live Now',
         description: 'Direct department-wise access to curated notes and academic materials. Electronics & Communication and Mechanical Engineering portals are live now, with more departments opening over time.',
-        internal_url: '/gate',
+        internal_url: '/mentron/gate',
     },
     {
         id: 'off-1',

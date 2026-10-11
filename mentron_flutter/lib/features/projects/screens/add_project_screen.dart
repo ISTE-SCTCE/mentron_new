@@ -46,7 +46,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       final user = supabase.currentUser;
       if (user == null) throw Exception('Not logged in');
 
-      await supabase.client.from('projects').insert({
+      await supabase.client.schema('mentron').from('projects').insert({
         'title': _titleController.text.trim(),
         'description': _descController.text.trim(),
         'role': _roleController.text.trim().isEmpty ? 'Open' : _roleController.text.trim(),
