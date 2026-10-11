@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -116,7 +117,7 @@ class _GateLandingScreenState extends State<GateLandingScreen> {
         builder: (ctx, setDialogState) => AlertDialog(
           backgroundColor: const Color(0xFF0F172A),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: StudioCorners.card,
             side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           title: const Row(
@@ -347,7 +348,7 @@ class _GateLandingScreenState extends State<GateLandingScreen> {
                       margin: const EdgeInsets.only(bottom: 20),
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: StudioCorners.card,
                         gradient: LinearGradient(
                           colors: [
                             const Color(0xFF00C6FF).withValues(alpha: 0.1),

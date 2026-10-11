@@ -1,4 +1,16 @@
-# ISTE product UI
+# ISTE product UI — the idea studio and campus journal
+
+## Creative revision · 11 October 2026
+
+Mentron is an illustrated idea studio: violet paper, cyan backing sheets, a graphic asterisk, oversized geometric headings and occasional italic serif emphasis. Mlynq is a campus journal: teal ink, pale blue, green and peach paper, admission-ticket edges, a flower motif and editorial spacing. Preserve the products' existing colour families while replacing generic glass panels with tactile paper surfaces.
+
+Use asymmetrical folded corners, fine borders, offset shadows and deliberate typographic hierarchy. Artwork is original CSS/SVG-style geometry on web and CustomPainter on Flutter; exclude decoration from accessibility semantics. Never draw a fake attendance QR or fabricate account activity.
+
+Motion serves orientation: 360–500ms route/section entrances, 130ms press feedback, 240ms selected navigation states and a restrained pointer-driven artwork tilt. Web includes a persistent pause control; operating-system reduced motion suppresses CSS motion and new native entrances/transitions. iOS Mlynq routes retain native Cupertino pages. Keyboard users can operate the feature tabs and the searchable feature finder; the finder uses a modal dialog with Escape and focus restoration.
+
+Shared Flutter corner tokens extend the visual system across 31 feature screens. Native cards, forms, headings, dialogs, navigation and backgrounds use the same direction. Keep circular avatars, useful imagery, QR contrast, input semantics and all original callbacks. Data, membership restrictions and authentication are independent of visual presentation.
+
+Implementation: `app/creative.css`, `app/components/platform/CreativeExperience.tsx`, `mentron_flutter/lib/design/campus_widgets.dart`, `creative_motion.dart` and `creative_surfaces.dart`. The earlier baseline below remains context; this creative revision takes precedence for shapes, typography, illustration and motion.
 
 ## Shared rules
 

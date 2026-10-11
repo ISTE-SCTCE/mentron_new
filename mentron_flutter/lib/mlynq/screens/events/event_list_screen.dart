@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -253,7 +254,7 @@ class _EventListScreenState extends ConsumerState<EventListScreen> {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: StudioCorners.card,
         border: Border.all(color: MemberTheme.mDarkCharcoal.withValues(alpha: 0.06)),
       ),
       child: GridView.builder(
@@ -336,7 +337,7 @@ class _EventListScreenState extends ConsumerState<EventListScreen> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: MemberTheme.mSlate,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: StudioCorners.card,
           border: Border.all(color: MemberTheme.mDarkCharcoal, width: 1.5),
           boxShadow: [
             BoxShadow(

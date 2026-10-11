@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -109,7 +110,7 @@ class _FirstYearGroupScreenState extends State<FirstYearGroupScreen> {
                       sem: widget.sem,
                     )),
                   ),
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: StudioCorners.card,
                   child: GlassContainer(
                     padding: const EdgeInsets.all(24),
                     border: Border.all(color: color.withOpacity(0.35)),

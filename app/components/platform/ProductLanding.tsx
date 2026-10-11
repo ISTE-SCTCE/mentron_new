@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { CreativeArtwork, DiscoveryDeck } from "./CreativeExperience";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -15,27 +16,7 @@ import {
 } from "lucide-react";
 
 export function OrbitArtwork({ product }: { product: "mentron" | "mlynq" }) {
-  return (
-    <div className={"s-art " + product} aria-hidden="true">
-      <div className="s-orbit orbit-one" />
-      <div className="s-orbit orbit-two" />
-      <div className="s-orbit orbit-three" />
-      <div className="s-art-core">
-        {product === "mentron" ? (
-          <Layers3 size={68} strokeWidth={1.25} />
-        ) : (
-          <Compass size={76} strokeWidth={1.15} />
-        )}
-      </div>
-      <div className="s-art-dot dot-one" />
-      <div className="s-art-dot dot-two" />
-      <span className="s-art-label">
-        {product === "mentron"
-          ? "IDEAS IN MOTION"
-          : "A LITTLE CLOSER TO CAMPUS"}
-      </span>
-    </div>
-  );
+  return <CreativeArtwork product={product} />;
 }
 export function ProductLanding({ product }: { product: "mentron" | "mlynq" }) {
   const learning = product === "mentron",
@@ -88,7 +69,7 @@ export function ProductLanding({ product }: { product: "mentron" | "mlynq" }) {
         },
       ];
   return (
-    <div className={"studio studio-" + product}>
+    <div className={"studio studio-" + product + " creative-landing"}>
       <nav className="s-nav" aria-label={brand + " navigation"}>
         <Link className="s-brand" href={"/" + product}>
           <span className="s-brand-mark">
@@ -116,19 +97,19 @@ export function ProductLanding({ product }: { product: "mentron" | "mlynq" }) {
             <h1 className="s-title">
               {learning ? (
                 <>
-                  Good ideas.
+                  A space for
                   <br />
-                  Great company.
+                  your next
                   <br />
-                  <em>Your Mentron.</em>
+                  <em>big “what if?”</em>
                 </>
               ) : (
                 <>
-                  Your campus.
+                  Less ordinary.
                   <br />
-                  Your people.
+                  More
                   <br />
-                  <em>All connected.</em>
+                  <em>your kind of campus.</em>
                 </>
               )}
             </h1>
@@ -207,7 +188,8 @@ export function ProductLanding({ product }: { product: "mentron" | "mlynq" }) {
           <i />
           <span>KEEP EXPLORING</span>
         </div>
-        <section id="explore" className="s-explore">
+        <DiscoveryDeck product={product} />
+        <section className="s-explore">
           <div className="s-section-heading">
             <div>
               <p className="s-eyebrow">A SPACE THAT WORKS FOR YOU</p>

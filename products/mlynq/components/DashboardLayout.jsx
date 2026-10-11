@@ -102,7 +102,7 @@ export default function DashboardLayout({ children }) {
         {navItems.map(item => {
           const active = location.pathname === item.path;
           return (
-            <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
+            <Link key={item.path} to={item.path} aria-current={active ? 'page' : undefined} onClick={() => setMobileOpen(false)}
               className="interactive-lift"
               style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 14, marginBottom: 4, textDecoration: 'none', transition: 'all 0.15s', color: active ? '#111' : '#5F85A2', background: active ? '#D3E3F0' : 'transparent', fontWeight: active ? 600 : 500, fontSize: 14, fontFamily: "'Inter',sans-serif" }}>
               {item.icon}
@@ -135,7 +135,7 @@ export default function DashboardLayout({ children }) {
   );
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#EBF3FC' }}>
+    <div className="creative-dashboard" style={{ display: 'flex', minHeight: '100vh', background: '#EBF3FC' }}>
       {/* Desktop Sidebar */}
       <aside style={{ width: 240, background: '#fff', borderRight: '1.5px solid #D3E3F0', position: 'fixed', top: 72, left: 0, height: 'calc(100dvh - 72px)', overflowY: 'auto', zIndex: 40, display: 'none' }} className="desktop-sidebar">
         <SidebarContent />
@@ -205,7 +205,7 @@ export default function DashboardLayout({ children }) {
 
       {/* Main content */}
       <main className="dashboard-main" style={{ flex: 1 }}>
-        {children}
+        <div key={location.pathname} className="creative-page-enter">{children}</div>
       </main>
 
       {/* Mobile Bottom Navigation Bar (App Experience on Phones) */}

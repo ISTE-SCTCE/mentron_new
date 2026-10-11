@@ -11,16 +11,16 @@ import html2canvas from 'html2canvas';
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const T = {
-  bg:         '#FAF6EC',
-  navy:       '#1B2A4A',
-  gold:       '#C9A227',
+  bg:         '#F0F4ED',
+  navy:       '#214C3D',
+  gold:       '#92701C',
   teal:       '#2F6F6E',
   lavender:   '#6B4E9E',
-  muted:      '#6b6558',
-  caption:    '#8a8371',
-  cardSurf:   '#FFFDF8',
-  cardBorder: '#E7DFC9',
-  divider:    '#EFE9D8',
+  muted:      '#50675C',
+  caption:    '#64756C',
+  cardSurf:   '#FFFEF7',
+  cardBorder: '#D3DFCD',
+  divider:    '#E1E8D9',
 };
 
 const FILTERS = ['All', 'Hackathon', 'Workshop', 'Seminar'];

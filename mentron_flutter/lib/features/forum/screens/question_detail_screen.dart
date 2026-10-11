@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -224,7 +225,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: StudioCorners.card),
         title: Text(
           'Mark as Best Answer?',
           style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
@@ -365,7 +366,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                   builder: (ctx) => AlertDialog(
                     backgroundColor: AppTheme.surfaceColor,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: StudioCorners.card,
                     ),
                     title: Text(
                       'Delete Question?',
@@ -882,7 +883,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.05),
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: StudioCorners.card,
                               border: Border.all(
                                 color: Colors.white.withOpacity(0.1),
                               ),

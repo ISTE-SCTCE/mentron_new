@@ -12,7 +12,7 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 
 function getTypeColor(type) {
   const t = (type || '').toLowerCase();
-  if (t.includes('workshop') || t.includes('basics')) return '#5F85A2';
+  if (t.includes('workshop') || t.includes('basics')) return '#316D60';
   if (t.includes('tech') || t.includes('seminar')) return '#9B8FCA';
   if (t.includes('hackathon') || t.includes('meetup')) return '#D97D55';
   return '#3AAFA9';
@@ -76,10 +76,10 @@ export default function EventsPage() {
     <DashboardLayout>
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 24px' }}>
         <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 26, fontWeight: 700, color: '#111', marginBottom: 6 }}>Course Schedule</h1>
-        <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: '#5F85A2', marginBottom: 28 }}>Browse and plan your event attendance</p>
+        <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: '#316D60', marginBottom: 28 }}>Browse and plan your event attendance</p>
 
         {/* Calendar card */}
-        <div style={{ background: '#fff', borderRadius: 24, border: '2px solid #D3E3F0', padding: '24px', marginBottom: 24 }}>
+        <div style={{ background: '#fff', borderRadius: 24, border: '2px solid #D5E4D8', padding: '24px', marginBottom: 24 }}>
           {/* Month navigation */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
             <button onClick={() => setCurrentDate(new Date(year, month - 1, 1))} className="interactive-lift" style={chevBtn}>
@@ -96,7 +96,7 @@ export default function EventsPage() {
           {/* Day headers */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 4, marginBottom: 8 }}>
             {WEEKDAYS.map(d => (
-              <div key={d} style={{ textAlign: 'center', fontFamily: "'Inter',sans-serif", fontSize: 11, fontWeight: 700, color: '#5F85A2', padding: '4px 0' }}>{d}</div>
+              <div key={d} style={{ textAlign: 'center', fontFamily: "'Inter',sans-serif", fontSize: 11, fontWeight: 700, color: '#316D60', padding: '4px 0' }}>{d}</div>
             ))}
           </div>
 
@@ -118,7 +118,7 @@ export default function EventsPage() {
                   whileTap={{ scale: 0.92 }}
                   style={{
                     width: '100%', aspectRatio: '1', borderRadius: '50%', border: isToday && !isSelected ? '2px solid #111' : 'none',
-                    background: isSelected ? '#111' : hasEvent ? '#D3E3F0' : 'transparent',
+                    background: isSelected ? '#111' : hasEvent ? '#D5E4D8' : 'transparent',
                     color: isSelected ? '#fff' : isCurrentMonth ? '#111' : '#ccc',
                     fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: isSelected || hasEvent ? 600 : 400,
                     cursor: 'pointer', transition: 'background 0.2s, color 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -127,7 +127,7 @@ export default function EventsPage() {
                 >
                   {date.getDate()}
                   {hasEvent && !isSelected && (
-                    <span style={{ position: 'absolute', bottom: 3, left: '50%', transform: 'translateX(-50%)', width: 4, height: 4, borderRadius: '50%', background: '#5F85A2' }} />
+                    <span style={{ position: 'absolute', bottom: 3, left: '50%', transform: 'translateX(-50%)', width: 4, height: 4, borderRadius: '50%', background: '#316D60' }} />
                   )}
                 </motion.button>
               );
@@ -147,10 +147,10 @@ export default function EventsPage() {
               <CardSkeleton />
             </div>
           ) : selectedEvents.length === 0 ? (
-            <div style={{ background: '#fff', borderRadius: 20, border: '2px solid #D3E3F0', padding: '40px 24px', textAlign: 'center' }}>
+            <div style={{ background: '#fff', borderRadius: 20, border: '2px solid #D5E4D8', padding: '40px 24px', textAlign: 'center' }}>
               <div style={{ fontSize: 36, marginBottom: 10 }}>📅</div>
               <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 600, color: '#111', marginBottom: 6 }}>No events this day</p>
-              <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, color: '#5F85A2' }}>Select another date or check upcoming events</p>
+              <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, color: '#316D60' }}>Select another date or check upcoming events</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -162,7 +162,7 @@ export default function EventsPage() {
                   transition={{ delay: i * 0.04, duration: 0.25 }}
                   onClick={() => navigate(`/events/${ev.id}`)}
                   className="interactive-lift"
-                  style={{ background: '#fff', borderRadius: 20, border: '2px solid #D3E3F0', padding: '18px 20px', cursor: 'pointer', display: 'flex', gap: 16, alignItems: 'center' }}
+                  style={{ background: '#fff', borderRadius: 20, border: '2px solid #D5E4D8', padding: '18px 20px', cursor: 'pointer', display: 'flex', gap: 16, alignItems: 'center' }}
                 >
                   <div style={{ width: 48, height: 48, borderRadius: 14, background: `${getTypeColor(ev.type)}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <span style={{ fontSize: 22 }}>📚</span>
@@ -170,11 +170,11 @@ export default function EventsPage() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, color: '#111', fontSize: 15, marginBottom: 6 }}>{ev.title}</div>
                     <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-                      {ev.location && <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'Inter',sans-serif", fontSize: 12, color: '#5F85A2' }}><MapPin size={13} />{ev.location}</span>}
+                      {ev.location && <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'Inter',sans-serif", fontSize: 12, color: '#316D60' }}><MapPin size={13} />{ev.location}</span>}
                       <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, color: '#D97D55', fontWeight: 600 }}>{getPriceLabel(ev)}</span>
                     </div>
                   </div>
-                  <ChevronRight size={20} color="#D3E3F0" />
+                  <ChevronRight size={20} color="#D5E4D8" />
                 </motion.div>
               ))}
             </div>
@@ -193,7 +193,7 @@ export default function EventsPage() {
                     transition={{ delay: i * 0.04, duration: 0.25 }}
                     onClick={() => navigate(`/events/${ev.id}`)}
                     className="interactive-lift"
-                    style={{ background: '#fff', borderRadius: 20, border: '2px solid #D3E3F0', padding: '18px 20px', cursor: 'pointer', display: 'flex', gap: 16, alignItems: 'center' }}
+                    style={{ background: '#fff', borderRadius: 20, border: '2px solid #D5E4D8', padding: '18px 20px', cursor: 'pointer', display: 'flex', gap: 16, alignItems: 'center' }}
                   >
                     <div style={{ width: 48, height: 48, borderRadius: 14, background: `${getTypeColor(ev.type)}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <Clock size={20} color={getTypeColor(ev.type)} />
@@ -201,12 +201,12 @@ export default function EventsPage() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, color: '#111', fontSize: 15, marginBottom: 4 }}>{ev.title}</div>
                       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-                        <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, color: '#5F85A2' }}>{new Date(ev.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                        {ev.location && <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontFamily: "'Inter',sans-serif", fontSize: 12, color: '#5F85A2' }}><MapPin size={12} />{ev.location}</span>}
+                        <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, color: '#316D60' }}>{new Date(ev.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        {ev.location && <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontFamily: "'Inter',sans-serif", fontSize: 12, color: '#316D60' }}><MapPin size={12} />{ev.location}</span>}
                         <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, color: '#D97D55', fontWeight: 600 }}>{getPriceLabel(ev)}</span>
                       </div>
                     </div>
-                    <ChevronRight size={20} color="#D3E3F0" />
+                    <ChevronRight size={20} color="#D5E4D8" />
                   </motion.div>
                 ))}
               </div>
@@ -219,6 +219,6 @@ export default function EventsPage() {
 }
 
 const chevBtn = {
-  width: 36, height: 36, borderRadius: 10, background: '#EBF3FC', border: '1.5px solid #D3E3F0',
-  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#5F85A2',
+  width: 36, height: 36, borderRadius: 10, background: '#F0F4ED', border: '1.5px solid #D5E4D8',
+  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#316D60',
 };

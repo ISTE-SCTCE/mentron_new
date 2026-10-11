@@ -81,7 +81,7 @@ export default function QrPage() {
           >
             My Attendance QR
           </h1>
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#5F85A2', margin: 0 }}>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#316D60', margin: 0 }}>
             Present this dynamic QR code to an ISTE coordinator to mark your event attendance.
           </p>
         </div>
@@ -128,7 +128,7 @@ export default function QrPage() {
                 padding: '4px 14px',
                 fontSize: 12,
                 fontWeight: 600,
-                color: '#D3E3F0',
+                color: '#D5E4D8',
                 letterSpacing: 0.5,
                 textTransform: 'uppercase',
               }}
@@ -178,7 +178,7 @@ export default function QrPage() {
           >
             {isGenerating && !qrData ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-                <RefreshCw size={40} color="#5F85A2" style={{ animation: 'spin 1s linear infinite' }} />
+                <RefreshCw size={40} color="#316D60" style={{ animation: 'spin 1s linear infinite' }} />
                 <span style={{ fontSize: 13, color: '#555', fontWeight: 500 }}>Securing token...</span>
               </div>
             ) : error ? (
@@ -278,7 +278,7 @@ export default function QrPage() {
                 border: '1px solid rgba(255, 255, 255, 0.15)',
                 borderRadius: 12,
                 padding: '8px',
-                color: '#D3E3F0',
+                color: '#D5E4D8',
                 cursor: isGenerating ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',

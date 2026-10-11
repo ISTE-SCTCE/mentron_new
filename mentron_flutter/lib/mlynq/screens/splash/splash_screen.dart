@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -379,7 +380,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF5F85A2).withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: StudioCorners.card,
                                 border: Border.all(
                                   color: const Color(0xFF5F85A2).withValues(alpha: 0.3),
                                 ),

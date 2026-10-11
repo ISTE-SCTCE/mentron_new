@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import '../../../design/campus_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -452,7 +453,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       height: 230,
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: StudioCorners.card,
         border: Border.all(color: MemberTheme.mDarkCharcoal, width: 2),
       ),
       child: Stack(
@@ -512,7 +513,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: StudioCorners.card,
                             border: Border.all(
                               color: MemberTheme.mDarkCharcoal,
                               width: 1.5,
@@ -539,7 +540,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: MemberTheme.mDarkCharcoal,
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: StudioCorners.card,
                             border: Border.all(
                               color: MemberTheme.mDarkCharcoal,
                               width: 1.5,
@@ -584,7 +585,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       height: 230,
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: StudioCorners.card,
         border: Border.all(color: MemberTheme.mDarkCharcoal, width: 2),
       ),
       child: Stack(
@@ -640,7 +641,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: btnColor,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: StudioCorners.card,
                           border: Border.all(
                             color: MemberTheme.mDarkCharcoal,
                             width: 1.5,

@@ -49,8 +49,8 @@ void main() {
                   key: captureKey,
                   child: Scaffold(
                     backgroundColor: learning
-                        ? const Color(0xfff8f6ff)
-                        : const Color(0xffebf3fc),
+                        ? const Color(0xfff7f3fc)
+                        : const Color(0xfff0f4ed),
                     body: Column(
                       children: [
                         ProductSwitcher(

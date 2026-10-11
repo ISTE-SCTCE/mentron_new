@@ -1,82 +1,65 @@
 import 'package:flutter/material.dart';
 
+/// A quiet drawing-paper canvas behind the account and feature screens.
 class LiquidBackground extends StatelessWidget {
   final Widget? child;
   const LiquidBackground({super.key, this.child});
-
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: isDark
-              ? const [Color(0xFF0A0A0F), Color(0xFF12121A), Color(0xFF0A0A0F)]
-              : const [Color(0xFFFBF8FF), Color(0xFFF4EDFF), Color(0xFFFFF8EE)],
-        ),
-      ),
-      child: RepaintBoundary(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Positioned(
-              top: -130,
-              left: -120,
-              child: _GlowOrb(
-                size: 360,
-                color: const Color(0xFF7C3AED).withOpacity(0.18),
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return ColoredBox(
+      color: dark ? const Color(0xff16121e) : const Color(0xfff7f3fc),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned.fill(
+            child: IgnorePointer(
+              child: RepaintBoundary(
+                child: CustomPaint(painter: _PaperPainter(dark)),
               ),
             ),
-            Positioned(
-              top: 220,
-              right: -140,
-              child: _GlowOrb(
-                size: 320,
-                color: const Color(0xFFFF9F1C).withOpacity(0.17),
-              ),
-            ),
-            Positioned(
-              bottom: -120,
-              left: -90,
-              child: _GlowOrb(
-                size: 300,
-                color: const Color(0xFF10B981).withOpacity(0.12),
-              ),
-            ),
-            if (child != null) child!,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _GlowOrb extends StatelessWidget {
-  final double size;
-  final Color color;
-
-  const _GlowOrb({required this.size, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [color, color.withOpacity(0)],
-            stops: const [0.0, 1.0],
           ),
-        ),
+          if (child != null) child!,
+        ],
       ),
     );
   }
 }
 
+class _PaperPainter extends CustomPainter {
+  const _PaperPainter(this.dark);
+  final bool dark;
+  @override
+  void paint(Canvas canvas, Size size) {
+    final dots = Paint()
+      ..color = (dark ? Colors.white : const Color(0xff7650a6)).withValues(
+        alpha: .09,
+      );
+    for (double x = 12; x < size.width; x += 24) {
+      for (double y = 12; y < size.height; y += 24) {
+        canvas.drawCircle(Offset(x, y), .8, dots);
+      }
+    }
+    final pen = Paint()
+      ..color = const Color(0xffa992ca).withValues(alpha: .16)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    for (var i = 0; i < 4; i++) {
+      canvas.drawCircle(Offset(size.width + 18, 110), 90 + i * 20, pen);
+    }
+    canvas.save();
+    canvas.translate(-35, size.height - 70);
+    canvas.rotate(-.22);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        const Rect.fromLTWH(0, 0, 190, 120),
+        const Radius.circular(12),
+      ),
+      Paint()..color = const Color(0xffa1d4ca).withValues(alpha: .2),
+    );
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_PaperPainter old) => old.dark != dark;
+}

@@ -18,7 +18,7 @@ import '../../shared/utils/dynamic_certificate_pdf_engine.dart';
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 class _T {
-  static const bg         = Color(0xFFFAF6EC); // warm cream
+  static const bg         = Color(0xFFF0F4ED); // warm cream
   static const navy       = Color(0xFF1B2A4A); // headers/primary text
   static const gold       = Color(0xFFC9A227); // seal accent, active chip
   static const teal       = Color(0xFF2F6F6E); // download action / workshop
@@ -792,7 +792,7 @@ class _SkeletonCard extends StatelessWidget {
         final shimmer = LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: const [Color(0xFFEFE9D8), Color(0xFFFAF6EC), Color(0xFFEFE9D8)],
+          colors: const [Color(0xFFEFE9D8), Color(0xFFF0F4ED), Color(0xFFEFE9D8)],
           stops: [
             (ctrl.value - 0.3).clamp(0.0, 1.0),
             ctrl.value.clamp(0.0, 1.0),

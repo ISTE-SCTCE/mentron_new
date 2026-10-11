@@ -9,6 +9,7 @@ import '@fontsource/inter/500.css'
 import '@fontsource/inter/600.css'
 import './globals.css'
 import './studio.css'
+import './creative.css'
 import { ProductShell } from './components/platform/ProductShell'
 export const metadata: Metadata = {
     title:'ISTE | Mlynq & Mentron',

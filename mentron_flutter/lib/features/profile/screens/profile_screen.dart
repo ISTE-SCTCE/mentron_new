@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -154,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return AlertDialog(
             backgroundColor: AppTheme.surfaceColor,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: StudioCorners.card,
             ),
             title: const Text(
               'Change Password',
@@ -328,7 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (context, setDialogState) {
           return AlertDialog(
             backgroundColor: AppTheme.surfaceColor,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape: RoundedRectangleBorder(borderRadius: StudioCorners.card),
             title: const Text('Edit Profile', style: TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.bold)),
             content: SingleChildScrollView(
               child: Column(

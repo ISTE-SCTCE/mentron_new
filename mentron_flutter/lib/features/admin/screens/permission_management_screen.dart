@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -263,7 +264,7 @@ class _PermissionManagementScreenState extends State<PermissionManagementScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: StudioCorners.card,
         border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: Column(

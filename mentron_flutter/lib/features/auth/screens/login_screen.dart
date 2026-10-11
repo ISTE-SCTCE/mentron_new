@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Your Academic Companion',
+                      'A space for your next big idea.',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ).animate().fadeIn(delay: 600.ms),
                     const SizedBox(height: 48),
@@ -130,12 +130,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                            'SIGN IN',
+                            'Welcome to the studio.',
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(
-                                  letterSpacing: 4,
-                                  fontSize: 14,
-                                  color: AppTheme.accentSecondary,
+                                  letterSpacing: -0.6,
+                                  fontSize: 24,
+                                  color: AppTheme.textMain,
                                 ),
                             textAlign: TextAlign.center,
                           ),
@@ -186,7 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       color: Colors.black,
                                     ),
                                   )
-                                : const Text('ENTER SYSTEM'),
+                                : const Text('Step into Mentron'),
                           ).animate().shimmer(
                             delay: 1.seconds,
                             duration: 2.seconds,

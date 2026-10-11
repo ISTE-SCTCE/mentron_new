@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -101,7 +102,7 @@ class _GateFolderNotesScreenState extends State<GateFolderNotesScreen> {
         builder: (ctx, setDialogState) => AlertDialog(
           backgroundColor: const Color(0xFF0F172A),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: StudioCorners.card,
             side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           title: const Row(
@@ -362,7 +363,7 @@ class _GateFolderNotesScreenState extends State<GateFolderNotesScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF0F172A),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: StudioCorners.card,
           side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
         ),
         title: const Text('Delete Note?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -562,7 +563,7 @@ class _GateFolderNotesScreenState extends State<GateFolderNotesScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFF0F172A).withValues(alpha: 0.75),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: StudioCorners.card,
         border: Border.all(
           color: const Color(0xFF00C6FF).withValues(alpha: 0.2),
         ),

@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -361,7 +362,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.03),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: StudioCorners.card,
             border: Border.all(color: Colors.white.withOpacity(0.08)),
           ),
           child: Column(
@@ -699,7 +700,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
         backgroundColor: AppTheme.surfaceColor,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: StudioCorners.card,
           side: BorderSide(
             color: (isExec ? Colors.redAccent : Colors.greenAccent).withOpacity(0.3),
           ),
@@ -772,7 +773,7 @@ class _CoreMembersScreenState extends State<CoreMembersScreen> {
         backgroundColor: AppTheme.surfaceColor,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: StudioCorners.card,
           side: BorderSide(color: Colors.redAccent.withOpacity(0.3)),
         ),
         title: Row(

@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -217,7 +218,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: StudioCorners.card),
         title: const Text('Delete Note?', style: TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.bold)),
         content: Text('Delete "${note.title}"?', style: const TextStyle(color: AppTheme.textMuted, fontSize: 14)),
         actions: [
@@ -324,7 +325,7 @@ class _NotesBySubjectScreenState extends State<NotesBySubjectScreen> {
             builder: (ctx, setDialogState) {
               return AlertDialog(
                 backgroundColor: AppTheme.surfaceColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(borderRadius: StudioCorners.card),
                 title: const Text('ISTE Membership Required', style: TextStyle(color: AppTheme.textMain, fontWeight: FontWeight.bold, fontSize: 18)),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,

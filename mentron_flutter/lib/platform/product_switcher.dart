@@ -27,6 +27,14 @@ class ProductSwitcher extends StatelessWidget {
                   button: true,
                   child: FilledButton.tonal(
                     style: FilledButton.styleFrom(
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(6),
+                          topRight: Radius.circular(18),
+                          bottomLeft: Radius.circular(18),
+                          bottomRight: Radius.circular(6),
+                        ),
+                      ),
                       minimumSize: const Size.fromHeight(48),
                       backgroundColor: selected == product
                           ? (product == PlatformProduct.mentron

@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -218,7 +219,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
                 gradient: MarketplaceTheme.heroGradient,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: StudioCorners.card,
               ),
               child: Text(
                 'Sell Something',

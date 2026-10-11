@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'dart:convert';
@@ -33,8 +34,8 @@ class _QrDisplayScreenState extends ConsumerState<QrDisplayScreen>
   static const _terracotta = Color(0xFFD97D55);
   static const _cream = Color(0xFFF4E9D7);
   static const _teal = Color(0xFF6FA4AF);
-  static const _bg = Color(0xFF141414);
-  static const _surface = Color(0xFF1E1E1E);
+  static const _bg = Color(0xFF153D37);
+  static const _surface = Color(0xFF204A42);
 
   @override
   void initState() {
@@ -215,7 +216,7 @@ class _QrDisplayScreenState extends ConsumerState<QrDisplayScreen>
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(28),
+                      borderRadius: StudioCorners.card,
                       boxShadow: [
                         BoxShadow(
                           color: _terracotta.withValues(alpha: 0.3),
@@ -232,11 +233,11 @@ class _QrDisplayScreenState extends ConsumerState<QrDisplayScreen>
                             backgroundColor: Colors.white,
                             eyeStyle: const QrEyeStyle(
                               eyeShape: QrEyeShape.square,
-                              color: Color(0xFF141414),
+                              color: Color(0xFF153D37),
                             ),
                             dataModuleStyle: const QrDataModuleStyle(
                               dataModuleShape: QrDataModuleShape.square,
-                              color: Color(0xFF141414),
+                              color: Color(0xFF153D37),
                             ),
                           )
                         : const SizedBox(

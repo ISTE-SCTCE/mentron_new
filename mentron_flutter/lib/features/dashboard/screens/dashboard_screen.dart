@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import '../../../design/campus_widgets.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -424,7 +425,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: StudioCorners.card,
           boxShadow: [
             BoxShadow(
               color: color.withOpacity(0.12),
@@ -564,7 +565,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.onSurface,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: StudioCorners.card,
           boxShadow: [
             BoxShadow(
               color: AppTheme.accentPrimary.withOpacity(0.07),

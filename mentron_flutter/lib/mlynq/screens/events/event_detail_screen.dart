@@ -220,8 +220,8 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
 
   static const _terracotta = Color(0xFFD97D55);
   static const _cream = Color(0xFFF4E9D7);
-  static const _bg = Color(0xFF141414);
-  static const _surface = Color(0xFF1E1E1E);
+  static const _bg = Color(0xFF153D37);
+  static const _surface = Color(0xFF204A42);
 
   Color _getThemeColor(String? type) {
     if (type == null) return _terracotta;
@@ -293,7 +293,7 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
     }
 
     final event = _event;
-    if (event == null) return const Scaffold(backgroundColor: Color(0xFF141414));
+    if (event == null) return const Scaffold(backgroundColor: Color(0xFF153D37));
 
     // Role-access guard: if the member's role isn't in allowed_roles, show denied state
     if (_isAllowed == false) {

@@ -12,7 +12,7 @@ import html2canvas from 'html2canvas';
 
 function getTypeColor(type) {
   const t = (type || '').toLowerCase();
-  if (t.includes('workshop') || t.includes('basics')) return '#5F85A2';
+  if (t.includes('workshop') || t.includes('basics')) return '#316D60';
   if (t.includes('tech') || t.includes('seminar')) return '#9B8FCA';
   if (t.includes('hackathon') || t.includes('meetup')) return '#D97D55';
   return '#D97D55';
@@ -287,7 +287,7 @@ export default function EventDetailPage() {
   if (!event) return (
     <DashboardLayout>
       <div style={{ textAlign: 'center', padding: 80 }}>
-        <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 18, color: '#5F85A2' }}>Event not found.</p>
+        <p style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 18, color: '#316D60' }}>Event not found.</p>
         <button onClick={() => navigate('/events')} className="interactive-lift" style={{ marginTop: 16, padding: '10px 20px', background: '#111', color: '#fff', borderRadius: 20, border: 'none', cursor: 'pointer', fontFamily: "'Inter',sans-serif", fontWeight: 600 }}>Back to Events</button>
       </div>
     </DashboardLayout>
@@ -296,9 +296,9 @@ export default function EventDetailPage() {
   if (!isAllowed) return (
     <DashboardLayout>
       <div style={{ textAlign: 'center', padding: 80 }}>
-        <Lock size={56} color="#D3E3F0" style={{ marginBottom: 20 }} />
+        <Lock size={56} color="#D5E4D8" style={{ marginBottom: 20 }} />
         <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 22, fontWeight: 700, color: '#111', marginBottom: 10 }}>Event Not Available</h2>
-        <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: '#5F85A2' }}>This event is not available for your membership role.</p>
+        <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: '#316D60' }}>This event is not available for your membership role.</p>
         <button onClick={() => navigate('/events')} className="interactive-lift" style={{ marginTop: 20, padding: '10px 20px', background: '#111', color: '#fff', borderRadius: 20, border: 'none', cursor: 'pointer', fontFamily: "'Inter',sans-serif", fontWeight: 600 }}>Back to Events</button>
       </div>
     </DashboardLayout>
@@ -388,35 +388,35 @@ export default function EventDetailPage() {
         </div>
 
         {/* About */}
-        <div style={{ background: '#fff', borderRadius: 20, border: '2px solid #D3E3F0', padding: '22px', marginBottom: 16 }}>
+        <div style={{ background: '#fff', borderRadius: 20, border: '2px solid #D5E4D8', padding: '22px', marginBottom: 16 }}>
           <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 17, fontWeight: 700, color: '#111', marginBottom: 12 }}>About</h2>
-          <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: '#5F85A2', lineHeight: 1.7, margin: 0 }}>
+          <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: '#316D60', lineHeight: 1.7, margin: 0 }}>
             {event.description || 'No description provided for this event yet.'}
           </p>
         </div>
 
         {/* Details */}
-        <div style={{ background: '#fff', borderRadius: 20, border: '2px solid #D3E3F0', padding: '22px', marginBottom: 16 }}>
+        <div style={{ background: '#fff', borderRadius: 20, border: '2px solid #D5E4D8', padding: '22px', marginBottom: 16 }}>
           <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 17, fontWeight: 700, color: '#111', marginBottom: 12 }}>Event Details</h2>
-          <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: '#5F85A2', lineHeight: 1.7, whiteSpace: 'pre-wrap', margin: 0 }}>
+          <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: '#316D60', lineHeight: 1.7, whiteSpace: 'pre-wrap', margin: 0 }}>
             {event.details || 'No additional details provided for this event yet.'}
           </p>
         </div>
 
         {/* Perks */}
-        <div style={{ background: '#fff', borderRadius: 20, border: '2px solid #D3E3F0', padding: '22px', marginBottom: 24 }}>
+        <div style={{ background: '#fff', borderRadius: 20, border: '2px solid #D5E4D8', padding: '22px', marginBottom: 24 }}>
           <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 17, fontWeight: 700, color: '#111', marginBottom: 14 }}>Perks & Highlights</h2>
           {perks.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {perks.map((perk, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                   <Star size={16} color="#F5C842" style={{ flexShrink: 0, marginTop: 2 }} />
-                  <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: '#5F85A2' }}>{perk}</span>
+                  <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: '#316D60' }}>{perk}</span>
                 </div>
               ))}
             </div>
           ) : (
-            <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: '#5F85A2', margin: 0 }}>
+            <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: '#316D60', margin: 0 }}>
               Perks will be announced soon.
             </p>
           )}

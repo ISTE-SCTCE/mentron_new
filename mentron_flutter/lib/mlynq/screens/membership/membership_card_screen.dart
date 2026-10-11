@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,8 +10,8 @@ class MembershipCardScreen extends ConsumerWidget {
 
   static const _cream    = Color(0xFFF4E9D7);
   static const _teal     = Color(0xFF6FA4AF);
-  static const _bg       = Color(0xFF141414);
-  static const _surface  = Color(0xFF1E1E1E);
+  static const _bg       = Color(0xFF153D37);
+  static const _surface  = Color(0xFF204A42);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -50,11 +51,11 @@ class MembershipCardScreen extends ConsumerWidget {
       width: double.infinity,
       height: 240,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: StudioCorners.card,
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF2B2B2B), Color(0xFF141414)],
+          colors: [Color(0xFF2A594D), Color(0xFF153D37)],
         ),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.1),
@@ -117,7 +118,7 @@ class MembershipCardScreen extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                       decoration: BoxDecoration(
                         color: isValid ? Colors.transparent : Colors.red.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: StudioCorners.card,
                         border: Border.all(
                             color: isValid ? const Color(0xFF4CAF50).withValues(alpha: 0.5) : const Color(0xFFE53935).withValues(alpha: 0.5)),
                       ),
@@ -176,7 +177,7 @@ class MembershipCardScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: _surface.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: StudioCorners.card,
         border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(

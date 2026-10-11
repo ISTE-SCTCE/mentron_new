@@ -6,7 +6,7 @@ import StudentQrModal from '../components/StudentQrModal';
 import { User, Mail, Phone, Hash, Book, GraduationCap, Calendar, Shield, Award, Edit2, CheckCircle, AlertCircle, QrCode } from 'lucide-react';
 
 const inputStyle = {
-  width: '100%', padding: '12px 14px 12px 42px', background: '#fff', border: '1.5px solid #D3E3F0',
+  width: '100%', padding: '12px 14px 12px 42px', background: '#fff', border: '1.5px solid #D5E4D8',
   borderRadius: 14, fontSize: 14, fontFamily: "'Inter',sans-serif", outline: 'none', color: '#111', transition: 'border-color 0.2s',
 };
 
@@ -156,11 +156,11 @@ export default function ProfilePage() {
                 </div>
               )}
               {[
-                { label: 'Full Name', icon: <User size={15} color="#5F85A2" />, value: formName, set: setFormName, ph: 'Your full name' },
-                { label: 'Phone Number', icon: <Phone size={15} color="#5F85A2" />, value: formPhone, set: setFormPhone, ph: '+91 9876543210' },
-                { label: 'Roll Number', icon: <Hash size={15} color="#5F85A2" />, value: formRoll, set: setFormRoll, ph: 'University roll number' },
-                { label: 'Branch', icon: <Book size={15} color="#5F85A2" />, value: formBranch, set: setFormBranch, ph: 'e.g. Computer Science' },
-                { label: 'Year', icon: <Calendar size={15} color="#5F85A2" />, value: formYear, set: setFormYear, ph: 'e.g. 2' },
+                { label: 'Full Name', icon: <User size={15} color="#316D60" />, value: formName, set: setFormName, ph: 'Your full name' },
+                { label: 'Phone Number', icon: <Phone size={15} color="#316D60" />, value: formPhone, set: setFormPhone, ph: '+91 9876543210' },
+                { label: 'Roll Number', icon: <Hash size={15} color="#316D60" />, value: formRoll, set: setFormRoll, ph: 'University roll number' },
+                { label: 'Branch', icon: <Book size={15} color="#316D60" />, value: formBranch, set: setFormBranch, ph: 'e.g. Computer Science' },
+                { label: 'Year', icon: <Calendar size={15} color="#316D60" />, value: formYear, set: setFormYear, ph: 'e.g. 2' },
               ].map(f => (
                 <div key={f.label} style={{ marginBottom: 14 }}>
                   <label style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)', marginBottom: 6, display: 'block' }}>{f.label}</label>
@@ -190,7 +190,7 @@ export default function ProfilePage() {
               )}
               {infoRows.map((row, i) => row.value && (
                 <div key={row.label} style={{ display: 'flex', alignItems: 'center', padding: '14px 0', borderBottom: i < infoRows.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none', gap: 14 }}>
-                  <div style={{ color: '#5F85A2', flexShrink: 0 }}>{row.icon}</div>
+                  <div style={{ color: '#316D60', flexShrink: 0 }}>{row.icon}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600, marginBottom: 2 }}>{row.label.toUpperCase()}</div>
                     <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: '#EAE0CC', fontWeight: 500 }}>{row.value}</div>

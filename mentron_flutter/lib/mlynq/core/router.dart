@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import '../../design/creative_motion.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'providers/auth_provider.dart';
@@ -25,15 +27,22 @@ final routerProvider = Provider<GoRouter>((ref) {
   final notifier = RouterNotifier(ref);
 
   Page<dynamic> page(GoRouterState state, Widget child) {
-    return CupertinoPage<dynamic>(
-      key: state.pageKey,
-      child: child,
-    );
+    if (defaultTargetPlatform != TargetPlatform.iOS &&
+        defaultTargetPlatform != TargetPlatform.macOS) {
+      return CustomTransitionPage<dynamic>(
+        key: state.pageKey,
+        child: child,
+        transitionDuration: const Duration(milliseconds: 360),
+        reverseTransitionDuration: const Duration(milliseconds: 240),
+        transitionsBuilder: creativeRouteTransition,
+      );
+    }
+    return CupertinoPage<dynamic>(key: state.pageKey, child: child);
   }
 
   return GoRouter(
     initialLocation: '/splash',
-    observers:[ProductRouteObserver('mlynq')],
+    observers: [ProductRouteObserver('mlynq')],
     refreshListenable: notifier,
     redirect: (context, state) {
       final authState = ref.read(authProvider);
@@ -48,24 +57,49 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(path: '/splash', pageBuilder: (_, state) => page(state, const SplashScreen())),
-      GoRoute(path: '/login', pageBuilder: (_, state) => page(state, const LoginScreen())),
-      GoRoute(path: '/link-web', pageBuilder: (_, state) => page(state, const WebLinkScreen())),
-      GoRoute(path: '/home', pageBuilder: (_, state) => page(state, const HomeScreen())),
-      GoRoute(path: '/membership', pageBuilder: (_, state) => page(state, const MembershipCardScreen())),
-      GoRoute(path: '/events', pageBuilder: (_, state) => page(state, const EventListScreen())),
+      GoRoute(
+        path: '/splash',
+        pageBuilder: (_, state) => page(state, const SplashScreen()),
+      ),
+      GoRoute(
+        path: '/login',
+        pageBuilder: (_, state) => page(state, const LoginScreen()),
+      ),
+      GoRoute(
+        path: '/link-web',
+        pageBuilder: (_, state) => page(state, const WebLinkScreen()),
+      ),
+      GoRoute(
+        path: '/home',
+        pageBuilder: (_, state) => page(state, const HomeScreen()),
+      ),
+      GoRoute(
+        path: '/membership',
+        pageBuilder: (_, state) => page(state, const MembershipCardScreen()),
+      ),
+      GoRoute(
+        path: '/events',
+        pageBuilder: (_, state) => page(state, const EventListScreen()),
+      ),
       GoRoute(
         path: '/events/:id',
         pageBuilder: (_, state) => page(
           state,
-          EventDetailScreen(
-            eventId: int.parse(state.pathParameters['id']!),
-          ),
+          EventDetailScreen(eventId: int.parse(state.pathParameters['id']!)),
         ),
       ),
-      GoRoute(path: '/qr', pageBuilder: (_, state) => page(state, const QrDisplayScreen())),
-      GoRoute(path: '/certificates', pageBuilder: (_, state) => page(state, const CertificatesScreen())),
-      GoRoute(path: '/notifications', pageBuilder: (_, state) => page(state, const NotificationsScreen())),
+      GoRoute(
+        path: '/qr',
+        pageBuilder: (_, state) => page(state, const QrDisplayScreen()),
+      ),
+      GoRoute(
+        path: '/certificates',
+        pageBuilder: (_, state) => page(state, const CertificatesScreen()),
+      ),
+      GoRoute(
+        path: '/notifications',
+        pageBuilder: (_, state) => page(state, const NotificationsScreen()),
+      ),
     ],
   );
 });

@@ -1,3 +1,4 @@
+import '../../../design/creative_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -326,7 +327,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 ? Container(
                                     decoration: BoxDecoration(
                                       color: MemberTheme.mSlate.withValues(alpha: 0.3),
-                                      borderRadius: BorderRadius.circular(28),
+                                      borderRadius: StudioCorners.card,
                                     ),
                                     child: const Center(
                                       child: CircularProgressIndicator(
@@ -339,7 +340,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       backgroundColor: MemberTheme.mDarkCharcoal,
                                       foregroundColor: Colors.white,
                                       shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(28)),
+                                          borderRadius: StudioCorners.card),
                                       elevation: 0,
                                     ),
                                     child: Text(
@@ -434,7 +435,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   color: _membershipTag == 'iste_member'
                       ? Colors.blue.withValues(alpha: 0.1)
                       : Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: StudioCorners.card,
                   border: Border.all(
                     color: _membershipTag == 'iste_member'
                         ? Colors.blue.withValues(alpha: 0.3)
