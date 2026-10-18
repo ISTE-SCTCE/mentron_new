@@ -1,0 +1,48 @@
+@font-face{font-family:Anton;src:url('/fonts/Anton-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
+.landing.landing--all{--common-acid:#e2ff54;--common-paper:#eeeede;background:#555650 url('/brand/street-grain.svg') center top/900px 900px fixed}
+.common-nav{position:sticky;top:12px;z-index:30;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:38px;min-height:104px;width:calc(100% - 80px);max-width:1600px;margin:0 auto;padding:20px 22px;color:#f7f7ed;transition:background-color 180ms ease}
+.common-nav[data-scrolled=true]{background:#161812f5}
+.landing--all #landing-worlds{scroll-margin-top:132px}
+.common-nav .common-brand{display:inline-flex;align-items:center;min-height:44px}
+.common-nav .product-brand{font-size:29px;letter-spacing:-1.8px;color:#fff}
+.common-nav .brand-plus{color:var(--common-acid)}
+.common-nav nav{display:flex;align-items:center;justify-content:space-evenly;gap:25px}
+.common-nav nav a,.common-nav nav button{font-family:Anton,Impact,sans-serif;font-size:23px;line-height:1.15;text-transform:uppercase;letter-spacing:0;color:#fff;display:inline-flex;align-items:center;gap:9px;min-height:48px;white-space:nowrap;padding:4px 0;text-shadow:0 1px 2px #0006}
+.common-nav nav a:hover,.common-nav nav button:hover{color:var(--common-acid)}
+.common-nav .iste-credit{color:#fff;text-shadow:0 1px 2px #0006}
+.common-nav .iste-credit img{width:32px;height:32px;background:#3b4640;padding:2px}
+.common-nav .iste-credit>span{font-size:5px;letter-spacing:.6px}.common-nav .iste-credit strong{font-size:8px}
+.common-nav :focus-visible,.common-hero a:focus-visible{outline:3px solid var(--common-acid);outline-offset:7px}
+.common-hero{position:relative;isolation:isolate;overflow:hidden;min-height:1000px;padding:174px 24px 104px;color:var(--common-paper)}
+.common-paint-band{position:absolute;left:-2%;right:-2%;height:112px;top:6px;z-index:-1;background:#eeeee8;mask-image:url('/brand/hero-paint.svg');mask-size:100% 100%;opacity:.95;transform:rotate(-.5deg)}
+.common-hero-content{position:relative;z-index:2;margin:0 auto;text-align:center;max-width:1320px}
+.landing--all .common-title{font-family:Anton,Impact,'Arial Narrow',sans-serif;font-weight:400;font-size:clamp(144px,22vw,330px);line-height:.86;letter-spacing:-.035em;text-transform:uppercase;color:var(--common-acid);margin:0 -4vw 46px;text-shadow:none}
+.common-title>span{display:block;transform:scaleX(.81);transform-origin:center;animation:common-arrive 700ms cubic-bezier(.2,.7,.2,1) both}
+.common-title>span:first-child{margin-bottom:22px;animation-delay:50ms}
+.common-title>span:last-child{animation-delay:140ms}
+.common-title-plus{display:inline-block;font-size:.8em;vertical-align:.07em;letter-spacing:-.05em}
+.common-hero .common-manifesto{font-family:Inter,sans-serif;font-weight:800;font-size:clamp(23px,2.45vw,35px);line-height:1.2;letter-spacing:-.055em;color:#f8f8f0;margin:0 auto;max-width:760px;text-shadow:0 1px 5px #10140b70}
+.common-tire-tracks{position:absolute;z-index:-1;width:min(440px,36vw);height:auto;right:10%;top:46%;transform:rotate(-25deg);transform-origin:top left;mix-blend-mode:multiply;opacity:.74;pointer-events:none}
+.common-graffiti{position:absolute;z-index:-1;width:clamp(310px,43vw,650px);height:auto;left:-100px;top:43%;transform:rotate(-13deg);opacity:.85;pointer-events:none}
+.common-world-actions{display:flex;justify-content:center;gap:14px;margin:42px auto 0;max-width:540px}
+.common-world-actions a{display:grid;grid-template-columns:1fr auto;gap:4px 24px;align-items:center;min-width:215px;text-align:left;padding:17px 20px;border:1px solid var(--common-acid);color:var(--common-acid);background:#171a13;box-shadow:4px 4px 0 #14171065;transition:transform 180ms ease}
+.common-world-actions a:last-child{background:var(--common-acid);color:#171a13}
+.common-world-actions a>span{font-family:Anton,Impact,sans-serif;font-size:28px;text-transform:uppercase;line-height:1.15}
+.common-world-actions a>small{grid-column:1/-1;font-size:10px;line-height:1.6;font-weight:500;letter-spacing:.1px}
+.common-world-actions a:hover{transform:translateY(-3px)}
+.depth-scene.common-sticker-depth{position:absolute;z-index:3;left:5%;bottom:145px;width:154px;transform:rotate(-13deg)}
+.common-sticker{background:#f4f0ce;color:#262a1b;padding:18px 17px 13px;clip-path:polygon(3% 0,95% 2%,100% 89%,88% 100%,0 96%);text-align:left;box-shadow:inset 0 0 35px #8a814630}
+.common-sticker>span,.common-sticker>small{display:block;font-family:Inter,sans-serif;font-size:6px;font-weight:700;letter-spacing:.5px;line-height:1.5}
+.common-sticker>strong{display:block;font-family:Anton,Impact,sans-serif;font-size:30px;font-weight:400;line-height:.98;text-transform:uppercase;letter-spacing:-.02em;margin:10px 0}
+.common-sticker svg{width:52px;height:28px;margin-bottom:6px;transform:rotate(7deg)}
+.common-hero-bottom{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:20px;max-width:1440px;margin:100px auto 0;font-family:Inter,sans-serif;font-size:8px;letter-spacing:1.1px;font-weight:600;color:#fff;text-shadow:0 1px 3px #0008}
+.common-hero-bottom a{display:flex;align-items:center;gap:14px;min-height:44px;letter-spacing:.3px;font-size:11px;text-transform:none}
+.landing--all .landing-ribbon{background:#e7e9d6;border-color:#d9ddbd;color:#272b1e}.landing--all .landing-ribbon svg{color:#7b864c}
+.landing--all .landing-section{max-width:none;margin:0;padding:86px max(36px,calc((100vw - 1128px)/2));background:#f6f5ef}
+.landing--all .landing-together{max-width:none;margin:0;padding:45px max(36px,calc((100vw - 1058px)/2)) 90px;background:#f6f5ef}
+@keyframes common-arrive{from{opacity:0;transform:translateY(22px) scaleX(.81)}to{opacity:1;transform:translateY(0) scaleX(.81)}}
+@media(min-width:1600px){.common-hero{padding-top:205px}}
+@media(max-width:1100px){.common-nav{width:calc(100% - 40px);gap:22px;padding-left:6px;padding-right:6px;min-height:96px}.common-nav nav{gap:22px}.common-nav nav a,.common-nav nav button{font-size:20px}.common-nav .iste-credit>span,.common-nav .iste-credit>svg{display:none}.depth-scene.common-sticker-depth{width:128px;left:3%;bottom:116px}.common-sticker>strong{font-size:26px}.common-hero{min-height:900px;padding-top:163px}}
+@media(max-width:760px){.common-nav{grid-template-columns:1fr auto;gap:8px 16px;padding:10px 14px;width:calc(100% - 28px);top:8px;min-height:104px}.common-nav .product-brand{font-size:26px}.common-nav nav{grid-column:1/-1;grid-row:2;justify-content:space-between;gap:15px}.common-nav nav a,.common-nav nav button{font-size:18px;min-height:44px}.common-nav>.iste-credit{grid-column:2;grid-row:1}.common-nav .iste-credit img{width:27px;height:27px}.common-hero{min-height:0;padding:145px 24px 48px}.common-paint-band{height:90px;top:12px}.landing--all .common-title{font-size:clamp(110px,23.5vw,180px);margin:0 -26px 32px;line-height:.9}.common-title>span:first-child{margin-bottom:15px}.common-hero .common-manifesto{font-size:27px;max-width:460px}.common-world-actions{margin-top:32px;gap:12px}.common-world-actions a{min-width:0;flex:1;max-width:235px;padding:15px 17px;gap:6px 12px}.common-world-actions a>span{font-size:26px}.common-world-actions a>small{font-size:9px}.common-graffiti{top:38%;width:400px;left:-145px;opacity:.6}.common-tire-tracks{width:250px;max-width:none;right:5%;top:45%;opacity:.6}.depth-scene.common-sticker-depth{position:relative;left:auto;bottom:auto;width:124px;margin:45px auto 0;transform:rotate(-9deg)}.common-hero-bottom{margin-top:35px;justify-content:center;flex-wrap:wrap;gap:12px}.common-hero-bottom>span{font-size:7px}.common-hero-bottom>span:last-child{display:none}.landing--all .landing-section{padding:60px 24px}.landing--all .landing-together{padding:20px 25px 60px}}
+@media(max-width:480px){.common-nav{width:calc(100% - 20px);padding:8px 12px}.common-nav nav{gap:8px}.common-nav nav a,.common-nav nav button{font-size:16px}.common-nav nav button svg{width:16px}.common-hero{padding:131px 20px 34px}.common-paint-band{height:80px;top:15px}.landing--all .common-title{font-size:clamp(75px,24vw,115px);margin-left:-20px;margin-right:-20px;margin-bottom:30px;letter-spacing:-.025em}.common-title>span:first-child{margin-bottom:14px}.common-hero .common-manifesto{font-size:23px;line-height:1.25}.common-world-actions{gap:10px}.common-world-actions a{padding:14px 13px;gap:5px 6px}.common-world-actions a>span{font-size:24px}.common-world-actions a svg{width:20px}.common-world-actions a>small{font-size:8px;letter-spacing:0}.common-graffiti{width:330px;left:-140px;top:30%}.common-hero-bottom>span{display:none}}
+@media(prefers-reduced-motion:reduce){.common-title>span{animation:none}.common-world-actions a,.common-nav{transition:none}.common-world-actions a:hover{transform:none}}

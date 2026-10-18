@@ -1,0 +1,25 @@
+.depth-scene{perspective:1400px;min-width:0;width:100%}
+.depth-surface{transform-style:preserve-3d;transform:rotateX(calc(1.5deg + var(--depth-rx,0deg))) rotateY(calc(-2deg + var(--depth-ry,0deg)));transition:transform 420ms cubic-bezier(.2,.7,.2,1)}
+.depth-scene[data-moving] .depth-surface{transition-duration:180ms}
+.depth-scene .art-float{animation:none;transform:none}
+.hero-centered>.depth-scene{width:min(840px,100%)}
+.depth-surface .landing-scene{transform-style:preserve-3d;isolation:auto}
+.depth-surface .scene-orbit{translate:0 0 -18px}
+.depth-surface .scene-main{translate:0 0 12px;box-shadow:inset 0 1px 0 #ffffffb3,0 3px 0 #d9d2e44d,0 22px 48px #5b4d7b12}
+.depth-surface .scene-note{translate:0 0 34px;box-shadow:inset 0 1px 0 #fff,0 3px 0 #e6e1ed80,0 16px 32px #4535540d}
+.depth-surface .scene-win{translate:0 0 24px}
+.depth-surface .scene-sticky{translate:0 0 42px}
+.depth-surface .scene-spark{translate:0 0 18px}
+.depth-surface .scene-main-copy{text-align:left}
+.auth-depth{max-width:370px;margin-top:30px;perspective:1100px}
+.auth-depth .auth-art{margin-top:0;transform-style:preserve-3d}
+.auth-depth .auth-art-ring{translate:0 0 -12px}
+.auth-depth .auth-art>span{translate:0 0 20px;box-shadow:inset 0 1px 0 #ffffffa6,2px 4px 0 #b7a8d124,8px 17px 30px #51416b0d}
+.auth-depth .auth-chip-one{translate:0 0 34px;box-shadow:0 5px 12px #51416b08}
+.auth-depth .auth-chip-two{translate:0 0 28px;box-shadow:0 5px 12px #51416b08}
+.auth-form-panel{box-shadow:inset 0 1px 0 #fff,0 2px 0 #e7e2ed50,0 14px 42px #38294d06}
+.hero>.dashboard-depth{position:absolute;width:65%;height:100%;right:-38px;top:8px;z-index:1}
+.dashboard-depth .depth-surface{height:100%}
+.dashboard-depth .hero-art{position:relative;width:100%;height:auto;right:auto;top:0}
+@media(max-width:900px){.auth-depth{display:none}}
+@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){.depth-scene .depth-surface{transform:none;transition:none}.depth-scene .landing-scene{transform-style:flat}.depth-scene .scene-orbit,.depth-scene .scene-main,.depth-scene .scene-note,.depth-scene .scene-win,.depth-scene .scene-sticky,.depth-scene .scene-spark,.auth-depth .auth-art-ring,.auth-depth .auth-art>span,.auth-depth .auth-art>i{translate:none}}

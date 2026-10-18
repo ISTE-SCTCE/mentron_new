@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mentron+
 
-## Getting Started
+Mentron+ brings together Mentron study resources/projects and mlynq events, attendance and certificates. This repository contains the release website at its root.
 
-First, run the development server:
+## Deploy
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Use branch **main**, framework **Vite**, Node **24**, and the **repository root** (leave the custom root directory empty).
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Install: `npm ci`
+- Build: `npm run build`
+- Output: `dist`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` for the shared iste-admin backend at build and runtime. Set `R2_ENDPOINT`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` and `R2_BUCKET_NAME` as server-only runtime secrets. The old `NEXT_PUBLIC_*` names do not configure this site. Never commit secrets or prefix R2 credentials with `VITE_`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Vercel uses the included `vercel.json` and authenticated `api/files/[...path].mjs` function. Do not deploy only the static files: private note documents require that function. Node/Docker deployments can use `npm start`; see the [release guide](docs/RELEASE.md) for configuration, Auth callbacks, compatibility, acceptance checks and rollback.
 
-## Learn More
+## Run locally
 
-To learn more about Next.js, take a look at the following resources:
+Copy `.env.example` to `.env.local`, enter configuration privately, then run `npm ci` and `npm run dev -- --port 4173`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Verify
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Run `npm test`, `npm run build`, and `npm run check:release`. Add `-- --runtime` to the last command when server secrets are configured. Tests use local HTTP fixtures and isolated PostgreSQL; they do not create live user records.
 
-## Deploy on Vercel
+The three reviewed Supabase migrations are included for history and verification. They have already been applied to iste-admin with explicit approval; deployment does not rerun them. Two unavailable legacy PDFs are documented in [the missing-file report](docs/MISSING_NOTE_FILES.md).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The old website and mobile applications are no longer in the current tree. They remain recoverable from earlier Git commits and existing branches. Public email, payment and coordinator acceptance must still be verified on the deployed origin; a full audit of all inherited ISTE backend procedures is not claimed.
