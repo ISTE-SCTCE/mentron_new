@@ -1,0 +1,16 @@
+**/node_modules/
+**/dist/
+**/.dart_tool/
+**/build/
+**/.flutter-plugins-dependencies
+**/.env
+**/.env.*
+!**/.env.example
+**/local.properties
+**/ephemeral/
+artifacts/
+*.log
+
+**/env.local.json
+.tools/
+**/supabase/.temp/

@@ -1,0 +1,61 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {PGlite} from '@electric-sql/pglite';
+const owner='11111111-1111-4111-8111-111111111111';
+const other='22222222-2222-4222-8222-222222222222';
+test('reviewed migration blocks forged replies and private certificate cross-account access',async()=>{
+ const db=await PGlite.create();
+ try{
+  await db.exec(`
+   CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role BYPASSRLS; CREATE ROLE supabase_admin;
+   CREATE SCHEMA auth; CREATE SCHEMA mentron; CREATE SCHEMA mentronplus_private; CREATE SCHEMA storage;
+   CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT nullif(current_setting('test.uid',true),'')::uuid $$;
+   CREATE FUNCTION mentronplus_private.active_account() RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT coalesce(current_setting('test.active',true),'true')='true' $$;
+   CREATE FUNCTION mentronplus_private.manager() RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT coalesce(current_setting('test.manager',true),'false')='true' $$;
+   CREATE TABLE mentron.forum_answers(id serial,author_id uuid,upvotes integer DEFAULT 0,is_best_answer boolean DEFAULT false);
+   ALTER TABLE mentron.forum_answers ENABLE ROW LEVEL SECURITY;
+   CREATE POLICY owned_answers ON mentron.forum_answers FOR ALL TO authenticated USING(author_id=auth.uid()) WITH CHECK(author_id=auth.uid());
+   CREATE TABLE public.certificates(user_id uuid,storage_path text,certificate_url text,file_url text);
+   CREATE TABLE storage.buckets(id text PRIMARY KEY,public boolean);
+   INSERT INTO storage.buckets VALUES('issued-certificates',true),('certificates',true),('event_posters',true);
+   CREATE TABLE storage.objects(id serial,bucket_id text,name text);
+   ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+   CREATE POLICY legacy_public_read ON storage.objects FOR SELECT TO PUBLIC USING(true);
+   CREATE POLICY legacy_member_write ON storage.objects FOR ALL TO authenticated USING(true) WITH CHECK(true);
+   INSERT INTO storage.objects(bucket_id,name) VALUES('issued-certificates','own.pdf'),('issued-certificates','other.pdf'),('certificates','space key.pdf'),('issued-certificates','space key.pdf'),('event_posters','public.png');
+   INSERT INTO public.certificates VALUES('${owner}','own.pdf',null,null),('${other}','other.pdf',null,null),('${owner}',null,'https://vwxbgklgkcbwrvtwypfs.supabase.co/storage/v1/object/public/certificates/space%20key.pdf?token=old',null);
+   GRANT USAGE ON SCHEMA auth,mentron,mentronplus_private,storage TO anon,authenticated,service_role;
+   GRANT ALL ON ALL TABLES IN SCHEMA mentron,storage TO authenticated,service_role;
+   GRANT SELECT ON storage.objects TO anon;
+   GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA mentron,storage TO authenticated,service_role;
+   SET ROLE authenticated; SELECT set_config('test.uid','${owner}',false);
+   INSERT INTO mentron.forum_answers(author_id,upvotes,is_best_answer) VALUES('${owner}',900,true);
+   RESET ROLE;
+  `);
+  const migration=await readFile(new URL('../../supabase/migrations/20261018144808_mentronplus_release_privacy_and_forum_guards.sql',import.meta.url),'utf8');
+  await db.exec(migration);await db.exec(migration); // Reviewed changes are safely repeatable.
+  assert.equal((await db.query("SELECT count(*)::int n FROM storage.buckets WHERE id IN ('issued-certificates','certificates') AND public")).rows[0].n,0);
+  await db.exec(`SET ROLE authenticated; SELECT set_config('test.uid','${owner}',false);`);
+  for(const extra of ['9,false','0,true','null,false','0,null'])await assert.rejects(db.exec(`INSERT INTO mentron.forum_answers(author_id,upvotes,is_best_answer) VALUES('${owner}',${extra})`),/New replies cannot set/);
+  await db.exec(`INSERT INTO mentron.forum_answers(author_id) VALUES('${owner}')`);
+  const owned=(await db.query('SELECT bucket_id,name FROM storage.objects ORDER BY bucket_id,name')).rows;
+  assert.deepEqual(owned,[{bucket_id:'certificates',name:'space key.pdf'},{bucket_id:'event_posters',name:'public.png'},{bucket_id:'issued-certificates',name:'own.pdf'}]);
+  await assert.rejects(db.exec("INSERT INTO storage.objects(bucket_id,name) VALUES('issued-certificates','forged.pdf')"),/row-level security/);
+  await assert.rejects(db.exec("UPDATE storage.objects SET bucket_id='certificates' WHERE bucket_id='event_posters'"),/row-level security/);
+  await db.exec("SELECT set_config('test.active','false',false)");
+  assert.equal((await db.query("SELECT count(*)::int n FROM storage.objects WHERE bucket_id<>'event_posters'")).rows[0].n,0);
+  await db.exec("RESET ROLE; SET ROLE anon");
+  assert.deepEqual((await db.query('SELECT name FROM storage.objects')).rows,[{name:'public.png'}]);
+  await db.exec(`RESET ROLE; SET ROLE authenticated; SELECT set_config('test.active','true',false); SELECT set_config('test.manager','true',false);`);
+  await db.exec("INSERT INTO storage.objects(bucket_id,name) VALUES('certificates','new.pdf'); UPDATE storage.objects SET name='issued.pdf' WHERE name='new.pdf'; DELETE FROM storage.objects WHERE name='issued.pdf';");
+  assert.equal((await db.query('SELECT count(*)::int n FROM storage.objects')).rows[0].n,5);
+  await db.exec('RESET ROLE');
+  const matches=async(value,bucket,key,bare=false)=>(await db.query('SELECT mentronplus_private.certificate_reference_matches($1,$2,$3,$4) result',[value,bucket,key,bare])).rows[0].result;
+  assert.equal(await matches('https://evil.example/storage/v1/object/public/certificates/own.pdf','certificates','own.pdf'),false);
+  assert.equal(await matches('https://vwxbgklgkcbwrvtwypfs.supabase.co/storage/v1/object/sign/certificates/%E0%A4%85%25.pdf?token=x','certificates','अ%.pdf'),true);
+  assert.equal(await matches('https://vwxbgklgkcbwrvtwypfs.supabase.co/storage/v1/object/public/certificates/%zz','certificates','anything'),false);
+  assert.equal(await matches('literal%20.pdf','issued-certificates','literal%20.pdf',true),true);
+  assert.equal(await matches('own.pdf','certificates','own.pdf',true),false);
+ }finally{await db.close();}
+});

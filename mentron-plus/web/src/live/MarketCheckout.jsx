@@ -1,0 +1,13 @@
+import React,{useState} from 'react';
+import {checkoutDetails,submitPayment} from '../core/transactions';
+import {safeUrl} from '../core/domain';
+import {useAuth} from '../core/Auth';
+import {useResource} from '../core/hooks';
+import {ResourceState} from './Dashboard';
+export default function MarketCheckout({item,onDone}){
+ const {user,profile}=useAuth();const [id]=useState(()=>crypto.randomUUID());const [busy,setBusy]=useState(false);const [error,setError]=useState('');
+ const state=useResource(()=>checkoutDetails(item.id,user.id),[item.id,user.id]);
+ async function submit(e){e.preventDefault();setBusy(true);setError('');const data=new FormData(e.currentTarget);try{await submitPayment({id,listing:item.id,user:user.id,file:data.get('proof'),utr:data.get('utr'),phone:data.get('phone'),accepted:data.get('accepted')==='on'});onDone();}catch(e){setError(e.message);}finally{setBusy(false);}}
+ const details=state.data;const qr=safeUrl(details?.settings?.qr_image_url);const upi=details?.settings?.upi_id;
+ return <ResourceState state={state}>{details?.existing?<p>Your order is {details.existing.order_status.replaceAll('_',' ')}. <a href="#/orders">View your orders</a></p>:details?.item.seller_id===user.id?<p>This is your listing.</p>:details?.item.status!=='live'?<p>This item is no longer available.</p>:!qr&&!upi?<p>Payment details are unavailable. Please contact the ISTE marketplace team before paying.</p>:<form className="checkout-form" onSubmit={submit}><h3>Payment details</h3><strong className="price">₹{Number(details?.item.price).toLocaleString('en-IN')}</strong><p>Pay using the ISTE marketplace details below, then submit your receipt. The team will verify your payment before confirming the order.</p>{qr&&<img className="payment-qr" src={qr} alt="ISTE marketplace payment QR"/>}{upi&&<p>UPI ID: <strong className="payment-address">{upi}</strong></p>}<label className="form-field">Transaction reference (UTR)<input name="utr" required pattern="[A-Za-z0-9]{6,40}" autoComplete="off"/></label><label className="form-field">Contact number<input name="phone" type="tel" required defaultValue={profile.phone||''} maxLength={18}/></label><label className="form-field">Payment receipt<input name="proof" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" required/><small>JPG or PNG, up to 5 MB. Visible to you and the marketplace team.</small></label><label className="checkout-consent"><input name="accepted" type="checkbox" required/>I confirm that I paid the displayed amount and the transaction details are correct.</label>{error&&<p role="alert" className="auth-feedback error">{error}</p>}<button className="primary-button" disabled={busy}>{busy?'Submitting…':'Submit payment for verification'}</button></form>}</ResourceState>;
+}

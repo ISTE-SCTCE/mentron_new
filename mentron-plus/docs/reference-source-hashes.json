@@ -1,0 +1,1117 @@
+[
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\exec_main_scaffold.dart",
+    "sha256": "9202aee98234b9d4421fcd6475f2ae77048f32bdc5039db2a2f4c44e9c892e47"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\main_scaffold.dart",
+    "sha256": "fa1f53cb0c276959e89a30425a9520764c9f26046617dd611bb1f0dd7373f68d"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\providers\\academic_provider.dart",
+    "sha256": "fea80bccb694cb3fd818e554f67fdebfdeee927ff4e278a6ba974e0be546bd69"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\providers\\theme_provider.dart",
+    "sha256": "267adc086aa96340a74ff2bce110f2b3a56be5ca376b57caf439e51825a7f03d"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\services\\academic_service.dart",
+    "sha256": "e20609a07c5281bf41f05faa5fa6dc1dd82671e451af95c2108c071499d4b882"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\services\\compression_service.dart",
+    "sha256": "8c32174e1efe2d51318327f3d75fd98df9686bfe3afacb526949efc5c913dbd1"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\services\\session_guard_service.dart",
+    "sha256": "57e77991468d044e78ca1ac267b23e8e2ebfc9bc084ca7ecfaf51247e187136d"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\services\\supabase_service.dart",
+    "sha256": "398224831e6b24456db1e4f100890f1197a65c13fce0483c2d4646b5759da505"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\services\\version_service.dart",
+    "sha256": "9655ef4b72f1d49c219201f86e600cc0536e4842ed29d2f1318f8677a3795353"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\splash_screen.dart",
+    "sha256": "7e65ba5c1febef151ec81a93d53dc3c96b671e77e3aa58b6153ee4d17d001782"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\theme\\app_theme.dart",
+    "sha256": "e1aa342ddd851d640261933c31b4b9084f49946b56247031a69a63409c0b9e44"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\theme\\app_theme_old.dart",
+    "sha256": "724e0d301c67f8f55974197cd2bc2f088db0defab7d077ca07f9bb474f5b59f6"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\theme\\exec_theme.dart",
+    "sha256": "716d4b6d1c934a40023abded488a5f1e97d1f23e4f3e4ac3104d0f3f3fae3323"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\theme\\marketplace_theme.dart",
+    "sha256": "d536da1a043858717b71e3bcc5368f95e079ab14b319f7edf3a5ec5f258c7a41"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\utils\\app_transitions.dart",
+    "sha256": "830fd8c773e7d0c59e42c9779e5d60c8ff3aae7e7ea0535d6d72760b0e4ac049"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\utils\\department_mapper.dart",
+    "sha256": "2c2af51803cbbe163962f779adbd942d263d8eec96b61d307368b7c2985ea5e9"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\utils\\error_handler.dart",
+    "sha256": "60033ad203c1c9acc9dc3c10910c464c214b3e4eafb90bed3617225242d0e8bb"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\utils\\profanity_filter.dart",
+    "sha256": "d2b923e055a9718ae89eb728afc9b1525a79aa3f3d921a83c694bd37a6be8f93"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\core\\widgets\\animated_indexed_stack.dart",
+    "sha256": "1665d59d6ae1a86a4e2bdc70591b87795ea6b861c2d1ae08778990717908dfdd"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\data\\models\\forum_model.dart",
+    "sha256": "bc1c227a1184345fff6ab250cf694081229e1f075fdcb624a74953375c64d0be"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\data\\models\\marketplace_model.dart",
+    "sha256": "6e0c8cd7dcb5586536e8691ad9542b5f0d23801f5bf3c65814d3ef12a1f6f4c7"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\data\\models\\note_model.dart",
+    "sha256": "a0431b0440fe56dec1741369ff32d783be015300f8f4ddcdd02bd8454c187a23"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\data\\models\\project_model.dart",
+    "sha256": "621f38d16ddf794ad702e938c9129330950d7f3bda10de5757047d9df7c1edb8"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\data\\models\\subject_data.dart",
+    "sha256": "66a60127545d692ad9354e5155736ece26a9e3d47a398ac2ad1be6597efd2f00"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\design\\campus_widgets.dart",
+    "sha256": "921f3d4a5c0eed6d474bb5ab4473cb839b45306897057877df412d7c18c51026"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\design\\creative_motion.dart",
+    "sha256": "2ffba41247a4d4d4902b7183292312d5343df32a7f5ccdb127391a22d33bfb68"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\design\\creative_surfaces.dart",
+    "sha256": "e68f4e59d063a3b6526b631bec53622f38961f1c75bcfbac1273497d3b2ff439"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\admin\\screens\\permission_management_screen.dart",
+    "sha256": "c57ef31491eac2b19188e456fdc92d78725c40991744ff9b47c5a68fb64128b1"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\auth\\screens\\forgot_password_screen.dart",
+    "sha256": "8a787b580dbbdd8e3f71d3d4ad1656ee206dd90700dd11beef0df4e106ddc56f"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\auth\\screens\\login_screen.dart",
+    "sha256": "66e3d43d01f207ed7d74d9427840523ae43b491909dfe5391c7e0493dc44b2e4"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\auth\\screens\\onboarding_screen.dart",
+    "sha256": "c9174a3739dc8dc9283d86e106a04f6091968092c753f35f427f4d753b01e707"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\auth\\screens\\signup_screen.dart",
+    "sha256": "79091f6291e45598fcc42eb1ee09f82a7e245ef48e1761d6285cfc119d62d9dd"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\dashboard\\screens\\core_members_screen.dart",
+    "sha256": "1d51ee509e9b72559536ffac060916630353700915af5d8b609809d22cf8c3f3"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\dashboard\\screens\\dashboard_screen.dart",
+    "sha256": "41a51558725614f3a1220694331ebb2cc82f55e01d31c5cd272c2c41493dbef6"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\dashboard\\screens\\exec_dashboard_screen.dart",
+    "sha256": "6b05c1e933cc01ffd376d9cbe12d9e4a9da2f3115d37c256cf3422eade6c05fa"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\dashboard\\widgets\\dashboard_carousel.dart",
+    "sha256": "7560405ed6b5b9272b939cb93fd3637bb9653e05c65820d507e573322d580c5b"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\dashboard\\widgets\\event_banner_widget.dart",
+    "sha256": "5d4b6be486f90037cf8e93b879f7f616b980cab5ce53a842a238e05a87269f13"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\dashboard\\widgets\\real_time_calendar.dart",
+    "sha256": "051da5cec0d97ed22c060791e516dd35dad8922afc9a05fe2a34b4dcc39ef96b"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\events\\screens\\event_detail_screen.dart",
+    "sha256": "d3d4752af4761fa672e4327759f8ccac208ba086103a625b8dde3d83927b666e"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\events\\screens\\event_list_screen.dart",
+    "sha256": "adceb3143bfedf92f73686aff85d4794cdb375f5cde901c253510db42494573c"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\execom\\screens\\buyers_list_screen.dart",
+    "sha256": "add5400f35cba09c19d372abf9c13c9f5a95457536bd31a69fd0d5b6f8745670"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\execom\\screens\\event_manager_screen.dart",
+    "sha256": "01e3eb80eaaab4dce1a14393880ade42db8b05ace2e432dc793a4ba3ad669a33"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\execom\\screens\\execom_login_screen.dart",
+    "sha256": "6aa6191d0e8b171c149bd5cfcdb4e4bda5215d76c7b519cc6f5dcdfc8ad44745"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\execom\\screens\\notification_manager_screen.dart",
+    "sha256": "78d98fd5a662535f773f9aba4be6dc104598d79c9633cc679cf9cee0635d1195"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\execom\\screens\\payment_management_screen.dart",
+    "sha256": "dd897a66f3d6e68da5effc32285ce56eeb43cc65a8d31be4053f0fbfd65474a1"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\force_update\\screens\\force_update_screen.dart",
+    "sha256": "3346f985b2bc81fbc6dea9db536c4be83d6793603b314a700f7c21f7fddaef6f"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\forum\\screens\\add_question_screen.dart",
+    "sha256": "d58ff07f8a1a72cbd434a5d35d1c888cbe0013db83b8e1f8cc726ce233d44a35"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\forum\\screens\\forum_list_screen.dart",
+    "sha256": "04f7dec45fc20e674df4d1b83ea8df7d7ee9e79f8598f4b2bf761459a7bdc178"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\forum\\screens\\question_detail_screen.dart",
+    "sha256": "3671e6ed2ecbcef6c3e29299f0bdb89b0eb5546da84141bb62e89be5aae825e6"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\gate\\screens\\gate_dept_folders_screen.dart",
+    "sha256": "42af0e1bb94997b564380f76ff02ff831a3246e9c3db669be7d60302bde4b035"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\gate\\screens\\gate_folder_notes_screen.dart",
+    "sha256": "71a3e6fc1d45d18947864d1bd3be910408dfe696c02604c85c29e14e3d290f67"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\gate\\screens\\gate_landing_screen.dart",
+    "sha256": "58ce9134cb767a4886758f37c3717ede4d26697a7cc193040da139dd4dd6a213"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\gate\\widgets\\gate_portal_banner.dart",
+    "sha256": "23446338dda269e3de81a492e3a23b39c41589e2889df9918927f5c06632c4ab"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\home\\widgets\\events_calendar_widget.dart",
+    "sha256": "8967f5c81bec2f12b35a3b97b29e2637321ff56f571d164a86aae0925a939b07"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\leaderboard\\screens\\leaderboard_screen.dart",
+    "sha256": "fc97503a088aaab2892890b60ac61d6454647fcd61e0adb696d007db3436baf4"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\marketplace\\screens\\ad_activity_screen.dart",
+    "sha256": "67ca7422f0831fe9a7c6b146c9274dd362e50545b74ddb8b24bc9ce9b0b99183"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\marketplace\\screens\\add_marketplace_item_screen.dart",
+    "sha256": "e79fa83e492a80fc7274cadf5a20e93145303fdc2e67710dcc3a7a6f38974b59"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\marketplace\\screens\\marketplace_screen.dart",
+    "sha256": "54a2fe17ff1cb5bfb025d66beb8623313557decceaec1f56bbf8ed459aae3891"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\marketplace\\screens\\my_orders_screen.dart",
+    "sha256": "dd87d4361c0ebbfd56018122c474713234e4ff4bf01681b971f294abe1c9388c"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\marketplace\\widgets\\category_chip_bar.dart",
+    "sha256": "dc14d0b745ebf6c4b2dfe306cb52719a4da74b3b7ab1cac8c6636603577e511c"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\marketplace\\widgets\\disclaimer_consent_sheet.dart",
+    "sha256": "559cc90ac71a37e7d867363c6b96e24776e89a46ab719b663dc158cf78673b06"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\marketplace\\widgets\\featured_listing_card.dart",
+    "sha256": "dd212e08d5d6c002f4d2c6fdb7d224deff34b38959def6f1eda18e33101576c1"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\marketplace\\widgets\\full_screen_image_viewer.dart",
+    "sha256": "fe7c446edcc838463bce45ead5250364481ef2c825b51dfd79e0b5e69d11aff8"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\marketplace\\widgets\\listing_bottom_sheet.dart",
+    "sha256": "2dce236a9f476bef639533a3c574464a95ff3f9c239c35409938abcd3f47e02d"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\marketplace\\widgets\\listing_card.dart",
+    "sha256": "c65b5288b3d5dfba3f77d4e87bfa1c87ff32b8f0989034fbc74569c1669b4578"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\marketplace\\widgets\\marketplace_gradient_header.dart",
+    "sha256": "ccdb860d1b25568d9a6abeb81bf23646466e3e88170aa1ba4a9f6edd5507e3ed"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\marketplace\\widgets\\order_status_stepper.dart",
+    "sha256": "f311963ed594366d4e3001066e9d1294a035cedffc8dbc5035032ad0990032ea"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\notes\\screens\\add_note_screen.dart",
+    "sha256": "2d93bbf7a85ce3e15b756066a54e49789ac17747aecd83214eac281c15b028f8"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\notes\\screens\\create_folder_screen.dart",
+    "sha256": "76e0eab57d990e5f017f429200c3b3de7677cabc6c6e306c4cabc7fee3663cc6"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\notes\\screens\\dept_picker_screen.dart",
+    "sha256": "099e71f027bdb5a6d07ef4a2e098fa1f4d9ed369b0d7875aae65e93adcc2f3af"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\notes\\screens\\first_year_group_screen.dart",
+    "sha256": "def2a701ac467eba88d4f5df4190b175228894512d2defc5e9db6e2eb041fdff"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\notes\\screens\\group_screen.dart",
+    "sha256": "663c056516a49f58d87b954bbf890323546d52baed0c178a641d6250fc8223cd"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\notes\\screens\\note_list_screen.dart",
+    "sha256": "8343ae76c80866aae3049925695927791adc65999fbf65720555f5f85e4b1c82"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\notes\\screens\\note_viewer_screen.dart",
+    "sha256": "f0b3d49f27c90c0c6f0364b86a0ede230a08b9e5c5b5141b18ba2fdecfd5d3be"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\notes\\screens\\notes_by_subject_screen.dart",
+    "sha256": "a124e663ae0680f39cf2a09b3a40499f92704d9624d1878a0d2b81a9b843dcec"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\notes\\screens\\semester_screen.dart",
+    "sha256": "bfc57e07751dba5f4a1d6b85fff4168abf41ca2aaee3a5ceb03abcd3879327c7"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\notes\\screens\\subjects_screen.dart",
+    "sha256": "065d97a762e2778211416687e6e412dfc074f672c4c3172e27fcc3cc4dd807b2"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\notifications\\screens\\notifications_inbox_screen.dart",
+    "sha256": "5fbedd08d8ebeea92abd09e9a429cdcbb6d4580704574b5c5f63b45b34071812"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\profile\\screens\\profile_screen.dart",
+    "sha256": "7637045056813b6ca3c693141b1c5f8b3f186f7c6dacc0d42ae78e30fdd8bf4c"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\projects\\screens\\add_project_screen.dart",
+    "sha256": "e123ec2df282f3e6fa44f927c5eb40e50224475d5fd5ec3d93c971e70601f040"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\projects\\screens\\my_contributions_screen.dart",
+    "sha256": "c998801e1e37a13a9d49bd049776cb64219f9826a318e543a53a4e19e4bcb290"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\projects\\screens\\project_applications_screen.dart",
+    "sha256": "192143d52c0e3a43f1285e0908efe7cfc92a6e240da1938da8142c707d120072"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\projects\\screens\\project_detail_screen.dart",
+    "sha256": "64fb795901310eb5d568f8720031648b843001e06a19fbb47ff1032884eb46ba"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\projects\\screens\\project_list_screen.dart",
+    "sha256": "651590b51afbbbea230653778aecae22850e99a06b7b15301ca003699d63cf4b"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\features\\requests\\screens\\requests_screen.dart",
+    "sha256": "7f1b984363c5aa1ef2367949f4c1e8519674565572516a8f316b91da4626178f"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\firebase_options.dart",
+    "sha256": "3491a99812445e416798ddad80f39a8717c9e1543222b02686fcc06b45df0704"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\main.dart",
+    "sha256": "ab749839ddb6d131f1e70160a235449ac3e412a8df611d3b1658f4347baeebe7"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\core\\providers\\auth_provider.dart",
+    "sha256": "9bbe16388fc712cea0411636da94f3009307ee3186f8677a9bbab5b330d64b51"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\core\\router.dart",
+    "sha256": "b6fce39c0b3c77830dc54391c02c8ddf941637021129be85cf60f29f109b6ab2"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\core\\theme.dart",
+    "sha256": "7fc5768f84afcfabc277900c97c66c0309ce986b071f7cbcd0da167e82fbcddd"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\member_app.dart",
+    "sha256": "954e54cbdd7a3c8f76818ed9f3a137a75a0bdb798ea3902415dafd9bff87e07a"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\screens\\auth\\login_screen.dart",
+    "sha256": "65f7d97caa62e863cca0f654e9b7e6de356e5dcc8117942a384ce5ae1ea23f4e"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\screens\\auth\\web_link_screen.dart",
+    "sha256": "757c1427fd607396c97316a5ba9d1328450dadf8e6cbc698f88bbe5a19a7c212"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\screens\\certificates\\certificates_screen.dart",
+    "sha256": "8ffbe85ecb5df012d85f336866ea83d42f0de6707fdccf62c54e6e8f80e4465a"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\screens\\events\\event_detail_screen.dart",
+    "sha256": "6422d41444c3f0d21bd6559e6b65cb83d0edf4579ef7829da916c4e17d1507a9"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\screens\\events\\event_list_screen.dart",
+    "sha256": "ae5ae65739417c39587daba38f08a86390fc018dc07885fbe7c84397358d3a67"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\screens\\home\\home_screen.dart",
+    "sha256": "ae7c14bf6e5157709bb0a9ae3384896ef572a17072bcd7b080baa3d2e43c5def"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\screens\\membership\\edit_profile_screen.dart",
+    "sha256": "e6c99e9fde3d8f9d3ded69d5ad385cfae0cac18be2dc542d77637b91097b986f"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\screens\\membership\\membership_card_screen.dart",
+    "sha256": "690410c08002cc659e651d54bc852351b8a101b3250ee018ea80f22d22baa253"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\screens\\notifications\\notifications_screen.dart",
+    "sha256": "96eb5058859750024aef3603d04680d923e0dd1cd9f485b90b11bd61d4e5741e"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\screens\\qr\\qr_display_screen.dart",
+    "sha256": "49726fe011183c3e78fa6596555d609cbce2e1d1cbd8fda738f9ac5e51b59624"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\screens\\splash\\splash_screen.dart",
+    "sha256": "2c84b14aef7889090d2bbd2e9acc2a2e523949f67d4331e2fc2546e2e48d7052"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\shared\\mlynq_illustrations.dart",
+    "sha256": "561a611deab0c6b5a1b2504e2b937dea2016309f765b887b91945ae979da4d61"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\shared\\utils\\certificate_pdf_generator.dart",
+    "sha256": "391e7346c662149952efdc2ac6b4982718e58b54e4dcf0d142980909bf7c0b3c"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\shared\\utils\\dynamic_certificate_pdf_engine.dart",
+    "sha256": "151c3583a3b12c48d306ca32999554d769aa0aeb4c9df71ef0dd3f58cf88556f"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\mlynq\\shared\\utils\\dynamic_template_parser.dart",
+    "sha256": "94d517de031fe0448f28ecd06fe57d9b9dcefbaec1f0e74c97ae602fd96e720e"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\models\\audit_log.dart",
+    "sha256": "6625613a5e393c1eee9fc47c05a2b7162f33e83654fdb3beef34aa17e5531e2d"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\models\\broadcast_notification.dart",
+    "sha256": "a4c5aa6d8859d59371ff08ba107bfa168a46d37ffd5ef020824a8fa246fa49e7"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\models\\content.dart",
+    "sha256": "45d6b6331c788bcf5b2bd6abcff466a1d389dd84e89ff7d861881dd9d40fc220"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\models\\downloaded_content.dart",
+    "sha256": "bce2f67d49ff13ffde6d4c4b1f93f39010904b54321df538c500ff97bb1da16f"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\models\\downloaded_content.g.dart",
+    "sha256": "4715d15eb461cb7bcb03fa480ccf4e395104a3c0587491e12e67a1e5c08c29dc"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\models\\marketplace_listing.dart",
+    "sha256": "cfb9c21f4fd611bd3f0eb9455209bc7537de0e2978902b0d67b2e85ef7636383"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\models\\marketplace_listing_view.dart",
+    "sha256": "f83345d4f6a6902a546fb1db871fb712323a129a3948ec485e9a3f1d79827271"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\models\\marketplace_order.dart",
+    "sha256": "80846d1922a0925fbe9c38e41179d0dc3326019bcde17f2930965a9c550846cd"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\platform\\file_headers.dart",
+    "sha256": "72061a1cee4608e7efc8d2b4b51c50596c017bf8c8efc25a5ef08cc422532e11"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\platform\\platform_config.dart",
+    "sha256": "97aaeccd55406fbfbb1175642ab9065a4e0a4e67b88c09f1df4a29a7e9d5ffb9"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\platform\\product_access.dart",
+    "sha256": "b964ed0f551598a41ce8016725995a77c696a9f252fb303740662229ee960443"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\platform\\product_analytics.dart",
+    "sha256": "c81309bb4e634475cb579a61c384613e5c8bc3bc95e07fe934e8a1e797640e0e"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\platform\\product_host.dart",
+    "sha256": "af684b90b2757f5af708a1f2215f6717942153071e7fb2f7b1f8bc31208d7914"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\platform\\product_switcher.dart",
+    "sha256": "71da838cf425c90b694f53211b72c05305684ecf4f77167fe8cba7c6f4d9741a"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\screens\\my_downloads_screen.dart",
+    "sha256": "cfd669fb834be34e380e99f52c6e4f3c2b9ef94fdc177569965ccff7956aa3b0"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\screens\\video_player_screen.dart",
+    "sha256": "1547c291cc78926096a870c73b320503f30af3193887fd002b3965f2be14c9a0"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\services\\api_security_service.dart",
+    "sha256": "8e254aa7f64156864bd58c905ef2bf510bcd96decb5a969f243e9e025a01f837"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\services\\audit_logging_service.dart",
+    "sha256": "d08285c2079053ac9084775312376e59cfb154ee2ab257e17cc1e74d785e75a3"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\services\\auth_security_service.dart",
+    "sha256": "1bee55686a0165b36977c0c340c08970c911742a6b132c94f405638268f9af49"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\services\\buyers_service.dart",
+    "sha256": "270bc847783d1aa7dd5fe69f41f6c737b9717f6b205c164df64a03a81b037e5a"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\services\\content_protection_service.dart",
+    "sha256": "47e88b1b77cc8f52aab8b621fbe4417fbfe01da56b157f0b4f022d271eb0e19c"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\services\\device_security_service.dart",
+    "sha256": "9ba1002ecc4871b68355bc82cee1dbed48a324657be1d908b993747d8904ad05"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\services\\fcm_service.dart",
+    "sha256": "88c41d44759a267677cf600dd11b3967e2e027c501926011a9a2401c50d351b1"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\services\\gate_service.dart",
+    "sha256": "f1170816685a7396b0d43c49dfe879d8d19b0bf6d762c091c8a550f37d724e88"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\services\\marketplace_service.dart",
+    "sha256": "2fa7d2637d456cfd51b6401a1ba006d3a3f814c3ff7c209da4d904b4f903a3c9"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\services\\notification_manager_service.dart",
+    "sha256": "241cc6b04c0dea77d8da1143e68238084d5f6d8dd8575f8a729fc506df380f70"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\services\\offline_storage_service.dart",
+    "sha256": "15e279769d37f1f801ad50489e1cf01908e66179b83cd421da0ff7e1539d6cef"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\shared\\widgets\\bouncing_balls_loader.dart",
+    "sha256": "395299b5694e97833630c1c104d5cc2b99d771153e1dceabb0d06e8a3fb1fe3a"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\shared\\widgets\\byju_stat_card.dart",
+    "sha256": "053a7acff63f25f9584485b4f520234c8b475438a03bc83ba5a097b5041d3893"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\shared\\widgets\\exec_glass_container.dart",
+    "sha256": "7f632e83622f9d6c4abf403336427b79d0851a125fc926a77fd6b5cafb4bf4e8"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\shared\\widgets\\exec_liquid_background.dart",
+    "sha256": "7c666da368b61b8c9dc67cb3aae5bf8debaef95343cd98dd9ae52e403f6eaf79"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\shared\\widgets\\glass_container.dart",
+    "sha256": "ff13f5019ff476380823065dc53ce01d1869c890e96e7354d05fe538945df91e"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\shared\\widgets\\glass_container_old.dart",
+    "sha256": "278cfd6464a929fad05fab6e38c83a47065e800712223c32175d18f78e975429"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\shared\\widgets\\illustration_card.dart",
+    "sha256": "d02d084ef70240938bd794cd533b29e84dd45e079c5fb98245b1762cd079c588"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\shared\\widgets\\liquid_background.dart",
+    "sha256": "8918e02254856efc24ac805cab27bcae7f002c2559d3e88cf596b89106b3ba83"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\shared\\widgets\\liquid_background_old.dart",
+    "sha256": "24237fab71ba873b74a953d7cd3b012a4cd9c1ecbc215ffd877c9540a9627d83"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\shared\\widgets\\pressable_scale.dart",
+    "sha256": "9ba9e2acb6fb1ff0a0be9382c67815d8ce2e214e25129bb611aac9b4fcc41ee7"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\shared\\widgets\\skeleton_shimmer.dart",
+    "sha256": "fbf3157084fac6dc9837a5f5399609a6510da8c47c81b1a25208f7e115b7ac00"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\shared\\widgets\\subject_chip.dart",
+    "sha256": "834eba297fc1e4544545bd4fd3427ab171d39c27ac404ff24b7a134c9be944db"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\utils\\constants.dart",
+    "sha256": "4589db6dc57280cd2b19c1d2b7e4926ee9615eac8d3c3a6fe67a81a0a047b3ea"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\utils\\validators.dart",
+    "sha256": "f7e653e0e45e122d30ee5974392a82e315447aea4ab118723a0f63d12930e44c"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\widgets\\download_progress_widget.dart",
+    "sha256": "b10c5a12c2f98a28f21b2afe7de1e5514541320e68d6adc4dcbc1dbeaa8172d0"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\widgets\\execom\\notification_status_badge.dart",
+    "sha256": "c7c6d97cee7aac71163a2a00aee38e008c55e9d79dba3c7b63ddb2507501aed9"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\widgets\\home\\event_banner_bottom_sheet.dart",
+    "sha256": "0db061590db9b51a2b0f8bb92ecb33e114971a297f17100a371ad393a9329f8b"
+  },
+  {
+    "source": "Mentron Flutter",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\mentron_flutter\\lib\\widgets\\secure_video_player_widget.dart",
+    "sha256": "6901101ca6fced9b5f0508c9acdc790143a90f9bd3a1fc685161996eab084d6f"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\App.jsx",
+    "sha256": "7f445ffc7ef24e803402cf21f2c73d69c6fc168cade6611f9b987cba39ca5276"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\components\\DashboardLayout.jsx",
+    "sha256": "0fda254bf73c3d478ad6b5f76d799e898143857dccf63e998abc6d13be018fbb"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\components\\RouteGuards.jsx",
+    "sha256": "cd8dbb3ebef7a726a8d6e818624d9af9332f6642cf0a1c685adbf1fcf703596d"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\components\\Skeleton.jsx",
+    "sha256": "b313c16a7b8cbc855b6b8b2a85761b6ad496834efe9a6450f784a21f0a6440ef"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\components\\SplashScreen.jsx",
+    "sha256": "ddffe7ce46b0b469759409b5df0c9193d0d2d5ed1ed8056881f804edae561552"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\components\\StudentQrModal.jsx",
+    "sha256": "7e260ba30dc4a798de8602176557beb5eca3cbe8d711491f614c41a1b006e063"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\contexts\\AuthContext.jsx",
+    "sha256": "5deedd795fc9fb37b5812fa86f5787e39e572a9043c6c8607a8226d53899dfc9"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\contexts\\ToastContext.jsx",
+    "sha256": "d9a7af3059d5b27f4f1f75f4f27b85355124f939948e8d53fca99e22f7cf97c8"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\lib\\member_emails.js",
+    "sha256": "f14481d25fb068859d130658f19d41226579eb8c765be9c9533d3b0ec799b012"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\lib\\qrSecurity.js",
+    "sha256": "3bc69fbe804b884c7c05ec383243c8764d250d4cce400b3128f65d6697eaee5b"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\lib\\supabase.js",
+    "sha256": "cc71982abe221183db9e3cb991326be6f1125d2f11f3caa00985d1233c756738"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\main.jsx",
+    "sha256": "ae81f1c01f2c8018a1ba5cf73171921c8982d90b049bb6b039ea82f8e1dec958"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\pages\\AttendancePage.jsx",
+    "sha256": "6f4ae9ae91c86956fbcc9b001e9f3e832af2abbf8679f48b5b0316a6cf52ec7b"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\pages\\CertificatesPage.jsx",
+    "sha256": "861eba0c0ca25ec2754c063fce9b2d76fd8efefb6aa5c202172038123a298f16"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\pages\\EventDetailPage.jsx",
+    "sha256": "f3d101d4df0c35d44b45ebacec929d4eff4e83527d5b449feede7bcbe61782f6"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\pages\\EventsPage.jsx",
+    "sha256": "c8b1065de971a6da138bb68b7b21eb94a7543f33bea8e78cd7f9a2da7da7dba2"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\pages\\HistoryPage.jsx",
+    "sha256": "53fc231877b5786cd1071bf521567194d28a12fb726e15e397c9fbbc676cb418"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\pages\\HomePage.jsx",
+    "sha256": "15f6cd3499e63100374125918b00d15bfa0cd8667d5415a7ab5357863ea2a919"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\pages\\LandingPage.jsx",
+    "sha256": "9d72b1e889cc25345b1db711fb144125b60f4f0c194c210463ee5834d2b02ed8"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\pages\\LoginPage.jsx",
+    "sha256": "a432d78f5ece98c04033ae280395f5b80e231a1978f4808d23ce8d537200a142"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\pages\\NotificationsPage.jsx",
+    "sha256": "6fb662d3d0bc0ab1f8c372d01d3b723fe18f2611aa5e550a7cdcc83c4b86541a"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\pages\\ProfilePage.jsx",
+    "sha256": "d2eb4f1daafc0add8d98b080568519f0112e78b269a37e3d1ba3109116f29838"
+  },
+  {
+    "source": "Lynq React",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\mlynq\\src\\pages\\QrPage.jsx",
+    "sha256": "f668b378dbb7d8794c10816a4e0cfdb21aa9f23d85b47fbd97a6d06519f9c768"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260226030324_add_profile_id_to_notes.sql",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260226083315_add_profile_id_to_notes.sql",
+    "sha256": "47b8d05268fa6f8795edc62a3a411e6ce0241e12c5da843ac7a54dea15b70195"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260606000000_dynamic_progression_and_force_update.sql",
+    "sha256": "cd855c7a0625ad3e57626030100aec76a65c672530e4fd06c1c8ad496df65af0"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260702000001_security_tables.sql",
+    "sha256": "2851b017979a97b530ebc7f14b3af1b051944bb0842dacf5b37486be5522b3d1"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260702000002_academy_tables.sql",
+    "sha256": "b1ec3d15ccf4396ab5797ff6488e1aa935f82fa175ae5091f49c2315b157d39a"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260710000002_broadcast_notifications.sql",
+    "sha256": "20cbf6e43f3dbb5018cfac038468d181840fe1dd64a90a0cbf14abccfafaa778"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260710000003_add_event_dates.sql",
+    "sha256": "cbfdc10acee20461e7f51c76379b075d663bea5bb98ce899c2c122e8508d314e"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260710000004_increment_academic_sem.sql",
+    "sha256": "77172bfabc339b47c3e940e1c4b609957c1de31594a01719140edb985f8ead71"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260712000001_marketplace_tables.sql",
+    "sha256": "c96acb8b7cf7ba2723ed1c02399ab74328c8bd46e8460dbd06443dbeed335e6c"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260712000002_add_fcm_token_to_profiles.sql",
+    "sha256": "3ade810b584ef5c348dcf9a8d15503fe7b9d9c9c50a689476a6d734f5412eb1b"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260712000003_add_require_iste_id_to_notes.sql",
+    "sha256": "78d73cb82674d62084a3a8a30032b0799407b52cab1d862b06370d998aae8c90"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260714000000_marketplace_and_academy_fixes.sql",
+    "sha256": "337e0445ea8fe16e46e5ca717585041c53e477f4a05a90b687a9c17c02d0125d"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260715000000_execom_profiles_policy.sql",
+    "sha256": "24fd36d573c53c5e5f2609209c77460aac942dc11be3e909507aa94f6765636a"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260715233000_fix_projects_applications_visibility.sql",
+    "sha256": "0cc364ff02138483b87a16c15abf818e6aebc0f6ab736c728209b2743d4f7b2a"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260720231500_update_cv_bucket_rls_policy.sql",
+    "sha256": "a6fbf58105e3055d8ae67b2521152be3d4b9b3610798b2c0bb309355aacc1a9c"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260720234000_allow_applicants_view_leads.sql",
+    "sha256": "1190f219f22d22cc77bbed06f6a2e60ca0d16ed564fb5622af9e6bbcb589c011"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260721000000_allow_execom_update_member_role.sql",
+    "sha256": "97e7e34254df26a95edd86a5f2f39a7edbba30cad35f8c5e092019a7c44d54fc"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260722000000_gate_initiative_schema.sql",
+    "sha256": "d72a576c4c346b7b591d78cdaee4b84c3202d59d3aa594ace9671e0d74ba1d82"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\20260723000000_fix_payment_settings_insert_rls.sql",
+    "sha256": "f103c4662d0bd514df0926808876f08b05f44cff68be5e104f116075be8acaa0"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\add_note_folders.sql",
+    "sha256": "66b39dc5e0db21858609a95d17600dc161edbe0d2e2b09d43ef5c58976d1cf93"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\add_year_to_event_cal.sql",
+    "sha256": "7dd5c7d9a84f884217dc370b0ece890cfe32a5f243b0d6cf22def82dfe9f58ff"
+  },
+  {
+    "source": "Mentron migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\mentron_new-main\\mentron_new-main\\supabase\\migrations\\fix_marketplace_bucket_rls.sql",
+    "sha256": "34e4d06eaa936e127fbe3393d3c383072505f4a1841237f090195520859aff40"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20260807_certificates_v2.sql",
+    "sha256": "bfe3bbd504150bf43e534d8bc09522abcf00804b99a064f70b21d966fde0b9f6"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20260809_consolidation.sql",
+    "sha256": "234661457503a0c8cc358780110a95eb48f2683e08b58082a09177230e22a9ad"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20260810_schema_cleanup_phase2.sql",
+    "sha256": "469203f393f378adf9be8d57eb79e26a4c85d9a4735ec637761a08a1df9c4102"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20260811_rls_role_hierarchy_bugfix.sql",
+    "sha256": "72054f1e06ad2a755c9a450cf9de559da0cf8c6ebd823b99a592b664e000a49e"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20260812_global_feature_permissions.sql",
+    "sha256": "f80446f3e3c6f2546a9e6dd2dac4932aabea2dcb289160eb556b03e7eb5f27b5"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20260813_dummy_data_cleanup.sql",
+    "sha256": "2d7822f520a521dbaca8286ac8f6c24f2e8e5d2e228e58bef187384f9d3da771"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20260814_rls_recursion_and_column_fix.sql",
+    "sha256": "38f96f4615c1c7ffa5a1fcdec71d230e8e98850c26788f0a21cd8bcaafd9bc63"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20260815_fix_relation_users_not_exist.sql",
+    "sha256": "2c8f25c2a02540a555362c70fa2904df363156aa2b40bafc42f46262c212a5b3"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20260816_add_missing_profiles_columns.sql",
+    "sha256": "4ef0da78c5494637a65ca6857b853aff965408e75603784e00fbdb40f3a2c67d"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20260817_dynamic_certificate_system.sql",
+    "sha256": "44a3de1b190e786acac6a358c6388ae80f0460291221f71b14285ff73018e26c"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20260818_certificates_rls_allow_write.sql",
+    "sha256": "bc154150e215ef9fdb54aea0f9a4f970651156375385a49048d96bd8a766b86f"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20260819_create_certificates_bucket.sql",
+    "sha256": "18d40b3d78cb077f08696fb9897175d15fcf91717b09ff3abaa2d671c2501b45"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20260909_import_offenso_and_unify_users.sql",
+    "sha256": "e85d19a4c3794af9291f84ea16f8db37af478f2d2b496b15197a844a124028a0"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20261002_backfill_existing_mlynq_users.sql",
+    "sha256": "0cbf23a3e051c3fd8c70087531f6ab9929e40f053224fd39b36fa78e6ec7239e"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20261002_unified_platform_foundation.sql",
+    "sha256": "b318fc72017a5e7ce259526ac730607b723edae2bd2c605ed98c4fd9a1d32c51"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20261002_unified_platform_security_hardening.sql",
+    "sha256": "8fcd399fdad6a608844a6b8efeab350f76a088cd183c684a2c320f4cbbef710c"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20261003120000_session_attendance_qr_atomic.sql",
+    "sha256": "c28a6e6e858e0bbb5042127f5769319fd5a8ae61bc8db31b5575a79c482e6a98"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20261003130000_certificate_eligibility_lifecycle_security.sql",
+    "sha256": "5daefe005850e7ed208a0e43354cb8bcfe1419c458baef344db1d8907e4a5a40"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20261003_lynq_work_items_web.sql",
+    "sha256": "325e9607c45c11503eb5b5198b49e499bc88a03c31d016a49218153e0a5c8e08"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20261006_forum_heads_and_chair_promote_demote.sql",
+    "sha256": "b516620c6b22a19cd3f11d61a899c08374ef4c318abb56234aaf73718ea549ee"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20261007_audit_remediation_and_security_lockdown.sql",
+    "sha256": "8d609d24728542cf6e830145e34b75596771dcdb042eb5b3438f6934a2d2f9b4"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20261010060630_converge_lynq_registration_intake.sql",
+    "sha256": "40828f108a7281c8ba624aba136c38d6149ae999d369ab430216cffbe2595f7a"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20261010061007_archive_unused_lynq_legacy_tables.sql",
+    "sha256": "a5abd0757c2bb02c38ffab72e3ae790bb569f4bd7c2987fb434b531cd9b51a4f"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20261010061600_backfill_canonical_iste_memberships.sql",
+    "sha256": "27081d27424b7791d7de49d3f1e6d4371e30cfab5c63e06f34dbeef1f7961619"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20261010133336_integrate_mentron_product_schema.sql",
+    "sha256": "a4f123a6920fb3bde5646bb8eb901f4548ecfb97e408fb776abedd44b4691f84"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20261010133414_verified_mentron_identity_import.sql",
+    "sha256": "99f2602671a6c725943def58feae32b2d3a2702d8a1a7f65b79baf3d73ee8ce5"
+  },
+  {
+    "source": "Platform migrations",
+    "path": "C:\\Users\\Sarvesh R\\Downloads\\admin\\admin\\supabase\\migrations\\20261010133607_harden_mentron_integration_helpers.sql",
+    "sha256": "f76070b89e916b7c216041e0f6e4d45f0a6f09d60485a13b0f9213e8398c69bc"
+  }
+]
