@@ -1,0 +1,29 @@
+{
+  "name": "mentron-plus",
+  "private": true,
+  "version": "1.0.0-rc.1",
+  "engines": {
+    "node": "24.x"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "start": "node server/index.mjs",
+    "test": "node --test tests/*.test.js",
+    "check:release": "node server/check-release.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1029.0",
+    "@supabase/supabase-js": "2.118.0",
+    "lucide-react": "1.28.0",
+    "qrcode": "1.5.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.10",
+    "vite": "8.2.0"
+  }
+}
